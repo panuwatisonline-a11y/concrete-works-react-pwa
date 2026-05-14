@@ -33,7 +33,7 @@ export function LoginPage() {
   const [remember, setRemember] = useState(true)
 
   useEffect(() => {
-    if (user) navigate('/requests', { replace: true })
+    if (user) navigate('/requests?view=latest', { replace: true })
   }, [user, navigate])
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -63,7 +63,7 @@ export function LoginPage() {
 
     setProfile(profile as Profile | null)
 
-    navigate('/requests')
+    navigate('/requests?view=latest')
     setLoading(false)
   }
 

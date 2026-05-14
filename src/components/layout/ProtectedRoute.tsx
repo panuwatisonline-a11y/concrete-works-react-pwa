@@ -29,7 +29,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/requests" replace />
+    return <Navigate to="/requests?view=latest" replace />
   }
 
   return <>{children}</>

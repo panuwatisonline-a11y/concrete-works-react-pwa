@@ -97,7 +97,7 @@ export function DesktopTopBar() {
       <div className="flex shrink-0 items-center gap-2">
         <button
           type="button"
-          onClick={() => navigate('/requests')}
+          onClick={() => navigate('/requests?view=latest')}
           className={cn('h-10 w-10 shrink-0', theme.iconButtonChrome)}
           title="รายการคำขอ"
         >

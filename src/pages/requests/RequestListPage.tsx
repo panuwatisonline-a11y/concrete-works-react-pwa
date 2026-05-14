@@ -198,8 +198,22 @@ export function RequestListPage() {
   const isFirstFilterEffect = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
   const [searchParams, setSearchParams] = useSearchParams()
-  const mobileView = searchParams.get('view') === 'latest' ? 'latest' : 'summary'
+  /** ค่าเริ่มต้น = รายการ (latest) — summary ต้องใส่ ?view=summary เท่านั้น กันเคสมือถือเข้า /requests แล้วไม่เห็นคำขอ */
+  const mobileView = searchParams.get('view') === 'summary' ? 'summary' : 'latest'
   const scopeMine = searchParams.get('scope') === 'mine'
+
+  const viewParam = searchParams.get('view')
+  useEffect(() => {
+    if (viewParam === 'summary' || viewParam === 'latest') return
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('view', 'latest')
+        return next
+      },
+      { replace: true },
+    )
+  }, [viewParam, setSearchParams])
 
   const [requests, setRequests] = useState<RequestWithRelations[]>([])
   const [total, setTotal] = useState(0)
@@ -366,9 +380,9 @@ export function RequestListPage() {
       <div className="sticky top-0 z-10 -mx-4 border-b border-[#e2e6ec]/70 bg-gradient-to-b from-[#f5f6f8]/95 to-white/90 px-4 pb-3 pt-2 backdrop-blur-md">
         <div className="flex items-start gap-2">
           <Link
-            to="/requests"
+            to="/requests?view=summary"
             className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e2e6ec] bg-white text-[#6b7280] shadow-sm shadow-black/[0.04] transition hover:border-[#2563eb]/35 hover:bg-[rgba(37,99,235,0.06)] hover:text-[#2563eb] active:scale-95"
-            aria-label="กลับไปหน้าคำขอ"
+            aria-label="กลับไปหน้าสรุปสถานะ"
           >
             <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden />
           </Link>

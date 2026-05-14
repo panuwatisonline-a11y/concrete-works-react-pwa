@@ -39,7 +39,7 @@ export function RegisterPage() {
   const [jobs, setJobs] = useState<Job[]>([])
 
   useEffect(() => {
-    if (user) navigate('/requests', { replace: true })
+    if (user) navigate('/requests?view=latest', { replace: true })
   }, [user, navigate])
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export function RegisterPage() {
         })
       }
       toast.success('สมัครสำเร็จ')
-      navigate('/requests', { replace: true })
+      navigate('/requests?view=latest', { replace: true })
       setLoading(false)
       return
     }

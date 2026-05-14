@@ -43,7 +43,7 @@ function AppInner() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="/" element={<Navigate to="/requests" replace />} />
+        <Route path="/" element={<Navigate to="/requests?view=latest" replace />} />
         <Route path="/requests" element={<RequestListPage />} />
         <Route path="/requests/new" element={<RequestNewPage />} />
         <Route path="/requests/:id" element={<RequestDetailPage />} />

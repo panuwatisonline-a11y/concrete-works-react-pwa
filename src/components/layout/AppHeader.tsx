@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
+import { isNavToActive } from '@/lib/navActive'
 
 interface NavItem {
   to: string
@@ -21,7 +22,7 @@ interface NavItem {
 }
 
 const mainLinks: NavItem[] = [
-  { to: '/requests', label: 'สถานะ', icon: Activity, end: true },
+  { to: '/requests?view=summary', label: 'สถานะ', icon: Activity, end: true },
   { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
@@ -44,7 +45,8 @@ function MobilePrimaryNav() {
   const location = useLocation()
   const q = new URLSearchParams(location.search)
   const isMineTab = location.pathname === '/requests' && q.get('scope') === 'mine'
-  const isStatusTab = location.pathname === '/requests' && q.get('scope') !== 'mine'
+  const isStatusTab =
+    location.pathname === '/requests' && q.get('view') === 'summary' && q.get('scope') !== 'mine'
 
   const pill = (active: boolean) =>
     cn(
@@ -55,7 +57,7 @@ function MobilePrimaryNav() {
   return (
     <nav aria-label="เมนูหลัก" className={cn(theme.primaryNavStrip, 'md:hidden')}>
       <div className="mx-auto flex w-full min-w-0 max-w-none items-center gap-1 overflow-x-auto px-2 py-2 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <Link to="/requests" className={pill(isStatusTab)} aria-current={isStatusTab ? 'page' : undefined}>
+        <Link to="/requests?view=summary" className={pill(isStatusTab)} aria-current={isStatusTab ? 'page' : undefined}>
           <Activity className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
           สถานะ
         </Link>
@@ -76,6 +78,7 @@ export function AppHeader() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { profile, role } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
 
   async function handleLogout() {
@@ -103,7 +106,7 @@ export function AppHeader() {
             <Menu className="h-6 w-6" strokeWidth={1.5} />
           </button>
           <Link
-            to="/requests"
+            to="/requests?view=latest"
             className="min-w-0 justify-self-center px-0.5 text-center no-underline"
           >
             <span className={cn('block text-sm', theme.brandWordmark)}>Concrete Works</span>
@@ -155,10 +158,10 @@ export function AppHeader() {
                   to={to}
                   end={end}
                   onClick={() => setDrawerOpen(false)}
-                  className={({ isActive }) =>
+                  className={() =>
                     cn(
                       'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
-                      isActive
+                      isNavToActive(to, location)
                         ? 'bg-[rgba(37,99,235,0.10)] text-[#2563eb]'
                         : 'text-[#374151] hover:bg-[#f5f6f8]',
                     )

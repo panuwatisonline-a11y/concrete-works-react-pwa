@@ -1,5 +1,5 @@
 import { type ElementType } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LogOut, PlusCircle, User, LayoutDashboard, Users,
   Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase,
@@ -12,6 +12,7 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
+import { isNavToActive } from '@/lib/navActive'
 
 interface NavItem {
   to: string
@@ -21,7 +22,7 @@ interface NavItem {
 }
 
 const mainLinks: NavItem[] = [
-  { to: '/requests', label: 'สถานะ', icon: Activity, end: true },
+  { to: '/requests?view=summary', label: 'สถานะ', icon: Activity, end: true },
   { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
@@ -49,6 +50,7 @@ function sidebarNavClass(active: boolean) {
 export function DesktopSidebar() {
   const { profile, role, user } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
 
   const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
@@ -73,7 +75,7 @@ export function DesktopSidebar() {
       )}
     >
       <div className="border-b border-[#e2e6ec]/90 px-6 pb-5 pt-7">
-        <Link to="/requests" className="flex items-center gap-3">
+        <Link to="/requests?view=latest" className="flex items-center gap-3">
           <span
             className={cn(
               'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
@@ -97,7 +99,12 @@ export function DesktopSidebar() {
         <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">เมนู</p>
         <nav aria-label="เมนูหลัก" className="flex flex-col gap-1">
           {mainLinks.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} className={({ isActive }) => sidebarNavClass(isActive)}>
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              className={() => sidebarNavClass(isNavToActive(to, location))}
+            >
               <Icon className={cn('h-[18px] w-[18px] shrink-0', 'opacity-95')} strokeWidth={1.75} />
               {label}
             </NavLink>
