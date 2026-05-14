@@ -13,6 +13,7 @@ import { RequestListPage } from '@/pages/requests/RequestListPage'
 import { RequestNewPage } from '@/pages/requests/RequestNewPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
 import { RequestEditPage } from '@/pages/requests/RequestEditPage'
+import { APP_HOME } from '@/lib/appHome'
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 import { UsersPage } from '@/pages/admin/UsersPage'
@@ -43,7 +44,7 @@ function AppInner() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route path="/" element={<Navigate to="/requests?view=latest" replace />} />
+        <Route path="/" element={<Navigate to={APP_HOME} replace />} />
         <Route path="/requests" element={<RequestListPage />} />
         <Route path="/requests/new" element={<RequestNewPage />} />
         <Route path="/requests/:id" element={<RequestDetailPage />} />

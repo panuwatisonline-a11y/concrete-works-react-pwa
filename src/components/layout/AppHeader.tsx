@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
@@ -22,7 +23,7 @@ interface NavItem {
 }
 
 const mainLinks: NavItem[] = [
-  { to: '/requests?view=summary', label: 'สถานะ', icon: Activity, end: true },
+  { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
   { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
@@ -106,7 +107,7 @@ export function AppHeader() {
             <Menu className="h-6 w-6" strokeWidth={1.5} />
           </button>
           <Link
-            to="/requests?view=latest"
+            to={APP_HOME}
             className="min-w-0 justify-self-center px-0.5 text-center no-underline"
           >
             <span className={cn('block text-sm', theme.brandWordmark)}>Concrete Works</span>

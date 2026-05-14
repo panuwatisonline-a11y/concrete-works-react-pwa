@@ -10,6 +10,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Button } from '@/components/ui/button'
+import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
@@ -22,7 +23,7 @@ interface NavItem {
 }
 
 const mainLinks: NavItem[] = [
-  { to: '/requests?view=summary', label: 'สถานะ', icon: Activity, end: true },
+  { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
   { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
@@ -74,26 +75,34 @@ export function DesktopSidebar() {
         'md:flex',
       )}
     >
-      <div className="border-b border-[#e2e6ec]/90 px-6 pb-5 pt-7">
-        <Link to="/requests?view=latest" className="flex items-center gap-3">
-          <span
-            className={cn(
-              'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-              theme.iconTileBrand,
-            )}
-          >
-            <Briefcase className="h-5 w-5" strokeWidth={2} />
+      <NavLink
+        to={APP_HOME}
+        className={() =>
+          cn(
+            'flex items-center gap-3 border-b border-[#e2e6ec]/90 px-6 pb-5 pt-7 outline-none transition-colors',
+            'hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563eb]/25',
+            isNavToActive(APP_HOME, location) ? 'bg-[rgba(37,99,235,0.06)]' : null,
+          )
+        }
+        aria-label="Concrete Works — ไปหน้าสถานะหลัก"
+      >
+        <span
+          className={cn(
+            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
+            theme.iconTileBrand,
+          )}
+        >
+          <Briefcase className="h-5 w-5" strokeWidth={2} />
+        </span>
+        <span className="min-w-0">
+          <span className={cn('block truncate text-sm leading-tight', theme.brandWordmark)}>
+            Concrete Works
           </span>
-          <span className="min-w-0">
-            <span className={cn('block truncate text-sm leading-tight', theme.brandWordmark)}>
-              Concrete Works
-            </span>
-            <span className="mt-0.5 block text-[10px] font-medium leading-snug tracking-wide text-[#9ca3af] md:text-[11px]">
-              {BRAND_TAGLINE}
-            </span>
+          <span className="mt-0.5 block text-[10px] font-medium leading-snug tracking-wide text-[#9ca3af] md:text-[11px]">
+            {BRAND_TAGLINE}
           </span>
-        </Link>
-      </div>
+        </span>
+      </NavLink>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">เมนู</p>

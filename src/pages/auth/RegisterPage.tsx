@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import type { ClientItem, Job, Profile } from '@/types/app.types'
+import { APP_HOME } from '@/lib/appHome'
 import { app } from '@/lib/requestUi'
 
 const schema = z.object({
@@ -39,7 +40,7 @@ export function RegisterPage() {
   const [jobs, setJobs] = useState<Job[]>([])
 
   useEffect(() => {
-    if (user) navigate('/requests?view=latest', { replace: true })
+    if (user) navigate(APP_HOME, { replace: true })
   }, [user, navigate])
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export function RegisterPage() {
         })
       }
       toast.success('สมัครสำเร็จ')
-      navigate('/requests?view=latest', { replace: true })
+      navigate(APP_HOME, { replace: true })
       setLoading(false)
       return
     }

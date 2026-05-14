@@ -198,7 +198,7 @@ export function RequestListPage() {
   const isFirstFilterEffect = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
   const [searchParams, setSearchParams] = useSearchParams()
-  /** ค่าเริ่มต้น = รายการ (latest) — summary ต้องใส่ ?view=summary เท่านั้น กันเคสมือถือเข้า /requests แล้วไม่เห็นคำขอ */
+  /** ค่าเริ่มต้นของแอป = สถานะ (summary) — ถ้าไม่มี ?view= จะถูก normalize เป็น summary */
   const mobileView = searchParams.get('view') === 'summary' ? 'summary' : 'latest'
   const scopeMine = searchParams.get('scope') === 'mine'
 
@@ -208,7 +208,7 @@ export function RequestListPage() {
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
-        next.set('view', 'latest')
+        next.set('view', 'summary')
         return next
       },
       { replace: true },

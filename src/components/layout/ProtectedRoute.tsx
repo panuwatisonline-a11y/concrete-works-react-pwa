@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router-dom'
+import { APP_HOME } from '@/lib/appHome'
 import { useAuthStore } from '@/stores/authStore'
 import type { UserRole } from '@/types/app.types'
 
@@ -29,7 +30,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   }
 
   if (requiredRole && role !== requiredRole) {
-    return <Navigate to="/requests?view=latest" replace />
+    return <Navigate to={APP_HOME} replace />
   }
 
   return <>{children}</>

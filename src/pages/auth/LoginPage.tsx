@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { APP_HOME } from '@/lib/appHome'
 import { toast } from 'sonner'
 import { Briefcase, Truck, ArrowRight, Scale, TrendingDown, BarChart3 } from 'lucide-react'
 import type { Profile } from '@/types/app.types'
@@ -33,7 +34,7 @@ export function LoginPage() {
   const [remember, setRemember] = useState(true)
 
   useEffect(() => {
-    if (user) navigate('/requests?view=latest', { replace: true })
+    if (user) navigate(APP_HOME, { replace: true })
   }, [user, navigate])
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
@@ -63,7 +64,7 @@ export function LoginPage() {
 
     setProfile(profile as Profile | null)
 
-    navigate('/requests?view=latest')
+    navigate(APP_HOME)
     setLoading(false)
   }
 
