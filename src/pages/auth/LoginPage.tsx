@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,9 +28,13 @@ const features = [
 
 export function LoginPage() {
   const navigate = useNavigate()
-  const { setUser, setProfile } = useAuthStore()
+  const { user, setUser, setProfile } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [remember, setRemember] = useState(true)
+
+  useEffect(() => {
+    if (user) navigate('/requests', { replace: true })
+  }, [user, navigate])
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),

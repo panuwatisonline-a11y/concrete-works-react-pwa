@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from 'sonner'
-import type { ClientItem, Job } from '@/types/app.types'
+import { useAuthStore } from '@/stores/authStore'
+import type { ClientItem, Job, Profile } from '@/types/app.types'
 import { app } from '@/lib/requestUi'
 
 const schema = z.object({
@@ -32,9 +33,14 @@ type FormData = z.infer<typeof schema>
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const { user, setUser, setProfile } = useAuthStore()
   const [loading, setLoading] = useState(false)
   const [clients, setClients] = useState<ClientItem[]>([])
   const [jobs, setJobs] = useState<Job[]>([])
+
+  useEffect(() => {
+    if (user) navigate('/requests', { replace: true })
+  }, [user, navigate])
 
   useEffect(() => {
     if (!isSupabaseConfigured) return
@@ -129,13 +135,34 @@ export function RegisterPage() {
         setLoading(false)
         return
       }
+
+      setUser(authData.user)
+      const { data: freshProfile } = await supabase.from('profiles').select('*').eq('id', authData.user.id).single()
+      if (freshProfile) {
+        setProfile(freshProfile as Profile)
+      } else {
+        setProfile({
+          id: authData.user.id,
+          employee_id: profileRow.employee_id,
+          fname: profileRow.fname,
+          lname: profileRow.lname,
+          phone: profileRow.phone,
+          role: 'user',
+          client_id: profileRow.client_id,
+          client_name: profileRow.client_name,
+          job_id: profileRow.job_id,
+          created_at: new Date().toISOString(),
+        })
+      }
+      toast.success('สมัครสำเร็จ')
+      navigate('/requests', { replace: true })
+      setLoading(false)
+      return
     }
 
-    if (authData.session) {
-      toast.success('สมัครสำเร็จ กรุณาเข้าสู่ระบบ')
-    } else {
-      toast.success('สมัครแล้ว — กรุณายืนยันอีเมลจากลิงก์ที่ส่งไป จากนั้นจึงเข้าสู่ระบบ (โปรไฟล์ถูกสร้างเมื่อสมัคร)')
-    }
+    toast.success(
+      'สมัครแล้ว — กดลิงก์ยืนยันในอีเมลแล้วค่อยเข้าสู่ระบบ หรือปิดการยืนยันอีเมลใน Supabase (Authentication → Providers → Email) เพื่อเข้าใช้ได้ทันทีหลังสมัคร',
+    )
     navigate('/login')
     setLoading(false)
   }
