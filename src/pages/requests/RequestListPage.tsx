@@ -16,7 +16,7 @@ import {
 import { getRequestListQuickActions } from '@/lib/requestQuickActions'
 import {
   ChevronLeft, ChevronRight, Plus,
-  Building2, MapPin, Droplets, Ruler, User, FileText, Layers, GitBranch, Beaker,
+  Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker,
   Calendar, Package,
 } from 'lucide-react'
 import type { RequestWithRelations } from '@/types/app.types'
@@ -69,8 +69,11 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
     : null
   const wbs = (r.wbs_code as { full_wbs: string | null } | null)?.full_wbs
   const abc = (r.abc_code as { full_abc: string | null } | null)?.full_abc
-  const booker = r.booked_by_profile as { fname: string | null; lname: string | null } | null | undefined
+  const booker = r.booked_by_profile as { fname: string | null; lname: string | null; employee_id?: string | null } | null | undefined
   const bookerName = booker ? [booker.fname, booker.lname].filter(Boolean).join(' ') : null
+  const bookerEmp = booker?.employee_id?.trim() || null
+  const bookerDisplay = [bookerName || null, bookerEmp].filter(Boolean).join(' · ') || 'ไม่ระบุ'
+  const isMyBooking = Boolean(user?.id && r.booked_by === user.id)
 
   const volumeParts = [
     r.volume_request != null ? `ขอเท ${r.volume_request} ลบ.ม.` : null,
@@ -107,6 +110,15 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
               {r.booked_at ? (
                 <p className="mt-0.5 text-[11px] text-[#6b7280] md:mt-1 md:text-xs">{formatDateTime(r.booked_at)}</p>
               ) : null}
+              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug md:text-xs">
+                <span className="shrink-0 text-[#6b7280]">จองโดย</span>
+                <span className="min-w-0 font-semibold text-[#374151]">{bookerDisplay}</span>
+                {isMyBooking ? (
+                  <span className="shrink-0 rounded-md bg-[rgba(37,99,235,0.12)] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-[#1d4ed8]">
+                    คุณ
+                  </span>
+                ) : null}
+              </p>
             </div>
             <StatusBadge statusId={r.status_id} size="sm" />
           </div>
@@ -128,7 +140,6 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
         )}
         <FeedDetailRow icon={FileText} label="ABC" value={abc} />
         <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
-        <FeedDetailRow icon={User} label="ผู้จอง" value={bookerName} />
         {r.remarks?.trim() ? (
           <div className="rounded-md bg-white/90 px-2 py-1.5 text-[12px] leading-snug text-[#374151] ring-1 ring-[#e2e6ec]/80 md:rounded-lg md:px-2.5 md:py-2 md:text-[13px]">
             <span className="text-[#9ca3af]">หมายเหตุ </span>
@@ -230,7 +241,7 @@ export function RequestListPage() {
         mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type),
         abc_code:"ABC Code"(id, full_abc),
         wbs_code:"WBS Code"(id, full_wbs),
-        booked_by_profile:profiles!booked_by(fname, lname)
+        booked_by_profile:profiles!booked_by(fname, lname, employee_id)
       `, { count: 'exact' })
 
       if (scopeMine && user) query = query.eq('booked_by', user.id)
