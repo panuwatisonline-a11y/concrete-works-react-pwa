@@ -113,7 +113,7 @@ export function RequestNewPage() {
   }, [filteredMixcodes, getValues, setValue])
 
   async function onSubmit(data: FormData) {
-    if (!user || submitLockRef.current) return
+    if (step !== 2 || !user || submitLockRef.current) return
     submitLockRef.current = true
     setSubmitting(true)
     try {
@@ -395,7 +395,12 @@ export function RequestNewPage() {
                   ถัดไป
                 </Button>
               ) : (
-                <Button type="submit" className="rounded-xl shadow-md shadow-blue-500/25" disabled={submitting}>
+                <Button
+                  type="button"
+                  className="rounded-xl shadow-md shadow-blue-500/25"
+                  disabled={submitting}
+                  onClick={() => { void handleSubmit(onSubmit)() }}
+                >
                   {submitting ? 'กำลังส่ง...' : 'ยืนยันการขอ'}
                 </Button>
               )}

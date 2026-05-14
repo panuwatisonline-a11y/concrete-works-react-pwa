@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
+import { FunctionsHttpError } from '@supabase/supabase-js'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface ImageUploadProps {
   value?: string
@@ -14,22 +15,58 @@ interface ImageUploadProps {
 }
 
 export function ImageUpload({
-  value, onChange, bucket = 'request-images', folder = 'uploads', label = 'อัปโหลดรูป', disabled = false,
+  value,
+  onChange,
+  folder = 'uploads',
+  label = 'อัปโหลดรูป',
+  disabled = false,
 }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
   async function handleFile(file: File) {
     if (!file.type.startsWith('image/')) return
-    setUploading(true)
-    const ext = file.name.split('.').pop()
-    const path = `${folder}/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from(bucket).upload(path, file)
-    if (!error) {
-      const { data } = supabase.storage.from(bucket).getPublicUrl(path)
-      onChange(data.publicUrl)
+    if (!isSupabaseConfigured) {
+      toast.error('ยังไม่ได้ตั้งค่า Supabase')
+      return
     }
-    setUploading(false)
+    setUploading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        toast.error('กรุณาเข้าสู่ระบบก่อนอัปโหลดรูป')
+        return
+      }
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('folder', folder)
+
+      const { data, error } = await supabase.functions.invoke('upload-drive-image', { body: formData })
+      if (error) {
+        let message = error.message
+        if (error instanceof FunctionsHttpError) {
+          try {
+            const body = await error.context.json() as { error?: string }
+            if (body?.error) message = body.error
+          } catch {
+            /* use message */
+          }
+        }
+        toast.error(message)
+        return
+      }
+      const url = data && typeof data === 'object' && 'url' in data && typeof (data as { url: unknown }).url === 'string'
+        ? (data as { url: string }).url
+        : null
+      if (!url) {
+        toast.error('อัปโหลดไม่สำเร็จ')
+        return
+      }
+      onChange(url)
+    } finally {
+      setUploading(false)
+    }
   }
 
   return (
@@ -40,6 +77,7 @@ export function ImageUpload({
           {!disabled && (
             <button
               type="button"
+              aria-label="ลบรูป"
               onClick={() => onChange(null)}
               className="absolute -right-2 -top-2 rounded-full bg-zinc-900 p-1 text-white hover:bg-zinc-800"
             >
@@ -72,10 +110,11 @@ export function ImageUpload({
         ref={inputRef}
         type="file"
         accept="image/*"
+        title="เลือกรูปภาพ"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0]
-          if (file) handleFile(file)
+          if (file) void handleFile(file)
           e.target.value = ''
         }}
       />
