@@ -46,16 +46,17 @@ export const app = {
     'border-b border-[#e2e6ec] bg-[#f0f2f5]/90 text-left text-xs font-semibold text-[#6b7280] [&_th]:px-3 [&_th]:py-2.5',
   tableBody:
     'divide-y divide-[#e2e6ec]/80 [&_td]:px-3 [&_td]:py-2 [&_td]:align-middle [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[rgba(37,99,235,0.05)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_rgba(37,99,235,0.42)]',
-  tableRowHover: 'hover:bg-[#f5f6f8]/90',
+  /** Per-row hover (avoid hover:bg on tbody — it greys the whole table). */
+  tableRowHover: '[&_tr]:transition-colors [&_tr:hover]:bg-[#f5f6f8]/90',
   mutedText: 'text-[#6b7280]',
 } as const
 
 /** Shared visual language for /requests/* flows */
 export const rq = {
   page:
-    'mx-auto w-full min-w-0 max-w-none space-y-4 pb-8 pt-2 text-[#111827] md:space-y-5 md:pb-6 md:pt-0',
+    'mx-auto w-full min-w-0 max-w-none space-y-4 pb-8 pt-2 text-[#111827] md:space-y-5 md:pb-6 md:pt-3',
   pageNarrow:
-    'mx-auto w-full min-w-0 max-w-3xl space-y-4 pb-8 pt-2 text-[#111827] md:max-w-4xl md:space-y-5 md:pb-6 md:pt-0',
+    'mx-auto w-full min-w-0 max-w-3xl space-y-4 pb-8 pt-2 text-[#111827] md:max-w-4xl md:space-y-5 md:pb-6 md:pt-3',
   card: 'rounded-[14px] border border-[#e2e6ec] bg-white text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
   cardMuted:
     'rounded-[14px] border border-[#e2e6ec]/90 bg-[#f0f2f5]/80 text-[#111827] shadow-sm shadow-black/[0.03]',

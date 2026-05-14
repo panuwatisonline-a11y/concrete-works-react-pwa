@@ -9,7 +9,7 @@ export const BREADCRUMB_MAP: Record<string, string> = {
   '/admin/location': 'Location',
   '/admin/concrete-works': 'Concrete Works',
   '/admin/structure': 'Structure',
-  '/admin/mixcode': 'Mixcode',
+  '/admin/mixcode': 'Mixed Code',
   '/admin/abc-code': 'ABC Code',
   '/admin/wbs-code': 'WBS Code',
   '/admin/jobs': 'Jobs',

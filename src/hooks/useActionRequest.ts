@@ -22,11 +22,32 @@ export function useActionRequest() {
     })
   }
 
-  async function inspect(requestId: string, note?: string) {
-    const { error } = await supabase
-      .from('Request')
-      .update({ status_id: 2, inspected_by: user?.id, inspected_at: new Date().toISOString() })
-      .eq('id', requestId)
+  async function inspect(
+    requestId: string,
+    note?: string,
+    corrections?: {
+      location_id: number
+      concrete_work_id: number
+      structure_id: number
+      structure_no: string | null
+      mixcode_id: number
+      volume_request: number
+    },
+  ) {
+    const payload: Record<string, unknown> = {
+      status_id: 2,
+      inspected_by: user?.id,
+      inspected_at: new Date().toISOString(),
+    }
+    if (corrections) {
+      payload.location_id = corrections.location_id
+      payload.concrete_work_id = corrections.concrete_work_id
+      payload.structure_id = corrections.structure_id
+      payload.structure_no = corrections.structure_no
+      payload.mixcode_id = corrections.mixcode_id
+      payload.volume_request = corrections.volume_request
+    }
+    const { error } = await supabase.from('Request').update(payload).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 2, 'inspected', note)
     toast.success('ตรวจสอบเรียบร้อย')
@@ -76,10 +97,15 @@ export function useActionRequest() {
     return true
   }
 
-  async function confirmOrder(requestId: string, note?: string) {
+  async function confirmOrder(requestId: string, note?: string, volumeActual?: number) {
     const { error } = await supabase
       .from('Request')
-      .update({ status_id: 4, confirmed_by: user?.id, confirmed_at: new Date().toISOString() })
+      .update({
+        status_id: 4,
+        confirmed_by: user?.id,
+        confirmed_at: new Date().toISOString(),
+        ...(volumeActual != null && !Number.isNaN(volumeActual) ? { volume_actual: volumeActual } : {}),
+      })
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 4, 'order_confirmed', note)
@@ -99,20 +125,19 @@ export function useActionRequest() {
       note?: string
     }
   ) {
-    const { error } = await supabase
-      .from('Request')
-      .update({
-        status_id: 8,
-        confirmed_by: user?.id,
-        confirmed_at: new Date().toISOString(),
-        volume_confirm: data.volume_confirm,
-        volume_actual: data.volume_actual ?? null,
-        strength: data.strength ?? null,
-        after_image: data.after_image ?? null,
-        eslip_url: data.eslip_url ?? null,
-        checksheet_url: data.checksheet_url ?? null,
-      })
-      .eq('id', requestId)
+    const patch: Record<string, unknown> = {
+      status_id: 8,
+      confirmed_by: user?.id,
+      confirmed_at: new Date().toISOString(),
+      volume_confirm: data.volume_confirm,
+    }
+    if (data.volume_actual !== undefined) patch.volume_actual = data.volume_actual
+    if (data.strength !== undefined) patch.strength = data.strength
+    if (data.after_image !== undefined) patch.after_image = data.after_image
+    if (data.eslip_url !== undefined) patch.eslip_url = data.eslip_url
+    if (data.checksheet_url !== undefined) patch.checksheet_url = data.checksheet_url
+
+    const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 8, 'completed', data.note)
     toast.success('Confirm เรียบร้อย — ดำเนินการสำเร็จ')

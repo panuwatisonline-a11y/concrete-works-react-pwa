@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { formatDate, cn } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
+import { APP_HOME } from '@/lib/appHome'
 import { rq } from '@/lib/requestUi'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
@@ -31,7 +32,7 @@ const schema = z.object({
   casting_date: z.string().min(1, 'กรุณาเลือกวันเท'),
   request_time: z.string().min(1, 'กรุณาระบุเวลา'),
   mixcode_id: z.string().min(1, 'กรุณาเลือก Mixcode'),
-  volume_request: z.string().min(1, 'กรุณาระบุปริมาณ'),
+  volume_request: z.string().min(1, 'Please enter Request Volume (cu.m)'),
   volume_dwg: z.string().optional(),
   sample_qty: z.string().optional(),
   remarks: z.string().optional(),
@@ -51,10 +52,17 @@ function dateInputYYYYMMDDLocal(offsetDays: number): string {
   return `${y}-${m}-${day}`
 }
 
+function requestTimeToInputValue(t: string | null | undefined): string {
+  if (t == null || String(t).trim() === '') return '09:00'
+  const m = /^(\d{1,2}):(\d{2})/.exec(String(t).trim())
+  return m ? `${m[1].padStart(2, '0')}:${m[2]}` : '09:00'
+}
+
 const STEPS = ['ข้อมูลงาน', 'ข้อมูลการเท', 'รูปภาพ & ยืนยัน']
 
 export function RequestNewPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { user, profile } = useAuthStore()
   const { clients, locations, concreteWorks, structures, mixcodes, abcCodes, wbsCodes } = useMasterDataStore()
   const [step, setStep] = useState(0)
@@ -62,7 +70,7 @@ export function RequestNewPage() {
   const submitLockRef = useRef(false)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
 
-  const { control, register, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm<FormData>({
+  const { control, register, handleSubmit, watch, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       client_id: profile?.client_id ? String(profile.client_id) : '',
@@ -111,6 +119,79 @@ export function RequestNewPage() {
       setValue('mixcode_id', '')
     }
   }, [filteredMixcodes, getValues, setValue])
+
+  useEffect(() => {
+    const cloneId = (location.state as { cloneFromRequestId?: string } | null)?.cloneFromRequestId?.trim()
+    if (!cloneId || !user?.id) return
+    let cancelled = false
+    void (async () => {
+      const { data, error } = await supabase
+        .from('Request')
+        .select(`
+          id,
+          status_id,
+          booked_by,
+          client_id,
+          location_id,
+          concrete_work_id,
+          structure_id,
+          structure_no,
+          abc_code_id,
+          wbs_code_id,
+          casting_date,
+          request_time,
+          mixcode_id,
+          volume_request,
+          volume_dwg,
+          sample_qty,
+          remarks,
+          before_image
+        `)
+        .eq('id', cloneId)
+        .single()
+
+      if (cancelled) return
+      if (error || !data) {
+        toast.error('โหลดข้อมูลคำขอเดิมไม่สำเร็จ')
+        navigate('/requests/new', { replace: true, state: {} })
+        return
+      }
+      if (data.booked_by !== user.id) {
+        toast.error('ใช้ได้เฉพาะคำขอที่คุณจองไว้')
+        navigate('/requests/new', { replace: true, state: {} })
+        return
+      }
+      if (data.status_id !== 6 && data.status_id !== 7) {
+        toast.error('สร้างซ้ำได้เฉพาะคำขอที่ Reject หรือยกเลิกแล้ว')
+        navigate('/requests/new', { replace: true, state: {} })
+        return
+      }
+
+      reset({
+        client_id: data.client_id != null ? String(data.client_id) : '',
+        location_id: data.location_id != null ? String(data.location_id) : '',
+        concrete_work_id: data.concrete_work_id != null ? String(data.concrete_work_id) : '',
+        structure_id: data.structure_id != null ? String(data.structure_id) : '',
+        structure_no: data.structure_no ?? '',
+        abc_code_id: data.abc_code_id != null ? String(data.abc_code_id) : '',
+        wbs_code_id: data.wbs_code_id != null ? String(data.wbs_code_id) : '',
+        casting_date: (data.casting_date && String(data.casting_date).trim()) || dateInputYYYYMMDDLocal(2),
+        request_time: requestTimeToInputValue(data.request_time),
+        mixcode_id: data.mixcode_id != null ? String(data.mixcode_id) : '',
+        volume_request: data.volume_request != null ? String(data.volume_request) : '',
+        volume_dwg: data.volume_dwg != null ? String(data.volume_dwg) : '',
+        sample_qty: data.sample_qty != null ? String(data.sample_qty) : '',
+        remarks: data.remarks ?? '',
+        before_image: '',
+      })
+      setBeforeImage(data.before_image?.trim() || null)
+      navigate('/requests/new', { replace: true, state: {} })
+      toast.success('นำข้อมูลจากคำขอเดิมมาแล้ว โปรดตรวจสอบและอัปเดตวันเทก่อนส่ง')
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [location.state, user?.id, reset, navigate])
 
   async function onSubmit(data: FormData) {
     if (step !== 2 || !user || submitLockRef.current) return
@@ -281,12 +362,12 @@ export function RequestNewPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>ปริมาณขอ (ลบ.ม.) *</Label>
+            <Label>Request Volume (cu.m) *</Label>
             <Input type="number" step="0.01" {...register('volume_request')} />
             {errors.volume_request && <p className="text-xs text-rose-600">{errors.volume_request.message}</p>}
           </div>
           <div className="space-y-1.5">
-            <Label>ปริมาณ DWG (ลบ.ม.)</Label>
+            <Label>DWG volume (cu.m)</Label>
             <Input type="number" step="0.01" {...register('volume_dwg')} />
           </div>
         </div>
@@ -328,7 +409,7 @@ export function RequestNewPage() {
               ['วันเท', formatDate(vals.casting_date)],
               ['เวลา', vals.request_time],
               ['Mixcode', mixcode?.mixcode],
-              ['ปริมาณ', vals.volume_request ? `${vals.volume_request} ลบ.ม.` : '-'],
+              ['Request Volume (cu.m)', vals.volume_request ? `${vals.volume_request} cu.m` : '-'],
             ].map(([label, value]) => (
               <div key={label} className="flex gap-2">
                 <span className={cn('w-24 shrink-0', rq.label)}>{label}</span>
@@ -388,7 +469,9 @@ export function RequestNewPage() {
                   ย้อนกลับ
                 </Button>
               ) : (
-                <span />
+                <Button type="button" variant="outline" className="rounded-xl border-[#e2e6ec]" onClick={() => navigate(APP_HOME)}>
+                  ยกเลิก
+                </Button>
               )}
               {step < 2 ? (
                 <Button type="button" className="rounded-xl shadow-md shadow-blue-500/25" onClick={nextStep}>

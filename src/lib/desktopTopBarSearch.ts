@@ -3,7 +3,7 @@
  * so the field matches each page (requests vs admin vs profile, etc.).
  */
 
-/** Request list — matches fields used in `buildRequestListSearchOrClause`. */
+/** Request list — matches fields used in `collectRequestIdsMatchingSearch`. */
 export const REQUEST_LIST_SEARCH_PLACEHOLDER =
   'ค้นหา Client, งานคอนกรีต, โครงสร้าง, Location, Mix, กำลัง, ABC, WBS…'
 

@@ -29,7 +29,7 @@ const schema = z.object({
   casting_date: z.string().min(1),
   request_time: z.string().min(1),
   mixcode_id: z.string().min(1),
-  volume_request: z.string().min(1),
+  volume_request: z.string().min(1, 'Please enter Request Volume (cu.m)'),
   volume_dwg: z.string().optional(),
   sample_qty: z.string().optional(),
   remarks: z.string().optional(),
@@ -149,11 +149,11 @@ export function RequestEditPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>ปริมาณขอ *</Label>
+                <Label>Request Volume (cu.m) *</Label>
                 <Input type="number" step="0.01" {...register('volume_request')} />
               </div>
               <div className="space-y-1.5">
-                <Label>ปริมาณ DWG</Label>
+                <Label>DWG volume (cu.m)</Label>
                 <Input type="number" step="0.01" {...register('volume_dwg')} />
               </div>
             </div>

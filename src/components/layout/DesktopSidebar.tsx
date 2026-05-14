@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LogOut, PlusCircle, User, LayoutDashboard, Users,
   Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase,
-  Search, ChevronRight, Activity,
+  ChevronRight, Activity, Star,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -28,14 +28,17 @@ const mainLinks: NavItem[] = [
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
 
-const adminLinks: NavItem[] = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+const REQUESTS_MINE = '/requests?view=latest&scope=mine' as const
+
+const [homeMainLink, ...restMainLinks] = mainLinks
+
+const adminMenuLinks: NavItem[] = [
   { to: '/admin/users', label: 'Users Settings', icon: Users },
   { to: '/admin/client', label: 'Client', icon: Building2 },
   { to: '/admin/location', label: 'Location', icon: MapPin },
   { to: '/admin/concrete-works', label: 'Works', icon: HardHat },
   { to: '/admin/structure', label: 'Structure', icon: Layers },
-  { to: '/admin/mixcode', label: 'Mix', icon: FlaskConical },
+  { to: '/admin/mixcode', label: 'Mixed Code', icon: FlaskConical },
   { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
   { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
@@ -52,15 +55,11 @@ export function DesktopSidebar() {
   const { profile, role, user } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
+  const resetFilter = useFilterStore((s) => s.resetFilter)
+  const HomeNavIcon = homeMainLink.icon
 
   const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
   const subtitle = user?.email ?? profile?.role ?? '—'
-
-  function goToSearch() {
-    navigate('/requests?view=latest')
-    setRequestFiltersOpen(true)
-  }
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -107,7 +106,39 @@ export function DesktopSidebar() {
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
         <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">เมนู</p>
         <nav aria-label="เมนูหลัก" className="flex flex-col gap-1">
-          {mainLinks.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={homeMainLink.to}
+            to={homeMainLink.to}
+            end={homeMainLink.end}
+            className={() => sidebarNavClass(isNavToActive(homeMainLink.to, location))}
+          >
+            <HomeNavIcon className={cn('h-[18px] w-[18px] shrink-0', 'opacity-95')} strokeWidth={1.75} />
+            {homeMainLink.label}
+          </NavLink>
+          <NavLink
+            to={REQUESTS_MINE}
+            onClick={() => resetFilter()}
+            className={() => sidebarNavClass(isNavToActive(REQUESTS_MINE, location))}
+          >
+            <Star
+              className="h-[18px] w-[18px] shrink-0 text-amber-500 opacity-95"
+              strokeWidth={1.75}
+              fill="currentColor"
+              aria-hidden
+            />
+            รายการของฉัน
+          </NavLink>
+          {role === 'admin' ? (
+            <NavLink
+              to="/admin"
+              end
+              className={({ isActive }) => sidebarNavClass(isActive)}
+            >
+              <LayoutDashboard className="h-[18px] w-[18px] shrink-0 opacity-95" strokeWidth={1.75} />
+              Dashboard
+            </NavLink>
+          ) : null}
+          {restMainLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -118,21 +149,13 @@ export function DesktopSidebar() {
               {label}
             </NavLink>
           ))}
-          <button
-            type="button"
-            onClick={goToSearch}
-            className={cn(sidebarNavClass(false), 'w-full text-left')}
-          >
-            <Search className="h-[18px] w-[18px] shrink-0 opacity-95" strokeWidth={1.75} />
-            ค้นหา / ตัวกรอง
-          </button>
         </nav>
 
         {role === 'admin' && (
           <>
             <p className="mb-3 mt-8 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">Admin</p>
             <nav aria-label="เมนูผู้ดูแล" className="flex flex-col gap-1">
-              {adminLinks.map(({ to, label, icon: Icon, end }) => (
+              {adminMenuLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink key={to} to={to} end={end} className={({ isActive }) => sidebarNavClass(isActive)}>
                   <Icon className="h-[18px] w-[18px] shrink-0 opacity-95" strokeWidth={1.75} />
                   {label}

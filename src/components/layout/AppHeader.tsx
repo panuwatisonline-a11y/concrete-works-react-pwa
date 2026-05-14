@@ -28,14 +28,14 @@ const mainLinks: NavItem[] = [
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
 
-const adminLinks: NavItem[] = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
+/** เมนูตั้งค่าใน drawer Admin (ไม่รวม Dashboard — แสดงแถบบนมือถือ + หมวดหลักใน drawer) */
+const adminMenuLinks: NavItem[] = [
   { to: '/admin/users', label: 'Users Settings', icon: Users },
   { to: '/admin/client', label: 'Client', icon: Building2 },
   { to: '/admin/location', label: 'Location', icon: MapPin },
   { to: '/admin/concrete-works', label: 'Works', icon: HardHat },
   { to: '/admin/structure', label: 'Structure', icon: Layers },
-  { to: '/admin/mixcode', label: 'Mix', icon: FlaskConical },
+  { to: '/admin/mixcode', label: 'Mixed Code', icon: FlaskConical },
   { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
   { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
@@ -44,10 +44,13 @@ const adminLinks: NavItem[] = [
 /** แถบหน้าหลักบนมือถือ — แทน bottom tab */
 function MobilePrimaryNav() {
   const location = useLocation()
+  const { role } = useAuthStore()
+  const resetFilter = useFilterStore((s) => s.resetFilter)
   const q = new URLSearchParams(location.search)
   const isMineTab = location.pathname === '/requests' && q.get('scope') === 'mine'
   const isStatusTab =
     location.pathname === '/requests' && q.get('view') === 'summary' && q.get('scope') !== 'mine'
+  const isAdminArea = location.pathname.startsWith('/admin')
 
   const pill = (active: boolean) =>
     cn(
@@ -66,10 +69,21 @@ function MobilePrimaryNav() {
           to="/requests?view=latest&scope=mine"
           className={pill(isMineTab)}
           aria-current={isMineTab ? 'page' : undefined}
+          onClick={() => resetFilter()}
         >
           <Star className="h-4 w-4 shrink-0 text-amber-500" strokeWidth={1.5} fill="currentColor" aria-hidden />
           รายการของฉัน
         </Link>
+        {role === 'admin' ? (
+          <Link
+            to="/admin"
+            className={pill(isAdminArea)}
+            aria-current={isAdminArea ? 'page' : undefined}
+          >
+            <LayoutDashboard className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+            Dashboard
+          </Link>
+        ) : null}
       </div>
     </nav>
   )
@@ -172,6 +186,24 @@ export function AppHeader() {
                   {label}
                 </NavLink>
               ))}
+              {role === 'admin' ? (
+                <NavLink
+                  to="/admin"
+                  end
+                  onClick={() => setDrawerOpen(false)}
+                  className={() =>
+                    cn(
+                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+                      isNavToActive('/admin', location)
+                        ? 'bg-[rgba(37,99,235,0.10)] text-[#2563eb]'
+                        : 'text-[#374151] hover:bg-[#f5f6f8]',
+                    )
+                  }
+                >
+                  <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                  Dashboard
+                </NavLink>
+              ) : null}
             </div>
 
             {role === 'admin' && (
@@ -180,7 +212,7 @@ export function AppHeader() {
                   Admin
                 </p>
                 <div className="space-y-0.5">
-                  {adminLinks.map(({ to, label, icon: Icon, end }) => (
+                  {adminMenuLinks.map(({ to, label, icon: Icon, end }) => (
                     <NavLink
                       key={to}
                       to={to}

@@ -13,24 +13,23 @@ export type RequestActionModal =
   | 'complete'
   | 'reApprove'
 
-export type RequestListActionItem = {
-  key: string
-  modal: RequestActionModal
-  label: string
-  variant: BtnVariant
-}
+export type RequestListActionItem =
+  | { key: string; modal: RequestActionModal; label: string; variant: BtnVariant }
+  | { key: string; cloneFromRequestId: string; label: string; variant: BtnVariant }
 
 /** สอดคล้องกับปุ่มใน `RequestDetailPage` (Action Panel) */
 export function getRequestListQuickActions(opts: {
+  requestId: string
   statusId: number
   role: string | null | undefined
   userId: string | undefined
   bookedBy: string | null
 }): RequestListActionItem[] {
-  const { statusId: sid, role, userId, bookedBy } = opts
+  const { requestId, statusId: sid, role, userId, bookedBy } = opts
   const isOwner = Boolean(userId && bookedBy === userId)
   const canAct = role === 'admin' || role === 'manager'
-  const showPanel = canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner)
+  const showPanel =
+    canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ((sid === 6 || sid === 7) && isOwner)
   if (!showPanel) return []
 
   const out: RequestListActionItem[] = []
@@ -53,6 +52,14 @@ export function getRequestListQuickActions(opts: {
   }
   if ([1, 2, 3].includes(sid) && (canAct || isOwner)) {
     out.push({ key: 'cancel', modal: 'cancel', label: 'ยกเลิก', variant: 'outline' })
+  }
+  if ((sid === 6 || sid === 7) && isOwner) {
+    out.push({
+      key: 'cloneFrom',
+      cloneFromRequestId: requestId,
+      label: 'จองใหม่',
+      variant: 'default',
+    })
   }
   return out
 }

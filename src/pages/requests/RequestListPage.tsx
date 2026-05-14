@@ -7,17 +7,18 @@ import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { formatDate, formatDateTime, formatTime, cn } from '@/lib/utils'
-import { buildRequestListSearchOrClause } from '@/lib/requestListSearch'
+import { collectRequestIdsMatchingSearch } from '@/lib/requestListSearch'
+import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import {
   REQUEST_LIST_SEARCH_ARIA,
   REQUEST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { getRequestListQuickActions } from '@/lib/requestQuickActions'
 import {
-  ChevronLeft, ChevronRight, Plus,
-  Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker,
-  Calendar, Package,
+  ChevronLeft, Plus,
+  Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker, Calendar,
 } from 'lucide-react'
 import type { RequestWithRelations } from '@/types/app.types'
 import { rq } from '@/lib/requestUi'
@@ -46,9 +47,17 @@ function FeedDetailRow({
 }
 
 function RequestFeedCard({ r }: { r: RequestWithRelations }) {
+  const [thumbFailed, setThumbFailed] = useState(false)
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const rawThumb = r.after_image?.trim() || r.before_image?.trim() || null
+  const thumbUrl = imageSrcForImgTag(rawThumb, 'card')
+  useEffect(() => {
+    setThumbFailed(false)
+  }, [r.id, thumbUrl])
   const navigate = useNavigate()
   const { user, role } = useAuthStore()
   const quickActions = getRequestListQuickActions({
+    requestId: r.id,
     statusId: r.status_id,
     role,
     userId: user?.id,
@@ -76,87 +85,114 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
   const isMyBooking = Boolean(user?.id && r.booked_by === user.id)
 
   const volumeParts = [
-    r.volume_request != null ? `ขอเท ${r.volume_request} ลบ.ม.` : null,
-    r.volume_dwg != null ? `แบบ ${r.volume_dwg}` : null,
-    r.volume_actual != null ? `เทจริง ${r.volume_actual}` : null,
+    r.volume_request != null ? `Request vol. ${r.volume_request} cu.m` : null,
+    r.volume_dwg != null ? `DWG ${r.volume_dwg} cu.m` : null,
+    r.volume_actual != null ? `Actual ${r.volume_actual} cu.m` : null,
   ].filter(Boolean)
   const volumeLine = volumeParts.length > 0 ? volumeParts.join(' · ') : null
 
   const castingLine = [formatDate(r.casting_date), formatTime(r.request_time)].filter((x) => x && x !== '-').join(' ')
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[#e2e6ec] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:border-[#2563eb]/35 hover:shadow-[0_4px_14px_rgba(37,99,235,0.12)] md:rounded-[14px] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      <Link
-        to={`/requests/${r.id}`}
-        className="block active:scale-[0.998]"
-      >
+    <>
+      <div className="overflow-hidden rounded-xl border border-[#e2e6ec] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:border-[#2563eb]/35 hover:shadow-[0_4px_14px_rgba(37,99,235,0.12)] md:rounded-[14px] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
         <div className="flex gap-2.5 px-3 pt-2.5 pb-1.5 md:gap-3 md:px-3.5 md:pt-3.5 md:pb-2">
-        <div className="shrink-0 pt-px md:pt-0.5">
-          <div className="rounded-full bg-gradient-to-tr from-[#2563eb] via-[#1d4ed8] to-[#1e3a8a] p-[1.5px] shadow-sm md:p-[2px]">
-            <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] md:h-11 md:w-11 md:text-base">
-                {initial}
+          {thumbUrl && !thumbFailed ? (
+            <button
+              type="button"
+              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[#2563eb]/45 md:pt-0.5"
+              aria-label="ขยายรูป"
+              onClick={() => {
+                const src = imageSrcForImgTag(rawThumb, 'lightbox')
+                if (src) setLightboxSrc(src)
+              }}
+            >
+              <div className="rounded-full bg-gradient-to-tr from-[#2563eb] via-[#1d4ed8] to-[#1e3a8a] p-[1.5px] shadow-sm md:p-[2px]">
+                <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
+                  <img
+                    src={thumbUrl}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
+                    onError={() => setThumbFailed(true)}
+                    className="h-9 w-9 rounded-full object-cover md:h-11 md:w-11"
+                  />
+                </div>
+              </div>
+            </button>
+          ) : null}
+          <Link
+            to={`/requests/${r.id}`}
+            className="flex min-w-0 flex-1 gap-2.5 rounded-md outline-none active:scale-[0.998]"
+          >
+            {(!thumbUrl || thumbFailed) && (
+              <div className="shrink-0 pt-px md:pt-0.5">
+                <div className="rounded-full bg-gradient-to-tr from-[#2563eb] via-[#1d4ed8] to-[#1e3a8a] p-[1.5px] shadow-sm md:p-[2px]">
+                  <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] md:h-11 md:w-11 md:text-base">
+                      {initial}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-[14px] font-semibold leading-tight text-[#111827] md:text-[15px]">
+                    {structure}
+                    {r.structure_no ? <span className="font-normal text-[#6b7280]"> · {r.structure_no}</span> : null}
+                  </p>
+                  {r.booked_at ? (
+                    <p className="mt-0.5 text-[11px] text-[#6b7280] md:mt-1 md:text-xs">{formatDateTime(r.booked_at)}</p>
+                  ) : null}
+                  <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug md:text-xs">
+                    <span className="shrink-0 text-[#6b7280]">จองโดย</span>
+                    <span className="min-w-0 font-semibold text-[#374151]">{bookerDisplay}</span>
+                    {isMyBooking ? (
+                      <span className="shrink-0 rounded-md bg-[rgba(37,99,235,0.12)] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-[#1d4ed8]">
+                        คุณ
+                      </span>
+                    ) : null}
+                  </p>
+                </div>
+                <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0" />
               </div>
             </div>
-          </div>
+          </Link>
         </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-[14px] font-semibold leading-tight text-[#111827] md:text-[15px]">
-                {structure}
-                {r.structure_no ? <span className="font-normal text-[#6b7280]"> · {r.structure_no}</span> : null}
-              </p>
-              {r.booked_at ? (
-                <p className="mt-0.5 text-[11px] text-[#6b7280] md:mt-1 md:text-xs">{formatDateTime(r.booked_at)}</p>
-              ) : null}
-              <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug md:text-xs">
-                <span className="shrink-0 text-[#6b7280]">จองโดย</span>
-                <span className="min-w-0 font-semibold text-[#374151]">{bookerDisplay}</span>
-                {isMyBooking ? (
-                  <span className="shrink-0 rounded-md bg-[rgba(37,99,235,0.12)] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-[#1d4ed8]">
-                    คุณ
-                  </span>
-                ) : null}
-              </p>
-            </div>
-            <StatusBadge statusId={r.status_id} size="sm" />
-          </div>
-        </div>
-      </div>
 
-      <div className="space-y-1.5 border-t border-[#e2e6ec]/80 bg-[#f5f6f8]/50 px-3 py-2 md:space-y-2 md:px-3.5 md:py-3">
-        <FeedDetailRow icon={Building2} label="Client" value={client} />
-        <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
-        <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
-        <FeedDetailRow icon={Calendar} label="วันเท / เวลา" value={castingLine || null} />
-        <FeedDetailRow icon={Droplets} label="Mix" value={mixLine} />
-        <FeedDetailRow icon={Ruler} label="ปริมาณ" value={volumeLine} />
-        {r.sample_qty != null && (
-          <FeedDetailRow icon={Beaker} label="ตัวอย่าง" value={`${r.sample_qty} ชุด`} />
-        )}
-        {r.strength != null && (
-          <FeedDetailRow icon={Package} label="ความแรง (คำขอ)" value={String(r.strength)} />
-        )}
-        <FeedDetailRow icon={FileText} label="ABC" value={abc} />
-        <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
-        {r.remarks?.trim() ? (
-          <div className="rounded-md bg-white/90 px-2 py-1.5 text-[12px] leading-snug text-[#374151] ring-1 ring-[#e2e6ec]/80 md:rounded-lg md:px-2.5 md:py-2 md:text-[13px]">
-            <span className="text-[#9ca3af]">หมายเหตุ </span>
-            {r.remarks}
+        <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
+          <div className="space-y-1.5 border-t border-[#e2e6ec]/80 bg-[#f5f6f8]/50 px-3 py-2 md:space-y-2 md:px-3.5 md:py-3">
+            <FeedDetailRow icon={Building2} label="Client" value={client} />
+            <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
+            <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
+            <FeedDetailRow icon={Calendar} label="วันเท / เวลา" value={castingLine || null} />
+            <FeedDetailRow icon={Droplets} label="Mix" value={mixLine} />
+            <FeedDetailRow icon={Ruler} label="Volume (cu.m)" value={volumeLine} />
+            {r.sample_qty != null && (
+              <FeedDetailRow icon={Beaker} label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
+            )}
+            <FeedDetailRow icon={FileText} label="ABC" value={abc} />
+            <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
+            {r.remarks?.trim() ? (
+              <div className="rounded-md bg-white/90 px-2 py-1.5 text-[12px] leading-snug text-[#374151] ring-1 ring-[#e2e6ec]/80 md:rounded-lg md:px-2.5 md:py-2 md:text-[13px]">
+                <span className="text-[#9ca3af]">หมายเหตุ </span>
+                {r.remarks}
+              </div>
+            ) : null}
+            {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
+              <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-2.5 py-2 text-[12px] text-amber-950">
+                {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
+                {r.reason_postpone ? <p className="mt-0.5 text-amber-900/90">{r.reason_postpone}</p> : null}
+              </div>
+            ) : null}
           </div>
-        ) : null}
-        {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-          <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-2.5 py-2 text-[12px] text-amber-950">
-            {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
-            {r.reason_postpone ? <p className="mt-0.5 text-amber-900/90">{r.reason_postpone}</p> : null}
-          </div>
-        ) : null}
-      </div>
-      </Link>
+        </Link>
 
-      <div className="flex flex-col gap-2 border-t border-[#e2e6ec]/80 bg-white px-3 py-2 md:flex-row md:flex-wrap md:items-center md:justify-between md:gap-x-3 md:gap-y-2 md:px-3.5 md:py-2.5">
-        {quickActions.length > 0 ? (
+      {quickActions.length > 0 ? (
+        <div className="flex flex-col gap-2 border-t border-[#e2e6ec]/80 bg-white px-3 py-2 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5 md:py-2.5">
           <div className="flex flex-wrap gap-1.5">
             {quickActions.map((a) => (
               <Button
@@ -164,30 +200,47 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
                 type="button"
                 size="sm"
                 variant={a.variant}
-                className="h-8 rounded-lg px-2.5 text-[11px] md:h-9 md:px-3 md:text-xs"
+                className="h-7 rounded-lg px-2 text-[10px] md:h-8 md:px-2.5 md:text-[11px] lg:h-9 lg:px-3 lg:text-xs"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
+                  if ('cloneFromRequestId' in a) {
+                    navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
+                  } else {
+                    navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
+                  }
                 }}
               >
                 {a.label}
               </Button>
             ))}
           </div>
-        ) : null}
-        <Link
-          to={`/requests/${r.id}`}
+        </div>
+      ) : null}
+    </div>
+
+      <Dialog open={lightboxSrc != null} onOpenChange={(open) => { if (!open) setLightboxSrc(null) }}>
+        <DialogContent
           className={cn(
-            'inline-flex items-center gap-1 text-[11px] font-semibold text-[#2563eb] transition hover:text-[#1d4ed8] md:text-xs',
-            quickActions.length > 0 ? 'shrink-0 self-end md:self-auto' : 'w-full justify-between',
+            'flex h-[calc(100dvh-10px)] max-h-none w-[calc(100vw-10px)] max-w-none flex-col overflow-hidden gap-0 rounded-2xl border-0 bg-zinc-950/96 p-0 shadow-none sm:h-[calc(100dvh-16px)] sm:w-[calc(100vw-16px)]',
+            'pt-12 pb-[max(10px,env(safe-area-inset-bottom,0px))] pl-[max(6px,env(safe-area-inset-left,0px))] pr-[max(6px,env(safe-area-inset-right,0px))]',
+            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-white/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
           )}
         >
-          <span>ดูรายละเอียดและดำเนินการ</span>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0 md:h-4 md:w-4" strokeWidth={2} aria-hidden />
-        </Link>
-      </div>
-    </div>
+          <DialogTitle className="sr-only">รูปภาพรายการ</DialogTitle>
+          <div className="flex min-h-0 flex-1 items-center justify-center px-1 sm:px-2">
+            {lightboxSrc ? (
+              <img
+                src={lightboxSrc}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="max-h-full max-w-full object-contain object-center"
+              />
+            ) : null}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
@@ -222,6 +275,13 @@ export function RequestListPage() {
   const [statusCounts, setStatusCounts] = useState<Record<number, number>>({})
   const [countsLoading, setCountsLoading] = useState(true)
 
+  /** PostgREST cannot OR across FK tables in one clause; merged-ID search is debounced to avoid request storms. */
+  const [debouncedSearch, setDebouncedSearch] = useState(() => filter.search)
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedSearch(filter.search), 280)
+    return () => window.clearTimeout(t)
+  }, [filter.search])
+
   useDesktopSearchRegistration({
     placeholder: REQUEST_LIST_SEARCH_PLACEHOLDER,
     ariaLabel: REQUEST_LIST_SEARCH_ARIA,
@@ -243,6 +303,14 @@ export function RequestListPage() {
         setTotal(0)
         return
       }
+
+      const searchIds = await collectRequestIdsMatchingSearch(supabase, debouncedSearch)
+      if (searchIds !== null && searchIds.length === 0) {
+        setRequests([])
+        setTotal(0)
+        return
+      }
+
       let query = supabase
         .from('Request')
         .select(`
@@ -266,8 +334,7 @@ export function RequestListPage() {
       if (filter.status_ids.length > 0) query = query.in('status_id', filter.status_ids)
       if (filter.casting_date_from) query = query.gte('casting_date', filter.casting_date_from)
       if (filter.casting_date_to) query = query.lte('casting_date', filter.casting_date_to)
-      const searchOr = buildRequestListSearchOrClause(filter.search)
-      if (searchOr) query = query.or(searchOr)
+      if (searchIds !== null) query = query.in('id', searchIds)
 
       query = query.order('booked_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
 
@@ -287,7 +354,7 @@ export function RequestListPage() {
     } finally {
       setLoading(false)
     }
-  }, [user, profile?.client_id, filter, page, scopeMine])
+  }, [user, profile?.client_id, filter, debouncedSearch, page, scopeMine])
 
   useEffect(() => { fetchRequests() }, [fetchRequests])
 

@@ -3,6 +3,7 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react'
 import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { toast } from 'sonner'
 
 interface ImageUploadProps {
@@ -73,7 +74,12 @@ export function ImageUpload({
     <div className="space-y-2">
       {value ? (
         <div className="relative inline-block">
-          <img src={value} alt="preview" className="h-40 w-auto rounded-lg border border-gray-200 object-cover" />
+          <img
+            src={imageSrcForImgTag(value, 'detail') ?? value}
+            alt="preview"
+            referrerPolicy="no-referrer"
+            className="h-40 w-auto rounded-lg border border-gray-200 object-cover"
+          />
           {!disabled && (
             <button
               type="button"
