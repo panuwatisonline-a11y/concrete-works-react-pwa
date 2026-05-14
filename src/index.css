@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+/* POUR design tokens — aligned with screens-shared.jsx */
+@layer base {
+  :root {
+    --pour-bg: #f5f6f8;
+    --pour-bg-2: #f0f2f5;
+    --pour-line: #e2e6ec;
+    --pour-line-2: #c8ced8;
+    --pour-ink-0: #111827;
+    --pour-ink-1: #374151;
+    --pour-ink-2: #6b7280;
+    --pour-ink-3: #9ca3af;
+    --pour-blue: #2563eb;
+    --pour-blue-deep: #1d4ed8;
+    --pour-blue-glow: rgba(37, 99, 235, 0.1);
+    --pour-blue-ring: rgba(37, 99, 235, 0.25);
+    --pour-canvas: #f0eee9;
+
+    --ig-bg: var(--pour-bg);
+    --ig-surface: #ffffff;
+    --ig-border: var(--pour-line);
+    --ig-text: var(--pour-ink-0);
+    --ig-muted: var(--pour-ink-2);
+    --ig-link: var(--pour-blue);
+    --background: 220 14% 96%;
+    --foreground: 220 13% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 13% 9%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 95%;
+    --secondary-foreground: 220 13% 9%;
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 220 14% 93%;
+    --accent-foreground: 220 13% 9%;
+    --destructive: 0 84% 49%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 221 83% 53%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 6% 6%;
+    --foreground: 0 0% 98%;
+    --card: 240 6% 8%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 6% 8%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 6% 10%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 240 4% 20%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 240 5% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 4% 18%;
+    --input: 240 4% 18%;
+    --ring: 0 0% 98%;
+  }
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    background-color: var(--pour-bg);
+    color: var(--pour-ink-0);
+    margin: 0;
+    min-height: 100%;
+    min-height: 100dvh;
+    font-family:
+      "Geist",
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      sans-serif;
+    letter-spacing: -0.005em;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    min-height: 100%;
+    min-height: 100dvh;
+  }
+
+  .font-pour-mono {
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-feature-settings: "tnum" 1, "ss01" 1;
+  }
+}

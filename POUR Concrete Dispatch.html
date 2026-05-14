@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>POUR — Concrete dispatch PWA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap"/>
+  <style>
+    html, body { margin:0; padding:0; }
+    body { background:#f0eee9; font-family:"Geist", system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="screens-shared.jsx"></script>
+  <script type="text/babel" src="screen-login.jsx"></script>
+  <script type="text/babel" src="screen-list.jsx"></script>
+  <script type="text/babel" src="screen-booking.jsx"></script>
+  <script type="text/babel" src="screen-detail.jsx"></script>
+
+  <script type="text/babel">
+    const MW = 390;
+    const MH = 830;
+    const PW = 1280;
+    const PH = 800;
+
+    function MobileWrap({ children }) {
+      return (
+        <IOSDevice width={MW} height={MH} dark={false}>
+          {children}
+        </IOSDevice>
+      );
+    }
+
+    function DesktopWrap({ children }) {
+      return (
+        <PCFrame>
+          {children}
+        </PCFrame>
+      );
+    }
+
+    function App() {
+      return (
+        <DesignCanvas>
+
+          {/* ── Mobile ─────────────────────────────────────────── */}
+          <DCSection id="m-auth" title="Mobile · Sign in" subtitle="iOS 26 · Light theme · 390×830">
+            <DCArtboard id="m-login" label="Login" width={MW} height={MH}>
+              <MobileWrap><LoginScreen/></MobileWrap>
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="m-orders" title="Mobile · Orders" subtitle="List + detail + bottom nav">
+            <DCArtboard id="m-list" label="Orders list" width={MW} height={MH}>
+              <MobileWrap><OrdersListScreen/></MobileWrap>
+            </DCArtboard>
+            <DCArtboard id="m-detail" label="Order detail · live" width={MW} height={MH}>
+              <MobileWrap><DetailScreen/></MobileWrap>
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="m-booking" title="Mobile · New order" subtitle="Three-step booking flow">
+            <DCArtboard id="m-b1" label="Step 1 · Mix & volume" width={MW} height={MH}>
+              <MobileWrap><BookingStep1/></MobileWrap>
+            </DCArtboard>
+            <DCArtboard id="m-b2" label="Step 2 · Jobsite & schedule" width={MW} height={MH}>
+              <MobileWrap><BookingStep2/></MobileWrap>
+            </DCArtboard>
+            <DCArtboard id="m-b3" label="Step 3 · Review & dispatch" width={MW} height={MH}>
+              <MobileWrap><BookingStep3/></MobileWrap>
+            </DCArtboard>
+          </DCSection>
+
+          {/* ── Desktop ────────────────────────────────────────── */}
+          <DCSection id="pc-auth" title="Desktop · Sign in" subtitle="Browser · Split-panel login · 1280×800">
+            <DCArtboard id="pc-login" label="Login" width={PW} height={PH}>
+              <DesktopWrap><PCLoginScreen/></DesktopWrap>
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="pc-orders" title="Desktop · Orders" subtitle="Sidebar + table list + detail panel">
+            <DCArtboard id="pc-list" label="Orders list" width={PW} height={PH}>
+              <DesktopWrap><PCOrdersListScreen/></DesktopWrap>
+            </DCArtboard>
+            <DCArtboard id="pc-detail" label="Order detail · live" width={PW} height={PH}>
+              <DesktopWrap><PCDetailScreen/></DesktopWrap>
+            </DCArtboard>
+          </DCSection>
+
+          <DCSection id="pc-booking" title="Desktop · New order" subtitle="Sidebar + 2-col form + summary panel">
+            <DCArtboard id="pc-b1" label="Step 1 · Mix & volume" width={PW} height={PH}>
+              <DesktopWrap><PCBookingScreen/></DesktopWrap>
+            </DCArtboard>
+          </DCSection>
+
+        </DesignCanvas>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
+import { useMasterDataStore } from '@/stores/masterDataStore'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { UserAvatar } from '@/components/shared/UserAvatar'
+import { formatDate } from '@/lib/utils'
+import { toast } from 'sonner'
+import type { Profile } from '@/types/app.types'
+import { rq } from '@/lib/requestUi'
+import { cn } from '@/lib/utils'
+import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
+import { Pencil } from 'lucide-react'
+
+const profileSchema = z.object({
+  fname: z.string().min(1, 'กรุณาระบุชื่อ'),
+  lname: z.string().min(1, 'กรุณาระบุนามสกุล'),
+  phone: z.string().optional(),
+  job_id: z.string().optional(),
+})
+
+const pwSchema = z.object({
+  newPassword: z.string().min(6, 'อย่างน้อย 6 ตัวอักษร'),
+  confirm: z.string(),
+}).refine((d) => d.newPassword === d.confirm, { message: 'รหัสผ่านไม่ตรงกัน', path: ['confirm'] })
+
+type ProfileForm = z.infer<typeof profileSchema>
+type PwForm = z.infer<typeof pwSchema>
+
+export function ProfilePage() {
+  const navigate = useNavigate()
+  const { profile, setProfile } = useAuthStore()
+  const { jobs } = useMasterDataStore()
+  const [savingProfile, setSavingProfile] = useState(false)
+  const [pwOpen, setPwOpen] = useState(false)
+  const [savingPw, setSavingPw] = useState(false)
+  const [editingProfile, setEditingProfile] = useState(false)
+
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      fname: '',
+      lname: '',
+      phone: '',
+      job_id: '',
+    },
+  })
+
+  useEffect(() => {
+    if (!profile) return
+    reset({
+      fname: profile.fname ?? '',
+      lname: profile.lname ?? '',
+      phone: profile.phone ?? '',
+      job_id: profile.job_id ? String(profile.job_id) : '',
+    })
+  }, [profile, reset])
+
+  const { register: regPw, handleSubmit: handlePw, formState: { errors: pwErrors }, reset: resetPw } = useForm<PwForm>({
+    resolver: zodResolver(pwSchema),
+  })
+
+  async function onSaveProfile(data: ProfileForm) {
+    if (!profile) return
+    setSavingProfile(true)
+    const { error } = await supabase.from('profiles').update({
+      fname: data.fname,
+      lname: data.lname,
+      phone: data.phone || null,
+      job_id: data.job_id ? parseInt(data.job_id) : null,
+    }).eq('id', profile.id)
+
+    if (!error) {
+      setProfile({ ...profile, ...data, job_id: data.job_id ? parseInt(data.job_id) : null } as Profile)
+      toast.success('บันทึกสำเร็จ')
+      setEditingProfile(false)
+    } else {
+      toast.error('เกิดข้อผิดพลาด')
+    }
+    setSavingProfile(false)
+  }
+
+  function cancelProfileEdit() {
+    if (!profile) return
+    reset({
+      fname: profile.fname ?? '',
+      lname: profile.lname ?? '',
+      phone: profile.phone ?? '',
+      job_id: profile.job_id ? String(profile.job_id) : '',
+    })
+    setEditingProfile(false)
+  }
+
+  const jobName =
+    profile?.job_id != null ? jobs.find((j) => j.id === profile.job_id)?.job_name : undefined
+
+  async function onChangePassword(data: PwForm) {
+    setSavingPw(true)
+    const { error } = await supabase.auth.updateUser({ password: data.newPassword })
+    if (!error) {
+      toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
+      resetPw()
+      setPwOpen(false)
+    } else {
+      toast.error('เกิดข้อผิดพลาด')
+    }
+    setSavingPw(false)
+  }
+
+  const roleLabels: Record<string, string> = { admin: 'Admin', manager: 'Manager', user: 'User' }
+
+  return (
+    <div className={rq.pageNarrow}>
+      <RequestScreenHeader
+        title="โปรไฟล์"
+        subtitle="ข้อมูลบัญชีและการตั้งค่า"
+        onBack={() => navigate(-1)}
+        right={
+          !editingProfile ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5 rounded-xl border-[#e2e6ec] text-[#374151]"
+              onClick={() => setEditingProfile(true)}
+            >
+              <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+              แก้ไข
+            </Button>
+          ) : null
+        }
+      />
+
+      <Card className={rq.card}>
+        <div className={cn(rq.cardHeader, 'rounded-t-2xl')}>
+          <div className="flex items-center gap-5">
+            <div className="shrink-0 rounded-full bg-gradient-to-tr from-blue-400 via-blue-500 to-indigo-600 p-[3px] shadow-sm">
+              <div className="rounded-full bg-white p-[2px]">
+                <UserAvatar profile={profile} size="lg" className="h-[4.5rem] w-[4.5rem] border-0" />
+              </div>
+            </div>
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="truncate text-lg font-bold text-[#111827]">
+                {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.employee_id || 'โปรไฟล์'}
+              </p>
+              <p className="text-sm text-[#6b7280]">{profile?.employee_id}</p>
+              <Badge variant="secondary" className="border border-[#e2e6ec] bg-[#f0f2f5] text-xs font-semibold text-[#374151]">
+                {roleLabels[profile?.role ?? ''] ?? profile?.role}
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        <CardContent className={cn(rq.cardContent, 'space-y-4')}>
+          {editingProfile ? (
+            <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>ชื่อ *</Label>
+                  <Input className="rounded-xl" {...register('fname')} />
+                  {errors.fname && <p className="text-xs text-rose-600">{errors.fname.message}</p>}
+                </div>
+                <div className="space-y-1.5">
+                  <Label>นามสกุล *</Label>
+                  <Input className="rounded-xl" {...register('lname')} />
+                  {errors.lname && <p className="text-xs text-rose-600">{errors.lname.message}</p>}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label>เบอร์โทร</Label>
+                <Input className="rounded-xl" {...register('phone')} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>โครงการ</Label>
+                <Select value={watch('job_id') || undefined} onValueChange={(v) => setValue('job_id', v)}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue placeholder="เลือกโครงการ" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobs.map((j) => <SelectItem key={j.id} value={String(j.id)}>{j.job_name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3 rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80">
+                <div>
+                  <p className={rq.label}>บริษัท</p>
+                  <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
+                </div>
+                <div>
+                  <p className={rq.label}>วันที่สมัคร</p>
+                  <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2 border-t border-[#e2e6ec]/80 pt-4">
+                <Button type="submit" size="sm" className="rounded-xl shadow-sm shadow-blue-500/20" disabled={savingProfile}>
+                  {savingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl border-[#e2e6ec]"
+                  onClick={cancelProfileEdit}
+                  disabled={savingProfile}
+                >
+                  ยกเลิก
+                </Button>
+                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(true)}>
+                  เปลี่ยนรหัสผ่าน
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className={cn(rq.label, 'mb-1')}>ชื่อ</p>
+                  <p className="font-medium text-[#111827]">{profile?.fname?.trim() || '-'}</p>
+                </div>
+                <div>
+                  <p className={cn(rq.label, 'mb-1')}>นามสกุล</p>
+                  <p className="font-medium text-[#111827]">{profile?.lname?.trim() || '-'}</p>
+                </div>
+              </div>
+              <div>
+                <p className={cn(rq.label, 'mb-1')}>เบอร์โทร</p>
+                <p className="font-medium text-[#111827]">{profile?.phone?.trim() || '-'}</p>
+              </div>
+              <div>
+                <p className={cn(rq.label, 'mb-1')}>โครงการ</p>
+                <p className="font-medium text-[#111827]">{jobName?.trim() || '-'}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80">
+                <div>
+                  <p className={rq.label}>บริษัท</p>
+                  <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
+                </div>
+                <div>
+                  <p className={rq.label}>วันที่สมัคร</p>
+                  <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
+                </div>
+              </div>
+              <div className="border-t border-[#e2e6ec]/80 pt-4">
+                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(true)}>
+                  เปลี่ยนรหัสผ่าน
+                </Button>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
+        <DialogContent className="max-w-sm rounded-[14px] border-[#e2e6ec]">
+          <DialogHeader><DialogTitle>เปลี่ยนรหัสผ่าน</DialogTitle></DialogHeader>
+          <form onSubmit={handlePw(onChangePassword)} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>รหัสผ่านใหม่ *</Label>
+              <Input type="password" {...regPw('newPassword')} />
+              {pwErrors.newPassword && <p className="text-xs text-rose-600">{pwErrors.newPassword.message}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>ยืนยันรหัสผ่าน *</Label>
+              <Input type="password" {...regPw('confirm')} />
+              {pwErrors.confirm && <p className="text-xs text-rose-600">{pwErrors.confirm.message}</p>}
+            </div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" type="button" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(false)}>
+                ยกเลิก
+              </Button>
+              <Button type="submit" className="rounded-xl shadow-sm shadow-blue-500/25" disabled={savingPw}>
+                {savingPw ? 'กำลังบันทึก...' : 'เปลี่ยนรหัสผ่าน'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
