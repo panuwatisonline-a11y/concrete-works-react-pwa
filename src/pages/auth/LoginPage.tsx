@@ -64,6 +64,7 @@ export function LoginPage() {
     setProfile(profile as Profile | null)
 
     navigate('/requests')
+    setLoading(false)
   }
 
   const formPanel = (
