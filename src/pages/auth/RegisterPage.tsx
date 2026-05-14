@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from 'sonner'
-import type { ClientItem } from '@/types/app.types'
+import type { ClientItem, Job } from '@/types/app.types'
 import { app } from '@/lib/requestUi'
 
 const schema = z.object({
@@ -22,6 +22,7 @@ const schema = z.object({
   lname: z.string().min(1, 'กรุณาระบุนามสกุล'),
   phone: z.string().optional(),
   client_id: z.string().optional(),
+  job_id: z.string().optional(),
 }).refine((d) => d.password === d.confirmPassword, {
   message: 'รหัสผ่านไม่ตรงกัน',
   path: ['confirmPassword'],
@@ -33,15 +34,20 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [clients, setClients] = useState<ClientItem[]>([])
+  const [jobs, setJobs] = useState<Job[]>([])
 
   useEffect(() => {
     supabase.from('Client').select('*').order('client_name').then(({ data }) => {
       setClients(data ?? [])
     })
+    supabase.from('Jobs').select('*').order('job_name').then(({ data }) => {
+      setJobs(data ?? [])
+    })
   }, [])
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: { client_id: '', job_id: '' },
   })
 
   async function onSubmit(data: FormData) {
@@ -70,7 +76,8 @@ export function RegisterPage() {
       return
     }
 
-    const clientId = data.client_id ? parseInt(data.client_id) : null
+    const clientId = data.client_id ? parseInt(data.client_id, 10) : null
+    const jobId = data.job_id ? parseInt(data.job_id, 10) : null
     let clientName: string | null = null
     if (clientId) {
       const client = clients.find((c) => c.id === clientId)
@@ -85,6 +92,7 @@ export function RegisterPage() {
       phone: data.phone || null,
       client_id: clientId,
       client_name: clientName,
+      job_id: jobId,
       role: 'user',
     })
 
@@ -95,11 +103,11 @@ export function RegisterPage() {
   return (
     <div className={app.shell}>
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 border-b border-[#e2e6ec]/90 bg-[#f5f6f8]/50 pb-3 text-center">
+        <CardHeader className="space-y-1 border-b border-[#e2e6ec]/90 bg-[#f5f6f8]/50 pb-4 text-center">
           <CardTitle className="text-2xl font-extrabold tracking-tight text-[#111827]">Concrete Works</CardTitle>
-          <CardDescription className="text-sm text-[#6b7280]">สมัครใช้งาน</CardDescription>
+          <CardDescription className="text-sm text-[#6b7280]">สมัครใช้งาน Application งานคอนกรีต</CardDescription>
         </CardHeader>
-        <CardContent className="pt-5">
+        <CardContent className="pt-6 md:pt-8">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -115,20 +123,37 @@ export function RegisterPage() {
             </div>
             <div className="space-y-1.5">
               <Label>รหัสพนักงาน *</Label>
-              <Input placeholder="EMP-001" {...register('employee_id')} />
+              <Input placeholder="P04851" {...register('employee_id')} />
               {errors.employee_id && <p className="text-xs text-rose-600">{errors.employee_id.message}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>เบอร์โทร</Label>
-              <Input placeholder="0812345678" {...register('phone')} />
+              <Input placeholder="0830836564" {...register('phone')} />
             </div>
             <div className="space-y-1.5">
               <Label>บริษัท / Contractor</Label>
-              <Select onValueChange={(v) => setValue('client_id', v)}>
+              <Select
+                value={watch('client_id') || undefined}
+                onValueChange={(v) => setValue('client_id', v)}
+              >
                 <SelectTrigger><SelectValue placeholder="เลือกบริษัท" /></SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>โครงการ</Label>
+              <Select
+                value={watch('job_id') || undefined}
+                onValueChange={(v) => setValue('job_id', v)}
+              >
+                <SelectTrigger><SelectValue placeholder="เลือกโครงการ" /></SelectTrigger>
+                <SelectContent>
+                  {jobs.map((j) => (
+                    <SelectItem key={j.id} value={String(j.id)}>{j.job_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

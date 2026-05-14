@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Briefcase, Truck, Droplets, FileText, ArrowRight } from 'lucide-react'
+import { Briefcase, Truck, ArrowRight, Scale, TrendingDown, BarChart3 } from 'lucide-react'
 import type { Profile } from '@/types/app.types'
 
 const schema = z.object({
@@ -20,9 +20,10 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 const features = [
-  { icon: Truck, text: 'ติดตามสถานะคำขอแบบ real-time' },
-  { icon: Droplets, text: 'บริหาร Mix, Slump และ Additive' },
-  { icon: FileText, text: 'Ticket ดิจิทัล เชื่อมต่อ QuickBooks' },
+  { icon: Truck, text: 'ติดตามสถานะคอนกรีตแบบ Real-Time' },
+  { icon: Scale, text: 'Concrete Balance' },
+  { icon: TrendingDown, text: 'Loss Concrete' },
+  { icon: BarChart3, text: 'Monthly Concrete Summary' },
 ]
 
 export function LoginPage() {
@@ -77,7 +78,7 @@ export function LoginPage() {
         </div>
 
         <h2 className="mb-1 text-2xl font-bold tracking-tight text-[#111827] md:text-3xl">ยินดีต้อนรับ</h2>
-        <p className="mb-8 text-sm text-[#6b7280]">เข้าสู่ระบบเพื่อจัดการคำขอคอนกรีต</p>
+        <p className="mb-8 text-sm text-[#6b7280]">เข้าสู่ระบบเพื่อจองคอนกรีตและจัดการงานคอนกรีต</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1.5">
@@ -142,20 +143,6 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <div className="relative my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-[#e2e6ec]" />
-          <span className="text-[11px] font-semibold uppercase tracking-widest text-[#9ca3af]">หรือ</span>
-          <div className="h-px flex-1 bg-[#e2e6ec]" />
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="h-11 w-full rounded-xl border-[#e2e6ec] bg-white text-sm font-semibold text-[#374151] shadow-sm hover:bg-[#f0f2f5]"
-        >
-          เข้าสู่ระบบด้วย SSO
-        </Button>
-
         <p className="mt-6 text-center text-sm text-[#6b7280]">
           ยังไม่มีบัญชี?{' '}
           <Link to="/register" className="font-semibold text-[#2563eb] hover:text-[#1d4ed8] hover:underline">
@@ -182,21 +169,28 @@ export function LoginPage() {
           <rect width="100%" height="100%" fill="url(#loginHatch)"/>
         </svg>
 
-        {/* Logo */}
-        <div className="relative flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
-            <Briefcase className="h-5 w-5" strokeWidth={2} />
-          </span>
-          <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
+        {/* Logo + Quality Management and Innovation */}
+        <div className="relative">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
+              <Briefcase className="h-5 w-5" strokeWidth={2} />
+            </span>
+            <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
+          </div>
+          <div className="mt-5 max-w-md rounded-lg border border-white/15 bg-white/[0.06] px-4 py-3 backdrop-blur-[2px]">
+            <p className="text-sm font-semibold leading-snug text-white/95">
+              Quality Management and Innovation Section
+            </p>
+          </div>
         </div>
 
         {/* Copy */}
         <div className="relative">
           <h1 className="mb-4 text-[2rem] font-bold leading-[1.15] tracking-tight text-white">
-            ระบบจัดการคำขอ<br/>คอนกรีต ครบในที่เดียว
+            Application จัดการงานคอนกรีต (Prototype)
           </h1>
           <p className="mb-8 text-[15px] leading-relaxed text-white/75">
-            สั่ง ติดตาม และเซ็นรับงานได้จากสนามหรือสำนักงาน
+            จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
           </p>
           <div className="space-y-4">
             {features.map(({ icon: Icon, text }, i) => (
