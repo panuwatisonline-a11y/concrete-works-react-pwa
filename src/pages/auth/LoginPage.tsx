@@ -59,11 +59,7 @@ export function LoginPage() {
 
     setProfile(profile as Profile | null)
 
-    if (profile?.role === 'admin') {
-      navigate('/admin')
-    } else {
-      navigate('/requests')
-    }
+    navigate('/requests')
   }
 
   const formPanel = (
