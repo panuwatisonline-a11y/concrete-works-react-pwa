@@ -19,7 +19,7 @@ import {
   Building2, MapPin, Droplets, Ruler, User, FileText, Layers, GitBranch, Beaker,
   Calendar, Package,
 } from 'lucide-react'
-import type { RequestWithRelations, UserRole } from '@/types/app.types'
+import type { RequestWithRelations } from '@/types/app.types'
 import { rq } from '@/lib/requestUi'
 
 const PAGE_SIZE = 20
@@ -47,8 +47,7 @@ function FeedDetailRow({
 
 function RequestFeedCard({ r }: { r: RequestWithRelations }) {
   const navigate = useNavigate()
-  const { user, role: roleRaw } = useAuthStore()
-  const role = roleRaw ?? 'user'
+  const { user, role } = useAuthStore()
   const quickActions = getRequestListQuickActions({
     statusId: r.status_id,
     role,
@@ -182,7 +181,7 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
 }
 
 export function RequestListPage() {
-  const { user, role, profile } = useAuthStore()
+  const { user, profile } = useAuthStore()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
@@ -190,13 +189,6 @@ export function RequestListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const mobileView = searchParams.get('view') === 'latest' ? 'latest' : 'summary'
   const scopeMine = searchParams.get('scope') === 'mine'
-
-  /** ถ้า role ยัง null แต่ RLS จำกัดแค่คำขอของตัวเอง — ต้องกรอง booked_by เหมือน role user */
-  const effectiveRole = useMemo<UserRole>(() => (role ?? 'user') as UserRole, [role])
-  const restrictToBooker = useMemo(
-    () => Boolean(user && (scopeMine || effectiveRole === 'user')),
-    [user, scopeMine, effectiveRole],
-  )
 
   const [requests, setRequests] = useState<RequestWithRelations[]>([])
   const [total, setTotal] = useState(0)
@@ -221,11 +213,6 @@ export function RequestListPage() {
         setTotal(0)
         return
       }
-      if (effectiveRole === 'user' && !user) {
-        setRequests([])
-        setTotal(0)
-        return
-      }
       if (scopeMine && !user) {
         setRequests([])
         setTotal(0)
@@ -246,7 +233,7 @@ export function RequestListPage() {
         booked_by_profile:profiles!booked_by(fname, lname)
       `, { count: 'exact' })
 
-      if (restrictToBooker && user) query = query.eq('booked_by', user.id)
+      if (scopeMine && user) query = query.eq('booked_by', user.id)
       if (scopeMine && profile?.client_id != null) {
         query = query.eq('client_id', profile.client_id)
       }
@@ -275,7 +262,7 @@ export function RequestListPage() {
     } finally {
       setLoading(false)
     }
-  }, [user, restrictToBooker, profile?.client_id, filter, page, scopeMine])
+  }, [user, profile?.client_id, filter, page, scopeMine])
 
   useEffect(() => { fetchRequests() }, [fetchRequests])
 
@@ -298,7 +285,7 @@ export function RequestListPage() {
             .from('Request')
             .select('*', { count: 'exact', head: true })
             .eq('status_id', s.id)
-          if (restrictToBooker && user) q = q.eq('booked_by', user.id)
+          if (scopeMine && user) q = q.eq('booked_by', user.id)
           if (scopeMine && profile?.client_id != null) {
             q = q.eq('client_id', profile.client_id)
           }
@@ -313,7 +300,7 @@ export function RequestListPage() {
     } finally {
       setCountsLoading(false)
     }
-  }, [statusRowsForSummary, user, restrictToBooker, scopeMine, profile?.client_id])
+  }, [statusRowsForSummary, user, scopeMine, profile?.client_id])
 
   useEffect(() => {
     void loadStatusCounts()
