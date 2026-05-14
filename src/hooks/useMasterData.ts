@@ -1,6 +1,9 @@
 import { useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { toast } from 'sonner'
+import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
+
+const MASTER_DATA_TIMEOUT_MS = 25_000
 
 export function useMasterDataInit() {
   const { isLoaded, setAll, setLoaded } = useMasterDataStore()
@@ -9,7 +12,24 @@ export function useMasterDataInit() {
     if (isLoaded) return
 
     async function load() {
+      if (!isSupabaseConfigured) {
+        console.error(
+          'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY at build time. On Vercel: add env vars and redeploy.',
+        )
+        toast.error('ตั้งค่า Supabase ไม่ครบ — ตรวจสอบ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY บน Vercel แล้ว Redeploy')
+        setLoaded(true)
+        return
+      }
+
+      let timeoutId: ReturnType<typeof setTimeout> | undefined
       try {
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          timeoutId = setTimeout(
+            () => reject(new Error(`Master data exceeded ${MASTER_DATA_TIMEOUT_MS}ms`)),
+            MASTER_DATA_TIMEOUT_MS,
+          )
+        })
+
         const [
           { data: statuses },
           { data: clients },
@@ -31,28 +51,36 @@ export function useMasterDataInit() {
           { data: wbs6 },
           { data: wbs7 },
           { data: jobs },
-        ] = await Promise.all([
-          supabase.from('Status').select('*').order('id'),
-          supabase.from('Client').select('*').order('client_name'),
-          supabase.from('Location').select('*').order('id'),
-          supabase.from('Concrete Works').select('*').order('concrete_work'),
-          supabase.from('Structure').select('*').order('structure_name'),
-          supabase.from('Mixed Code').select('*').order('mixcode'),
-          supabase.from('ABC Code').select('*').order('id'),
-          supabase.from('ABC Code1').select('*').order('code_name'),
-          supabase.from('ABC Code2').select('*').order('code_name'),
-          supabase.from('ABC Code3').select('*').order('code_name'),
-          supabase.from('ABC Code4').select('*').order('code_name'),
-          supabase.from('WBS Code').select('*').order('id'),
-          supabase.from('WBS1').select('*').order('code_name'),
-          supabase.from('WBS2').select('*').order('code_name'),
-          supabase.from('WBS3').select('*').order('code_name'),
-          supabase.from('WBS4').select('*').order('code_name'),
-          supabase.from('WBS5').select('*').order('code_name'),
-          supabase.from('WBS6').select('*').order('code_name'),
-          supabase.from('WBS7').select('*').order('code_name'),
-          supabase.from('Jobs').select('*').order('job_name'),
+        ] = await Promise.race([
+          Promise.all([
+            supabase.from('Status').select('*').order('id'),
+            supabase.from('Client').select('*').order('client_name'),
+            supabase.from('Location').select('*').order('id'),
+            supabase.from('Concrete Works').select('*').order('concrete_work'),
+            supabase.from('Structure').select('*').order('structure_name'),
+            supabase.from('Mixed Code').select('*').order('mixcode'),
+            supabase.from('ABC Code').select('*').order('id'),
+            supabase.from('ABC Code1').select('*').order('code_name'),
+            supabase.from('ABC Code2').select('*').order('code_name'),
+            supabase.from('ABC Code3').select('*').order('code_name'),
+            supabase.from('ABC Code4').select('*').order('code_name'),
+            supabase.from('WBS Code').select('*').order('id'),
+            supabase.from('WBS1').select('*').order('code_name'),
+            supabase.from('WBS2').select('*').order('code_name'),
+            supabase.from('WBS3').select('*').order('code_name'),
+            supabase.from('WBS4').select('*').order('code_name'),
+            supabase.from('WBS5').select('*').order('code_name'),
+            supabase.from('WBS6').select('*').order('code_name'),
+            supabase.from('WBS7').select('*').order('code_name'),
+            supabase.from('Jobs').select('*').order('job_name'),
+          ]),
+          timeoutPromise,
         ])
+
+        if (timeoutId !== undefined) {
+          clearTimeout(timeoutId)
+          timeoutId = undefined
+        }
 
         setAll({
           statuses: statuses ?? [],
@@ -78,7 +106,9 @@ export function useMasterDataInit() {
         })
       } catch (e) {
         console.error('Master data load:', e)
+        toast.error('โหลดข้อมูลอ้างอิงไม่สำเร็จ — ลองรีเฟรช หรือตรวจ Supabase / เครือข่าย')
       } finally {
+        if (timeoutId !== undefined) clearTimeout(timeoutId)
         setLoaded(true)
       }
     }

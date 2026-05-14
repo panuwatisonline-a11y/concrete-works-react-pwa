@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -207,6 +207,11 @@ export function RequestListPage() {
   const fetchRequests = useCallback(async () => {
     setLoading(true)
     try {
+      if (!isSupabaseConfigured) {
+        setRequests([])
+        setTotal(0)
+        return
+      }
       if (role === 'user' && !user) {
         setRequests([])
         setTotal(0)
@@ -272,7 +277,10 @@ export function RequestListPage() {
   )
 
   const loadStatusCounts = useCallback(async () => {
-    if (!statusRowsForSummary.length) return
+    if (!statusRowsForSummary.length) {
+      setCountsLoading(false)
+      return
+    }
     setCountsLoading(true)
     try {
       const map: Record<number, number> = {}
