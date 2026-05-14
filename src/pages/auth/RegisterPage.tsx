@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -37,10 +37,11 @@ export function RegisterPage() {
   const [jobs, setJobs] = useState<Job[]>([])
 
   useEffect(() => {
-    supabase.from('Client').select('*').order('client_name').then(({ data }) => {
+    if (!isSupabaseConfigured) return
+    void supabase.from('Client').select('*').order('client_name').then(({ data }) => {
       setClients(data ?? [])
     })
-    supabase.from('Jobs').select('*').order('job_name').then(({ data }) => {
+    void supabase.from('Jobs').select('*').order('job_name').then(({ data }) => {
       setJobs(data ?? [])
     })
   }, [])
@@ -51,27 +52,23 @@ export function RegisterPage() {
   })
 
   async function onSubmit(data: FormData) {
+    if (!isSupabaseConfigured) {
+      toast.error('ยังตั้งค่า Supabase ไม่ครบ — ตรวจสอบ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY')
+      return
+    }
+
     setLoading(true)
 
-    const { data: existing } = await supabase
+    const { data: existing, error: existingErr } = await supabase
       .from('profiles')
       .select('id')
       .eq('employee_id', data.employee_id)
       .maybeSingle()
 
-    if (existing) {
+    if (existingErr) {
+      console.warn('profiles precheck (employee_id):', existingErr.message)
+    } else if (existing) {
       toast.error('รหัสพนักงานนี้ถูกใช้แล้ว')
-      setLoading(false)
-      return
-    }
-
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    })
-
-    if (error || !authData.user) {
-      toast.error(error?.message ?? 'เกิดข้อผิดพลาด')
       setLoading(false)
       return
     }
@@ -84,7 +81,31 @@ export function RegisterPage() {
       clientName = client?.client_name ?? null
     }
 
-    await supabase.from('profiles').insert({
+    const { data: authData, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+        data: {
+          employee_id: data.employee_id,
+          fname: data.fname,
+          lname: data.lname,
+          phone: data.phone ?? '',
+          role: 'user',
+          client_id: clientId != null ? String(clientId) : '',
+          job_id: jobId != null ? String(jobId) : '',
+          client_name: clientName ?? '',
+        },
+      },
+    })
+
+    if (error || !authData.user) {
+      toast.error(error?.message ?? 'เกิดข้อผิดพลาด')
+      setLoading(false)
+      return
+    }
+
+    const profileRow = {
       id: authData.user.id,
       employee_id: data.employee_id,
       fname: data.fname,
@@ -93,11 +114,30 @@ export function RegisterPage() {
       client_id: clientId,
       client_name: clientName,
       job_id: jobId,
-      role: 'user',
-    })
+      role: 'user' as const,
+    }
 
-    toast.success('สมัครสำเร็จ กรุณาเข้าสู่ระบบ')
+    if (authData.session) {
+      const { error: profileErr } = await supabase.from('profiles').upsert(profileRow, { onConflict: 'id' })
+      if (profileErr) {
+        console.error('profiles upsert:', profileErr.message)
+        toast.error(
+          profileErr.message.includes('duplicate') || profileErr.code === '23505'
+            ? 'รหัสพนักงานหรือบัญชีนี้มีในระบบแล้ว'
+            : `บันทึกโปรไฟล์ไม่สำเร็จ: ${profileErr.message}`,
+        )
+        setLoading(false)
+        return
+      }
+    }
+
+    if (authData.session) {
+      toast.success('สมัครสำเร็จ กรุณาเข้าสู่ระบบ')
+    } else {
+      toast.success('สมัครแล้ว — กรุณายืนยันอีเมลจากลิงก์ที่ส่งไป จากนั้นจึงเข้าสู่ระบบ (โปรไฟล์ถูกสร้างเมื่อสมัคร)')
+    }
     navigate('/login')
+    setLoading(false)
   }
 
   return (
