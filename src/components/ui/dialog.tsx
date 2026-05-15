@@ -32,9 +32,12 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'pour-glass fixed left-[50%] top-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-xl translate-x-[-50%] translate-y-[-50%] gap-5 rounded-[14px] p-5 text-[color:var(--pour-ink-0)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:gap-6 sm:p-6',
-        'max-h-[min(85dvh,calc(100dvh-2rem))] overflow-y-auto overscroll-y-contain',
-        'pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-[max(0.75rem,env(safe-area-inset-top,0px))]',
+        'pour-glass fixed left-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 gap-5 rounded-[14px] p-5 text-[color:var(--pour-ink-0)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:gap-6 sm:p-6',
+        'top-[max(0.75rem,env(safe-area-inset-top,0px))] translate-y-0',
+        'max-h-[calc(100dvh-1.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))]',
+        'sm:top-[50%] sm:max-h-[min(85dvh,calc(100dvh-2rem))] sm:-translate-y-1/2',
+        'overflow-y-auto overscroll-y-contain',
+        'pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
         className
       )}
       {...props}

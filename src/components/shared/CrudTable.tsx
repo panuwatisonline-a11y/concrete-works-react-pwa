@@ -195,28 +195,46 @@ export function CrudTable<T extends { id: number }>({
           }
         }}
       >
-        <DialogContent className="max-w-lg rounded-[14px] border-[color:var(--glass-border-subtle)]">
-          <DialogHeader>
-            <DialogTitle className="text-[#111827]">
+        <DialogContent
+          className={cn(
+            'flex max-h-[min(90dvh,calc(100dvh-1.5rem))] flex-col gap-0 overflow-hidden p-0',
+            'w-[calc(100vw-1rem)] max-w-lg sm:max-w-xl md:max-w-2xl',
+            'rounded-[14px] border-[color:var(--glass-border-subtle)]',
+          )}
+        >
+          <DialogHeader className="min-w-0 shrink-0 space-y-1.5 px-5 pb-0 pt-5 pr-12 text-left sm:px-6 sm:pt-6">
+            <DialogTitle className="break-words text-[#111827]">
               {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
             </DialogTitle>
           </DialogHeader>
-          {editItem != null && (
-            <div className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-3 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9ca3af]">ID</p>
-              <p className="font-mono text-sm tabular-nums text-[#374151]">{editItem.id}</p>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-4 sm:px-6">
+            {editItem != null && (
+              <div className="mb-4 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9ca3af]">ID</p>
+                <p className="font-mono text-sm tabular-nums text-[#374151]">{editItem.id}</p>
+              </div>
+            )}
+            <div className="min-w-0">
+              {formContent(
+                editItem,
+                formData,
+                handleChange as (key: keyof T, value: unknown) => void,
+              )}
             </div>
-          )}
-          {formContent(
-            editItem,
-            formData,
-            handleChange as (key: keyof T, value: unknown) => void,
-          )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl border-[color:var(--glass-border-subtle)]" onClick={() => setModalOpen(false)}>
+          </div>
+          <DialogFooter className="shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+            <Button
+              variant="outline"
+              className="w-full rounded-xl border-[color:var(--glass-border-subtle)] sm:w-auto"
+              onClick={() => setModalOpen(false)}
+            >
               ยกเลิก
             </Button>
-            <Button className="rounded-xl shadow-sm shadow-teal-500/20" onClick={handleSave} disabled={saving}>
+            <Button
+              className="w-full rounded-xl shadow-sm shadow-teal-500/20 sm:w-auto"
+              onClick={handleSave}
+              disabled={saving}
+            >
               {saving ? 'กำลังบันทึก...' : 'บันทึก'}
             </Button>
           </DialogFooter>

@@ -9,13 +9,12 @@ import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
-import { structureNamesSelectableFromMixcodes, mixcodeStructureListTokenUnion, parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
-import type { ConcreteWork, MixedCode, Structure } from '@/types/app.types'
+import { parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
+import type { ConcreteWork, Structure } from '@/types/app.types'
 
 export function ConcreteWorksPage() {
   const [data, setData] = useState<ConcreteWork[]>([])
   const [structures, setStructures] = useState<Structure[]>([])
-  const [mixcodes, setMixcodes] = useState<Pick<MixedCode, 'structure_list'>[]>([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
 
@@ -36,13 +35,6 @@ export function ConcreteWorksPage() {
     [structures],
   )
 
-  const mixcodeUnionList = useMemo(() => mixcodeStructureListTokenUnion(mixcodes), [mixcodes])
-
-  const structureNamesForConcreteWorkForm = useMemo(
-    () => structureNamesSelectableFromMixcodes(structureNamesFromMaster, mixcodes),
-    [structureNamesFromMaster, mixcodes],
-  )
-
   const filtered = useMemo(
     () => filterTableRows(data, q, ['concrete_work', 'structure_list']),
     [data, q],
@@ -50,14 +42,12 @@ export function ConcreteWorksPage() {
 
   async function load() {
     setLoading(true)
-    const [{ data: rows }, { data: structRows }, { data: mixRows }] = await Promise.all([
+    const [{ data: rows }, { data: structRows }] = await Promise.all([
       supabase.from('Concrete Works').select('*').order('concrete_work'),
       supabase.from('Structure').select('id, structure_name').order('structure_name'),
-      supabase.from('Mixed Code').select('structure_list'),
     ])
     setData((rows ?? []) as ConcreteWork[])
     setStructures((structRows ?? []) as Structure[])
-    setMixcodes((mixRows ?? []) as Pick<MixedCode, 'structure_list'>[])
     setLoading(false)
   }
 
@@ -65,10 +55,9 @@ export function ConcreteWorksPage() {
   usePullToRefreshOnLoad(load)
 
   function sanitizeStructureListForSave(raw: string | null | undefined): string | null {
-    const u = new Set(mixcodeStructureListTokenUnion(mixcodes))
-    if (u.size === 0) return null
-    const tokens = parseStructureListTokens(raw)
-    const kept = tokens.filter((t) => u.has(t))
+    const master = new Set(structureNamesFromMaster)
+    if (master.size === 0) return null
+    const kept = parseStructureListTokens(raw).filter((t) => master.has(t))
     if (kept.length === 0) return null
     return kept.sort((a, b) => a.localeCompare(b, 'th')).join(STRUCTURE_LIST_JOIN)
   }
@@ -93,16 +82,20 @@ export function ConcreteWorksPage() {
             <div className="space-y-1.5">
               <Label>Structure list</Label>
               <p className="text-xs text-[#6b7280]">
-                {structureNamesForConcreteWorkForm.length === 0 && structures.length > 0
-                  ? 'ยังไม่มี Mixcode ที่ระบุ Structure list — ตั้งที่หน้า Mixcode ก่อนจึงจะเลือกโครงสร้างได้'
-                  : 'เลือกได้เฉพาะโครงสร้างที่ปรากฏใน Structure list ของ Mixcode อย่างน้อยหนึ่งรายการ'}
+                {structureNamesFromMaster.length > 0
+                  ? `เลือกจากโครงสร้างในหน้า Structure ทั้งหมด ${structureNamesFromMaster.length} รายการ`
+                  : 'ยังไม่มีโครงสร้าง — เพิ่มที่หน้า Structure ก่อน'}
               </p>
-              <StructureListMultiSelect
-                value={String(formData.structure_list ?? '')}
-                onChange={(v) => onChange('structure_list', v)}
-                masterNames={structureNamesForConcreteWorkForm}
-                allowedTokens={mixcodeUnionList}
-              />
+              {!loading ? (
+                <StructureListMultiSelect
+                  inDialog
+                  value={String(formData.structure_list ?? '')}
+                  onChange={(v) => onChange('structure_list', v)}
+                  masterNames={structureNamesFromMaster}
+                />
+              ) : (
+                <p className="text-sm text-[#6b7280]">กำลังโหลดรายการโครงสร้าง…</p>
+              )}
             </div>
           </div>
         )}

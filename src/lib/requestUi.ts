@@ -49,6 +49,8 @@ export const anim = {
 /** Responsive layout primitives — forms, tables, detail rows */
 export const layout = {
   formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
+  /** ฟอร์มใน modal — คอลัมน์คู่เมื่อ dialog กว้างพอ (md+) */
+  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2',
   formField: 'min-w-0 space-y-1.5',
   statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2',
   statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3',

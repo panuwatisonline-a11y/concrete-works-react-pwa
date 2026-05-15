@@ -165,13 +165,13 @@ export function MixcodePage() {
           },
         ]}
         formContent={(_item, formData, onChange) => (
-          <div className="space-y-3 py-2">
-            <div className={layout.formGrid2}>
-              <div className="space-y-1.5">
+          <div className="space-y-3">
+            <div className={layout.formGridDialog}>
+              <div className={layout.formField}>
                 <Label>Mixcode *</Label>
                 <Input value={String(formData.mixcode ?? '')} onChange={(e) => onChange('mixcode', e.target.value)} />
               </div>
-              <div className="space-y-1.5">
+              <div className={layout.formField}>
                 <Label>Supplier</Label>
                 <datalist id="mixcode-supplier-suggestions">
                   {supplierSuggestions.map((v) => (
@@ -186,16 +186,26 @@ export function MixcodePage() {
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className={layout.formField}>
               <Label>Structure list</Label>
-              <StructureListMultiSelect
-                value={String(formData.structure_list ?? '')}
-                onChange={(v) => onChange('structure_list', v)}
-                masterNames={structureNamesFromMaster}
-              />
+              <p className="text-xs text-[#6b7280]">
+                {structureNamesFromMaster.length > 0
+                  ? `เลือกจากโครงสร้างในหน้า Structure ทั้งหมด ${structureNamesFromMaster.length} รายการ`
+                  : 'ยังไม่มีโครงสร้าง — เพิ่มที่หน้า Structure ก่อน'}
+              </p>
+              {!loading ? (
+                <StructureListMultiSelect
+                  inDialog
+                  value={String(formData.structure_list ?? '')}
+                  onChange={(v) => onChange('structure_list', v)}
+                  masterNames={structureNamesFromMaster}
+                />
+              ) : (
+                <p className="text-sm text-[#6b7280]">กำลังโหลดรายการโครงสร้าง…</p>
+              )}
             </div>
-            <div className={layout.formGrid2}>
-              <div className="space-y-1.5">
+            <div className={layout.formGridDialog}>
+              <div className={layout.formField}>
                 <Label>Strength</Label>
                 <Input
                   type="number"
@@ -206,7 +216,7 @@ export function MixcodePage() {
                   }}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className={layout.formField}>
                 <Label>Strength Type</Label>
                 <datalist id="mixcode-strength-type-suggestions">
                   {strengthTypeSuggestions.map((v) => (
@@ -222,17 +232,17 @@ export function MixcodePage() {
                 />
               </div>
             </div>
-            <div className={layout.formGrid2}>
-              <div className="space-y-1.5">
+            <div className={layout.formGridDialog}>
+              <div className={layout.formField}>
                 <Label>Sample Type</Label>
                 <Select
                   value={String(formData.sample_type ?? '').trim() || undefined}
                   onValueChange={(v) => onChange('sample_type', v)}
                 >
-                  <SelectTrigger className="text-[15px]">
+                  <SelectTrigger className="h-auto min-h-10 w-full text-left text-[15px] [&>span]:line-clamp-2 [&>span]:whitespace-normal [&>span]:break-words">
                     <SelectValue placeholder="เลือกขนาดตัวอย่าง" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
                     {sampleTypeSelectOptions.map((opt) => (
                       <SelectItem key={opt} value={opt} className="text-[15px]">
                         {opt}
@@ -241,7 +251,7 @@ export function MixcodePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1.5">
+              <div className={layout.formField}>
                 <Label>Slump</Label>
                 <datalist id="mixcode-slump-suggestions">
                   {slumpSuggestions.map((v) => (

@@ -14,16 +14,111 @@ function serializeStructureList(selected: Set<string>, masterOrder: string[]): s
   return [...picked, ...extras].join(STRUCTURE_LIST_JOIN)
 }
 
+const triggerClass = (hasSelection: boolean) =>
+  cn(
+    'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
+    hasSelection ? 'border-[#99e6e0] bg-white text-[#111827]' : 'border-[#ccf0ed] bg-white text-[#b4bcc8]',
+  )
+
+function StructureListPanel({
+  filter,
+  onFilterChange,
+  filteredRows,
+  selected,
+  hasSelection,
+  onClear,
+  onToggle,
+  isOptionDisabled,
+  listHint,
+  listClassName,
+}: {
+  filter: string
+  onFilterChange: (v: string) => void
+  filteredRows: string[]
+  selected: Set<string>
+  hasSelection: boolean
+  onClear: () => void
+  onToggle: (name: string) => void
+  isOptionDisabled?: (name: string) => boolean
+  listHint?: string
+  listClassName?: string
+}) {
+  return (
+    <>
+      {listHint ? (
+        <p className="shrink-0 text-xs leading-snug text-[#6b7280]">{listHint}</p>
+      ) : null}
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <Input
+          className="h-9 min-w-0 flex-1 text-[14px]"
+          placeholder="ค้นหา…"
+          value={filter}
+          onChange={(e) => onFilterChange(e.target.value)}
+        />
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-[#6b7280] hover:text-[#dc2626]"
+          disabled={!hasSelection}
+          onClick={onClear}
+        >
+          ล้างทั้งหมด
+        </Button>
+      </div>
+      <div
+        className={cn(
+          'min-h-0 space-y-0.5 overflow-y-auto overscroll-y-contain touch-pan-y pr-0.5',
+          listClassName,
+        )}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
+        {filteredRows.length === 0 ? (
+          <p className="px-2 py-3 text-center text-sm text-[#6b7280]">ไม่พบรายการ</p>
+        ) : (
+          filteredRows.map((name) => {
+            const disabled = isOptionDisabled?.(name) ?? false
+            return (
+              <label
+                key={name}
+                className={cn(
+                  'flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px]',
+                  disabled
+                    ? 'cursor-not-allowed text-[#9ca3af]'
+                    : 'cursor-pointer text-[#111827] hover:bg-[#dcfce7]',
+                )}
+              >
+                <input
+                  type="checkbox"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#c8ced8] text-[color:var(--pour-accent)] focus:ring-[color:var(--pour-accent)] disabled:opacity-40"
+                  checked={selected.has(name)}
+                  disabled={disabled}
+                  onChange={() => onToggle(name)}
+                />
+                <span className="min-w-0 leading-snug break-words">{name}</span>
+              </label>
+            )
+          })
+        )}
+      </div>
+    </>
+  )
+}
+
 export function StructureListMultiSelect({
   value,
   onChange,
   masterNames,
+  /** ใช้ใน modal — แสดงรายการใน flow ของฟอร์ม แทน popover ลอย */
+  inDialog = false,
   /** ถ้ากำหนด (รวม `[]`): รายการใน dropdown และค่าที่เก็บ ยอมรับเฉพาะ token ใน set นี้ (จาก Mixcode) */
   allowedTokens,
 }: {
   value: string
   onChange: (v: string) => void
   masterNames: string[]
+  inDialog?: boolean
   allowedTokens?: string[]
 }) {
   const [open, setOpen] = useState(false)
@@ -39,7 +134,7 @@ export function StructureListMultiSelect({
   const summaryText = useMemo(() => {
     const arr = parseStructureListTokens(value).sort((a, b) => a.localeCompare(b, 'th'))
     if (arr.length === 0) return null
-    if (arr.length <= 2) return arr.join(STRUCTURE_LIST_JOIN)
+    if (arr.length <= 3) return arr.join(STRUCTURE_LIST_JOIN)
     return `เลือกแล้ว ${arr.length} รายการ`
   }, [value])
 
@@ -61,94 +156,99 @@ export function StructureListMultiSelect({
   }, [rows, filter])
 
   function toggle(name: string) {
+    if (allowedSet && !allowedSet.has(name)) return
     const next = new Set(selected)
     if (next.has(name)) next.delete(name)
     else next.add(name)
     onChange(serializeStructureList(next, masterNames))
   }
 
+  const listHint = useMemo(() => {
+    const n = filteredRows.length
+    if (n === 0) return 'ไม่มีรายการให้เลือก'
+    const selectable = allowedSet
+      ? filteredRows.filter((name) => allowedSet.has(name)).length
+      : n
+    if (allowedSet && selectable < n) {
+      return `แสดง ${n} รายการจาก Structure — เลือกได้ ${selectable} รายการ (ตาม Mixcode)`
+    }
+    return `ทั้งหมด ${n} รายการจาก Structure`
+  }, [filteredRows, allowedSet])
+
   const hasSelection = summaryText != null
 
-  return (
-    <PopoverPrimitive.Root
-      modal={false}
-      open={open}
-      onOpenChange={(o) => {
-        setOpen(o)
-        if (!o) setFilter('')
-        if (o && allowedSet) {
-          const tokens = parseStructureListTokens(value)
-          const kept = tokens.filter((t) => allowedSet.has(t))
-          if (kept.length !== tokens.length) {
-            const next = serializeStructureList(new Set(kept), masterNames)
-            if (next !== value) onChange(next)
-          }
-        }
-      }}
+  function handleOpenChange(o: boolean) {
+    setOpen(o)
+    if (!o) setFilter('')
+    if (o && allowedSet) {
+      const tokens = parseStructureListTokens(value)
+      const kept = tokens.filter((t) => allowedSet.has(t))
+      if (kept.length !== tokens.length) {
+        const next = serializeStructureList(new Set(kept), masterNames)
+        if (next !== value) onChange(next)
+      }
+    }
+  }
+
+  const trigger = (
+    <Button
+      type="button"
+      variant="outline"
+      className={triggerClass(hasSelection)}
+      aria-expanded={open}
+      onClick={inDialog ? () => handleOpenChange(!open) : undefined}
     >
-      <PopoverPrimitive.Trigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          className={cn(
-            'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
-            hasSelection ? 'border-[#99e6e0] bg-white text-[#111827]' : 'border-[#ccf0ed] bg-white text-[#b4bcc8]',
-          )}
-        >
-          <span className="line-clamp-2 min-w-0 flex-1 break-words">
-            {summaryText ?? 'เลือกโครงสร้างจาก Structure'}
-          </span>
-          <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverPrimitive.Trigger>
+      <span className="line-clamp-2 min-w-0 flex-1 break-words">
+        {summaryText ?? 'เลือกโครงสร้างจาก Structure'}
+      </span>
+      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50 transition-transform', open && 'rotate-180')} />
+    </Button>
+  )
+
+  const panel = (
+    <StructureListPanel
+      filter={filter}
+      onFilterChange={setFilter}
+      filteredRows={filteredRows}
+      selected={selected}
+      hasSelection={hasSelection}
+      onClear={() => onChange('')}
+      onToggle={toggle}
+      isOptionDisabled={allowedSet ? (name) => !allowedSet.has(name) : undefined}
+      listHint={listHint}
+      listClassName={inDialog ? 'max-h-[min(240px,40dvh)]' : 'min-h-0 flex-1'}
+    />
+  )
+
+  if (inDialog) {
+    return (
+      <div className="min-w-0 space-y-2">
+        {trigger}
+        {open ? (
+          <div className="flex flex-col gap-2 rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            {panel}
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+
+  return (
+    <PopoverPrimitive.Root modal open={open} onOpenChange={handleOpenChange}>
+      <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           align="start"
+          side="bottom"
           sideOffset={6}
+          collisionPadding={12}
           className={cn(
-            'z-[100] w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
-            'max-h-[min(380px,55dvh)] flex flex-col gap-2',
+            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
+            'max-h-[min(380px,55dvh)]',
           )}
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            <Input
-              className="h-9 min-w-0 flex-1 text-[14px]"
-              placeholder="ค้นหา…"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-[#6b7280] hover:text-[#dc2626]"
-              disabled={!hasSelection}
-              onClick={() => onChange('')}
-            >
-              ล้างทั้งหมด
-            </Button>
-          </div>
-          <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-y-contain pr-0.5">
-            {filteredRows.length === 0 ? (
-              <p className="px-2 py-3 text-center text-sm text-[#6b7280]">ไม่พบรายการ</p>
-            ) : (
-              filteredRows.map((name) => (
-                <label
-                  key={name}
-                  className="flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[#111827] hover:bg-[#dcfce7]"
-                >
-                  <input
-                    type="checkbox"
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#c8ced8] text-[color:var(--pour-accent)] focus:ring-[color:var(--pour-accent)]"
-                    checked={selected.has(name)}
-                    onChange={() => toggle(name)}
-                  />
-                  <span className="min-w-0 leading-snug break-words">{name}</span>
-                </label>
-              ))
-            )}
-          </div>
+          {panel}
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>
     </PopoverPrimitive.Root>
