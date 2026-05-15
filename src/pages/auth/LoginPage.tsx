@@ -84,7 +84,7 @@ export function LoginPage() {
         </Button>
 
         <p className="mt-6 text-center text-xs text-[#9ca3af]">
-          เฉพาะบัญชี Google ขององค์กรเท่านั้น
+          เฉพาะบัญชี google เท่านั้น
         </p>
       </div>
     </div>
