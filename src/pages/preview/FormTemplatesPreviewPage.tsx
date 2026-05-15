@@ -166,7 +166,7 @@ const CST_SAMPLE: CstStrengthReportTemplateData = {
 const PREVIEW_PAPER_WIDTH_PX = Math.round((210 * 96) / 25.4)
 /** กว้างกว่าแผ่นเล็กน้อย — ใช้เป็นฐานคำนวณ scale ให้ตรงกับเทมเพลต */
 const PREVIEW_IFRAME_WIDTH_PX = PREVIEW_PAPER_WIDTH_PX + 28
-/** ระยะรอบเนื้อหาหลัง scale — กันขอบโค้ง/กรอบทับเส้นประ (พิกเซลจอ) */
+/** ระยะรอบเนื้อหาหลัง scale — กันขอบตัด/กรอบทับขอบกระดาษ (พิกเซลจอ) */
 const PREVIEW_SCALE_SAFE_INSET_PX = 6
 
 function AutoHeightIframe({
