@@ -168,7 +168,7 @@ export function ProfilePage() {
                   <SelectTrigger className="rounded-xl">
                     <SelectValue placeholder="เลือกโครงการ" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-60 w-(--radix-select-trigger-width)">
                     {jobs.map((j) => <SelectItem key={j.id} value={String(j.id)}>{j.job_name}</SelectItem>)}
                   </SelectContent>
                 </Select>
