@@ -34,10 +34,12 @@ export function LoginPage() {
 
   useEffect(() => {
     if (!user || !profileHydrated) return
-    if (profile?.employee_id) {
+    if (!profile?.employee_id) {
+      navigate('/complete-profile', { replace: true })
+    } else if (profile.status === 'approved' || profile.role === 'admin') {
       navigate(APP_HOME, { replace: true })
     } else {
-      navigate('/complete-profile', { replace: true })
+      navigate('/pending-approval', { replace: true })
     }
   }, [user, profile, profileHydrated, navigate])
 

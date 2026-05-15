@@ -40,7 +40,8 @@ export function CompleteProfilePage() {
       return
     }
     if (profileHydrated && profile?.employee_id) {
-      navigate(APP_HOME, { replace: true })
+      const dest = profile.status === 'approved' || profile.role === 'admin' ? APP_HOME : '/pending-approval'
+      navigate(dest, { replace: true })
     }
   }, [user, profile, profileHydrated, navigate])
 
@@ -129,6 +130,7 @@ export function CompleteProfilePage() {
             lname: profileRow.lname,
             phone: profileRow.phone,
             role: 'user',
+            status: 'pending',
             client_id: profileRow.client_id,
             client_name: profileRow.client_name,
             job_id: profileRow.job_id,
@@ -136,8 +138,8 @@ export function CompleteProfilePage() {
           },
     )
 
-    toast.success('บันทึกโปรไฟล์สำเร็จ')
-    navigate(APP_HOME, { replace: true })
+    toast.success('บันทึกโปรไฟล์สำเร็จ — รอ Admin อนุมัติก่อนเข้าใช้งาน')
+    navigate('/pending-approval', { replace: true })
     setLoading(false)
   }
 

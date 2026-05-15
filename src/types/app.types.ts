@@ -1,4 +1,5 @@
 export type UserRole = 'admin' | 'manager' | 'user'
+export type UserStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Profile {
   id: string
@@ -7,6 +8,7 @@ export interface Profile {
   lname: string | null
   phone: string | null
   role: UserRole
+  status: UserStatus
   client_id: number | null
   client_name: string | null
   job_id: number | null

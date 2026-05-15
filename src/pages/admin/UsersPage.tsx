@@ -19,11 +19,17 @@ import { app, rq } from '@/lib/requestUi'
 import type { Profile, UserRole } from '@/types/app.types'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
-import { Edit, Trash2 } from 'lucide-react'
+import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import type { UserStatus } from '@/types/app.types'
 
 const ROLES: UserRole[] = ['user', 'manager', 'admin']
 const ROLE_LABELS: Record<string, string> = { user: 'User', manager: 'Manager', admin: 'Admin' }
 const ROLE_COLORS: Record<string, string> = { user: 'secondary', manager: 'default', admin: 'destructive' }
+const STATUS_BADGE: Record<UserStatus, { label: string; className: string }> = {
+  pending:  { label: 'รออนุมัติ', className: 'border-amber-200 bg-amber-50 text-amber-700' },
+  approved: { label: 'อนุมัติแล้ว', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
+  rejected: { label: 'ปฏิเสธแล้ว', className: 'border-rose-200 bg-rose-50 text-rose-700' },
+}
 /** Radix Select.Item cannot use value=""; reserve empty selection for placeholder UX. */
 const SELECT_NONE = '__none__'
 
@@ -39,6 +45,7 @@ export function UsersPage() {
   const [saving, setSaving] = useState(false)
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
   const [userSearch, setUserSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all')
 
   useDesktopSearchRegistration({
     placeholder: 'ค้นหา รหัสพนักงาน ชื่อ นามสกุล Role Client โครงการ…',
@@ -78,16 +85,26 @@ export function UsersPage() {
     return jobs.find((j) => j.id === u.job_id)?.job_name ?? '-'
   }
 
+  async function setStatus(userId: string, status: UserStatus) {
+    const { error } = await supabase.from('profiles').update({ status }).eq('id', userId)
+    if (error) { toast.error('บันทึกไม่สำเร็จ'); return }
+    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, status } : u))
+    toast.success(status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธแล้ว')
+  }
+
+  const pendingCount = users.filter((u) => u.status === 'pending').length
+
   const filteredUsers = useMemo(() => {
     const t = userSearch.trim().toLowerCase()
-    if (!t) return users
     return users.filter((u) => {
+      if (statusFilter !== 'all' && u.status !== statusFilter) return false
+      if (!t) return true
       const c = clientLabel(u)
       const j = jobLabel(u)
       const blob = [u.employee_id, u.fname, u.lname, u.role, c, j].join(' ').toLowerCase()
       return blob.includes(t)
     })
-  }, [users, userSearch, clients, jobs])
+  }, [users, userSearch, statusFilter, clients, jobs])
 
   async function saveEdit() {
     if (!editUser) return
@@ -134,7 +151,30 @@ export function UsersPage() {
 
   return (
     <div className={app.pageAdmin}>
-      <h1 className={rq.heroTitle}>จัดการผู้ใช้งาน ({filteredUsers.length}{userSearch.trim() ? ` / ${users.length}` : ''})</h1>
+      <h1 className={rq.heroTitle}>จัดการผู้ใช้งาน ({filteredUsers.length}{userSearch.trim() || statusFilter !== 'all' ? ` / ${users.length}` : ''})</h1>
+
+      {/* Status filter tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1">
+        {([['all', 'ทั้งหมด'], ['pending', 'รออนุมัติ'], ['approved', 'อนุมัติแล้ว'], ['rejected', 'ปฏิเสธแล้ว']] as const).map(([val, label]) => (
+          <button
+            key={val}
+            onClick={() => setStatusFilter(val)}
+            className={cn(
+              'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+              statusFilter === val
+                ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white'
+                : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[color:var(--pour-accent-ring)]',
+            )}
+          >
+            {label}
+            {val === 'pending' && pendingCount > 0 && (
+              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none', statusFilter === 'pending' ? 'bg-white/30 text-white' : 'bg-amber-100 text-amber-700')}>
+                {pendingCount}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
 
       <div className={app.mobileCardStack}>
         {loading ? (
@@ -158,14 +198,14 @@ export function UsersPage() {
                   <dd className="font-pour-mono text-[13px] text-[#374151]">{u.employee_id ?? '-'}</dd>
                 </div>
                 <div>
-                  <dt className={cn(rq.dataRowLabel, 'mb-0.5')}>Role</dt>
-                  <dd>
-                    <Badge
-                      variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'}
-                      className="text-xs"
-                    >
+                  <dt className={cn(rq.dataRowLabel, 'mb-0.5')}>Role / สถานะ</dt>
+                  <dd className="flex flex-wrap gap-1.5">
+                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                       {ROLE_LABELS[u.role]}
                     </Badge>
+                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
+                      {STATUS_BADGE[u.status].label}
+                    </span>
                   </dd>
                 </div>
                 <div>
@@ -182,25 +222,26 @@ export function UsersPage() {
                 </div>
               </dl>
               <div className={rq.dataRowActions}>
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-8 w-8 rounded-lg"
-                  onClick={() => setEditUser(u)}
-                  aria-label="แก้ไข"
-                >
+                {u.status === 'pending' && (
+                  <>
+                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                      <XCircle className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                )}
+                {u.status === 'rejected' && (
+                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
                   <Edit className="h-3.5 w-3.5" />
                 </Button>
                 {u.id !== currentProfileId && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8 rounded-lg"
-                    onClick={() => setDeleteUserId(u.id)}
-                    aria-label="ลบ"
-                  >
+                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
                     <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                   </Button>
                 )}
@@ -214,7 +255,7 @@ export function UsersPage() {
         <table className={app.table}>
           <thead className={app.tableHead}>
             <tr>
-              {['รหัสพนักงาน', 'ชื่อ-นามสกุล', 'Role', 'Client', 'โครงการ', 'วันที่สมัคร', 'การจัดการ'].map((h) => (
+              {['รหัสพนักงาน', 'ชื่อ-นามสกุล', 'Role', 'สถานะ', 'Client', 'โครงการ', 'วันที่สมัคร', 'การจัดการ'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -222,13 +263,13 @@ export function UsersPage() {
           <tbody className={cn(app.tableBody, app.tableRowHover)}>
             {loading ? (
               <tr>
-                <td colSpan={7} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={8} className="py-10 text-center text-[#6b7280]">
                   กำลังโหลด…
                 </td>
               </tr>
             ) : filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={8} className="py-10 text-center text-[#6b7280]">
                   {users.length === 0 ? 'ไม่มีผู้ใช้' : 'ไม่พบผู้ใช้ที่ตรงกับคำค้น'}
                 </td>
               </tr>
@@ -238,12 +279,14 @@ export function UsersPage() {
                   <td className="min-w-0 break-words px-3 py-2 font-mono text-xs">{u.employee_id ?? '-'}</td>
                   <td className="min-w-0 break-words px-3 py-2">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
                   <td className="min-w-0 px-3 py-2">
-                    <Badge
-                      variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'}
-                      className="text-xs"
-                    >
+                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                       {ROLE_LABELS[u.role]}
                     </Badge>
+                  </td>
+                  <td className="min-w-0 whitespace-nowrap px-3 py-2">
+                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
+                      {STATUS_BADGE[u.status].label}
+                    </span>
                   </td>
                   <td className="min-w-0 max-w-[12rem] break-words px-3 py-2 text-[#374151] sm:max-w-[200px]" title={clientLabel(u)}>
                     {clientLabel(u)}
@@ -254,25 +297,26 @@ export function UsersPage() {
                   <td className="min-w-0 whitespace-nowrap text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
                   <td className="shrink-0 whitespace-nowrap">
                     <div className="flex gap-0.5">
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        className="rounded-lg"
-                        onClick={() => setEditUser(u)}
-                        aria-label="แก้ไข"
-                      >
+                      {u.status === 'pending' && (
+                        <>
+                          <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button type="button" size="icon" variant="ghost" className="rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                      {u.status === 'rejected' && (
+                        <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      )}
+                      <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
                         <Edit className="h-4 w-4" />
                       </Button>
                       {u.id !== currentProfileId && (
-                        <Button
-                          type="button"
-                          size="icon"
-                          variant="ghost"
-                          className="rounded-lg"
-                          onClick={() => setDeleteUserId(u.id)}
-                          aria-label="ลบ"
-                        >
+                        <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
                           <Trash2 className="h-4 w-4 text-[#9ca3af]" />
                         </Button>
                       )}

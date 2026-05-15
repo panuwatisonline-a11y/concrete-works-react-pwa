@@ -8,6 +8,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { CompleteProfilePage } from '@/pages/auth/CompleteProfilePage'
+import { PendingApprovalPage } from '@/pages/auth/PendingApprovalPage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { RequestListPage } from '@/pages/requests/RequestListPage'
 import { RequestNewPage } from '@/pages/requests/RequestNewPage'
@@ -46,6 +47,7 @@ function AppInner() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/complete-profile" element={<CompleteProfilePage />} />
+      <Route path="/pending-approval" element={<PendingApprovalPage />} />
 
       <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
 
