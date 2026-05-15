@@ -128,7 +128,7 @@ export function ProfilePage() {
           <div className="flex items-center gap-5">
             <div className="shrink-0 rounded-full bg-gradient-to-tr from-blue-400 via-blue-500 to-indigo-600 p-[3px] shadow-sm">
               <div className="rounded-full bg-white p-[2px]">
-                <UserAvatar profile={profile} size="lg" className="h-[4.5rem] w-[4.5rem] border-0" />
+                <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="lg" className="h-[4.5rem] w-[4.5rem] border-0" />
               </div>
             </div>
             <div className="min-w-0 flex-1 space-y-1">

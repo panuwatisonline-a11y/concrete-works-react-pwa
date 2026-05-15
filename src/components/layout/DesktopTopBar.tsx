@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils'
 export function DesktopTopBar() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { profile } = useAuthStore()
+  const { profile, user } = useAuthStore()
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
   const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
@@ -111,7 +111,7 @@ export function DesktopTopBar() {
           className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-[var(--pour-accent-ring)]"
           title="โปรไฟล์"
         >
-          <UserAvatar profile={profile} size="sm" />
+          <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
         </Link>
       </div>
     </div>

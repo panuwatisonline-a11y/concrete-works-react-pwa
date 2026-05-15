@@ -166,7 +166,7 @@ export function DesktopSidebar() {
 
       <div className="border-t border-[color:var(--glass-border-subtle)] p-5">
         <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[rgba(17,24,39,0.03)] p-3 backdrop-blur-md">
-          <UserAvatar profile={profile} size="sm" />
+          <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
           <div className="min-w-0 flex-1">
             <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
             <p className={cn('truncate', type.caption)}>{subtitle}</p>
