@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+﻿import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import {
   fillChecklistBeforePourTemplate,
@@ -351,7 +351,7 @@ function CollapsiblePreviewBlock(props: {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[#f9fafb]"
+        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[#f0fdf4]"
       >
         <span className="font-semibold text-[#111827]">{title}</span>
         <ChevronDown
@@ -449,7 +449,7 @@ export function FormTemplatesPreviewPage() {
       <div className="mb-4">
         <h1 className="text-lg font-bold tracking-tight text-[#111827] md:text-xl">ตัวอย่างแบบฟอร์ม</h1>
         <p className="mt-1 text-sm text-[#6b7280]">
-          รวมฟอร์มจาก <code className="rounded bg-[#f3f4f6] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
+          รวมฟอร์มจาก <code className="rounded bg-[#dcfce7] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
         </p>
       </div>
 

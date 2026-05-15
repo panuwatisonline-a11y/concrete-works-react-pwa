@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+﻿import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import type { NamedVolumeSlice, TrendGranularity, TrendPoint } from '@/lib/adminDashboardAnalytics'
 import { formatTrendAxisLabel } from '@/lib/adminDashboardAnalytics'
@@ -20,7 +20,7 @@ export function TrendGranularityToggle({
   const options: TrendGranularity[] = ['day', 'week', 'month', 'year']
   return (
     <div
-      className="flex flex-wrap gap-1.5 rounded-xl border border-[#e2e6ec] bg-[#f8fafc] p-1"
+      className="flex flex-wrap gap-1.5 rounded-xl border border-[#ccf0ed] bg-[#f0fdf4] p-1"
       role="tablist"
       aria-label="ช่วงเวลากราฟแนวโน้ม"
     >
@@ -34,7 +34,7 @@ export function TrendGranularityToggle({
           className={cn(
             'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
             value === g
-              ? 'bg-white text-[color:var(--pour-accent)] shadow-sm ring-1 ring-[#e2e6ec]'
+              ? 'bg-white text-[color:var(--pour-accent)] shadow-sm ring-1 ring-[#ccf0ed]'
               : 'text-[#64748b] hover:bg-white/80 hover:text-[#111827]',
           )}
         >
@@ -115,7 +115,7 @@ export function VolumeTrendDualLineChart({
 
   if (loading) {
     return (
-      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
+      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#ccf0ed] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
         กำลังโหลดกราฟ…
       </div>
     )
@@ -123,7 +123,7 @@ export function VolumeTrendDualLineChart({
 
   if (points.length === 0) {
     return (
-      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
+      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#ccf0ed] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
         ไม่มีข้อมูลในช่วงที่เลือก (ต้องมีวันเลื่อน วันเท หรือวันที่จองสำหรับจัดกลุ่มกราฟ)
       </div>
     )
@@ -143,8 +143,8 @@ export function VolumeTrendDualLineChart({
       : pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yc.toFixed(1)}`).join(' ')
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      <div className="border-b border-[#e2e6ec]/80 bg-[#f8fafc] px-3 py-2 md:px-4 md:py-2.5">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="border-b border-[#ccf0ed]/80 bg-[#f0fdf4] px-3 py-2 md:px-4 md:py-2.5">
         <p className="text-[11px] leading-snug text-[#64748b] md:text-xs">
           สะสมต่อช่วง: วันเลื่อน (postpone) ก่อน แล้ววันเท แล้ววันที่จอง — เทียบ Request volume กับ Confirmed volume
         </p>
@@ -226,7 +226,7 @@ export function VolumeTrendDualLineChart({
               )
             })}
         </svg>
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#e2e6ec]/80 pt-3 text-[10px] text-[#374151] md:text-xs">
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#ccf0ed]/80 pt-3 text-[10px] text-[#374151] md:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-5 rounded-sm bg-[#64748b]" aria-hidden />
             Request volume (m³)
@@ -261,7 +261,7 @@ export function HorizontalVolumeBarChart({
 }) {
   if (loading) {
     return (
-      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
+      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#ccf0ed] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
         กำลังโหลด…
       </div>
     )
@@ -269,7 +269,7 @@ export function HorizontalVolumeBarChart({
 
   if (slices.length === 0) {
     return (
-      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
+      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#ccf0ed] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
         {emptyMessage}
       </div>
     )
@@ -278,8 +278,8 @@ export function HorizontalVolumeBarChart({
   const maxV = Math.max(...slices.map((s) => s.volume), 1)
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      <div className="border-b border-[#e2e6ec]/80 bg-[#f8fafc] px-3 py-2 md:px-4 md:py-2.5">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="border-b border-[#ccf0ed]/80 bg-[#f0fdf4] px-3 py-2 md:px-4 md:py-2.5">
         <p className="text-sm font-semibold text-[#111827]">{title}</p>
         {subtitle ? <p className="mt-0.5 text-[11px] text-[#64748b] md:text-xs">{subtitle}</p> : null}
       </div>
@@ -310,7 +310,7 @@ export function HorizontalVolumeBarChart({
           )
         })}
       </div>
-      <div className="border-t border-[#e2e6ec]/80 px-3 py-2 text-[10px] text-[#64748b] md:px-4">
+      <div className="border-t border-[#ccf0ed]/80 px-3 py-2 text-[10px] text-[#64748b] md:px-4">
         รวม confirmed volume ทั้งหมดในกราฟนี้:{' '}
         <span className="font-semibold text-[#111827]">
           {fmtVol(slices.reduce((a, b) => a + b.volume, 0))} m³
@@ -345,7 +345,7 @@ export function StatusVolumeStrip({
 
   if (loading) {
     return (
-      <div className="flex min-h-[4rem] items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280]">
+      <div className="flex min-h-[4rem] items-center justify-center rounded-[14px] border border-[#ccf0ed] bg-white text-sm text-[#6b7280]">
         กำลังโหลดสัดส่วนสถานะ…
       </div>
     )
@@ -353,22 +353,22 @@ export function StatusVolumeStrip({
 
   if (total === 0) {
     return (
-      <div className="rounded-[14px] border border-[#e2e6ec] bg-white px-4 py-6 text-center text-sm text-[#6b7280]">
+      <div className="rounded-[14px] border border-[#ccf0ed] bg-white px-4 py-6 text-center text-sm text-[#6b7280]">
         ยังไม่มีคำขอในระบบ
       </div>
     )
   }
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      <div className="border-b border-[#e2e6ec]/80 bg-[#f8fafc] px-3 py-2 md:px-4 md:py-2.5">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="border-b border-[#ccf0ed]/80 bg-[#f0fdf4] px-3 py-2 md:px-4 md:py-2.5">
         <p className="text-sm font-semibold text-[#111827]">สัดส่วนสถานะคำขอ</p>
         <p className="mt-0.5 text-[11px] text-[#64748b] md:text-xs">
           ทั้งหมด {total} รายการ — ชี้ที่แถบสีเพื่อดูรายละเอียดใน tooltip
         </p>
       </div>
       <div className="p-3 md:p-4">
-        <div className="flex h-4 overflow-hidden rounded-full bg-[#eef2f7] ring-1 ring-[#e2e6ec]/80">
+        <div className="flex h-4 overflow-hidden rounded-full bg-[#eef2f7] ring-1 ring-[#ccf0ed]/80">
           {ORDER.map((id) => {
             const c = counts[id] ?? 0
             if (c === 0) return null
@@ -392,7 +392,7 @@ export function StatusVolumeStrip({
             return (
               <li
                 key={id}
-                className="flex items-center justify-between gap-2 rounded-lg border border-[#eef2f7] bg-[#fafbfc] px-3 py-2 text-xs"
+                className="flex items-center justify-between gap-2 rounded-lg border border-[#eef2f7] bg-[#f0fdf4] px-3 py-2 text-xs"
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors[id] }} />

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+﻿import type { ReactNode } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -20,7 +20,7 @@ export function RequestScreenHeader({ title, subtitle, onBack, right, className 
           type="button"
           variant="ghost"
           size="icon"
-          className="h-10 w-10 shrink-0 rounded-xl text-[#6b7280] hover:bg-[#f0f2f5] hover:text-[#111827]"
+          className="h-10 w-10 shrink-0 rounded-xl text-[#6b7280] hover:bg-[#dcfce7] hover:text-[#111827]"
           onClick={onBack}
           aria-label="กลับ"
         >

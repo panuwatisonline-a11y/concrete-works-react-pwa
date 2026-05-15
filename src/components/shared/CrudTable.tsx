@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+﻿import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
@@ -89,7 +89,7 @@ export function CrudTable<T extends { id: number }>({
     <div className="space-y-4">
       {embedded ? (
         <div className="flex justify-end">
-          <Button size="sm" className="rounded-xl shadow-sm shadow-blue-500/20" onClick={openAdd}>
+          <Button size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" onClick={openAdd}>
             <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
             เพิ่ม
           </Button>
@@ -97,7 +97,7 @@ export function CrudTable<T extends { id: number }>({
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-bold tracking-tight text-[#111827] md:text-lg">{title}</h2>
-          <Button size="sm" className="rounded-xl shadow-sm shadow-blue-500/20" onClick={openAdd}>
+          <Button size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" onClick={openAdd}>
             <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
             เพิ่ม
           </Button>
@@ -195,14 +195,14 @@ export function CrudTable<T extends { id: number }>({
           }
         }}
       >
-        <DialogContent className="max-w-lg rounded-[14px] border-[#e2e6ec]">
+        <DialogContent className="max-w-lg rounded-[14px] border-[color:var(--glass-border-subtle)]">
           <DialogHeader>
             <DialogTitle className="text-[#111827]">
               {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
             </DialogTitle>
           </DialogHeader>
           {editItem != null && (
-            <div className="rounded-lg border border-[#e2e6ec] bg-[#f5f6f8]/70 px-3 py-2">
+            <div className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-3 py-2">
               <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9ca3af]">ID</p>
               <p className="font-mono text-sm tabular-nums text-[#374151]">{editItem.id}</p>
             </div>
@@ -213,10 +213,10 @@ export function CrudTable<T extends { id: number }>({
             handleChange as (key: keyof T, value: unknown) => void,
           )}
           <DialogFooter className="gap-2">
-            <Button variant="outline" className="rounded-xl border-[#e2e6ec]" onClick={() => setModalOpen(false)}>
+            <Button variant="outline" className="rounded-xl border-[color:var(--glass-border-subtle)]" onClick={() => setModalOpen(false)}>
               ยกเลิก
             </Button>
-            <Button className="rounded-xl shadow-sm shadow-blue-500/25" onClick={handleSave} disabled={saving}>
+            <Button className="rounded-xl shadow-sm shadow-teal-500/20" onClick={handleSave} disabled={saving}>
               {saving ? 'กำลังบันทึก...' : 'บันทึก'}
             </Button>
           </DialogFooter>

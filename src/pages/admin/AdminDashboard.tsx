@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+﻿import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Card, CardContent } from '@/components/ui/card'
@@ -126,7 +126,7 @@ export function AdminDashboard() {
         aria-label="ตัวกรองช่วงวันที่"
         className={cn(
           app.pageAdminSection,
-          'overflow-hidden rounded-[14px] border border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'overflow-hidden rounded-[14px] border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
         )}
       >
         <button
@@ -135,7 +135,7 @@ export function AdminDashboard() {
           aria-expanded={dateFilterOpen}
           aria-controls="dash-date-filter-panel"
           onClick={() => setDateFilterOpen((o) => !o)}
-          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f8fafc]"
+          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f0fdf4]"
         >
           <ChevronDown
             className={cn(
@@ -163,7 +163,7 @@ export function AdminDashboard() {
             id="dash-date-filter-panel"
             role="region"
             aria-labelledby="dash-date-filter-toggle"
-            className="border-t border-[#e2e6ec]/80 px-4 pb-4 pt-3"
+            className="border-t border-[#ccf0ed]/80 px-4 pb-4 pt-3"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
               <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -176,7 +176,7 @@ export function AdminDashboard() {
                     type="date"
                     value={filterDateFrom}
                     onChange={(e) => setFilterDateFrom(e.target.value)}
-                    className="h-10 rounded-xl border-[#e2e6ec] bg-[#fafbfc] font-medium"
+                    className="h-10 rounded-xl border-[#ccf0ed] bg-[#f0fdf4] font-medium"
                   />
                 </div>
                 <div className="min-w-0 space-y-1.5">
@@ -188,14 +188,14 @@ export function AdminDashboard() {
                     type="date"
                     value={filterDateTo}
                     onChange={(e) => setFilterDateTo(e.target.value)}
-                    className="h-10 rounded-xl border-[#e2e6ec] bg-[#fafbfc] font-medium"
+                    className="h-10 rounded-xl border-[#ccf0ed] bg-[#f0fdf4] font-medium"
                   />
                 </div>
               </div>
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 shrink-0 rounded-xl border-[#e2e6ec] font-semibold text-[#374151]"
+                className="h-10 shrink-0 rounded-xl border-[#ccf0ed] font-semibold text-[#374151]"
                 disabled={!hasDateFilter}
                 onClick={() => {
                   setFilterDateFrom('')
@@ -218,7 +218,7 @@ export function AdminDashboard() {
       <section aria-label="สรุปจำนวนและปริมาตร" className={app.pageAdminSection}>
         <h2 className={cn(rq.cardTitle, 'px-0.5')}>ภาพรวมคำขอและปริมาณ</h2>
         <div className={cn(layout.statGrid5, 'md:gap-4')}>
-          <Card className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[0])} />
             <CardContent className={rq.cardContentTight}>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
@@ -229,7 +229,7 @@ export function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[1])} />
             <CardContent className={rq.cardContentTight}>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
@@ -240,7 +240,7 @@ export function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[2])} />
             <CardContent className={rq.cardContentTight}>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
@@ -251,7 +251,7 @@ export function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[3])} />
             <CardContent className={rq.cardContentTight}>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
@@ -262,7 +262,7 @@ export function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card className="col-span-2 overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80 md:col-span-1">
+          <Card className="col-span-2 overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80 md:col-span-1">
             <div className="h-1 bg-gradient-to-r from-[#d97706] to-[#ea580c]" />
             <CardContent className={rq.cardContentTight}>
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
@@ -293,7 +293,7 @@ export function AdminDashboard() {
         {summaryCards.map(({ id, label }, i) => (
           <Card
             key={id}
-            className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80"
+            className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80"
           >
             <div className={cn('h-1 bg-gradient-to-r', accentBar[i % accentBar.length])} />
             <CardContent className={rq.cardContentTight}>

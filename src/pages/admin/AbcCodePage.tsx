@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+﻿import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -67,7 +67,7 @@ export function AbcCodePage() {
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>ABC Code</h1>
 
-      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[#e2e6ec] bg-white/90 p-1 shadow-sm ring-1 ring-[#f5f6f8]">
+      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[#ccf0ed] bg-white/90 p-1 shadow-sm ring-1 ring-[#ccf0ed]">
         {tabs.map(({ key, label }) => (
           <button
             key={key}
@@ -77,7 +77,7 @@ export function AbcCodePage() {
               'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:text-sm',
               tab === key
                 ? 'bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent-hover)] shadow-sm'
-                : 'text-[#6b7280] hover:bg-[#f0f2f5] hover:text-[#111827]',
+                : 'text-[#6b7280] hover:bg-[#dcfce7] hover:text-[#111827]',
             )}
           >
             {label}
@@ -169,7 +169,7 @@ export function AbcCodePage() {
                 )
               })}
               {previewLine ? (
-                <p className="rounded-lg border border-dashed border-[#e2e6ec] bg-[#fafbfc] px-3 py-2 text-[13px] leading-snug text-[#6b7280]">
+                <p className="rounded-lg border border-dashed border-[#ccf0ed] bg-[#f0fdf4] px-3 py-2 text-[13px] leading-snug text-[#6b7280]">
                   <span className="font-mono text-[#374151]">{previewLine}</span>
                 </p>
               ) : null}

@@ -75,9 +75,12 @@ export function LoginPage() {
       <div className="pour-glass pour-page-enter w-full max-w-[380px] rounded-2xl p-6 sm:p-8">
         {/* Mobile-only logo */}
         <div className="mb-8 flex items-center gap-3 md:hidden">
-          <span className={cn('flex h-10 w-10 items-center justify-center rounded-xl', theme.iconTileBrand)}>
-            <Briefcase className="h-5 w-5 text-white" strokeWidth={2} aria-hidden />
-          </span>
+          <img
+            src="/pwa-192x192.png"
+            alt="Concrete Works logo"
+            className="h-10 w-10 rounded-xl object-contain"
+            aria-hidden
+          />
           <span className="text-xl font-bold tracking-tight text-[#111827]">Concrete Works</span>
         </div>
 
@@ -161,7 +164,7 @@ export function LoginPage() {
     <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 flex-col overflow-y-auto overscroll-y-contain md:flex-row md:overflow-hidden">
       {/* Left brand panel — desktop only */}
       <div
-        className="relative hidden shrink-0 flex-col justify-between overflow-hidden bg-[linear-gradient(160deg,#525252_0%,#262626_50%,#0a0a0a_100%)] p-12 md:flex md:w-[42%]"
+        className="relative hidden shrink-0 flex-col justify-between overflow-hidden bg-[linear-gradient(160deg,#134e4a_0%,#0f766e_48%,#042f2e_100%)] p-12 md:flex md:w-[42%]"
       >
         {/* Hatch overlay */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]" aria-hidden>
@@ -176,9 +179,12 @@ export function LoginPage() {
         {/* Logo + Quality Management and Innovation */}
         <div className="relative">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white">
-              <Briefcase className="h-5 w-5" strokeWidth={2} />
-            </span>
+            <img
+              src="/pwa-192x192.png"
+              alt="Concrete Works logo"
+              className="h-10 w-10 rounded-xl object-contain"
+              aria-hidden
+            />
             <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
           </div>
           <div className="mt-5 max-w-md rounded-lg border border-white/15 bg-white/[0.06] px-4 py-3 backdrop-blur-[2px]">

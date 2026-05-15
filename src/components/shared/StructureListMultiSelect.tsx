@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import * as PopoverPrimitive from '@radix-ui/react-popover'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -92,7 +92,7 @@ export function StructureListMultiSelect({
           variant="outline"
           className={cn(
             'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
-            hasSelection ? 'border-[#c7f0d0] bg-white text-[#111827]' : 'border-[#e2e6ec] bg-white text-[#b4bcc8]',
+            hasSelection ? 'border-[#99e6e0] bg-white text-[#111827]' : 'border-[#ccf0ed] bg-white text-[#b4bcc8]',
           )}
         >
           <span className="line-clamp-2 min-w-0 flex-1 break-words">
@@ -106,7 +106,7 @@ export function StructureListMultiSelect({
           align="start"
           sideOffset={6}
           className={cn(
-            'z-[100] w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-[#e2e6ec] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
+            'z-[100] w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
             'max-h-[min(380px,55dvh)] flex flex-col gap-2',
           )}
           onOpenAutoFocus={(e) => e.preventDefault()}
@@ -136,7 +136,7 @@ export function StructureListMultiSelect({
               filteredRows.map((name) => (
                 <label
                   key={name}
-                  className="flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[#111827] hover:bg-[#f0f2f5]"
+                  className="flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[#111827] hover:bg-[#dcfce7]"
                 >
                   <input
                     type="checkbox"

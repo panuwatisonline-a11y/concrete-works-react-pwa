@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -442,7 +442,7 @@ export function RequestNewPage() {
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex gap-0 rounded-2xl border border-[#e2e6ec] bg-white/80 px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 md:px-3">
+      <div className="flex gap-0 rounded-2xl border border-[#ccf0ed] bg-white/80 px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 md:px-3">
         {STEPS.map((label, i) => (
           <div key={label} className="flex min-w-0 flex-1 items-center">
             <div
@@ -475,24 +475,24 @@ export function RequestNewPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {stepFields(step)}
 
-            <div className="mt-8 flex justify-between gap-2 border-t border-[#e2e6ec]/80 pt-5">
+            <div className="mt-8 flex justify-between gap-2 border-t border-[#ccf0ed]/80 pt-5">
               {step > 0 ? (
-                <Button type="button" variant="outline" className="rounded-xl border-[#e2e6ec]" onClick={() => setStep(step - 1)}>
+                <Button type="button" variant="outline" className="rounded-xl border-[#ccf0ed]" onClick={() => setStep(step - 1)}>
                   ย้อนกลับ
                 </Button>
               ) : (
-                <Button type="button" variant="outline" className="rounded-xl border-[#e2e6ec]" onClick={() => navigate(APP_HOME)}>
+                <Button type="button" variant="outline" className="rounded-xl border-[#ccf0ed]" onClick={() => navigate(APP_HOME)}>
                   ยกเลิก
                 </Button>
               )}
               {step < 2 ? (
-                <Button type="button" className="rounded-xl shadow-md shadow-blue-500/25" onClick={nextStep}>
+                <Button type="button" className="rounded-xl shadow-md shadow-teal-500/20" onClick={nextStep}>
                   ถัดไป
                 </Button>
               ) : (
                 <Button
                   type="button"
-                  className="rounded-xl shadow-md shadow-blue-500/25"
+                  className="rounded-xl shadow-md shadow-teal-500/20"
                   disabled={submitting}
                   onClick={() => { void handleSubmit(onSubmit)() }}
                 >

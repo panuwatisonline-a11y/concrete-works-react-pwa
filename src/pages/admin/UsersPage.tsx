@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+﻿import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -289,7 +289,7 @@ export function UsersPage() {
           if (!open) setEditUser(null)
         }}
       >
-        <DialogContent className="max-w-lg rounded-[14px] border-[#e2e6ec]">
+        <DialogContent className="max-w-lg rounded-[14px] border-[#ccf0ed]">
           <DialogHeader className="min-w-0 pr-10 text-left sm:pr-12">
             <DialogTitle className="break-words text-[#111827]">แก้ไขผู้ใช้งาน</DialogTitle>
           </DialogHeader>
@@ -351,7 +351,7 @@ export function UsersPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-xl border-[#e2e6ec] sm:w-auto"
+              className="w-full rounded-xl border-[#ccf0ed] sm:w-auto"
               onClick={() => setEditUser(null)}
               disabled={saving}
             >
@@ -359,7 +359,7 @@ export function UsersPage() {
             </Button>
             <Button
               type="button"
-              className="w-full rounded-xl shadow-sm shadow-blue-500/25 sm:w-auto"
+              className="w-full rounded-xl shadow-sm shadow-teal-500/20 sm:w-auto"
               onClick={() => void saveEdit()}
               disabled={saving || !editUser}
             >

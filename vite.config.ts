@@ -1,4 +1,4 @@
-import path from 'path'
+﻿import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
@@ -16,7 +16,7 @@ export default defineConfig({
        */
       injectRegister: 'inline',
       includeAssets: [
-        'favicon.svg',
+        'favicon.png',
         'apple-touch-icon.png',
         'pwa-192x192.png',
         'pwa-512x512.png',
@@ -27,14 +27,14 @@ export default defineConfig({
         'templates/cst-report-logo-2.png',
         'templates/cst-report-logo-3.png',
       ],
-      /** ปิด SW ใน dev — กัน CSS/JS ค้างหลัง HMR พัง */
+      /** เธเธดเธ” SW เนเธ dev โ€” เธเธฑเธ CSS/JS เธเนเธฒเธเธซเธฅเธฑเธ HMR เธเธฑเธ */
       devOptions: {
         enabled: false,
       },
       manifest: {
         name: 'Concrete Works',
-        short_name: 'ConcreteWks',
-        description: 'ระบบจัดการคำขอคอนกรีต',
+        short_name: 'Concrete Works',
+        description: 'เธฃเธฐเธเธเธเธฑเธ”เธเธฒเธฃเธเธณเธเธญเธเธญเธเธเธฃเธตเธ•',
         theme_color: '#1d4ed8',
         background_color: '#ffffff',
         display: 'standalone',
@@ -75,7 +75,7 @@ export default defineConfig({
   server: {
     port: 3000,
     strictPort: false,
-    /** เปิดจากมือถือใน Wi‑Fi ได้ (http://<IP>:<port>) — ติดตั้ง PWA จริงใช้ https บน production */
+    /** เน€เธเธดเธ”เธเธฒเธเธกเธทเธญเธ–เธทเธญเนเธ Wiโ€‘Fi เนเธ”เน (http://<IP>:<port>) โ€” เธ•เธดเธ”เธ•เธฑเนเธ PWA เธเธฃเธดเธเนเธเน https เธเธ production */
     host: true,
   },
   preview: {

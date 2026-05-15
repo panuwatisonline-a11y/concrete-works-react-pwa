@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -131,7 +131,7 @@ export function ProfilePage() {
               type="button"
               variant="outline"
               size="sm"
-              className="gap-1.5 rounded-xl border-[#e2e6ec] text-[#374151]"
+              className="gap-1.5 rounded-xl border-[#ccf0ed] text-[#374151]"
               onClick={() => setEditingProfile(true)}
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
@@ -154,7 +154,7 @@ export function ProfilePage() {
                 {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.employee_id || 'โปรไฟล์'}
               </p>
               <p className="text-sm text-[#6b7280]">{profile?.employee_id}</p>
-              <Badge variant="secondary" className="border border-[#e2e6ec] bg-[#f0f2f5] text-xs font-semibold text-[#374151]">
+              <Badge variant="secondary" className="border border-[#ccf0ed] bg-[#dcfce7] text-xs font-semibold text-[#374151]">
                 {roleLabels[profile?.role ?? ''] ?? profile?.role}
               </Badge>
             </div>
@@ -191,7 +191,7 @@ export function ProfilePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#ccf0ed]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
@@ -201,21 +201,21 @@ export function ProfilePage() {
                   <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 border-t border-[#e2e6ec]/80 pt-4">
-                <Button type="submit" size="sm" className="rounded-xl shadow-sm shadow-blue-500/20" disabled={savingProfile}>
+              <div className="flex flex-wrap gap-2 border-t border-[#ccf0ed]/80 pt-4">
+                <Button type="submit" size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingProfile}>
                   {savingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="rounded-xl border-[#e2e6ec]"
+                  className="rounded-xl border-[#ccf0ed]"
                   onClick={cancelProfileEdit}
                   disabled={savingProfile}
                 >
                   ยกเลิก
                 </Button>
-                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(true)}>
+                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(true)}>
                   เปลี่ยนรหัสผ่าน
                 </Button>
               </div>
@@ -240,7 +240,7 @@ export function ProfilePage() {
                 <p className={cn(rq.label, 'mb-1')}>โครงการ</p>
                 <p className="font-medium text-[#111827]">{jobName?.trim() || '-'}</p>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#ccf0ed]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
@@ -250,8 +250,8 @@ export function ProfilePage() {
                   <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
-              <div className="border-t border-[#e2e6ec]/80 pt-4">
-                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(true)}>
+              <div className="border-t border-[#ccf0ed]/80 pt-4">
+                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(true)}>
                   เปลี่ยนรหัสผ่าน
                 </Button>
               </div>
@@ -261,7 +261,7 @@ export function ProfilePage() {
       </Card>
 
       <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-        <DialogContent className="max-w-sm rounded-[14px] border-[#e2e6ec]">
+        <DialogContent className="max-w-sm rounded-[14px] border-[#ccf0ed]">
           <DialogHeader><DialogTitle>เปลี่ยนรหัสผ่าน</DialogTitle></DialogHeader>
           <form onSubmit={handlePw(onChangePassword)} className="space-y-4">
             <div className="space-y-1.5">
@@ -275,10 +275,10 @@ export function ProfilePage() {
               {pwErrors.confirm && <p className="text-xs text-rose-600">{pwErrors.confirm.message}</p>}
             </div>
             <DialogFooter className="gap-2">
-              <Button variant="outline" type="button" className="rounded-xl border-[#e2e6ec]" onClick={() => setPwOpen(false)}>
+              <Button variant="outline" type="button" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit" className="rounded-xl shadow-sm shadow-blue-500/25" disabled={savingPw}>
+              <Button type="submit" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingPw}>
                 {savingPw ? 'กำลังบันทึก...' : 'เปลี่ยนรหัสผ่าน'}
               </Button>
             </DialogFooter>

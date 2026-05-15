@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+﻿import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MixedCode } from '@/types/app.types'
 
@@ -23,13 +23,13 @@ export function MixcodePicker({
     <div className="min-w-0 space-y-2">
       <div
         className={cn(
-          'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
           disabled && 'pointer-events-none opacity-50',
         )}
       >
         <div className="pour-scroll-x max-h-[min(45svh,380px)] overflow-y-auto overscroll-contain">
           <table className="w-full table-fixed border-collapse text-left text-sm">
-            <thead className="sticky top-0 z-[1] border-b border-[#e2e6ec] bg-[#f9fafb] text-[10px] font-medium uppercase leading-tight tracking-wide text-[#6b7280] sm:text-xs">
+            <thead className="sticky top-0 z-[1] border-b border-[#ccf0ed] bg-[#f0fdf4] text-[10px] font-medium uppercase leading-tight tracking-wide text-[#6b7280] sm:text-xs">
               <tr>
                 <th className="w-9 px-1 py-2 font-medium sm:w-10 sm:px-2" aria-label="เลือก" />
                 <th className="w-[26%] px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Mixcode</th>
@@ -68,7 +68,7 @@ export function MixcodePicker({
                       }}
                       className={cn(
                         'cursor-pointer border-t border-[#f0f2f5] outline-none transition-colors first:border-t-0',
-                        'hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/25',
+                        'hover:bg-[#f0fdf4] focus-visible:bg-[#f0fdf4] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/25',
                         on && 'bg-[#eff6ff] hover:bg-[#eff6ff]',
                       )}
                     >

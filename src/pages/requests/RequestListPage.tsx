@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
+﻿import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -424,11 +424,11 @@ export function RequestListPage() {
     <>
       <div className="space-y-3.5">
         {loading ? (
-          <p className="rounded-2xl border border-[#e2e6ec]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             กำลังโหลด…
           </p>
         ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[#e2e6ec]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             ไม่พบรายการ
           </p>
         ) : (
@@ -441,7 +441,7 @@ export function RequestListPage() {
       </div>
 
       {total > PAGE_SIZE && (
-        <div className="mt-3 flex items-center justify-center gap-2 border-t border-[#e2e6ec] pt-3">
+        <div className="mt-3 flex items-center justify-center gap-2 border-t border-[#ccf0ed] pt-3">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
           <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
           <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
@@ -454,11 +454,11 @@ export function RequestListPage() {
     <div className={theme.mobileListBody}>
       <div className="space-y-3.5">
         {loading ? (
-          <p className="rounded-2xl border border-[#e2e6ec]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             กำลังโหลด…
           </p>
         ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[#e2e6ec]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             ไม่พบรายการ
           </p>
         ) : (
@@ -471,7 +471,7 @@ export function RequestListPage() {
       </div>
 
       {total > PAGE_SIZE && (
-        <div className="flex items-center justify-center gap-2 border-t border-[#e2e6ec] pt-4">
+        <div className="flex items-center justify-center gap-2 border-t border-[#ccf0ed] pt-4">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
           <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
           <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
@@ -526,7 +526,7 @@ export function RequestListPage() {
           <div className="md:hidden">{mobileLatest}</div>
 
           <div className="hidden md:block space-y-0 md:space-y-4">
-            <div className="border-b border-[#e2e6ec] bg-white px-4 py-3 md:border-0 md:bg-transparent md:px-0 md:py-0">
+            <div className="border-b border-[#ccf0ed] bg-white px-4 py-3 md:border-0 md:bg-transparent md:px-0 md:py-0">
               <h1 className={cn(rq.heroTitle, 'md:text-xl')}>{scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'}</h1>
               <p className={cn('mt-0.5', rq.sub)}>
                 {total} รายการ · เลือกสถานะได้จากไอคอน <span className="font-medium text-[#374151]">ตัวกรอง</span> ในแถบด้านบน

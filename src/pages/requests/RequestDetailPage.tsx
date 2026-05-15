@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo, type ReactNode } from 'react'
+﻿import { useEffect, useState, useCallback, useRef, useMemo, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -514,7 +514,7 @@ export function RequestDetailPage() {
                       aria-label={request.after_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปก่อนเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#e2e6ec] bg-[#f3f4f6] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#ccf0ed] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.before_image, 'detail') ?? request.before_image}
                           alt=""
@@ -534,7 +534,7 @@ export function RequestDetailPage() {
                       aria-label={request.before_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปหลังเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#e2e6ec] bg-[#f3f4f6] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#ccf0ed] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.after_image, 'detail') ?? request.after_image}
                           alt=""
@@ -548,7 +548,7 @@ export function RequestDetailPage() {
               </div>
             )}
             {(request.eslip_url || request.checksheet_url) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e2e6ec]/70 pt-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[#ccf0ed]/70 pt-4">
                 {request.eslip_url && <a href={request.eslip_url} target="_blank" rel="noreferrer" className={rq.link}>E-Slip</a>}
                 {request.checksheet_url && <a href={request.checksheet_url} target="_blank" rel="noreferrer" className={rq.link}>Checksheet</a>}
               </div>
@@ -563,7 +563,7 @@ export function RequestDetailPage() {
             <CardTitle className={rq.cardTitle}>หมายเหตุ</CardTitle>
           </CardHeader>
           <CardContent className={rq.cardContent}>
-            <p className="whitespace-pre-wrap rounded-xl bg-[#f5f6f8]/80 px-3 py-2.5 text-sm leading-relaxed text-[#374151] ring-1 ring-[#e2e6ec]/80">{request.remarks}</p>
+            <p className="whitespace-pre-wrap rounded-xl bg-[#f5f6f8]/80 px-3 py-2.5 text-sm leading-relaxed text-[#374151] ring-1 ring-[#ccf0ed]/80">{request.remarks}</p>
           </CardContent>
         </Card>
       )}
@@ -733,7 +733,7 @@ export function RequestDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="rounded-lg border border-[#e2e6ec] bg-[#f9fafb] px-3 py-2.5 text-[#374151]">
+            <div className="rounded-lg border border-[#ccf0ed] bg-[#f0fdf4] px-3 py-2.5 text-[#374151]">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">สรุปคำขอ</p>
               <dl className="mt-2 space-y-2 text-sm">
                 {(() => {
@@ -773,7 +773,7 @@ export function RequestDetailPage() {
                   if (request.remarks?.trim()) extra.push({ label: 'หมายเหตุผู้จอง', value: request.remarks.trim() })
 
                   return [...core, ...extra].map((row) => (
-                    <div key={row.label} className="min-w-0 border-b border-[#e2e6ec]/60 pb-2 last:border-0 last:pb-0">
+                    <div key={row.label} className="min-w-0 border-b border-[#ccf0ed]/60 pb-2 last:border-0 last:pb-0">
                       <dt className="text-[11px] font-medium leading-tight text-[#6b7280]">{row.label}</dt>
                       <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[#111827]">{row.value}</dd>
                     </div>

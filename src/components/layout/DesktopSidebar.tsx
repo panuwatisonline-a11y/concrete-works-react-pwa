@@ -87,14 +87,12 @@ export function DesktopSidebar() {
         }
         aria-label="Concrete Works — ไปหน้าสถานะหลัก"
       >
-        <span
-          className={cn(
-            'flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl',
-            theme.iconTileBrand,
-          )}
-        >
-          <Briefcase className={cn(icon.md, 'text-white')} strokeWidth={2} aria-hidden />
-        </span>
+        <img
+          src="/pwa-192x192.png"
+          alt="Concrete Works logo"
+          className="h-11 w-11 shrink-0 rounded-2xl object-contain"
+          aria-hidden
+        />
         <span className="min-w-0">
           <span className={cn('block truncate leading-tight', type.bodyStrong, theme.brandWordmark)}>
             Concrete Works

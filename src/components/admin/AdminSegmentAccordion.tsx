@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+﻿import { useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -36,7 +36,7 @@ export function AdminSegmentAccordion({ groups, defaultOpenId }: AdminSegmentAcc
         return (
           <div
             key={g.id}
-            className="overflow-hidden rounded-xl border border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+            className="overflow-hidden rounded-xl border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
           >
             <button
               type="button"
@@ -54,13 +54,13 @@ export function AdminSegmentAccordion({ groups, defaultOpenId }: AdminSegmentAcc
                   aria-hidden
                 />
                 <span className="truncate font-semibold text-[#111827]">{g.label}</span>
-                <span className="shrink-0 rounded-full bg-[#f0f2f5] px-2 py-0.5 text-xs font-medium tabular-nums text-[#6b7280]">
+                <span className="shrink-0 rounded-full bg-[#dcfce7] px-2 py-0.5 text-xs font-medium tabular-nums text-[#6b7280]">
                   {g.count} รายการ
                 </span>
               </span>
             </button>
             {isOpen ? (
-              <div className="border-t border-[#e2e6ec]/80 px-3 pb-4 pt-2 md:px-4 md:pt-3">{g.children}</div>
+              <div className="border-t border-[#ccf0ed]/80 px-3 pb-4 pt-2 md:px-4 md:pt-3">{g.children}</div>
             ) : null}
           </div>
         )

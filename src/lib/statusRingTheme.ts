@@ -1,4 +1,4 @@
-/** สี accent แบบ liquid glass สำหรับการ์ดสรุปสถานะ (ตรงกับ STATUS_COLORS ใน app.types) */
+﻿/** สี accent แบบ liquid glass สำหรับการ์ดสรุปสถานะ (ตรงกับ STATUS_COLORS ใน app.types) */
 export type StatusRingTheme = {
   color: string
   glow: string
