@@ -1,4 +1,5 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -58,29 +59,34 @@ export function RequestEditPage() {
     onSearchChange: (v) => setFilter({ search: v }),
   })
 
-  useEffect(() => {
+  const loadRequest = useCallback(async () => {
     if (!id) return
-    supabase.from('Request').select('*').eq('id', id).single().then(({ data }) => {
-      if (!data) return
-      const r = data as Request
-      if (r.status_id !== 1 || r.booked_by !== user?.id) {
-        navigate(`/requests/${id}`)
-        return
-      }
-      setRequest(r)
-      setBeforeImage(r.before_image)
-      reset({
-        casting_date: r.casting_date ?? '',
-        request_time: r.request_time ?? '',
-        mixcode_id: r.mixcode_id ? String(r.mixcode_id) : '',
-        volume_request: r.volume_request ? String(r.volume_request) : '',
-        volume_dwg: r.volume_dwg ? String(r.volume_dwg) : '',
-        sample_qty: r.sample_qty ? String(r.sample_qty) : '',
-        remarks: r.remarks ?? '',
-        structure_no: r.structure_no ?? '',
-      })
+    const { data } = await supabase.from('Request').select('*').eq('id', id).single()
+    if (!data) return
+    const r = data as Request
+    if (r.status_id !== 1 || r.booked_by !== user?.id) {
+      navigate(`/requests/${id}`)
+      return
+    }
+    setRequest(r)
+    setBeforeImage(r.before_image)
+    reset({
+      casting_date: r.casting_date ?? '',
+      request_time: r.request_time ?? '',
+      mixcode_id: r.mixcode_id ? String(r.mixcode_id) : '',
+      volume_request: r.volume_request ? String(r.volume_request) : '',
+      volume_dwg: r.volume_dwg ? String(r.volume_dwg) : '',
+      sample_qty: r.sample_qty ? String(r.sample_qty) : '',
+      remarks: r.remarks ?? '',
+      structure_no: r.structure_no ?? '',
     })
-  }, [id, user, reset, navigate])
+  }, [id, user?.id, reset, navigate])
+
+  useEffect(() => {
+    void loadRequest()
+  }, [loadRequest])
+
+  usePullToRefreshOnLoad(loadRequest)
 
   async function onSubmit(data: FormData) {
     if (!id || !request) return

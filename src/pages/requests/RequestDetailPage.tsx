@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useCallback, useRef, useMemo, type ReactNode } from 'react'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -182,9 +183,9 @@ export function RequestDetailPage() {
     initialModalConsumedRef.current = false
   }, [id])
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (opts?: { background?: boolean }) => {
     if (!id) return
-    setLoading(true)
+    if (!opts?.background) setLoading(true)
     setError(null)
     try {
       const [{ data: req, error: reqErr }, { data: logData, error: logErr }] = await Promise.all([
@@ -215,7 +216,9 @@ export function RequestDetailPage() {
     }
   }, [id])
 
-  useEffect(() => { loadData() }, [loadData])
+  useEffect(() => { void loadData() }, [loadData])
+
+  usePullToRefreshOnLoad(() => loadData({ background: true }))
 
   async function handleInspectConfirm() {
     if (!id || actionLockRef.current) return

@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner'
 import { app, layout, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { MixedCode, Structure } from '@/types/app.types'
 
@@ -117,6 +118,7 @@ export function MixcodePage() {
   }
 
   useEffect(() => { load() }, [])
+  usePullToRefreshOnLoad(load)
 
   async function onAdd(item: Partial<MixedCode>) {
     const { error } = await supabase.from('Mixed Code').insert({

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
@@ -282,8 +283,8 @@ export function RequestListPage() {
     onSearchChange: (v) => setFilter({ search: v }),
   })
 
-  const fetchRequests = useCallback(async () => {
-    setLoading(true)
+  const fetchRequests = useCallback(async (opts?: { background?: boolean }) => {
+    if (!opts?.background) setLoading(true)
     try {
       if (!isSupabaseConfigured) {
         setRequests([])
@@ -348,19 +349,19 @@ export function RequestListPage() {
     }
   }, [user, profile?.client_id, filter, debouncedSearch, page, scopeMine])
 
-  useEffect(() => { fetchRequests() }, [fetchRequests])
+  useEffect(() => { void fetchRequests() }, [fetchRequests])
 
   const statusRowsForSummary = useMemo(
     () => [...statuses].sort((a, b) => a.id - b.id),
     [statuses],
   )
 
-  const loadStatusCounts = useCallback(async () => {
+  const loadStatusCounts = useCallback(async (opts?: { background?: boolean }) => {
     if (!statusRowsForSummary.length) {
       setCountsLoading(false)
       return
     }
-    setCountsLoading(true)
+    if (!opts?.background) setCountsLoading(true)
     try {
       const map: Record<number, number> = {}
       await Promise.all(
@@ -389,6 +390,15 @@ export function RequestListPage() {
   useEffect(() => {
     void loadStatusCounts()
   }, [loadStatusCounts])
+
+  const refreshPage = useCallback(async () => {
+    await Promise.all([
+      fetchRequests({ background: true }),
+      loadStatusCounts({ background: true }),
+    ])
+  }, [fetchRequests, loadStatusCounts])
+
+  usePullToRefreshRegistration(refreshPage)
 
   useEffect(() => {
     if (isFirstFilterEffect.current) {

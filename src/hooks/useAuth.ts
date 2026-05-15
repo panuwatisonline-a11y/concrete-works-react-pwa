@@ -6,7 +6,7 @@ import type { Profile } from '@/types/app.types'
 const AUTH_INIT_FAILSAFE_MS = 8_000
 const PROFILE_FETCH_TIMEOUT_MS = 14_000
 
-async function loadProfile(userId: string) {
+export async function loadProfile(userId: string) {
   const { setProfile } = useAuthStore.getState()
   const query = supabase.from('profiles').select('*').eq('id', userId).single()
   const timeout = new Promise<{ data: null; error: { message: string } }>((resolve) => {

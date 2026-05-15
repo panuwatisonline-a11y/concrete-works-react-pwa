@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { WbsCode, WbsSegment } from '@/types/app.types'
 
@@ -47,6 +48,10 @@ export function WbsCodePage() {
   }
 
   useEffect(() => { loadSegments(); loadCombos() }, [])
+  usePullToRefreshOnLoad(async () => {
+    await loadSegments()
+    await loadCombos()
+  })
 
   const filteredSegments = useMemo(() => {
     const out = {} as Record<WbsKey, WbsSegment[]>

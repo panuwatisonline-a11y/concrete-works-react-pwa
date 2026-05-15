@@ -1,4 +1,6 @@
-﻿import { useState, useEffect } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
+import { loadProfile } from '@/hooks/useAuth'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -39,7 +41,7 @@ type PwForm = z.infer<typeof pwSchema>
 
 export function ProfilePage() {
   const navigate = useNavigate()
-  const { profile, setProfile } = useAuthStore()
+  const { user, profile, setProfile } = useAuthStore()
   const { jobs } = useMasterDataStore()
   const [savingProfile, setSavingProfile] = useState(false)
   const [pwOpen, setPwOpen] = useState(false)
@@ -55,6 +57,12 @@ export function ProfilePage() {
       job_id: '',
     },
   })
+
+  const refreshProfile = useCallback(async () => {
+    if (user?.id) await loadProfile(user.id)
+  }, [user?.id])
+
+  usePullToRefreshOnLoad(refreshProfile)
 
   useEffect(() => {
     if (!profile) return

@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { ChevronDown } from 'lucide-react'
 import {
   fillChecklistBeforePourTemplate,
@@ -443,6 +444,10 @@ export function FormTemplatesPreviewPage() {
     void loadChecklist()
     void loadCst()
   }, [loadChecklist, loadCst])
+
+  usePullToRefreshOnLoad(async () => {
+    await Promise.all([loadChecklist(), loadCst()])
+  })
 
   return (
     <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 md:px-4">

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Structure } from '@/types/app.types'
 
@@ -32,6 +33,7 @@ export function StructurePage() {
   }
 
   useEffect(() => { load() }, [])
+  usePullToRefreshOnLoad(load)
 
   async function onAdd(item: Partial<Structure>) {
     const { error } = await supabase.from('Structure').insert({ structure_name: item.structure_name ?? '' })

@@ -1,15 +1,18 @@
 import { AnimatedOutlet } from '@/components/motion/AnimatedOutlet'
+import { PullToRefreshMain } from '@/components/layout/PullToRefreshMain'
 import { AppHeader } from './AppHeader'
 import { AppBreadcrumbs } from './AppBreadcrumbs'
 import { DesktopSidebar } from './DesktopSidebar'
 import { DesktopTopBar } from './DesktopTopBar'
 import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog'
 import { useMasterDataInit } from '@/hooks/useMasterData'
+import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
 import { theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 export function AppLayout() {
   useMasterDataInit()
+  usePullToRefreshHost()
 
   return (
     <div
@@ -32,7 +35,7 @@ export function AppLayout() {
 
         <DesktopTopBar />
 
-        <main
+        <PullToRefreshMain
           className={cn(
             'mx-auto w-full min-w-0 min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain',
             'px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12',
@@ -43,7 +46,7 @@ export function AppLayout() {
             <AppBreadcrumbs />
             <AnimatedOutlet />
           </div>
-        </main>
+        </PullToRefreshMain>
       </div>
 
       <RequestFiltersDialog />

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { LocationItem } from '@/types/app.types'
 
@@ -35,6 +36,7 @@ export function LocationPage() {
   }
 
   useEffect(() => { load() }, [])
+  usePullToRefreshOnLoad(load)
 
   async function onAdd(item: Partial<LocationItem>) {
     const { error } = await supabase.from('Location').insert({

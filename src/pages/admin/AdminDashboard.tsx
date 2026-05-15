@@ -1,4 +1,5 @@
-﻿import { useEffect, useState, useMemo } from 'react'
+﻿import { useCallback, useEffect, useState, useMemo } from 'react'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Card, CardContent } from '@/components/ui/card'
@@ -41,20 +42,24 @@ export function AdminDashboard() {
   const [filterDateTo, setFilterDateTo] = useState('')
   const [dateFilterOpen, setDateFilterOpen] = useState(false)
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await fetchDashboardRequestRows(supabase)
-        setRows(data)
-      } catch (e) {
-        console.error('Admin dashboard load:', e)
-        setRows([])
-      } finally {
-        setLoading(false)
-      }
+  const loadDashboard = useCallback(async (opts?: { background?: boolean }) => {
+    if (!opts?.background) setLoading(true)
+    try {
+      const data = await fetchDashboardRequestRows(supabase)
+      setRows(data)
+    } catch (e) {
+      console.error('Admin dashboard load:', e)
+      setRows([])
+    } finally {
+      setLoading(false)
     }
-    load()
   }, [])
+
+  useEffect(() => {
+    void loadDashboard()
+  }, [loadDashboard])
+
+  usePullToRefreshOnLoad(() => loadDashboard({ background: true }))
 
   const filteredRows = useMemo(
     () => filterDashboardRowsByDateRange(rows, filterDateFrom, filterDateTo),

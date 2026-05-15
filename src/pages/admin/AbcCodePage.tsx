@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { AbcCode, AbcCodeSegment } from '@/types/app.types'
 
@@ -57,6 +58,10 @@ export function AbcCodePage() {
   }
 
   useEffect(() => { loadSegments(); loadCombos() }, [])
+  usePullToRefreshOnLoad(async () => {
+    await loadSegments()
+    await loadCombos()
+  })
 
   const tabs = [
     { key: 'segments' as const, label: 'Segments (Code 1-4)' },

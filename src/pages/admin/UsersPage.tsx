@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import type { Profile, UserRole } from '@/types/app.types'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { Edit, Trash2 } from 'lucide-react'
 
 const ROLES: UserRole[] = ['user', 'manager', 'admin']
@@ -57,6 +58,7 @@ export function UsersPage() {
   useEffect(() => {
     load()
   }, [])
+  usePullToRefreshOnLoad(load)
 
   useEffect(() => {
     if (!editUser) return

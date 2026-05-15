@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import { structureNamesSelectableFromMixcodes, mixcodeStructureListTokenUnion, parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
 import type { ConcreteWork, MixedCode, Structure } from '@/types/app.types'
@@ -61,6 +62,7 @@ export function ConcreteWorksPage() {
   }
 
   useEffect(() => { load() }, [])
+  usePullToRefreshOnLoad(load)
 
   function sanitizeStructureListForSave(raw: string | null | undefined): string | null {
     const u = new Set(mixcodeStructureListTokenUnion(mixcodes))

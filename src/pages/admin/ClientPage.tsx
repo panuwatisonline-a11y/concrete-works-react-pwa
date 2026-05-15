@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import type { ClientItem } from '@/types/app.types'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 
 export function ClientPage() {
@@ -32,6 +33,7 @@ export function ClientPage() {
   }
 
   useEffect(() => { load() }, [])
+  usePullToRefreshOnLoad(load)
 
   async function onAdd(item: Partial<ClientItem>) {
     const { error } = await supabase.from('Client').insert({ client_name: item.client_name ?? '' })
