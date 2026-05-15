@@ -20,6 +20,8 @@ import { formatDate, formatDateTime, formatTime, shortId, cn } from '@/lib/utils
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
+import { getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { rq } from '@/lib/requestUi'
 import {
   REQUEST_DETAIL_SEARCH_ARIA,
@@ -372,9 +374,9 @@ export function RequestDetailPage() {
         subtitle={<>วันเท {formatDate(request.casting_date)} · {formatTime(request.request_time)}</>}
         right={
           sid === 1 && isOwner ? (
-            <Button variant="outline" size="sm" className="rounded-xl border-[#e2e6ec] shadow-sm" asChild>
+            <Button variant="outline" size="action" asChild>
               <Link to={`/requests/${id}/edit`}>
-                <Edit className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                <Edit className="h-4 w-4 shrink-0" strokeWidth={1.75} />
                 แก้ไข
               </Link>
             </Button>
@@ -382,39 +384,33 @@ export function RequestDetailPage() {
         }
       />
 
-      {/* Action Panel */}
       {(canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ([6, 7].includes(sid) && isOwner)) && (
-        <Card id="request-actions" className={rq.card}>
-          <CardContent className={cn(rq.cardContentTight, 'flex flex-wrap gap-2')}>
-            {[6, 7].includes(sid) && isOwner && (
-              <Button size="sm" className="rounded-lg" asChild>
-                <Link to="/requests/new" state={{ cloneFromRequestId: request.id }}>
-                  จองใหม่
-                </Link>
-              </Button>
-            )}
-            {sid === 1 && canAct && <Button size="sm" className="rounded-lg" onClick={() => setModal('inspect')}>ตรวจสอบ</Button>}
-            {sid === 2 && canAct && <Button size="sm" className="rounded-lg" variant="success" onClick={() => setModal('approve')}>อนุมัติ</Button>}
-            {sid === 2 && canAct && <Button size="sm" className="rounded-lg" variant="destructive" onClick={() => setModal('reject')}>Reject</Button>}
-            {sid === 3 && canAct && <Button size="sm" className="rounded-lg" onClick={() => setModal('confirmOrder')}>สั่งเท</Button>}
-            {sid === 3 && canAct && <Button size="sm" className="rounded-lg" variant="warning" onClick={() => setModal('postpone')}>เลื่อนวัน</Button>}
-            {sid === 4 && canAct && <Button size="sm" className="rounded-lg" variant="success" onClick={() => setModal('complete')}>Confirm รายการ</Button>}
-            {sid === 5 && canAct && <Button size="sm" className="rounded-lg" onClick={() => setModal('reApprove')}>สั่งเทใหม่</Button>}
-            {[1, 2, 3].includes(sid) && (canAct || isOwner) && (
-              <Button size="sm" className="rounded-lg" variant="outline" onClick={() => setModal('cancel')}>ยกเลิก</Button>
-            )}
-            {sid === 8 && canAct && (
-              <>
-                <p className="w-full basis-full text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">
-                  CST — กำลังอัดคอนกรีต (วันทดสอบ)
-                </p>
+        <RequestActionBar
+          items={getRequestListQuickActions({
+            requestId: request.id,
+            statusId: sid,
+            role,
+            userId: user?.id,
+            bookedBy: request.booked_by,
+          })}
+          onItemClick={(item, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if ('cloneFromRequestId' in item) return
+            setModal(item.modal)
+          }}
+        >
+          {sid === 8 && canAct ? (
+            <>
+              <p className={rq.actions.sectionLabel}>CST — กำลังอัดคอนกรีต (วันทดสอบ)</p>
+              <div className={rq.actions.buttonRow}>
                 {CST_PLACEHOLDER_DAYS.map((d) => (
                   <Button
                     key={d}
                     type="button"
-                    size="sm"
+                    size="action"
                     variant="outline"
-                    className="rounded-lg tabular-nums"
+                    className="tabular-nums"
                     disabled
                     title="เร็วๆ นี้ — บันทึกผล CST"
                     aria-label={`CST วันที่ +${d} (ยังไม่เปิดใช้งาน)`}
@@ -422,10 +418,10 @@ export function RequestDetailPage() {
                     +{d}
                   </Button>
                 ))}
-              </>
-            )}
-          </CardContent>
-        </Card>
+              </div>
+            </>
+          ) : null}
+        </RequestActionBar>
       )}
 
       {/* Sections */}
@@ -514,7 +510,7 @@ export function RequestDetailPage() {
                     <p className={cn('mb-1.5', rq.label)}>ก่อนเท</p>
                     <button
                       type="button"
-                      className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[#2563eb]/40 cursor-zoom-in"
+                      className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
                       aria-label={request.after_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปก่อนเท'}
                       onClick={openPourImagesLightbox}
                     >
@@ -534,7 +530,7 @@ export function RequestDetailPage() {
                     <p className={cn('mb-1.5', rq.label)}>หลังเท</p>
                     <button
                       type="button"
-                      className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[#2563eb]/40 cursor-zoom-in"
+                      className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
                       aria-label={request.before_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปหลังเท'}
                       onClick={openPourImagesLightbox}
                     >
@@ -713,8 +709,9 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
             <Button
+              size="action"
               disabled={
                 actionBusy ||
                 (!request?.before_image?.trim() && !(inspectBeforeImage?.trim()))
@@ -804,8 +801,8 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button disabled={actionBusy} onClick={() => void handleConfirmOrder()}>
+            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button size="action" disabled={actionBusy} onClick={() => void handleConfirmOrder()}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'ยืนยันสั่งเท'}
             </Button>
           </DialogFooter>
@@ -825,8 +822,8 @@ export function RequestDetailPage() {
             <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} rows={3} placeholder="กรุณาระบุ..." />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button variant="destructive" disabled={actionBusy || !rejectReason.trim()} onClick={() => handleAction('reject')}>
+            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="destructive" size="action" disabled={actionBusy || !rejectReason.trim()} onClick={() => handleAction('reject')}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'Reject'}
             </Button>
           </DialogFooter>
@@ -852,9 +849,10 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
             <Button
               variant="warning"
+              size="action"
               disabled={actionBusy || !postponeData.date || !postponeData.time || !postponeData.reason}
               onClick={() => handleAction('postpone')}
             >
@@ -883,8 +881,8 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button variant="success" disabled={actionBusy || !completeData.volume_confirm} onClick={() => handleAction('complete')}>
+            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="success" size="action" disabled={actionBusy || !completeData.volume_confirm} onClick={() => handleAction('complete')}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'Confirm'}
             </Button>
           </DialogFooter>

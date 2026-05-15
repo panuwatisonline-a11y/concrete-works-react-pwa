@@ -256,6 +256,9 @@ export function aggregateConfirmVolumeBySupplier(rows: DashboardRequestRow[]): N
   return topSlicesWithOther(sums, 10)
 }
 
+/** สถานะ Complete — ใช้คู่กับ volume_confirm / volume_dwg สำหรับ loss */
+const LOSS_VOLUME_STATUS_ID = 8
+
 export function volumeTotals(rows: DashboardRequestRow[]) {
   let request = 0
   let dwg = 0
@@ -265,9 +268,16 @@ export function volumeTotals(rows: DashboardRequestRow[]) {
     if (r.volume_dwg != null && !Number.isNaN(r.volume_dwg)) dwg += r.volume_dwg
     if (r.volume_confirm != null && !Number.isNaN(r.volume_confirm)) confirm += r.volume_confirm
   }
-  const loss = confirm - dwg
-  const lossPctOfDwg = dwg > 0 ? (loss / dwg) * 100 : null
-  const lossPctOfConfirm = confirm > 0 ? (loss / confirm) * 100 : null
+  let lossDwg = 0
+  let lossConfirm = 0
+  for (const r of rows) {
+    if (r.status_id !== LOSS_VOLUME_STATUS_ID) continue
+    if (r.volume_dwg != null && !Number.isNaN(r.volume_dwg)) lossDwg += r.volume_dwg
+    if (r.volume_confirm != null && !Number.isNaN(r.volume_confirm)) lossConfirm += r.volume_confirm
+  }
+  const loss = lossConfirm - lossDwg
+  const lossPctOfDwg = lossDwg > 0 ? (loss / lossDwg) * 100 : null
+  const lossPctOfConfirm = lossConfirm > 0 ? (loss / lossConfirm) * 100 : null
   return { request, dwg, confirm, loss, lossPctOfDwg, lossPctOfConfirm }
 }
 

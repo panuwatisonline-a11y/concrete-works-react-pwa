@@ -11,7 +11,7 @@ import { useFilterStore } from '@/stores/filterStore'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
-import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
+import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
 
@@ -47,7 +47,8 @@ const adminMenuLinks: NavItem[] = [
 
 function sidebarNavClass(active: boolean) {
   return cn(
-    'flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors duration-200',
+    'flex items-center gap-3 rounded-full px-4 py-2.5 transition-colors duration-200',
+    type.nav,
     active ? theme.navPillActive : theme.navPillInactive,
   )
 }
@@ -79,9 +80,9 @@ export function DesktopSidebar() {
         to={APP_HOME}
         className={() =>
           cn(
-            'flex items-center gap-3 border-b border-[#e2e6ec]/90 px-6 pb-5 pt-7 outline-none transition-colors',
-            'hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563eb]/25',
-            isNavToActive(APP_HOME, location) ? 'bg-[rgba(37,99,235,0.06)]' : null,
+            'flex items-center gap-3 border-b border-[color:var(--glass-border-subtle)] px-6 pb-5 pt-7 outline-none transition-colors',
+            'hover:bg-[rgba(17,24,39,0.04)] focus-visible:bg-[rgba(17,24,39,0.04)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#9ca3af]/40',
+            isNavToActive(APP_HOME, location) ? 'bg-[var(--pour-accent-muted)]' : null,
           )
         }
         aria-label="Concrete Works — ไปหน้าสถานะหลัก"
@@ -92,20 +93,18 @@ export function DesktopSidebar() {
             theme.iconTileBrand,
           )}
         >
-          <Briefcase className="h-5 w-5" strokeWidth={2} />
+          <Briefcase className={cn(icon.md, 'text-white')} strokeWidth={2} aria-hidden />
         </span>
         <span className="min-w-0">
-          <span className={cn('block truncate text-sm leading-tight', theme.brandWordmark)}>
+          <span className={cn('block truncate leading-tight', type.bodyStrong, theme.brandWordmark)}>
             Concrete Works
           </span>
-          <span className="mt-0.5 block text-[10px] font-medium leading-snug tracking-wide text-[#9ca3af] md:text-[11px]">
-            {BRAND_TAGLINE}
-          </span>
+          <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
         </span>
       </NavLink>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
-        <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">เมนู</p>
+        <p className={cn(theme.navSectionLabel, 'mb-3 px-3 tracking-[0.15em]')}>เมนู</p>
         <nav aria-label="เมนูหลัก" className="flex flex-col gap-1">
           <NavLink
             key={homeMainLink.to}
@@ -113,7 +112,7 @@ export function DesktopSidebar() {
             end={homeMainLink.end}
             className={() => sidebarNavClass(isNavToActive(homeMainLink.to, location))}
           >
-            <HomeNavIcon className={cn('h-[18px] w-[18px] shrink-0', 'opacity-95')} strokeWidth={1.75} />
+            <HomeNavIcon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
             {homeMainLink.label}
           </NavLink>
           <NavLink
@@ -122,8 +121,8 @@ export function DesktopSidebar() {
             className={() => sidebarNavClass(isNavToActive(REQUESTS_MINE, location))}
           >
             <Star
-              className="h-[18px] w-[18px] shrink-0 text-amber-500 opacity-95"
-              strokeWidth={1.75}
+              className={cn(icon.sm, 'text-amber-500 opacity-95')}
+              strokeWidth={ICON_STROKE}
               fill="currentColor"
               aria-hidden
             />
@@ -135,7 +134,7 @@ export function DesktopSidebar() {
               end
               className={({ isActive }) => sidebarNavClass(isActive)}
             >
-              <LayoutDashboard className="h-[18px] w-[18px] shrink-0 opacity-95" strokeWidth={1.75} />
+              <LayoutDashboard className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
               Dashboard
             </NavLink>
           ) : null}
@@ -146,7 +145,7 @@ export function DesktopSidebar() {
               end={end}
               className={() => sidebarNavClass(isNavToActive(to, location))}
             >
-              <Icon className={cn('h-[18px] w-[18px] shrink-0', 'opacity-95')} strokeWidth={1.75} />
+              <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
               {label}
             </NavLink>
           ))}
@@ -154,11 +153,11 @@ export function DesktopSidebar() {
 
         {role === 'admin' && (
           <>
-            <p className="mb-3 mt-8 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-[#9ca3af]">Admin</p>
+            <p className={cn(theme.navSectionLabel, 'mb-3 mt-8 px-3 tracking-[0.15em]')}>Admin</p>
             <nav aria-label="เมนูผู้ดูแล" className="flex flex-col gap-1">
               {adminMenuLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink key={to} to={to} end={end} className={({ isActive }) => sidebarNavClass(isActive)}>
-                  <Icon className="h-[18px] w-[18px] shrink-0 opacity-95" strokeWidth={1.75} />
+                  <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
                   {label}
                 </NavLink>
               ))}
@@ -167,29 +166,29 @@ export function DesktopSidebar() {
         )}
       </div>
 
-      <div className="border-t border-[#e2e6ec]/80 p-5">
-        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[#e2e6ec]/60 bg-gradient-to-br from-[#f0f2f5]/90 to-white p-3 shadow-inner shadow-[#e2e6ec]/40">
+      <div className="border-t border-[color:var(--glass-border-subtle)] p-5">
+        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[rgba(17,24,39,0.03)] p-3 backdrop-blur-md">
           <UserAvatar profile={profile} size="sm" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-[#111827]">{displayName}</p>
-            <p className="truncate text-xs text-[#6b7280]">{subtitle}</p>
+            <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
+            <p className={cn('truncate', type.caption)}>{subtitle}</p>
           </div>
           <Link
             to="/profile"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#9ca3af] transition hover:bg-[#f0f2f5] hover:text-[#374151]"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#9ca3af] transition hover:bg-[rgba(17,24,39,0.05)] hover:text-[#374151]"
             title="โปรไฟล์"
             aria-label="ไปที่โปรไฟล์"
           >
-            <ChevronRight className="h-[18px] w-[18px]" strokeWidth={1.75} aria-hidden />
+            <ChevronRight className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
           </Link>
         </div>
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full rounded-2xl border-[#e2e6ec] bg-white font-semibold text-[#374151] shadow-sm hover:bg-[#f5f6f8]"
+          className="h-11 w-full rounded-2xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] font-semibold text-[#374151] shadow-sm backdrop-blur-sm hover:bg-[var(--glass-bg-strong)]"
           onClick={handleLogout}
         >
-          <LogOut className="mr-2 h-4 w-4" strokeWidth={1.75} />
+          <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
           ออกจากระบบ
         </Button>
       </div>

@@ -471,7 +471,7 @@ export function RequestNewPage() {
       </div>
 
       <Card className={rq.card}>
-        <CardContent className={cn(rq.cardContent, 'pt-6')}>
+        <CardContent className={rq.cardContent}>
           <form onSubmit={handleSubmit(onSubmit)}>
             {stepFields(step)}
 

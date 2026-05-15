@@ -13,7 +13,8 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import type { ClientItem, Job, Profile } from '@/types/app.types'
 import { APP_HOME } from '@/lib/appHome'
-import { app } from '@/lib/requestUi'
+import { app, rq } from '@/lib/requestUi'
+import { cn } from '@/lib/utils'
 
 const schema = z.object({
   email: z.string().email('อีเมลไม่ถูกต้อง'),
@@ -171,11 +172,11 @@ export function RegisterPage() {
   return (
     <div className={app.shell}>
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 border-b border-[#e2e6ec]/90 bg-[#f5f6f8]/50 pb-4 text-center">
+        <CardHeader className={cn(rq.cardHeader, 'space-y-1 text-center')}>
           <CardTitle className="text-2xl font-extrabold tracking-tight text-[#111827]">Concrete Works</CardTitle>
           <CardDescription className="text-sm text-[#6b7280]">สมัครใช้งาน Application งานคอนกรีต</CardDescription>
         </CardHeader>
-        <CardContent className="pt-6 md:pt-8">
+        <CardContent className={rq.cardContent}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
@@ -243,7 +244,7 @@ export function RegisterPage() {
             </div>
             <Button
               type="submit"
-              className="h-11 w-full rounded-xl font-semibold shadow-[0_1px_2px_rgba(37,99,235,0.25),0_4px_12px_rgba(37,99,235,0.18)]"
+              className="h-11 w-full rounded-xl font-semibold shadow-[0_1px_2px_var(--pour-accent-ring),0_4px_14px_rgba(0,0,0,0.1)]"
               disabled={loading}
             >
               {loading ? 'กำลังสมัคร...' : 'สมัครใช้งาน'}
@@ -251,7 +252,7 @@ export function RegisterPage() {
           </form>
           <p className="mt-4 text-center text-sm text-[#6b7280]">
             มีบัญชีแล้ว?{' '}
-            <Link to="/login" className="font-semibold text-[#2563eb] hover:text-[#1d4ed8] hover:underline">
+            <Link to="/login" className="font-semibold text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)] hover:underline">
               เข้าสู่ระบบ
             </Link>
           </p>

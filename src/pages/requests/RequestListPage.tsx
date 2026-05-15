@@ -16,12 +16,15 @@ import {
   REQUEST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import {
   ChevronLeft, Plus,
   Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker, Calendar,
 } from 'lucide-react'
 import type { RequestWithRelations } from '@/types/app.types'
-import { rq } from '@/lib/requestUi'
+import { StaggerItem } from '@/components/motion/StaggerItem'
+import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
+import { rq, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 
 const PAGE_SIZE = 20
 
@@ -36,11 +39,11 @@ function FeedDetailRow({
 }) {
   if (value == null || value === '' || value === '-') return null
   return (
-    <div className="flex gap-2 text-[12px] leading-snug md:text-[13px]">
-      <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#9ca3af] md:h-4 md:w-4" strokeWidth={1.5} />
+    <div className={cn('flex gap-2.5', type.detail)}>
+      <Icon className={cn(icon.sm, 'mt-0.5 text-pour-subtle')} strokeWidth={ICON_STROKE} />
       <div className="min-w-0 flex-1">
-        <span className="text-[#6b7280]">{label}</span>
-        <span className="ml-1.5 font-medium text-[#374151]">{value}</span>
+        <span className={type.caption}>{label}</span>
+        <span className={cn('ml-1.5', type.bodyStrong)}>{value}</span>
       </div>
     </div>
   )
@@ -95,19 +98,19 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
 
   return (
     <>
-      <div className="overflow-hidden rounded-xl border border-[#e2e6ec] bg-white shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition hover:border-[#2563eb]/35 hover:shadow-[0_4px_14px_rgba(37,99,235,0.12)] md:rounded-[14px] md:shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-        <div className="flex gap-2.5 px-3 pt-2.5 pb-1.5 md:gap-3 md:px-3.5 md:pt-3.5 md:pb-2">
+      <div className={cn(rq.card, 'transition hover:border-[color:var(--glass-edge)] hover:shadow-[var(--glass-shadow-sm)]')}>
+        <div className="flex gap-3 px-4 pt-4 pb-2 md:gap-3 md:px-5 md:pt-5 md:pb-3">
           {thumbUrl && !thumbFailed ? (
             <button
               type="button"
-              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[#2563eb]/45 md:pt-0.5"
+              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/45 md:pt-0.5"
               aria-label="ขยายรูป"
               onClick={() => {
                 const src = imageSrcForImgTag(rawThumb, 'lightbox')
                 if (src) setLightboxSrc(src)
               }}
             >
-              <div className="rounded-full bg-gradient-to-tr from-[#2563eb] via-[#1d4ed8] to-[#1e3a8a] p-[1.5px] shadow-sm md:p-[2px]">
+              <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm md:p-[2px]">
                 <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
                   <img
                     src={thumbUrl}
@@ -128,7 +131,7 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
           >
             {(!thumbUrl || thumbFailed) && (
               <div className="shrink-0 pt-px md:pt-0.5">
-                <div className="rounded-full bg-gradient-to-tr from-[#2563eb] via-[#1d4ed8] to-[#1e3a8a] p-[1.5px] shadow-sm md:p-[2px]">
+                <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm md:p-[2px]">
                   <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] md:h-11 md:w-11 md:text-base">
                       {initial}
@@ -140,18 +143,18 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-[14px] font-semibold leading-tight text-[#111827] md:text-[15px]">
+                  <p className={cn(type.bodyStrong, 'leading-tight')}>
                     {structure}
-                    {r.structure_no ? <span className="font-normal text-[#6b7280]"> · {r.structure_no}</span> : null}
+                    {r.structure_no ? <span className={cn(type.caption, 'font-normal')}> · {r.structure_no}</span> : null}
                   </p>
                   {r.booked_at ? (
-                    <p className="mt-0.5 text-[11px] text-[#6b7280] md:mt-1 md:text-xs">{formatDateTime(r.booked_at)}</p>
+                    <p className={cn('mt-0.5 md:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
                   ) : null}
-                  <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-snug md:text-xs">
-                    <span className="shrink-0 text-[#6b7280]">จองโดย</span>
-                    <span className="min-w-0 font-semibold text-[#374151]">{bookerDisplay}</span>
+                  <p className={cn('mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
+                    <span className={cn('shrink-0', type.caption)}>จองโดย</span>
+                    <span className={cn('min-w-0', type.bodyStrong)}>{bookerDisplay}</span>
                     {isMyBooking ? (
-                      <span className="shrink-0 rounded-md bg-[rgba(37,99,235,0.12)] px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-[#1d4ed8]">
+                      <span className="shrink-0 rounded-md bg-[var(--pour-accent-muted)] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--pour-accent-hover)]">
                         คุณ
                       </span>
                     ) : null}
@@ -164,7 +167,7 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
         </div>
 
         <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
-          <div className="space-y-1.5 border-t border-[#e2e6ec]/80 bg-[#f5f6f8]/50 px-3 py-2 md:space-y-2 md:px-3.5 md:py-3">
+          <div className="space-y-2 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md md:space-y-2.5 md:px-5 md:py-4">
             <FeedDetailRow icon={Building2} label="Client" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
@@ -177,13 +180,13 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
             <FeedDetailRow icon={FileText} label="ABC" value={abc} />
             <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
-              <div className="rounded-md bg-white/90 px-2 py-1.5 text-[12px] leading-snug text-[#374151] ring-1 ring-[#e2e6ec]/80 md:rounded-lg md:px-2.5 md:py-2 md:text-[13px]">
-                <span className="text-[#9ca3af]">หมายเหตุ </span>
+              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] md:px-3.5 md:py-3', type.detail)}>
+                <span className="text-pour-subtle">หมายเหตุ </span>
                 {r.remarks}
               </div>
             ) : null}
             {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-              <div className="rounded-lg border border-amber-200/80 bg-amber-50/80 px-2.5 py-2 text-[12px] text-amber-950">
+              <div className={cn('rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 leading-relaxed text-amber-950', type.detail)}>
                 {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
                 {r.reason_postpone ? <p className="mt-0.5 text-amber-900/90">{r.reason_postpone}</p> : null}
               </div>
@@ -192,30 +195,19 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
         </Link>
 
       {quickActions.length > 0 ? (
-        <div className="flex flex-col gap-2 border-t border-[#e2e6ec]/80 bg-white px-3 py-2 md:flex-row md:flex-wrap md:items-center md:gap-x-3 md:gap-y-2 md:px-3.5 md:py-2.5">
-          <div className="flex flex-wrap gap-1.5">
-            {quickActions.map((a) => (
-              <Button
-                key={a.key}
-                type="button"
-                size="sm"
-                variant={a.variant}
-                className="h-7 rounded-lg px-2 text-[10px] md:h-8 md:px-2.5 md:text-[11px] lg:h-9 lg:px-3 lg:text-xs"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  if ('cloneFromRequestId' in a) {
-                    navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
-                  } else {
-                    navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
-                  }
-                }}
-              >
-                {a.label}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <RequestActionBar
+          layout="strip"
+          items={quickActions}
+          onItemClick={(a, e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            if ('cloneFromRequestId' in a) {
+              navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
+            } else {
+              navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
+            }
+          }}
+        />
       ) : null}
     </div>
 
@@ -428,7 +420,11 @@ export function RequestListPage() {
             ไม่พบรายการ
           </p>
         ) : (
-          requests.map((r) => <RequestFeedCard key={r.id} r={r} />)
+          requests.map((r, i) => (
+            <StaggerItem key={r.id} index={i}>
+              <RequestFeedCard r={r} />
+            </StaggerItem>
+          ))
         )}
       </div>
 
@@ -448,16 +444,14 @@ export function RequestListPage() {
         <div className="flex items-start gap-2">
           <Link
             to="/requests?view=summary"
-            className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e2e6ec] bg-white text-[#6b7280] shadow-sm shadow-black/[0.04] transition hover:border-[#2563eb]/35 hover:bg-[rgba(37,99,235,0.06)] hover:text-[#2563eb] active:scale-95"
+            className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:var(--glass-border)] bg-white/80 text-[color:var(--pour-ink-2)] shadow-sm backdrop-blur-md transition hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent)] active:scale-95"
             aria-label="กลับไปหน้าสรุปสถานะ"
           >
-            <ChevronLeft className="h-5 w-5" strokeWidth={2} aria-hidden />
+            <ChevronLeft className={icon.md} strokeWidth={ICON_STROKE} aria-hidden />
           </Link>
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-bold tracking-tight text-[#111827]">
-              {scopeMine ? 'รายการของฉัน' : 'รายการจอง'}
-            </h1>
-            <p className="text-xs text-[#6b7280]">{loading ? 'กำลังโหลด…' : `${total} รายการ`}</p>
+            <h1 className={rq.heroTitle}>{scopeMine ? 'รายการของฉัน' : 'รายการจอง'}</h1>
+            <p className={rq.sub}>{loading ? 'กำลังโหลด…' : `${total} รายการ`}</p>
           </div>
         </div>
       </div>
@@ -472,7 +466,11 @@ export function RequestListPage() {
             ไม่พบรายการ
           </p>
         ) : (
-          requests.map((r) => <RequestFeedCard key={r.id} r={r} />)
+          requests.map((r, i) => (
+            <StaggerItem key={r.id} index={i}>
+              <RequestFeedCard r={r} />
+            </StaggerItem>
+          ))
         )}
       </div>
 
@@ -487,44 +485,37 @@ export function RequestListPage() {
   )
 
   const mobileSummary = (
-    <div className="flex flex-col px-4 pb-6 pt-3 md:mx-auto md:max-w-2xl md:px-6 md:pb-10 md:pt-6">
+    <div className={cn(rq.page, 'flex flex-col md:mx-auto md:max-w-2xl')}>
       <Link
         to="/requests/new"
-        className="inline-flex w-fit max-w-full items-center gap-2 py-1 text-sm font-semibold text-[#2563eb] transition hover:text-[#1d4ed8] active:opacity-75"
+        className={cn('pour-interactive inline-flex w-fit max-w-full items-center gap-2 py-1 text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)]', type.bodyStrong, anim.fadeIn)}
       >
-        <Plus className="h-5 w-5 shrink-0" strokeWidth={2} />
+        <Plus className={icon.md} strokeWidth={ICON_STROKE} />
         เพิ่มรายการจองคอนกรีต
       </Link>
       <div className="mt-4 space-y-2.5">
         {!masterLoaded ? (
-          <p className="rounded-xl border border-[#e2e6ec]/70 bg-white/80 py-8 text-center text-sm text-[#6b7280]">
-            กำลังโหลดสถานะ…
-          </p>
+          <p className={cn(rq.cardMuted, 'py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
         ) : statusRowsForSummary.length === 0 ? (
-          <p className="rounded-xl border border-[#e2e6ec]/70 bg-white/80 py-8 text-center text-sm text-[#6b7280]">
-            ไม่พบข้อมูลสถานะในระบบ
-          </p>
+          <p className={cn(rq.cardMuted, 'py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
         ) : (
-          statusRowsForSummary.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => {
-              setFilter({ ...filter, status_ids: [s.id] })
-              setPage(0)
-              setSearchParams({ view: 'latest' })
-            }}
-            className="flex w-full items-center justify-between gap-3 rounded-xl border border-[#e2e6ec] bg-white px-4 py-3.5 text-left text-sm font-medium text-[#374151] shadow-[0_1px_3px_rgba(0,0,0,0.05)] ring-1 ring-[#f5f6f8] transition hover:border-[#2563eb]/40 hover:shadow-[0_4px_14px_rgba(37,99,235,0.12)] active:scale-[0.995]"
-          >
-            <span className="min-w-0 flex-1">{s.status_name}</span>
-            <span className="shrink-0 rounded-full bg-[rgba(37,99,235,0.08)] px-2.5 py-1 text-sm font-pour-mono tabular-nums font-semibold text-[#1d4ed8] shadow-inner ring-1 ring-[rgba(37,99,235,0.15)]">
-              {countsLoading ? '—' : (statusCounts[s.id] ?? 0)}
-            </span>
-          </button>
-        ))
+          statusRowsForSummary.map((s, i) => (
+            <StaggerItem key={s.id} index={i}>
+              <StatusSummaryCard
+                statusId={s.id}
+                statusName={s.status_name}
+                count={countsLoading ? '—' : (statusCounts[s.id] ?? 0)}
+                onClick={() => {
+                  setFilter({ ...filter, status_ids: [s.id] })
+                  setPage(0)
+                  setSearchParams({ view: 'latest' })
+                }}
+              />
+            </StaggerItem>
+          ))
         )}
       </div>
-      <p className="mx-auto mt-6 max-w-fit rounded-full border border-[#e2e6ec] bg-white/80 px-5 py-2 text-center text-xs font-medium text-[#6b7280] shadow-sm shadow-black/[0.04] ring-1 ring-white/80 backdrop-blur-sm">
+      <p className={cn('mx-auto mt-6 max-w-fit rounded-full px-5 py-2 text-center text-xs font-medium', rq.cardMuted, rq.sub, anim.fadeIn)}>
         — รายการทั้งหมด {countsLoading ? '—' : grandTotal} รายการ —
       </p>
     </div>

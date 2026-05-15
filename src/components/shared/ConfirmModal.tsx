@@ -70,10 +70,13 @@ export function ConfirmModal({
           </div>
         )}
 
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={busy}>ยกเลิก</Button>
+        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="outline" size="action" onClick={onClose} disabled={busy}>
+            ยกเลิก
+          </Button>
           <Button
             variant={confirmVariant}
+            size="action"
             onClick={handleConfirm}
             disabled={busy || (noteRequired && !note.trim())}
           >

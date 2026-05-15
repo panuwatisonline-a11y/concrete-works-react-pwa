@@ -27,8 +27,9 @@ export default defineConfig({
         'templates/cst-report-logo-2.png',
         'templates/cst-report-logo-3.png',
       ],
+      /** ปิด SW ใน dev — กัน CSS/JS ค้างหลัง HMR พัง */
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       manifest: {
         name: 'Concrete Works',

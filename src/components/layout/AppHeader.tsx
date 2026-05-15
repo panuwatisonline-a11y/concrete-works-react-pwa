@@ -11,7 +11,7 @@ import { useFilterStore } from '@/stores/filterStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { APP_HOME } from '@/lib/appHome'
-import { theme, BRAND_TAGLINE } from '@/lib/requestUi'
+import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
 
@@ -55,15 +55,16 @@ function MobilePrimaryNav() {
 
   const pill = (active: boolean) =>
     cn(
-      'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
+      'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2',
+      theme.navPillMobile,
       active ? theme.navPillActive : theme.navPillInactive,
     )
 
   return (
     <nav aria-label="เมนูหลัก" className={cn(theme.primaryNavStrip, 'md:hidden')}>
-      <div className="mx-auto flex w-full min-w-0 max-w-none items-center gap-1 overflow-x-auto px-2 py-2 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className={cn('mx-auto flex w-full min-w-0 max-w-none items-center gap-1.5 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', theme.primaryNavStripPad)}>
         <Link to="/requests?view=summary" className={pill(isStatusTab)} aria-current={isStatusTab ? 'page' : undefined}>
-          <Activity className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+          <Activity className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
           สถานะ
         </Link>
         <Link
@@ -72,7 +73,7 @@ function MobilePrimaryNav() {
           aria-current={isMineTab ? 'page' : undefined}
           onClick={() => resetFilter()}
         >
-          <Star className="h-4 w-4 shrink-0 text-amber-500" strokeWidth={1.5} fill="currentColor" aria-hidden />
+          <Star className={cn(icon.sm, 'text-amber-500')} strokeWidth={ICON_STROKE} fill="currentColor" aria-hidden />
           รายการของฉัน
         </Link>
         {role === 'admin' ? (
@@ -81,7 +82,7 @@ function MobilePrimaryNav() {
             className={pill(isAdminArea)}
             aria-current={isAdminArea ? 'page' : undefined}
           >
-            <LayoutDashboard className="h-4 w-4 shrink-0" strokeWidth={1.5} aria-hidden />
+            <LayoutDashboard className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
             Dashboard
           </Link>
         ) : null}
@@ -110,25 +111,23 @@ export function AppHeader() {
 
   return (
     <>
-      <header className={cn('sticky top-0 z-40 md:hidden', theme.headerBar)}>
+      <header className={cn('sticky top-0 z-40 shrink-0 md:hidden', theme.headerBar)}>
         {/* Mobile wireframe header: เมนู | ชื่อกลาง | ค้นหา */}
-        <div className="mx-auto grid min-h-[44px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 px-2 py-1.5 md:hidden">
+        <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 md:hidden', theme.headerBarMobile)}>
           <button
             type="button"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl text-[#374151] transition hover:bg-[#f0f2f5] hover:shadow-sm active:scale-95"
+            className={cn('pour-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl text-[#374151] hover:bg-[rgba(17,24,39,0.05)]')}
             onClick={() => setDrawerOpen(true)}
             aria-label="เปิดเมนู"
           >
-            <Menu className="h-6 w-6" strokeWidth={1.5} />
+            <Menu className={icon.lg} strokeWidth={ICON_STROKE} />
           </button>
           <Link
             to={APP_HOME}
             className="min-w-0 justify-self-center px-0.5 text-center no-underline"
           >
-            <span className={cn('block text-sm', theme.brandWordmark)}>Concrete Works</span>
-            <span className="mt-0.5 block text-[9px] font-medium leading-snug tracking-wide text-[#9ca3af] sm:text-[10px]">
-              {BRAND_TAGLINE}
-            </span>
+            <span className={cn('block', type.bodyStrong, theme.brandWordmark)}>Concrete Works</span>
+            <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
           </Link>
           <button
             type="button"
@@ -136,7 +135,7 @@ export function AppHeader() {
             className={cn('h-9 w-9 shrink-0 justify-self-end', theme.iconButtonChrome)}
             aria-label="ค้นหาและตัวกรอง"
           >
-            <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
+            <Search className={icon.sm} strokeWidth={ICON_STROKE} />
           </button>
         </div>
 
@@ -146,28 +145,31 @@ export function AppHeader() {
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DialogContent
           showCloseButton={false}
-          className="fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-[min(20rem,92vw)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border border-y-0 border-l-0 border-[#e2e6ec] bg-white p-0 sm:max-w-none"
+          className={cn(
+            'fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-[min(20rem,92vw)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border border-y-0 border-l-0 p-0 sm:max-w-none',
+            theme.drawerPanel,
+          )}
         >
-          <DialogHeader className="border-b border-[#e2e6ec] bg-[#f5f6f8]/80 p-4 text-left">
+          <DialogHeader className={cn('px-5 py-4 text-left', theme.drawerHeader)}>
             <div className="flex items-center justify-between gap-2">
-              <DialogTitle className="text-base font-bold tracking-tight text-[#111827]">เมนู</DialogTitle>
+              <DialogTitle className={type.title}>เมนู</DialogTitle>
               <button
                 type="button"
-                className="rounded-lg p-2 text-[#6b7280] hover:bg-[#f0f2f5]"
+                className="rounded-lg p-2 text-[#6b7280] hover:bg-[rgba(17,24,39,0.05)]"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="ปิด"
               >
-                <X className="h-5 w-5" strokeWidth={1.5} />
+                <X className={icon.md} strokeWidth={ICON_STROKE} />
               </button>
             </div>
-            <p className="text-left text-xs font-normal text-[#6b7280]">
+            <p className={cn('text-left', type.caption)}>
               {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.role}
             </p>
           </DialogHeader>
 
-          <nav className="flex-1 overflow-y-auto p-2">
-            <p className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-[#9ca3af]">หลัก</p>
-            <div className="space-y-0.5">
+          <nav className="flex-1 overflow-y-auto px-3 py-3">
+            <p className={cn(theme.navSectionLabel, 'px-2')}>หลัก</p>
+            <div className="space-y-1">
               {mainLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
@@ -176,14 +178,14 @@ export function AppHeader() {
                   onClick={() => setDrawerOpen(false)}
                   className={() =>
                     cn(
-                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+                      theme.navLink,
                       isNavToActive(to, location)
-                        ? 'bg-[rgba(37,99,235,0.10)] text-[#2563eb]'
-                        : 'text-[#374151] hover:bg-[#f5f6f8]',
+                        ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
                     )
                   }
                 >
-                  <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                  <Icon className={icon.md} strokeWidth={ICON_STROKE} />
                   {label}
                 </NavLink>
               ))}
@@ -194,14 +196,14 @@ export function AppHeader() {
                   onClick={() => setDrawerOpen(false)}
                   className={() =>
                     cn(
-                      'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+                      theme.navLink,
                       isNavToActive('/admin', location)
-                        ? 'bg-[rgba(37,99,235,0.10)] text-[#2563eb]'
-                        : 'text-[#374151] hover:bg-[#f5f6f8]',
+                        ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
                     )
                   }
                 >
-                  <LayoutDashboard className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                  <LayoutDashboard className={icon.md} strokeWidth={ICON_STROKE} />
                   Dashboard
                 </NavLink>
               ) : null}
@@ -209,9 +211,7 @@ export function AppHeader() {
 
             {role === 'admin' && (
               <>
-                <p className="mt-4 px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-[#9ca3af]">
-                  Admin
-                </p>
+                <p className={cn(theme.navSectionLabel, 'mt-5 px-2')}>Admin</p>
                 <div className="space-y-0.5">
                   {adminMenuLinks.map(({ to, label, icon: Icon, end }) => (
                     <NavLink
@@ -221,14 +221,14 @@ export function AppHeader() {
                       onClick={() => setDrawerOpen(false)}
                       className={({ isActive }) =>
                         cn(
-                          'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold',
+                          theme.navLink,
                           isActive
-                        ? 'bg-[rgba(37,99,235,0.10)] text-[#2563eb]'
-                        : 'text-[#374151] hover:bg-[#f5f6f8]',
+                        ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
                         )
                       }
                     >
-                      <Icon className="h-5 w-5 shrink-0" strokeWidth={1.5} />
+                      <Icon className={icon.md} strokeWidth={ICON_STROKE} />
                       {label}
                     </NavLink>
                   ))}
@@ -237,9 +237,9 @@ export function AppHeader() {
             )}
           </nav>
 
-          <div className="border-t border-[#e2e6ec] p-3">
-            <Button variant="outline" className="h-10 w-full rounded-xl border-[#e2e6ec]" onClick={handleLogout}>
-              <LogOut className="mr-2 h-4 w-4" strokeWidth={1.5} />
+          <div className="border-t border-[color:var(--glass-border-subtle)] p-4">
+            <Button variant="outline" className="h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] backdrop-blur-sm" onClick={handleLogout}>
+              <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
               ออกจากระบบ
             </Button>
           </div>

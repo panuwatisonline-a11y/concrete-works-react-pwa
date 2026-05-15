@@ -140,7 +140,7 @@ export function StructureListMultiSelect({
                 >
                   <input
                     type="checkbox"
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#c8ced8] text-[#2563eb] focus:ring-[#2563eb]"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-[#c8ced8] text-[color:var(--pour-accent)] focus:ring-[color:var(--pour-accent)]"
                     checked={selected.has(name)}
                     onChange={() => toggle(name)}
                   />

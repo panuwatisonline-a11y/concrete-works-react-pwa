@@ -14,12 +14,12 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[#e2e6ec] bg-white px-3.5 py-2 text-sm text-[#111827] focus:outline-none focus:border-[#2563eb] focus:bg-white focus:shadow-[0_0_0_3px_rgba(37,99,235,0.10)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'flex h-10 w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] backdrop-blur-xl focus:outline-none focus:border-[color:var(--pour-accent)] focus:bg-white/75 focus:shadow-[0_0_0_3px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       /* ยังไม่เลือก */
-      '[&[data-placeholder]]:border-[#e2e6ec] [&[data-placeholder]]:bg-white [&[data-placeholder]]:text-[#b4bcc8]',
+      '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:bg-[var(--glass-bg)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
       '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[#b4bcc8]',
       /* เลือกแล้ว — พื้นขาว + ขอบเขียวอ่อน */
-      '[&:not([data-placeholder])]:border-[#c7f0d0] [&:not([data-placeholder])]:bg-white',
+      '[&:not([data-placeholder])]:border-[#86efac] [&:not([data-placeholder])]:bg-white',
       className
     )}
     {...props}
@@ -68,7 +68,7 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       className={cn(
-        'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl border border-[#e2e6ec] bg-white text-[#111827] shadow-[0_1px_3px_rgba(0,0,0,0.08)]',
+        'pour-glass relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl text-[color:var(--pour-ink-0)]',
         position === 'popper' && 'translate-y-1',
         className
       )}

@@ -51,7 +51,7 @@ export function RequestFiltersDialog() {
                     onClick={() => toggleStatus(s.id)}
                     className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       filter.status_ids.includes(s.id)
-                        ? 'border-[#2563eb] bg-[#2563eb] text-white shadow-sm shadow-[rgba(37,99,235,0.25)]'
+                        ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white shadow-sm shadow-[var(--pour-accent-ring)]'
                         : 'border-[#e2e6ec] bg-white text-[#6b7280] hover:border-[#c8ced8]'
                     }`}
                   >

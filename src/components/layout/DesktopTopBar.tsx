@@ -6,7 +6,7 @@ import { useDesktopSearchRegistry } from '@/stores/desktopSearchRegistry'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Input } from '@/components/ui/input'
 import { getDesktopSearchBarConfig } from '@/lib/desktopTopBarSearch'
-import { theme } from '@/lib/requestUi'
+import { theme, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 /** Desktop-only top strip: wide search + actions (matches dashboard ref layout). */
@@ -44,7 +44,7 @@ export function DesktopTopBar() {
   return (
     <div
       className={cn(
-        'hidden shrink-0 items-center gap-4 px-4 py-3 sm:px-6 md:flex lg:px-8 xl:px-10 2xl:px-12',
+        'hidden shrink-0 items-center gap-4 px-4 py-3.5 sm:px-6 md:flex lg:px-8 xl:px-10 2xl:px-12',
         theme.headerBar,
       )}
     >
@@ -52,10 +52,11 @@ export function DesktopTopBar() {
         <div className="relative min-w-0 flex-1">
           <Search
             className={cn(
-              'pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2',
-              inputDisabled ? 'text-[#9ca3af]' : 'text-[#2563eb]',
+              'pointer-events-none absolute left-3 top-1/2 -translate-y-1/2',
+              icon.sm,
+              inputDisabled ? 'text-[color:var(--pour-ink-3)]' : 'text-[color:var(--pour-ink-0)]',
             )}
-            strokeWidth={1.75}
+            strokeWidth={ICON_STROKE}
             aria-hidden
           />
           <Input
@@ -70,10 +71,11 @@ export function DesktopTopBar() {
               if (e.key === 'Enter') navigate('/requests?view=latest')
             }}
             className={cn(
-              'h-10 w-full rounded-xl border-[#e2e6ec] bg-white pl-10 pr-3 text-sm shadow-sm shadow-black/[0.04]',
-              'placeholder:font-normal placeholder:text-[#b4bcc8]',
-              'focus-visible:border-[#2563eb] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[rgba(37,99,235,0.10)]',
-              inputDisabled && 'cursor-not-allowed bg-[#f5f6f8] text-[#6b7280]',
+              'h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] pl-10 pr-3 backdrop-blur-xl',
+              type.body,
+              'placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)]',
+              'focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--pour-accent-ring)]',
+              inputDisabled && 'cursor-not-allowed bg-white/30 text-[#6b7280]',
             )}
             aria-label={ariaLabel}
           />
@@ -84,12 +86,13 @@ export function DesktopTopBar() {
             onClick={openFiltersDialog}
             title="ตัวกรองสถานะและอื่นๆ"
             className={cn(
-              'flex h-10 shrink-0 items-center justify-center rounded-xl border border-[#e2e6ec] bg-white px-3 text-sm shadow-sm shadow-black/[0.04]',
-              'text-[#6b7280] transition hover:border-[#2563eb]/35 hover:bg-[rgba(37,99,235,0.06)] hover:text-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/25',
+              'pour-glass flex h-10 shrink-0 items-center justify-center rounded-xl px-3',
+              type.body,
+              'text-[#6b7280] transition hover:border-[#c8ced8] hover:bg-[rgba(17,24,39,0.04)] hover:text-[#374151] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9ca3af]/35',
             )}
             aria-label="เปิดตัวกรองคำขอ"
           >
-            <ListFilter className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            <ListFilter className={icon.sm} strokeWidth={ICON_STROKE} />
           </button>
         ) : null}
       </div>
@@ -101,11 +104,11 @@ export function DesktopTopBar() {
           className={cn('h-10 w-10 shrink-0', theme.iconButtonChrome)}
           title="รายการคำขอ"
         >
-          <Bell className="h-[20px] w-[20px]" strokeWidth={1.75} />
+          <Bell className={icon.sm} strokeWidth={ICON_STROKE} />
         </button>
         <Link
           to="/profile"
-          className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-[rgba(37,99,235,0.25)]"
+          className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-[var(--pour-accent-ring)]"
           title="โปรไฟล์"
         >
           <UserAvatar profile={profile} size="sm" />

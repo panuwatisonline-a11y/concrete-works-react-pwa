@@ -34,7 +34,7 @@ export function TrendGranularityToggle({
           className={cn(
             'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
             value === g
-              ? 'bg-white text-[#2563eb] shadow-sm ring-1 ring-[#e2e6ec]'
+              ? 'bg-white text-[color:var(--pour-accent)] shadow-sm ring-1 ring-[#e2e6ec]'
               : 'text-[#64748b] hover:bg-white/80 hover:text-[#111827]',
           )}
         >
@@ -115,7 +115,7 @@ export function VolumeTrendDualLineChart({
 
   if (loading) {
     return (
-      <div className="flex min-h-[14rem] items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
         กำลังโหลดกราฟ…
       </div>
     )
@@ -123,7 +123,7 @@ export function VolumeTrendDualLineChart({
 
   if (points.length === 0) {
     return (
-      <div className="flex min-h-[14rem] items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-56">
         ไม่มีข้อมูลในช่วงที่เลือก (ต้องมีวันเลื่อน วันเท หรือวันที่จองสำหรับจัดกลุ่มกราฟ)
       </div>
     )
@@ -150,14 +150,16 @@ export function VolumeTrendDualLineChart({
         </p>
       </div>
       <div className="p-3 md:p-4">
-        <div className="relative mx-auto h-[min(16rem,42svh)] w-full min-w-0">
-          <svg
-            viewBox={`0 0 ${vbW} ${vbH}`}
-            className="block h-full w-full font-sans tabular-nums"
-            preserveAspectRatio="xMidYMid meet"
-            role="img"
-            aria-label="กราฟแนวโน้มปริมาณคำขอและยืนยันเท"
-          >
+        <svg
+          viewBox={`0 0 ${vbW} ${vbH}`}
+          width={vbW}
+          height={vbH}
+          className="block max-w-full"
+          style={{ width: '100%', height: vbH, maxHeight: vbH }}
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="กราฟแนวโน้มปริมาณคำขอและยืนยันเท"
+        >
             <rect x={x0} y={y0} width={innerW} height={innerH} fill="#f8fafc" rx="8" />
             {tickVs.map((v) => {
               const y = y1 - (v / maxY) * innerH
@@ -187,7 +189,7 @@ export function VolumeTrendDualLineChart({
               <path
                 d={pathC}
                 fill="none"
-                stroke="#2563eb"
+                stroke="#171717"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -201,7 +203,7 @@ export function VolumeTrendDualLineChart({
                     Request: {p.requestVol.toFixed(2)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
                 </circle>
-                <circle cx={p.x} cy={p.yc} r="4" fill="white" stroke="#2563eb" strokeWidth="2">
+                <circle cx={p.x} cy={p.yc} r="4" fill="white" stroke="[color:var(--pour-accent)]" strokeWidth="2">
                   <title>
                     Confirm: {p.confirmVol.toFixed(2)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
@@ -223,15 +225,14 @@ export function VolumeTrendDualLineChart({
                 </text>
               )
             })}
-          </svg>
-        </div>
+        </svg>
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#e2e6ec]/80 pt-3 text-[10px] text-[#374151] md:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-5 rounded-sm bg-[#64748b]" aria-hidden />
             Request volume (m³)
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2 w-5 rounded-sm bg-[#2563eb]" aria-hidden />
+            <span className="h-2 w-5 rounded-sm bg-[color:var(--pour-accent)]" aria-hidden />
             Confirmed volume (m³)
           </span>
         </div>
@@ -260,7 +261,7 @@ export function HorizontalVolumeBarChart({
 }) {
   if (loading) {
     return (
-      <div className="flex min-h-[12rem] items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
         กำลังโหลด…
       </div>
     )
@@ -268,7 +269,7 @@ export function HorizontalVolumeBarChart({
 
   if (slices.length === 0) {
     return (
-      <div className="flex min-h-[12rem] items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[#e2e6ec] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] md:min-h-48">
         {emptyMessage}
       </div>
     )
@@ -297,7 +298,7 @@ export function HorizontalVolumeBarChart({
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-[#eef2f7]">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] transition-[width] duration-500"
+                  className="h-full rounded-full bg-gradient-to-r from-neutral-600 to-neutral-900 transition-[width] duration-500"
                   style={{ width: `${wPct}%` }}
                 >
                   <span className="sr-only">
@@ -334,8 +335,8 @@ export function StatusVolumeStrip({
   const colors: Record<number, string> = {
     1: '#6b7280',
     2: '#d97706',
-    3: '#2563eb',
-    4: '#0891b2',
+    3: '#525252',
+    4: '#737373',
     5: '#b45309',
     6: '#dc2626',
     7: '#9ca3af',

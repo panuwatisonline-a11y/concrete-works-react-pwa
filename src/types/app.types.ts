@@ -188,7 +188,7 @@ export interface RequestFilter {
 export const STATUS_COLORS: Record<number, string> = {
   1: 'border border-[rgba(107,114,128,0.28)] bg-[rgba(107,114,128,0.10)] text-[#6b7280]',
   2: 'border border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.10)] text-[#d97706]',
-  3: 'border border-[rgba(37,99,235,0.28)] bg-[rgba(37,99,235,0.10)] text-[#2563eb]',
+  3: 'border border-[var(--pour-accent-ring)] bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent)]',
   4: 'border border-[rgba(8,145,178,0.28)] bg-[rgba(8,145,178,0.10)] text-[#0891b2]',
   5: 'border border-[rgba(217,119,6,0.35)] bg-[rgba(217,119,6,0.12)] text-[#b45309]',
   6: 'border border-[rgba(220,38,38,0.28)] bg-[rgba(220,38,38,0.10)] text-[#dc2626]',

@@ -68,13 +68,13 @@ export function MixcodePicker({
                       }}
                       className={cn(
                         'cursor-pointer border-t border-[#f0f2f5] outline-none transition-colors first:border-t-0',
-                        'hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#2563eb]/25',
+                        'hover:bg-[#f8fafc] focus-visible:bg-[#f8fafc] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/25',
                         on && 'bg-[#eff6ff] hover:bg-[#eff6ff]',
                       )}
                     >
                       <td className="w-9 px-1 py-2 align-middle text-center sm:w-10 sm:px-2 sm:py-2.5">
                         {on ? (
-                          <Check className="mx-auto h-4 w-4 shrink-0 text-[#2563eb]" strokeWidth={2.5} aria-hidden />
+                          <Check className="mx-auto h-4 w-4 shrink-0 text-[color:var(--pour-accent)]" strokeWidth={2.5} aria-hidden />
                         ) : (
                           <span className="mx-auto block h-4 w-4 shrink-0" aria-hidden />
                         )}

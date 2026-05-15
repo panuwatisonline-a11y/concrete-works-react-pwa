@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { APP_HOME } from '@/lib/appHome'
+import { theme } from '@/lib/requestUi'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { Briefcase, Truck, ArrowRight, Scale, TrendingDown, BarChart3 } from 'lucide-react'
 import type { Profile } from '@/types/app.types'
@@ -69,12 +71,12 @@ export function LoginPage() {
   }
 
   const formPanel = (
-    <div className="flex flex-1 items-center justify-center bg-[#f5f6f8] px-6 py-10">
-      <div className="w-full max-w-[380px]">
+    <div className="pour-shell flex flex-1 items-center justify-center px-6 py-10">
+      <div className="pour-glass pour-page-enter w-full max-w-[380px] rounded-2xl p-6 sm:p-8">
         {/* Mobile-only logo */}
         <div className="mb-8 flex items-center gap-3 md:hidden">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-700 to-blue-900 text-white shadow">
-            <Briefcase className="h-5 w-5" strokeWidth={2} />
+          <span className={cn('flex h-10 w-10 items-center justify-center rounded-xl', theme.iconTileBrand)}>
+            <Briefcase className="h-5 w-5 text-white" strokeWidth={2} aria-hidden />
           </span>
           <span className="text-xl font-bold tracking-tight text-[#111827]">Concrete Works</span>
         </div>
@@ -91,7 +93,7 @@ export function LoginPage() {
               id="email"
               type="email"
               placeholder="email@example.com"
-              className="font-pour-mono h-11 rounded-xl border-[#e2e6ec] bg-[#f0f2f5] text-sm focus-visible:border-[#2563eb] focus-visible:bg-white focus-visible:shadow-[0_0_0_3px_rgba(37,99,235,0.10)]"
+              className="font-pour-mono h-11 text-sm"
               {...register('email')}
             />
             {errors.email && <p className="text-xs text-rose-600">{errors.email.message}</p>}
@@ -102,7 +104,7 @@ export function LoginPage() {
               <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
                 รหัสผ่าน
               </Label>
-              <a className="cursor-pointer text-xs font-medium text-[#2563eb] hover:text-[#1d4ed8] hover:underline">
+              <a className="cursor-pointer text-xs font-medium text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)] hover:underline">
                 ลืมรหัสผ่าน?
               </a>
             </div>
@@ -110,7 +112,7 @@ export function LoginPage() {
               id="password"
               type="password"
               placeholder="••••••••"
-              className="h-11 rounded-xl border-[#e2e6ec] bg-[#f0f2f5] text-sm focus-visible:border-[#2563eb] focus-visible:bg-white focus-visible:shadow-[0_0_0_3px_rgba(37,99,235,0.10)]"
+              className="h-11 text-sm"
               {...register('password')}
             />
             {errors.password && <p className="text-xs text-rose-600">{errors.password.message}</p>}
@@ -122,7 +124,7 @@ export function LoginPage() {
           >
             <div
               className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.5px] transition-colors ${
-                remember ? 'border-[#2563eb] bg-[#2563eb]' : 'border-[#c8ced8] bg-white'
+                remember ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)]' : 'border-[color:var(--glass-border-subtle)] bg-white'
               }`}
             >
               {remember && (
@@ -136,7 +138,7 @@ export function LoginPage() {
 
           <Button
             type="submit"
-            className="mt-1 h-11 w-full rounded-xl bg-[#2563eb] text-sm font-semibold shadow-[0_1px_2px_rgba(37,99,235,0.25),0_4px_12px_rgba(37,99,235,0.18)] hover:bg-[#1d4ed8]"
+            className="mt-1 h-11 w-full rounded-xl bg-[color:var(--pour-accent)] text-sm font-semibold shadow-[0_1px_2px_rgba(0,0,0,0.12),0_4px_14px_rgba(0,0,0,0.1)] hover:bg-[color:var(--pour-accent-hover)]"
             disabled={loading}
           >
             {loading ? 'กำลังเข้าสู่ระบบ…' : (
@@ -147,7 +149,7 @@ export function LoginPage() {
 
         <p className="mt-6 text-center text-sm text-[#6b7280]">
           ยังไม่มีบัญชี?{' '}
-          <Link to="/register" className="font-semibold text-[#2563eb] hover:text-[#1d4ed8] hover:underline">
+          <Link to="/register" className="font-semibold text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)] hover:underline">
             สมัครใช้งาน
           </Link>
         </p>
@@ -156,10 +158,10 @@ export function LoginPage() {
   )
 
   return (
-    <div className="flex min-h-[100dvh] flex-col md:flex-row">
+    <div className="flex h-[100dvh] max-h-[100dvh] min-h-0 flex-col overflow-y-auto overscroll-y-contain md:flex-row md:overflow-hidden">
       {/* Left brand panel — desktop only */}
       <div
-        className="relative hidden shrink-0 flex-col justify-between overflow-hidden bg-[linear-gradient(160deg,#1e40af_0%,#2563eb_100%)] p-12 md:flex md:w-[42%]"
+        className="relative hidden shrink-0 flex-col justify-between overflow-hidden bg-[linear-gradient(160deg,#525252_0%,#262626_50%,#0a0a0a_100%)] p-12 md:flex md:w-[42%]"
       >
         {/* Hatch overlay */}
         <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]" aria-hidden>

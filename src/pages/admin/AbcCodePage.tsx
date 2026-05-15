@@ -76,7 +76,7 @@ export function AbcCodePage() {
             className={cn(
               'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors md:px-4 md:text-sm',
               tab === key
-                ? 'bg-[rgba(37,99,235,0.12)] text-[#1d4ed8] shadow-sm'
+                ? 'bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent-hover)] shadow-sm'
                 : 'text-[#6b7280] hover:bg-[#f0f2f5] hover:text-[#111827]',
             )}
           >

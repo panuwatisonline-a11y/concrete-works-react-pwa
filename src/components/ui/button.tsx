@@ -4,27 +4,33 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb] focus-visible:ring-offset-2 focus-visible:ring-offset-[#f5f6f8] disabled:pointer-events-none disabled:opacity-50',
+  'pour-interactive inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--pour-bg)] disabled:pointer-events-none disabled:opacity-45',
   {
     variants: {
       variant: {
         default:
-          'bg-[#2563eb] text-white shadow-[0_1px_2px_rgba(37,99,235,0.25),0_4px_12px_rgba(37,99,235,0.18)] hover:bg-[#1d4ed8] active:translate-y-px',
-        destructive: 'bg-[#dc2626] text-white shadow-sm hover:bg-[#b91c1c] active:translate-y-px',
+          'bg-[color:var(--pour-accent)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),0_3px_12px_rgba(0,0,0,0.08)] hover:bg-[color:var(--pour-accent-hover)]',
+        destructive:
+          'bg-[#dc2626] text-white shadow-sm hover:bg-[#b91c1c]',
         outline:
-          'border-[1.5px] border-[#e2e6ec] bg-white text-[#111827] shadow-none hover:bg-[#f0f2f5] hover:border-[#c8ced8] active:translate-y-px',
-        secondary: 'bg-[#f0f2f5] text-[#111827] shadow-none hover:bg-[#e8ebf0] active:translate-y-px',
-        ghost: 'rounded-xl text-[#374151] hover:bg-[#f0f2f5]',
-        link: 'rounded-xl font-semibold text-[#2563eb] underline-offset-2 hover:text-[#1d4ed8] hover:underline',
-        warning: 'bg-[#111827] text-white shadow-sm hover:bg-[#030712] active:translate-y-px',
+          'border border-[color:var(--glass-border-subtle)] bg-[color:color-mix(in_srgb,var(--glass-bg)_88%,transparent)] text-[color:var(--pour-ink-0)] backdrop-blur-md shadow-none hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)]',
+        secondary:
+          'border border-[color:var(--glass-border-subtle)] bg-[var(--pour-bg-2)] text-[color:var(--pour-ink-0)] shadow-none hover:bg-[var(--pour-line)]',
+        ghost:
+          'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/[0.06]',
+        link:
+          'font-semibold text-[color:var(--pour-accent)] underline-offset-2 hover:text-[color:var(--pour-accent-hover)] hover:underline',
+        warning:
+          'bg-[#d97706] text-white shadow-sm hover:bg-[#b45309]',
         success:
-          'bg-[#2563eb] text-white shadow-[0_1px_2px_rgba(37,99,235,0.25),0_4px_12px_rgba(37,99,235,0.18)] hover:bg-[#1d4ed8] active:translate-y-px',
+          'bg-[#16a34a] text-white shadow-sm hover:bg-[#15803d]',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-xl px-3 text-xs',
-        lg: 'h-12 rounded-xl px-6 text-[15px]',
-        icon: 'h-10 w-10 rounded-xl',
+        default: 'h-10 px-4 text-sm',
+        sm: 'h-9 px-3 text-xs',
+        action: 'h-9 min-h-9 px-3.5 text-xs leading-tight',
+        lg: 'h-11 px-6 text-sm',
+        icon: 'h-10 w-10',
       },
     },
     defaultVariants: {

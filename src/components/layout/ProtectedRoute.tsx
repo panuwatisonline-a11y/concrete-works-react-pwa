@@ -13,8 +13,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
+      <div className="pour-shell flex h-screen items-center justify-center">
+        <div className="h-7 w-7 animate-spin rounded-full border-2 border-[color:var(--glass-border-subtle)] border-t-[color:var(--pour-accent)]" />
       </div>
     )
   }
@@ -23,8 +23,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
 
   if (!profileHydrated) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-7 w-7 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-900" />
+      <div className="pour-shell flex h-screen items-center justify-center">
+        <div className="h-7 w-7 animate-spin rounded-full border-2 border-[color:var(--glass-border-subtle)] border-t-[color:var(--pour-accent)]" />
       </div>
     )
   }

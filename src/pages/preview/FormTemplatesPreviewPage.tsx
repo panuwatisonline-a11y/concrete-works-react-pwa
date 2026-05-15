@@ -378,7 +378,7 @@ function CollapsiblePreviewBlock(props: {
                 theme.shell,
               )}
             >
-              <div className={cn('h-9 w-9 rounded-full border-2 border-[#e5e7eb] border-t-[#2563eb] animate-spin')} aria-hidden />
+              <div className={cn('h-9 w-9 rounded-full border-2 border-[#e5e7eb] border-t-[color:var(--pour-accent)] animate-spin')} aria-hidden />
               <span className="sr-only">กำลังโหลด</span>
             </div>
           ) : null}

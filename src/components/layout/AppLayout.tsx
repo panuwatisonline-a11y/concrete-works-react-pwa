@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { AnimatedOutlet } from '@/components/motion/AnimatedOutlet'
 import { AppHeader } from './AppHeader'
 import { AppBreadcrumbs } from './AppBreadcrumbs'
 import { DesktopSidebar } from './DesktopSidebar'
@@ -14,10 +14,10 @@ export function AppLayout() {
   return (
     <div
       className={cn(
-        'flex min-h-0 h-[100dvh] max-h-[100dvh] flex-col text-[#111827]',
+        'flex min-h-0 h-[100dvh] max-h-[100dvh] flex-col text-[color:var(--pour-ink-0)]',
         theme.shell,
         theme.shellDesktopAccent,
-        'md:flex-row md:gap-3 md:p-3 md:pr-4',
+        'md:flex-row md:gap-4 md:p-4 md:pr-5',
       )}
     >
       <DesktopSidebar />
@@ -34,19 +34,14 @@ export function AppLayout() {
 
         <main
           className={cn(
-            'mx-auto w-full min-w-0 flex-1 min-h-0 overflow-y-auto overflow-x-hidden',
-            'px-0 py-0 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:px-0 md:py-0 md:pb-0',
+            'mx-auto w-full min-w-0 min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain',
+            'px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12',
+            'pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3 md:bg-transparent md:pb-10 md:pt-4',
           )}
         >
-          <div
-            className={cn(
-              'mx-auto w-full min-w-0 max-w-none',
-              'px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] pt-0 sm:px-6 lg:px-8 xl:px-10 2xl:px-12',
-              'md:pb-10 md:pt-2',
-            )}
-          >
+          <div className="flex min-w-0 flex-col gap-4 md:gap-5">
             <AppBreadcrumbs />
-            <Outlet />
+            <AnimatedOutlet />
           </div>
         </main>
       </div>
