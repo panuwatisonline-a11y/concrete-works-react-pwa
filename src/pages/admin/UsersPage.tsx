@@ -349,11 +349,12 @@ export function UsersPage() {
               </div>
             </div>
           )}
-          <DialogFooter className="gap-2 sm:gap-2">
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              className="w-full rounded-xl border-[#ccf0ed] sm:w-auto"
+              size="modalAction"
+              className="rounded-xl border-[#ccf0ed]"
               onClick={() => setEditUser(null)}
               disabled={saving}
             >
@@ -361,7 +362,8 @@ export function UsersPage() {
             </Button>
             <Button
               type="button"
-              className="w-full rounded-xl shadow-sm shadow-teal-500/20 sm:w-auto"
+              size="modalAction"
+              className="rounded-xl shadow-sm shadow-teal-500/20"
               onClick={() => void saveEdit()}
               disabled={saving || !editUser}
             >

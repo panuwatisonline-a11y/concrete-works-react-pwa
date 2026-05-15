@@ -714,9 +714,9 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="outline" size="modalAction" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
             <Button
-              size="action"
+              size="modalAction"
               disabled={
                 actionBusy ||
                 (!request?.before_image?.trim() && !(inspectBeforeImage?.trim()))
@@ -806,8 +806,8 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button size="action" disabled={actionBusy} onClick={() => void handleConfirmOrder()}>
+            <Button variant="outline" size="modalAction" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button size="modalAction" disabled={actionBusy} onClick={() => void handleConfirmOrder()}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'ยืนยันสั่งเท'}
             </Button>
           </DialogFooter>
@@ -827,8 +827,8 @@ export function RequestDetailPage() {
             <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} rows={3} placeholder="กรุณาระบุ..." />
           </div>
           <DialogFooter>
-            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button variant="destructive" size="action" disabled={actionBusy || !rejectReason.trim()} onClick={() => handleAction('reject')}>
+            <Button variant="outline" size="modalAction" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="destructive" size="modalAction" disabled={actionBusy || !rejectReason.trim()} onClick={() => handleAction('reject')}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'Reject'}
             </Button>
           </DialogFooter>
@@ -854,10 +854,10 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="outline" size="modalAction" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
             <Button
               variant="warning"
-              size="action"
+              size="modalAction"
               disabled={actionBusy || !postponeData.date || !postponeData.time || !postponeData.reason}
               onClick={() => handleAction('postpone')}
             >
@@ -886,8 +886,8 @@ export function RequestDetailPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" size="action" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button variant="success" size="action" disabled={actionBusy || !completeData.volume_confirm} onClick={() => handleAction('complete')}>
+            <Button variant="outline" size="modalAction" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
+            <Button variant="success" size="modalAction" disabled={actionBusy || !completeData.volume_confirm} onClick={() => handleAction('complete')}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'Confirm'}
             </Button>
           </DialogFooter>

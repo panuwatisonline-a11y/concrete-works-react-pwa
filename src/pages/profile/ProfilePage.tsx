@@ -282,11 +282,11 @@ export function ProfilePage() {
               <Input type="password" {...regPw('confirm')} />
               {pwErrors.confirm && <p className="text-xs text-rose-600">{pwErrors.confirm.message}</p>}
             </div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" type="button" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(false)}>
+            <DialogFooter>
+              <Button variant="outline" type="button" size="modalAction" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(false)}>
                 ยกเลิก
               </Button>
-              <Button type="submit" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingPw}>
+              <Button type="submit" size="modalAction" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingPw}>
                 {savingPw ? 'กำลังบันทึก...' : 'เปลี่ยนรหัสผ่าน'}
               </Button>
             </DialogFooter>

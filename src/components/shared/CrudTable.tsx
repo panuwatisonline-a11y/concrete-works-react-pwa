@@ -222,16 +222,18 @@ export function CrudTable<T extends { id: number }>({
               )}
             </div>
           </div>
-          <DialogFooter className="shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          <DialogFooter className="mx-0 shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
             <Button
               variant="outline"
-              className="w-full rounded-xl border-[color:var(--glass-border-subtle)] sm:w-auto"
+              size="modalAction"
+              className="rounded-xl border-[color:var(--glass-border-subtle)]"
               onClick={() => setModalOpen(false)}
             >
               ยกเลิก
             </Button>
             <Button
-              className="w-full rounded-xl shadow-sm shadow-teal-500/20 sm:w-auto"
+              size="modalAction"
+              className="rounded-xl shadow-sm shadow-teal-500/20"
               onClick={handleSave}
               disabled={saving}
             >

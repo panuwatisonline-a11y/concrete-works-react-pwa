@@ -29,6 +29,8 @@ const buttonVariants = cva(
         default: 'h-10 px-4 text-sm',
         sm: 'h-9 px-3 text-xs',
         action: 'h-9 min-h-9 px-3.5 text-xs leading-tight',
+        /** Dialog / confirm modals — compact footer actions */
+        modalAction: 'h-8 min-h-8 px-3 text-xs leading-tight',
         lg: 'h-11 px-6 text-sm',
         icon: 'h-10 w-10',
       },
