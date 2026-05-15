@@ -203,7 +203,9 @@ function AutoHeightIframe({
           doc.body.offsetHeight,
         )
     if (h <= 0) return
-    const next = Math.min(Math.ceil(h) + 12, 16000)
+    /** กัน doc/iframe วัดผิดแล้วดันความสูงหลายหมื่นพิกเซล (ไม่เกี่ยวกับ /admin โดยตรง แต่กันพรีวิวเทมเพลตลามเพจ) */
+    const raw = Math.ceil(h) + 12
+    const next = Math.min(raw, 10_000)
     if (Math.abs(next - lastHeightRef.current) < 2) return
     lastHeightRef.current = next
     setHeightPx(next)
@@ -215,7 +217,8 @@ function AutoHeightIframe({
     const cs = getComputedStyle(slot)
     const n = (v: string) => parseFloat(v) || 0
     const hPad = n(cs.paddingLeft) + n(cs.paddingRight)
-    const avail = Math.max(80, slot.clientWidth - hPad)
+    // Reserve room for the safe-inset border on both sides so scaledW never overflows the slot
+    const avail = Math.max(80, slot.clientWidth - hPad - 2 * PREVIEW_SCALE_SAFE_INSET_PX)
     const s = Math.min(1, avail / PREVIEW_IFRAME_WIDTH_PX)
     setScale((prev) => (Math.abs(prev - s) < 1e-6 ? prev : s))
   }, [])
