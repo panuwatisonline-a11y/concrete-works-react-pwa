@@ -14,7 +14,6 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -31,21 +30,13 @@ const profileSchema = z.object({
   job_id: z.string().optional(),
 })
 
-const pwSchema = z.object({
-  newPassword: z.string().min(6, 'อย่างน้อย 6 ตัวอักษร'),
-  confirm: z.string(),
-}).refine((d) => d.newPassword === d.confirm, { message: 'รหัสผ่านไม่ตรงกัน', path: ['confirm'] })
-
 type ProfileForm = z.infer<typeof profileSchema>
-type PwForm = z.infer<typeof pwSchema>
 
 export function ProfilePage() {
   const navigate = useNavigate()
   const { user, profile, setProfile } = useAuthStore()
   const { jobs } = useMasterDataStore()
   const [savingProfile, setSavingProfile] = useState(false)
-  const [pwOpen, setPwOpen] = useState(false)
-  const [savingPw, setSavingPw] = useState(false)
   const [editingProfile, setEditingProfile] = useState(false)
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<ProfileForm>({
@@ -73,10 +64,6 @@ export function ProfilePage() {
       job_id: profile.job_id ? String(profile.job_id) : '',
     })
   }, [profile, reset])
-
-  const { register: regPw, handleSubmit: handlePw, formState: { errors: pwErrors }, reset: resetPw } = useForm<PwForm>({
-    resolver: zodResolver(pwSchema),
-  })
 
   async function onSaveProfile(data: ProfileForm) {
     if (!profile) return
@@ -111,19 +98,6 @@ export function ProfilePage() {
 
   const jobName =
     profile?.job_id != null ? jobs.find((j) => j.id === profile.job_id)?.job_name : undefined
-
-  async function onChangePassword(data: PwForm) {
-    setSavingPw(true)
-    const { error } = await supabase.auth.updateUser({ password: data.newPassword })
-    if (!error) {
-      toast.success('เปลี่ยนรหัสผ่านสำเร็จ')
-      resetPw()
-      setPwOpen(false)
-    } else {
-      toast.error('เกิดข้อผิดพลาด')
-    }
-    setSavingPw(false)
-  }
 
   const roleLabels: Record<string, string> = { admin: 'Admin', manager: 'Manager', user: 'User' }
 
@@ -223,9 +197,6 @@ export function ProfilePage() {
                 >
                   ยกเลิก
                 </Button>
-                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(true)}>
-                  เปลี่ยนรหัสผ่าน
-                </Button>
               </div>
             </form>
           ) : (
@@ -258,41 +229,11 @@ export function ProfilePage() {
                   <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
-              <div className="border-t border-[#ccf0ed]/80 pt-4">
-                <Button type="button" variant="outline" size="sm" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(true)}>
-                  เปลี่ยนรหัสผ่าน
-                </Button>
-              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <Dialog open={pwOpen} onOpenChange={setPwOpen}>
-        <DialogContent className="max-w-sm rounded-[14px] border-[#ccf0ed]">
-          <DialogHeader><DialogTitle>เปลี่ยนรหัสผ่าน</DialogTitle></DialogHeader>
-          <form onSubmit={handlePw(onChangePassword)} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>รหัสผ่านใหม่ *</Label>
-              <Input type="password" {...regPw('newPassword')} />
-              {pwErrors.newPassword && <p className="text-xs text-rose-600">{pwErrors.newPassword.message}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <Label>ยืนยันรหัสผ่าน *</Label>
-              <Input type="password" {...regPw('confirm')} />
-              {pwErrors.confirm && <p className="text-xs text-rose-600">{pwErrors.confirm.message}</p>}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" type="button" size="modalAction" className="rounded-xl border-[#ccf0ed]" onClick={() => setPwOpen(false)}>
-                ยกเลิก
-              </Button>
-              <Button type="submit" size="modalAction" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingPw}>
-                {savingPw ? 'กำลังบันทึก...' : 'เปลี่ยนรหัสผ่าน'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
