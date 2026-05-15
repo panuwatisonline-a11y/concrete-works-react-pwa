@@ -1,4 +1,9 @@
+import { formatDate } from '@/lib/utils'
 import type { Profile, RequestWithRelations } from '@/types/app.types'
+
+type BookerProfileWithJob = Profile & {
+  job?: { job_name?: string | null } | null
+}
 
 /** Path under `public/` — served as static file by Vite */
 export const CHECKLIST_BEFORE_POUR_TEMPLATE_PATH = '/templates/checklist-before-concrete-placement.html'
@@ -42,6 +47,19 @@ function formatConcreteGrade(req: RequestWithRelations): string {
   }
   if (req.strength != null && !Number.isNaN(req.strength)) return String(req.strength)
   return ''
+}
+
+/** โครงการ (Jobs) จากโปรไฟล์ผู้จอง */
+function bookerProjectName(req: RequestWithRelations): string {
+  const p = req.booked_by_profile as BookerProfileWithJob | undefined
+  return p?.job?.job_name?.trim() ?? ''
+}
+
+/** วันที่ตรวจสอบ — เลื่อนวันก่อน แล้ว request_date / casting_date */
+export function formatChecklistInspectionDate(req: RequestWithRelations): string {
+  const raw =
+    req.postpone_date?.trim() || req.request_date?.trim() || req.casting_date?.trim() || ''
+  return raw ? formatDate(raw) : ''
 }
 
 function profileDisplayName(p: Profile | undefined): string {
@@ -107,16 +125,15 @@ export function checklistTemplateDataFromRequest(
   return {
     pageCurrent: options?.pageCurrent ?? '1',
     pageTotal: options?.pageTotal ?? '1',
-    clientName: req.client?.client_name?.trim() ?? '',
+    clientName: bookerProjectName(req),
     locationText: formatLocation(req),
     structureNo,
     requestDate:
-      options?.requestDateFormatted?.trim() ||
-      (req.request_date?.trim() ?? ''),
+      options?.requestDateFormatted?.trim() || formatChecklistInspectionDate(req),
     structureName,
     concreteGrade: formatConcreteGrade(req),
     remarks: req.remarks?.trim() ?? '',
     inspectorName,
-    witnessName: options?.witnessName?.trim() ?? '',
+    witnessName: '',
   }
 }

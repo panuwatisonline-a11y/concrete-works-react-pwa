@@ -27,7 +27,7 @@ const CHECKLIST_SAMPLE: ChecklistBeforePourTemplateData = {
   concreteGrade: '350 ksc',
   remarks: 'ตัวอย่างหมายเหตุการตรวจก่อนเท',
   inspectorName: 'สมชาย ใจดี',
-  witnessName: 'สมหญิง รับรองงาน',
+  witnessName: '',
 }
 
 const CST_SAMPLE: CstStrengthReportTemplateData = {

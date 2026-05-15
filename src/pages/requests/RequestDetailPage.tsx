@@ -21,7 +21,8 @@ import { formatDate, formatDateTime, formatTime, shortId, cn } from '@/lib/utils
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
-import { getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { canPrintChecklistBeforePour, getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { localPrintChecklist } from '@/lib/checklistPrint'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { rq } from '@/lib/requestUi'
 import {
@@ -387,7 +388,11 @@ export function RequestDetailPage() {
         }
       />
 
-      {(canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ([6, 7].includes(sid) && isOwner)) && (
+      {(canAct ||
+        (sid === 1 && isOwner) ||
+        (sid <= 3 && isOwner) ||
+        ([6, 7].includes(sid) && isOwner) ||
+        canPrintChecklistBeforePour(sid)) && (
         <RequestActionBar
           items={getRequestListQuickActions({
             requestId: request.id,
@@ -400,6 +405,14 @@ export function RequestDetailPage() {
             e.stopPropagation()
             if ('cloneFromRequestId' in item) {
               navigate('/requests/new', { state: { cloneFromRequestId: item.cloneFromRequestId } })
+              return
+            }
+            if ('printChecklist' in item) {
+              try {
+                localPrintChecklist(request)
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
+              }
               return
             }
             setModal(item.modal)

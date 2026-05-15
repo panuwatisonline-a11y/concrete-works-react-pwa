@@ -17,6 +17,8 @@ import {
   REQUEST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklistPrint'
+import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import {
   Plus,
@@ -205,6 +207,14 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
               navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
               return
             }
+            if ('printChecklist' in a) {
+              try {
+                localPrintChecklist(r)
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
+              }
+              return
+            }
             navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
           }}
         />
@@ -246,6 +256,10 @@ export function RequestListPage() {
   /** ค่าเริ่มต้นของแอป = สถานะ (summary) — ถ้าไม่มี ?view= จะถูก normalize เป็น summary */
   const mobileView = searchParams.get('view') === 'summary' ? 'summary' : 'latest'
   const scopeMine = searchParams.get('scope') === 'mine'
+
+  useEffect(() => {
+    warmChecklistTemplateCache()
+  }, [])
 
   const viewParam = searchParams.get('view')
   useEffect(() => {

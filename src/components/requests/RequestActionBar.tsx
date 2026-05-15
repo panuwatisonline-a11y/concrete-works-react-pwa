@@ -20,24 +20,18 @@ function ActionButtons({
   return (
     <div className={rq.actions.buttonRow}>
       {items.map((a) => {
-        if ('cloneFromRequestId' in a) {
-          return (
-            <Button
-              key={a.key}
-              type="button"
-              size="action"
-              variant={a.variant}
-              onClick={(e) => {
-                e.stopPropagation()
-                onItemClick(a, e)
-              }}
-            >
-              {a.label}
-            </Button>
-          )
-        }
+        const needsStopPropagation = 'cloneFromRequestId' in a || 'printChecklist' in a
         return (
-          <Button key={a.key} type="button" size="action" variant={a.variant} onClick={(e) => onItemClick(a, e)}>
+          <Button
+            key={a.key}
+            type="button"
+            size="action"
+            variant={a.variant}
+            onClick={(e) => {
+              if (needsStopPropagation) e.stopPropagation()
+              onItemClick(a, e)
+            }}
+          >
             {a.label}
           </Button>
         )

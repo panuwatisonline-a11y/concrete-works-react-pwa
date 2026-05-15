@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { rq, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
@@ -26,12 +26,15 @@ import { AbcCodePage } from '@/pages/admin/AbcCodePage'
 import { WbsCodePage } from '@/pages/admin/WbsCodePage'
 import { JobsPage } from '@/pages/admin/JobsPage'
 import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
+import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
 
 function AppInner() {
   useAuthInit()
   const { isLoading } = useAuthStore()
+  const { pathname } = useLocation()
+  const isPrintRoute = pathname.startsWith('/print/')
 
-  if (isLoading) {
+  if (isLoading && !isPrintRoute) {
     return (
       <div className={cn('flex min-h-[100dvh] items-center justify-center', theme.shell)}>
         <div className={rq.spinner} />
@@ -43,6 +46,8 @@ function AppInner() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+
+      <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<Navigate to={APP_HOME} replace />} />

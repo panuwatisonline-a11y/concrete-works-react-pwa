@@ -270,6 +270,19 @@
       min-height: 1px;
     }
     .sign .name { text-align: center; margin-bottom: 4px; }
+    .sign .name-slot {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .sign .name-witness {
+      display: inline-block;
+      min-width: 16rem;
+      padding: 0 1.25rem;
+      letter-spacing: 0.18em;
+      text-align: center;
+      white-space: nowrap;
+    }
     .sign .date-line { text-align: center; font-size: 0.85rem; }
   </style>
 </head>
@@ -397,7 +410,9 @@
           <td>
             <div class="sign-title">ลงชื่อ (Witnessed by)</div>
             <div class="line"></div>
-            <div class="name">( {{witnessName}} )</div>
+            <div class="name-slot">
+              <div class="name name-witness">(　　　　　　　　　　　　　)</div>
+            </div>
             <div class="date-line">วันที่: {{requestDate}}</div>
           </td>
         </tr>

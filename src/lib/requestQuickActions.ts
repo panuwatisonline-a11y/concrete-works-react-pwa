@@ -16,6 +16,12 @@ export type RequestActionModal =
 export type RequestListActionItem =
   | { key: string; modal: RequestActionModal; label: string; variant: BtnVariant }
   | { key: string; cloneFromRequestId: string; label: string; variant: BtnVariant }
+  | { key: string; printChecklist: true; label: string; variant: BtnVariant }
+
+/** พิมพ์ checklist ได้ตั้งแต่รออนุมัติ — ยกเว้น reject/cancel */
+export function canPrintChecklistBeforePour(statusId: number): boolean {
+  return statusId >= 2 && statusId !== 6 && statusId !== 7
+}
 
 /** สอดคล้องกับปุ่มใน `RequestDetailPage` (Action Panel) */
 export function getRequestListQuickActions(opts: {
@@ -30,36 +36,48 @@ export function getRequestListQuickActions(opts: {
   const canAct = role === 'admin' || role === 'manager'
   const showPanel =
     canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ((sid === 6 || sid === 7) && isOwner)
-  if (!showPanel) return []
 
   const out: RequestListActionItem[] = []
-  if (sid === 1 && canAct) {
-    out.push({ key: 'inspect', modal: 'inspect', label: 'ตรวจสอบ', variant: 'default' })
+
+  if (showPanel) {
+    if (sid === 1 && canAct) {
+      out.push({ key: 'inspect', modal: 'inspect', label: 'ตรวจสอบ', variant: 'default' })
+    }
+    if (sid === 2 && canAct) {
+      out.push({ key: 'approve', modal: 'approve', label: 'อนุมัติ', variant: 'success' })
+      out.push({ key: 'reject', modal: 'reject', label: 'Reject', variant: 'destructive' })
+    }
+    if (sid === 3 && canAct) {
+      out.push({ key: 'confirmOrder', modal: 'confirmOrder', label: 'สั่งเท', variant: 'default' })
+      out.push({ key: 'postpone', modal: 'postpone', label: 'เลื่อนวัน', variant: 'warning' })
+    }
+    if (sid === 4 && canAct) {
+      out.push({ key: 'complete', modal: 'complete', label: 'Confirm รายการ', variant: 'success' })
+    }
+    if (sid === 5 && canAct) {
+      out.push({ key: 'reApprove', modal: 'reApprove', label: 'สั่งเทใหม่', variant: 'default' })
+    }
+    if ([1, 2, 3].includes(sid) && (canAct || isOwner)) {
+      out.push({ key: 'cancel', modal: 'cancel', label: 'ยกเลิก', variant: 'outline' })
+    }
+    if ((sid === 6 || sid === 7) && isOwner) {
+      out.push({
+        key: 'cloneFrom',
+        cloneFromRequestId: requestId,
+        label: 'จองใหม่',
+        variant: 'default',
+      })
+    }
   }
-  if (sid === 2 && canAct) {
-    out.push({ key: 'approve', modal: 'approve', label: 'อนุมัติ', variant: 'success' })
-    out.push({ key: 'reject', modal: 'reject', label: 'Reject', variant: 'destructive' })
-  }
-  if (sid === 3 && canAct) {
-    out.push({ key: 'confirmOrder', modal: 'confirmOrder', label: 'สั่งเท', variant: 'default' })
-    out.push({ key: 'postpone', modal: 'postpone', label: 'เลื่อนวัน', variant: 'warning' })
-  }
-  if (sid === 4 && canAct) {
-    out.push({ key: 'complete', modal: 'complete', label: 'Confirm รายการ', variant: 'success' })
-  }
-  if (sid === 5 && canAct) {
-    out.push({ key: 'reApprove', modal: 'reApprove', label: 'สั่งเทใหม่', variant: 'default' })
-  }
-  if ([1, 2, 3].includes(sid) && (canAct || isOwner)) {
-    out.push({ key: 'cancel', modal: 'cancel', label: 'ยกเลิก', variant: 'outline' })
-  }
-  if ((sid === 6 || sid === 7) && isOwner) {
+
+  if (canPrintChecklistBeforePour(sid)) {
     out.push({
-      key: 'cloneFrom',
-      cloneFromRequestId: requestId,
-      label: 'จองใหม่',
-      variant: 'default',
+      key: 'printChecklist',
+      printChecklist: true,
+      label: 'พิมพ์ Checklist',
+      variant: 'outline',
     })
   }
+
   return out
 }
