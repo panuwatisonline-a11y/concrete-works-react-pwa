@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDate, formatDateTime, formatTime, shortId, cn } from '@/lib/utils'
+import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { rq } from '@/lib/requestUi'
@@ -82,6 +83,7 @@ export function RequestDetailPage() {
     volume_request: '',
     note: '',
   })
+  const [inspectBeforeImage, setInspectBeforeImage] = useState<string | null>(null)
   const [confirmOrderData, setConfirmOrderData] = useState({ volume_actual: '', note: '' })
   const [imageLightbox, setImageLightbox] = useState<{ items: { src: string; label: string }[] } | null>(null)
 
@@ -96,23 +98,31 @@ export function RequestDetailPage() {
   )
   const filteredStructuresInspect = useMemo(() => {
     const cw = selectedCWInspect
-    if (!cw?.structure_list) return structures
-    const names = cw.structure_list.split(',').map((n) => n.trim())
-    return structures.filter((s) => names.includes(s.structure_name))
-  }, [structures, selectedCWInspect])
+    if (!cw) return structures
+    if (!mixcodes.length) {
+      if (!cw.structure_list?.trim()) return structures
+      const names = parseStructureListTokens(cw.structure_list)
+      return structures.filter((s) => names.includes(s.structure_name))
+    }
+    return structures.filter((s) =>
+      structureHasCompatibleMixcode(s.structure_name, cw, mixcodes),
+    )
+  }, [structures, selectedCWInspect, mixcodes])
   const selectedStructureInspect = useMemo(
     () => structures.find((s) => String(s.id) === inspectData.structure_id),
     [structures, inspectData.structure_id],
   )
   const filteredMixcodesInspect = useMemo(() => {
-    if (!selectedStructureInspect) return mixcodes
+    const cw = selectedCWInspect
+    if (!cw) return mixcodes
     return mixcodes.filter((m) => {
-      const raw = m.structure_list?.trim()
-      if (!raw) return true
-      const allowed = raw.split(',').map((t) => t.trim()).filter(Boolean)
+      if (!structureListsIntersect(m.structure_list, cw.structure_list)) return false
+      if (!selectedStructureInspect) return true
+      const allowed = parseStructureListTokens(m.structure_list)
+      if (allowed.length === 0) return true
       return allowed.includes(selectedStructureInspect.structure_name)
     })
-  }, [mixcodes, selectedStructureInspect])
+  }, [mixcodes, selectedCWInspect, selectedStructureInspect])
 
   useEffect(() => {
     if (modal !== 'inspect') return
@@ -127,6 +137,7 @@ export function RequestDetailPage() {
       volume_request: r.volume_request != null ? String(r.volume_request) : '',
       note: '',
     })
+    setInspectBeforeImage(r.before_image?.trim() || null)
   }, [modal])
 
   useEffect(() => {
@@ -136,6 +147,14 @@ export function RequestDetailPage() {
       setInspectData((p) => ({ ...p, mixcode_id: '' }))
     }
   }, [modal, filteredMixcodesInspect, inspectData.mixcode_id])
+
+  useEffect(() => {
+    if (modal !== 'inspect') return
+    if (!inspectData.structure_id) return
+    if (!filteredStructuresInspect.some((s) => String(s.id) === inspectData.structure_id)) {
+      setInspectData((p) => ({ ...p, structure_id: '', mixcode_id: '' }))
+    }
+  }, [modal, filteredStructuresInspect, inspectData.structure_id])
 
   useEffect(() => {
     if (modal !== 'confirmOrder') return
@@ -209,6 +228,12 @@ export function RequestDetailPage() {
       toast.error('กรุณากรอกข้อมูลให้ครบ (Location, Concrete work, Structure, Mixcode, Request Volume (cu.m))')
       return
     }
+    const hadBeforeAtOpen = Boolean(request?.before_image?.trim())
+    const beforeNow = inspectBeforeImage?.trim() || null
+    if (!hadBeforeAtOpen && !beforeNow) {
+      toast.error('กรุณาอัปโหลดรูปก่อนเท (ผู้จองยังไม่แนบรูป)')
+      return
+    }
     actionLockRef.current = true
     setActionBusy(true)
     try {
@@ -219,6 +244,7 @@ export function RequestDetailPage() {
         structure_no: inspectData.structure_no.trim() || null,
         mixcode_id: Number(inspectData.mixcode_id),
         volume_request: vol,
+        before_image: beforeNow,
       })
       if (ok) await loadData()
       setModal(null)
@@ -649,7 +675,7 @@ export function RequestDetailPage() {
                 value={inspectData.mixcode_id}
                 onChange={(mixcodeId) => setInspectData((p) => ({ ...p, mixcode_id: mixcodeId }))}
                 mixcodes={filteredMixcodesInspect}
-                emptyMessage="ไม่มี Mixcode ที่เข้ากับ Structure นี้ — ลองเปลี่ยน Structure"
+                emptyMessage="ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก — ลองเปลี่ยน Structure"
               />
             </div>
             <div className="space-y-1.5">
@@ -660,6 +686,21 @@ export function RequestDetailPage() {
                 value={inspectData.volume_request}
                 onChange={(e) => setInspectData((p) => ({ ...p, volume_request: e.target.value }))}
               />
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                รูปก่อนเท
+                {!request?.before_image?.trim() ? <span className="text-rose-600"> *</span> : null}
+              </Label>
+              <ImageUpload
+                value={inspectBeforeImage ?? undefined}
+                onChange={(url) => setInspectBeforeImage(url)}
+                folder="before"
+                label="อัปโหลดรูปก่อนเท"
+              />
+              {!request?.before_image?.trim() ? (
+                <p className="text-xs text-[#6b7280]">ผู้จองยังไม่แนบรูป — ต้องอัปโหลดในนี้ก่อนยืนยันตรวจสอบ</p>
+              ) : null}
             </div>
             <div className="space-y-1.5">
               <Label>หมายเหตุ</Label>
@@ -673,7 +714,13 @@ export function RequestDetailPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setModal(null)} disabled={actionBusy}>ยกเลิก</Button>
-            <Button disabled={actionBusy} onClick={() => void handleInspectConfirm()}>
+            <Button
+              disabled={
+                actionBusy ||
+                (!request?.before_image?.trim() && !(inspectBeforeImage?.trim()))
+              }
+              onClick={() => void handleInspectConfirm()}
+            >
               {actionBusy ? 'กำลังดำเนินการ...' : 'ยืนยันตรวจสอบ'}
             </Button>
           </DialogFooter>

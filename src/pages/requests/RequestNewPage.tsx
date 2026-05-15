@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { formatDate, cn } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { APP_HOME } from '@/lib/appHome'
+import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { rq } from '@/lib/requestUi'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
@@ -95,22 +96,25 @@ export function RequestNewPage() {
   const watchStructureId = watch('structure_id')
   const selectedCW = concreteWorks.find((cw) => String(cw.id) === watchConcreteWork)
   const selectedStructure = structures.find((s) => String(s.id) === watchStructureId)
-  const filteredStructures = selectedCW?.structure_list
-    ? structures.filter((s) =>
-        selectedCW.structure_list!.split(',').map((n) => n.trim()).includes(s.structure_name)
-      )
-    : structures
 
-  /** Mixcode ใช้ `structure_list` คู่กับ Structure ที่เลือก (Concrete work กรอง Structure อยู่แล้วในขั้นก่อน) */
+  const filteredStructures = useMemo(() => {
+    if (!selectedCW) return structures
+    return structures.filter((s) =>
+      structureHasCompatibleMixcode(s.structure_name, selectedCW, mixcodes),
+    )
+  }, [structures, selectedCW, mixcodes])
+
+  /** Mixcode: intersect กับ Concrete Work แล้วจึงกรองตามโครงสร้างที่เลือก */
   const filteredMixcodes = useMemo(() => {
-    if (!selectedStructure) return mixcodes
+    if (!selectedCW) return mixcodes
     return mixcodes.filter((m) => {
-      const raw = m.structure_list?.trim()
-      if (!raw) return true
-      const allowed = raw.split(',').map((t) => t.trim()).filter(Boolean)
+      if (!structureListsIntersect(m.structure_list, selectedCW.structure_list)) return false
+      if (!selectedStructure) return true
+      const allowed = parseStructureListTokens(m.structure_list)
+      if (allowed.length === 0) return true
       return allowed.includes(selectedStructure.structure_name)
     })
-  }, [mixcodes, selectedStructure])
+  }, [mixcodes, selectedCW, selectedStructure])
 
   useEffect(() => {
     const cur = getValues('mixcode_id')
@@ -119,6 +123,14 @@ export function RequestNewPage() {
       setValue('mixcode_id', '')
     }
   }, [filteredMixcodes, getValues, setValue])
+
+  useEffect(() => {
+    const cur = getValues('structure_id')
+    if (!cur) return
+    if (!filteredStructures.some((s) => String(s.id) === cur)) {
+      setValue('structure_id', '')
+    }
+  }, [filteredStructures, getValues, setValue])
 
   useEffect(() => {
     const cloneId = (location.state as { cloneFromRequestId?: string } | null)?.cloneFromRequestId?.trim()
@@ -351,7 +363,7 @@ export function RequestNewPage() {
                 mixcodes={filteredMixcodes}
                 emptyMessage={
                   mixcodes.length > 0 && filteredMixcodes.length === 0
-                    ? 'ไม่มี Mixcode สำหรับ Structure ที่เลือก'
+                    ? 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก'
                     : undefined
                 }
               />
@@ -362,13 +374,13 @@ export function RequestNewPage() {
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
+            <Label>DWG volume (cu.m)</Label>
+            <Input type="number" step="0.01" {...register('volume_dwg')} />
+          </div>
+          <div className="space-y-1.5">
             <Label>Request Volume (cu.m) *</Label>
             <Input type="number" step="0.01" {...register('volume_request')} />
             {errors.volume_request && <p className="text-xs text-rose-600">{errors.volume_request.message}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label>DWG volume (cu.m)</Label>
-            <Input type="number" step="0.01" {...register('volume_dwg')} />
           </div>
         </div>
 

@@ -32,6 +32,7 @@ export function useActionRequest() {
       structure_no: string | null
       mixcode_id: number
       volume_request: number
+      before_image: string | null
     },
   ) {
     const payload: Record<string, unknown> = {
@@ -46,6 +47,7 @@ export function useActionRequest() {
       payload.structure_no = corrections.structure_no
       payload.mixcode_id = corrections.mixcode_id
       payload.volume_request = corrections.volume_request
+      payload.before_image = corrections.before_image
     }
     const { error } = await supabase.from('Request').update(payload).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }

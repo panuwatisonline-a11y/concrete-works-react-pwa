@@ -149,12 +149,12 @@ export function RequestEditPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label>Request Volume (cu.m) *</Label>
-                <Input type="number" step="0.01" {...register('volume_request')} />
-              </div>
-              <div className="space-y-1.5">
                 <Label>DWG volume (cu.m)</Label>
                 <Input type="number" step="0.01" {...register('volume_dwg')} />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Request Volume (cu.m) *</Label>
+                <Input type="number" step="0.01" {...register('volume_request')} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">

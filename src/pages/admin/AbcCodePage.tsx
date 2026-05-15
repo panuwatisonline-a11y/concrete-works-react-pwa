@@ -136,7 +136,18 @@ export function AbcCodePage() {
             { key: 'full_abc', label: 'Full ABC' },
             { key: 'description', label: 'Description' },
           ]}
-          formContent={(_item, formData, onChange) => (
+          formContent={(_item, formData, onChange) => {
+            const previewParts: string[] = []
+            SEGMENT_KEYS.forEach((segKey, idx) => {
+              const field = `abc_code${idx + 1}` as keyof AbcCode
+              const id = formData[field] as number | null | undefined
+              if (id == null) return
+              const name = segments[segKey].find((s) => s.id === id)?.code_name
+              if (name) previewParts.push(name)
+            })
+            const previewLine = previewParts.join('-')
+
+            return (
             <div className="space-y-3 py-2">
               {([1, 2, 3, 4] as const).map((n) => {
                 const key = `abc_code${n}` as keyof AbcCode
@@ -157,22 +168,26 @@ export function AbcCodePage() {
                   </div>
                 )
               })}
-              <div className="space-y-1.5">
-                <Label>Full ABC</Label>
-                <Input value={String(formData.full_abc ?? '')} onChange={(e) => onChange('full_abc', e.target.value)} />
-              </div>
+              {previewLine ? (
+                <p className="rounded-lg border border-dashed border-[#e2e6ec] bg-[#fafbfc] px-3 py-2 text-[13px] leading-snug text-[#6b7280]">
+                  <span className="font-mono text-[#374151]">{previewLine}</span>
+                </p>
+              ) : null}
               <div className="space-y-1.5">
                 <Label>Description</Label>
                 <Input value={String(formData.description ?? '')} onChange={(e) => onChange('description', e.target.value)} />
               </div>
             </div>
-          )}
+            )
+          }}
           onAdd={async (item) => {
-            const { error } = await supabase.from('ABC Code').insert(item as Partial<AbcCode>)
+            const { full_abc: _full, ...payload } = item as Partial<AbcCode>
+            const { error } = await supabase.from('ABC Code').insert(payload)
             if (!error) { toast.success('เพิ่มสำเร็จ'); loadCombos() } else toast.error('เกิดข้อผิดพลาด')
           }}
           onEdit={async (item) => {
-            const { error } = await supabase.from('ABC Code').update(item).eq('id', item.id)
+            const { full_abc: _full, ...payload } = item
+            const { error } = await supabase.from('ABC Code').update(payload).eq('id', item.id)
             if (!error) { toast.success('บันทึกสำเร็จ'); loadCombos() } else toast.error('เกิดข้อผิดพลาด')
           }}
           onDelete={async (id) => {

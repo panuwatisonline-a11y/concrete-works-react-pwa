@@ -52,10 +52,11 @@ export function extractGoogleDriveFileId(raw: string): string | null {
 
 export type DriveThumbSizePreset = 'card' | 'detail' | 'lightbox'
 
+/** ความกว้างขอจาก Drive thumbnail API — เล็กลงจากเดิมเล็กน้อยเพื่อโหลดเร็วขึ้น ยังพอสำหรับจอ retina ในขนาดแสดงจริงของแอป */
 const PRESET_WIDTH: Record<DriveThumbSizePreset, number> = {
   card: 240,
-  detail: 960,
-  lightbox: 1600,
+  detail: 640,
+  lightbox: 1200,
 }
 
 /**

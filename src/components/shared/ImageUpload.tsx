@@ -1,10 +1,51 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
-import { FunctionsHttpError } from '@supabase/supabase-js'
-import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { toast } from 'sonner'
+
+function invokeUploadDriveImageWithProgress(
+  formData: FormData,
+  accessToken: string,
+  onProgress: (percent: number) => void,
+): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
+  const base = supabaseUrl.replace(/\/$/, '')
+  const url = `${base}/functions/v1/upload-drive-image`
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`)
+    xhr.setRequestHeader('apikey', supabaseAnonKey)
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && e.total > 0) {
+        onProgress(Math.min(100, Math.round((100 * e.loaded) / e.total)))
+      }
+    }
+    xhr.upload.addEventListener('load', () => {
+      onProgress(100)
+    })
+    xhr.onload = () => {
+      let parsed: { url?: unknown; error?: unknown }
+      try {
+        parsed = JSON.parse(xhr.responseText) as { url?: unknown; error?: unknown }
+      } catch {
+        resolve({ ok: false, message: 'อัปโหลดไม่สำเร็จ' })
+        return
+      }
+      const err =
+        typeof parsed.error === 'string' && parsed.error.trim() !== '' ? parsed.error : null
+      if (xhr.status >= 200 && xhr.status < 300 && typeof parsed.url === 'string' && parsed.url) {
+        resolve({ ok: true, url: parsed.url })
+        return
+      }
+      resolve({ ok: false, message: err ?? 'อัปโหลดไม่สำเร็จ' })
+    }
+    xhr.onerror = () => resolve({ ok: false, message: 'เครือข่ายผิดพลาด' })
+    xhr.onabort = () => resolve({ ok: false, message: 'ยกเลิกการอัปโหลด' })
+    xhr.send(formData)
+  })
+}
 
 interface ImageUploadProps {
   value?: string
@@ -23,7 +64,46 @@ export function ImageUpload({
   disabled = false,
 }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null)
+  const previewObjectUrlRef = useRef<string | null>(null)
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadPercent, setUploadPercent] = useState(0)
+
+  function setLocalPreviewFromFile(file: File) {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current)
+      previewObjectUrlRef.current = null
+    }
+    const url = URL.createObjectURL(file)
+    previewObjectUrlRef.current = url
+    setLocalPreviewUrl(url)
+  }
+
+  function clearLocalPreview() {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current)
+      previewObjectUrlRef.current = null
+    }
+    setLocalPreviewUrl(null)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (previewObjectUrlRef.current) {
+        URL.revokeObjectURL(previewObjectUrlRef.current)
+        previewObjectUrlRef.current = null
+      }
+    }
+  }, [])
+
+  /** ปล่อย blob หลัง parent ตั้ง `value` แล้ว — กันเฟรมว่างถ้า state ไม่ batch พร้อมกัน */
+  useEffect(() => {
+    if (value == null || value === '') return
+    if (previewObjectUrlRef.current == null) return
+    URL.revokeObjectURL(previewObjectUrlRef.current)
+    previewObjectUrlRef.current = null
+    setLocalPreviewUrl(null)
+  }, [value])
 
   async function handleFile(file: File) {
     if (!file.type.startsWith('image/')) return
@@ -31,11 +111,14 @@ export function ImageUpload({
       toast.error('ยังไม่ได้ตั้งค่า Supabase')
       return
     }
+    setLocalPreviewFromFile(file)
     setUploading(true)
+    setUploadPercent(0)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         toast.error('กรุณาเข้าสู่ระบบก่อนอัปโหลดรูป')
+        clearLocalPreview()
         return
       }
 
@@ -43,44 +126,55 @@ export function ImageUpload({
       formData.append('file', file)
       formData.append('folder', folder)
 
-      const { data, error } = await supabase.functions.invoke('upload-drive-image', { body: formData })
-      if (error) {
-        let message = error.message
-        if (error instanceof FunctionsHttpError) {
-          try {
-            const body = await error.context.json() as { error?: string }
-            if (body?.error) message = body.error
-          } catch {
-            /* use message */
-          }
-        }
-        toast.error(message)
+      const result = await invokeUploadDriveImageWithProgress(
+        formData,
+        session.access_token,
+        setUploadPercent,
+      )
+      if (!result.ok) {
+        toast.error(result.message)
+        clearLocalPreview()
         return
       }
-      const url = data && typeof data === 'object' && 'url' in data && typeof (data as { url: unknown }).url === 'string'
-        ? (data as { url: string }).url
-        : null
-      if (!url) {
-        toast.error('อัปโหลดไม่สำเร็จ')
-        return
-      }
-      onChange(url)
+      onChange(result.url)
     } finally {
       setUploading(false)
+      setUploadPercent(0)
     }
   }
 
+  const displaySrc =
+    value != null && value !== ''
+      ? (imageSrcForImgTag(value, 'detail') ?? value)
+      : localPreviewUrl
+  const showPreview = Boolean(displaySrc)
+
   return (
     <div className="space-y-2">
-      {value ? (
-        <div className="relative inline-block">
+      {showPreview ? (
+        <div className="relative inline-block max-w-full">
           <img
-            src={imageSrcForImgTag(value, 'detail') ?? value}
+            src={displaySrc ?? undefined}
             alt="preview"
             referrerPolicy="no-referrer"
-            className="h-40 w-auto rounded-lg border border-gray-200 object-cover"
+            className="h-40 w-auto max-w-full rounded-lg border border-gray-200 object-cover"
           />
-          {!disabled && (
+          {uploading && (
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg bg-black/45 px-3"
+              aria-live="polite"
+              aria-busy="true"
+            >
+              <span className="text-sm font-medium text-white">กำลังอัปโหลด {uploadPercent}%</span>
+              <div className="h-2 w-full max-w-[220px] overflow-hidden rounded-full bg-white/25">
+                <div
+                  className="h-full rounded-full bg-white transition-[width] duration-150 ease-out"
+                  style={{ width: `${uploadPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
+          {!disabled && !uploading && (
             <button
               type="button"
               aria-label="ลบรูป"
@@ -101,15 +195,9 @@ export function ImageUpload({
             (disabled || uploading) && 'cursor-not-allowed opacity-50'
           )}
         >
-          {uploading ? (
-            <span className="text-sm">กำลังอัปโหลด...</span>
-          ) : (
-            <>
-              <Upload className="h-8 w-8" />
-              <span className="text-sm">{label}</span>
-              <ImageIcon className="h-4 w-4 opacity-50" />
-            </>
-          )}
+          <Upload className="h-8 w-8" />
+          <span className="text-sm">{label}</span>
+          <ImageIcon className="h-4 w-4 opacity-50" />
         </button>
       )}
       <input
