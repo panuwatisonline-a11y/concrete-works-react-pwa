@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import type { ClientItem, Job, Profile } from '@/types/app.types'
 import { APP_HOME } from '@/lib/appHome'
-import { app, rq } from '@/lib/requestUi'
+import { app, layout, rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 const schema = z.object({
@@ -178,7 +178,7 @@ export function RegisterPage() {
         </CardHeader>
         <CardContent className={rq.cardContent}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>ชื่อ *</Label>
                 <Input placeholder="ชื่อ" {...register('fname')} />

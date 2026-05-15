@@ -18,13 +18,13 @@ import {
 import { getRequestListQuickActions } from '@/lib/requestQuickActions'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import {
-  ChevronLeft, Plus,
+  Plus,
   Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker, Calendar,
 } from 'lucide-react'
 import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
-import { rq, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
+import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 
 const PAGE_SIZE = 20
 
@@ -238,7 +238,7 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
 
 export function RequestListPage() {
   const { user, profile } = useAuthStore()
-  const { filter, setFilter } = useFilterStore()
+  const { filter, setFilter, setMobileRequestListChrome } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
@@ -402,6 +402,18 @@ export function RequestListPage() {
     setPage(0)
   }, [scopeMine, mobileView])
 
+  useEffect(() => {
+    if (mobileView !== 'latest') {
+      setMobileRequestListChrome(null)
+      return
+    }
+    setMobileRequestListChrome({
+      title: scopeMine ? 'รายการของฉัน' : 'รายการจอง',
+      subtitle: loading ? 'กำลังโหลด…' : `${total} รายการ`,
+    })
+    return () => setMobileRequestListChrome(null)
+  }, [mobileView, scopeMine, loading, total, setMobileRequestListChrome])
+
   const grandTotal = useMemo(
     () => Object.values(statusCounts).reduce((a, b) => a + b, 0),
     [statusCounts],
@@ -439,23 +451,7 @@ export function RequestListPage() {
   )
 
   const mobileLatest = (
-    <div className="space-y-3 px-4 pb-4 pt-2">
-      <div className="sticky top-0 z-10 -mx-4 border-b border-[#e2e6ec]/70 bg-gradient-to-b from-[#f5f6f8]/95 to-white/90 px-4 pb-3 pt-2 backdrop-blur-md">
-        <div className="flex items-start gap-2">
-          <Link
-            to="/requests?view=summary"
-            className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:var(--glass-border)] bg-white/80 text-[color:var(--pour-ink-2)] shadow-sm backdrop-blur-md transition hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent)] active:scale-95"
-            aria-label="กลับไปหน้าสรุปสถานะ"
-          >
-            <ChevronLeft className={icon.md} strokeWidth={ICON_STROKE} aria-hidden />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <h1 className={rq.heroTitle}>{scopeMine ? 'รายการของฉัน' : 'รายการจอง'}</h1>
-            <p className={rq.sub}>{loading ? 'กำลังโหลด…' : `${total} รายการ`}</p>
-          </div>
-        </div>
-      </div>
-
+    <div className={theme.mobileListBody}>
       <div className="space-y-3.5">
         {loading ? (
           <p className="rounded-2xl border border-[#e2e6ec]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">

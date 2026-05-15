@@ -18,7 +18,7 @@ import { formatDate, cn } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { APP_HOME } from '@/lib/appHome'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
-import { rq } from '@/lib/requestUi'
+import { layout, rq } from '@/lib/requestUi'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
 
@@ -297,7 +297,7 @@ export function RequestNewPage() {
           {errors.concrete_work_id && <p className="text-xs text-rose-600">{errors.concrete_work_id.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={layout.formGrid2}>
           <div className="space-y-1.5">
             <Label>Structure *</Label>
             <Controller name="structure_id" control={control} render={({ field }) => (
@@ -338,7 +338,7 @@ export function RequestNewPage() {
 
     if (s === 1) return (
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
+        <div className={layout.formGrid2}>
           <div className="space-y-1.5">
             <Label>วันเท *</Label>
             <Input type="date" {...register('casting_date')} />
@@ -372,7 +372,7 @@ export function RequestNewPage() {
           {errors.mixcode_id && <p className="text-xs text-rose-600">{errors.mixcode_id.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={layout.formGrid2}>
           <div className="space-y-1.5">
             <Label>DWG volume (cu.m)</Label>
             <Input type="number" step="0.01" {...register('volume_dwg')} />

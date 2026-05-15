@@ -14,7 +14,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] backdrop-blur-xl focus:outline-none focus:border-[color:var(--pour-accent)] focus:bg-white/75 focus:shadow-[0_0_0_3px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] backdrop-blur-xl focus:outline-none focus:border-[color:var(--pour-accent)] focus:bg-white/75 focus:shadow-[0_0_0_3px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       /* ยังไม่เลือก */
       '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:bg-[var(--glass-bg)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
       '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[#b4bcc8]',

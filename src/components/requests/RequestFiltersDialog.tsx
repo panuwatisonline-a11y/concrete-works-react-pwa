@@ -65,12 +65,12 @@ export function RequestFiltersDialog() {
               <Button
                 type="button"
                 variant="outline"
-                className="min-w-[8rem] flex-1"
+                className="min-w-0 flex-1"
                 onClick={() => resetFilter()}
               >
                 ล้างตัวกรอง
               </Button>
-              <Button type="button" className="min-w-[8rem] flex-1" onClick={() => setRequestFiltersOpen(false)}>
+              <Button type="button" className="min-w-0 flex-1" onClick={() => setRequestFiltersOpen(false)}>
                 เสร็จ
               </Button>
             </div>

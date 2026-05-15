@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
-import { app, rq } from '@/lib/requestUi'
+import { app, layout, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { MixedCode, Structure } from '@/types/app.types'
@@ -164,7 +164,7 @@ export function MixcodePage() {
         ]}
         formContent={(_item, formData, onChange) => (
           <div className="space-y-3 py-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>Mixcode *</Label>
                 <Input value={String(formData.mixcode ?? '')} onChange={(e) => onChange('mixcode', e.target.value)} />
@@ -192,7 +192,7 @@ export function MixcodePage() {
                 masterNames={structureNamesFromMaster}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>Strength</Label>
                 <Input
@@ -220,7 +220,7 @@ export function MixcodePage() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>Sample Type</Label>
                 <Select

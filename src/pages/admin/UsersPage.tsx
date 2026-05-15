@@ -233,9 +233,9 @@ export function UsersPage() {
             ) : (
               filteredUsers.map((u) => (
                 <tr key={u.id}>
-                  <td className="px-3 py-2 font-mono text-xs">{u.employee_id ?? '-'}</td>
-                  <td className="px-3 py-2">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
-                  <td className="px-3 py-2">
+                  <td className="min-w-0 break-words px-3 py-2 font-mono text-xs">{u.employee_id ?? '-'}</td>
+                  <td className="min-w-0 break-words px-3 py-2">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
+                  <td className="min-w-0 px-3 py-2">
                     <Badge
                       variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'}
                       className="text-xs"
@@ -243,14 +243,14 @@ export function UsersPage() {
                       {ROLE_LABELS[u.role]}
                     </Badge>
                   </td>
-                  <td className="max-w-[200px] truncate px-3 py-2 text-[#374151]" title={clientLabel(u)}>
+                  <td className="min-w-0 max-w-[12rem] break-words px-3 py-2 text-[#374151] sm:max-w-[200px]" title={clientLabel(u)}>
                     {clientLabel(u)}
                   </td>
-                  <td className="max-w-[220px] truncate px-3 py-2 text-[#374151]" title={jobLabel(u)}>
+                  <td className="min-w-0 max-w-[12rem] break-words px-3 py-2 text-[#374151] sm:max-w-[220px]" title={jobLabel(u)}>
                     {jobLabel(u)}
                   </td>
-                  <td className="text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
-                  <td className="whitespace-nowrap">
+                  <td className="min-w-0 whitespace-nowrap text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
+                  <td className="shrink-0 whitespace-nowrap">
                     <div className="flex gap-0.5">
                       <Button
                         type="button"

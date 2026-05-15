@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { formatDate, cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { STATUS_LABELS } from '@/types/app.types'
-import { app, rq, theme } from '@/lib/requestUi'
+import { app, layout, rq, theme } from '@/lib/requestUi'
 import {
   fetchDashboardRequestRows,
   statusCountsFromRows,
@@ -217,7 +217,7 @@ export function AdminDashboard() {
 
       <section aria-label="สรุปจำนวนและปริมาตร" className={app.pageAdminSection}>
         <h2 className={cn(rq.cardTitle, 'px-0.5')}>ภาพรวมคำขอและปริมาณ</h2>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-5 md:gap-4">
+        <div className={cn(layout.statGrid5, 'md:gap-4')}>
           <Card className="overflow-hidden rounded-[14px] border-[#e2e6ec] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[0])} />
             <CardContent className={rq.cardContentTight}>
@@ -289,7 +289,7 @@ export function AdminDashboard() {
       </section>
 
       <section aria-label="จำนวนตามสถานะ" className={app.pageAdminSection}>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-6">
+      <div className={layout.statGrid6}>
         {summaryCards.map(({ id, label }, i) => (
           <Card
             key={id}

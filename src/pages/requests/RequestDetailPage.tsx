@@ -425,7 +425,7 @@ export function RequestDetailPage() {
       )}
 
       {/* Sections */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid min-w-0 gap-4 md:grid-cols-2">
         <Card className={rq.card}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
             <CardTitle className={rq.cardTitle}>ข้อมูลงาน</CardTitle>
@@ -453,9 +453,9 @@ export function RequestDetailPage() {
               { id: 'abc', label: 'ABC Code', value: (request.abc_code as { full_abc: string | null } | null)?.full_abc },
               { id: 'wbs', label: 'WBS Code', value: (request.wbs_code as { full_wbs: string | null } | null)?.full_wbs },
             ].map((row) => (
-              <div key={row.id} className="flex gap-2">
-                <span className={cn('w-28 shrink-0', rq.label)}>{row.label}</span>
-                <span className={cn('min-w-0', rq.value)}>{row.value ?? '-'}</span>
+              <div key={row.id} className={rq.detailRow}>
+                <span className={rq.detailLabel}>{row.label}</span>
+                <span className={rq.value}>{row.value ?? '-'}</span>
               </div>
             ))}
           </CardContent>
@@ -482,9 +482,9 @@ export function RequestDetailPage() {
               ] : []),
               ['จำนวนตัวอย่าง', request.sample_qty ? `${request.sample_qty} ก้อน` : '-'],
             ].map(([label, value]) => (
-              <div key={label} className="flex gap-2">
-                <span className={cn('w-28 shrink-0', rq.label)}>{label}</span>
-                <span className={cn('min-w-0', rq.value)}>{value ?? '-'}</span>
+              <div key={label} className={rq.detailRow}>
+                <span className={rq.detailLabel}>{label}</span>
+                <span className={rq.value}>{value ?? '-'}</span>
               </div>
             ))}
           </CardContent>

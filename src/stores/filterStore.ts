@@ -1,6 +1,11 @@
 import { create } from 'zustand'
 import type { RequestFilter } from '@/types/app.types'
 
+export type MobileRequestListChrome = {
+  title: string
+  subtitle: string
+}
+
 interface FilterState {
   filter: RequestFilter
   setFilter: (filter: Partial<RequestFilter>) => void
@@ -8,6 +13,9 @@ interface FilterState {
   /** Shared sheet/dialog for search & filters (header, sidebar, desktop bar). */
   requestFiltersOpen: boolean
   setRequestFiltersOpen: (open: boolean) => void
+  /** หัวข้อรายการจองบนมือถือ — แสดงใน AppHeader ชิดใต้ MobilePrimaryNav */
+  mobileRequestListChrome: MobileRequestListChrome | null
+  setMobileRequestListChrome: (chrome: MobileRequestListChrome | null) => void
 }
 
 const defaultFilter: RequestFilter = {
@@ -27,4 +35,6 @@ export const useFilterStore = create<FilterState>((set) => ({
   resetFilter: () => set({ filter: { ...defaultFilter } }),
   requestFiltersOpen: false,
   setRequestFiltersOpen: (open) => set({ requestFiltersOpen: open }),
+  mobileRequestListChrome: null,
+  setMobileRequestListChrome: (chrome) => set({ mobileRequestListChrome: chrome }),
 }))

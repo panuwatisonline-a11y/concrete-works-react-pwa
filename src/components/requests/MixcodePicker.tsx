@@ -20,14 +20,14 @@ export function MixcodePicker({
   const emptyLabel = emptyMessage ?? 'ยังไม่มี Mixcode ในระบบ'
 
   return (
-    <div className="space-y-2">
+    <div className="min-w-0 space-y-2">
       <div
         className={cn(
-          'overflow-hidden rounded-xl border-[1.5px] border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[#e2e6ec] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
           disabled && 'pointer-events-none opacity-50',
         )}
       >
-        <div className="max-h-[min(45svh,380px)] overflow-y-auto overflow-x-hidden overscroll-contain">
+        <div className="pour-scroll-x max-h-[min(45svh,380px)] overflow-y-auto overscroll-contain">
           <table className="w-full table-fixed border-collapse text-left text-sm">
             <thead className="sticky top-0 z-[1] border-b border-[#e2e6ec] bg-[#f9fafb] text-[10px] font-medium uppercase leading-tight tracking-wide text-[#6b7280] sm:text-xs">
               <tr>

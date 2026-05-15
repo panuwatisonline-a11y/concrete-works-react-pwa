@@ -46,6 +46,16 @@ export const anim = {
   fadeIn: 'pour-fade-in',
 } as const
 
+/** Responsive layout primitives — forms, tables, detail rows */
+export const layout = {
+  formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
+  formField: 'min-w-0 space-y-1.5',
+  statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2',
+  statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3',
+  statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3 md:gap-4 lg:grid-cols-6',
+} as const
+
 /** Consistent spacing — use across pages & layout */
 export const space = {
   page: 'space-y-5 pb-10 pt-4 md:space-y-6 md:pb-12 md:pt-5',
@@ -75,19 +85,25 @@ export const theme = {
   shell: cn('pour-shell', anim.shell),
   shellDesktopAccent: '',
   brandWordmark:
-    'bg-gradient-to-r from-[#000000] via-[#262626] to-[#525252] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
+    'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[color:var(--pour-accent-hover)] to-[color:var(--pour-accent)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
   headerBar: cn(
-    glass.surface,
-    'border-b border-[color:var(--glass-border-subtle)]',
+    glass.surfaceStrong,
+    'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.85)_inset]',
   ),
   navPillActive:
-    'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)] ring-1 ring-[color:var(--pour-accent-ring)] backdrop-blur-sm',
+    'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)] ring-1 ring-[color:var(--pour-accent-ring)] backdrop-blur-sm shadow-sm shadow-[color:var(--pour-accent)]/10',
   navPillInactive:
-    cn(ink.body, 'hover:bg-neutral-900/5 hover:text-[color:var(--pour-ink-0)] backdrop-blur-sm'),
+    cn(
+      ink.body,
+      'border border-[color:var(--glass-border-subtle)] bg-white/75 shadow-sm shadow-slate-900/5 backdrop-blur-sm hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-ink-0)]',
+    ),
   navPillMobile: type.navCompact,
   navLink: cn('flex items-center gap-3 rounded-xl px-4 py-3', type.nav),
   navSectionLabel: cn('px-2 pb-2', type.overline),
-  primaryNavStrip: cn(glass.surface, 'border-b border-[color:var(--glass-border-subtle)]'),
+  primaryNavStrip: cn(
+    glass.surfaceStrong,
+    'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.75)_inset]',
+  ),
   mainColumnDesktop: cn(
     'md:overflow-hidden md:rounded-2xl md:border md:border-[color:var(--glass-border-subtle)]',
     glass.surface,
@@ -95,10 +111,10 @@ export const theme = {
   sidebarSurface: cn('rounded-r-2xl', glass.surface),
   iconTileBrand: 'pour-brand-icon-tile',
   iconButtonChrome: cn(
-    glass.surface,
+    glass.surfaceStrong,
     anim.interactive,
-    'inline-flex items-center justify-center rounded-[10px] font-medium',
-    cn(ink.body, 'hover:border-[color:var(--glass-edge)] hover:bg-white/90 hover:text-[color:var(--pour-ink-0)]'),
+    'inline-flex items-center justify-center rounded-[10px] font-medium shadow-sm shadow-slate-900/8',
+    cn(ink.body, 'hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent)]'),
   ),
   breadcrumbStrip: cn(
     glass.surface,
@@ -108,8 +124,16 @@ export const theme = {
   ),
   headerBarMobile: 'px-3 py-2',
   primaryNavStripPad: 'px-3 py-2.5',
-  drawerPanel: cn(glass.surface, 'border-[color:var(--glass-border-subtle)]'),
-  drawerHeader: cn(glass.surfaceMuted, 'border-b border-[color:var(--glass-border-subtle)]'),
+  drawerPanel: cn(glass.surfaceStrong, 'border-[color:var(--glass-border-subtle)]'),
+  drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
+  /** หัวข้อรายการจอง — อยู่ใน AppHeader ใต้ MobilePrimaryNav (เลื่อนติด nav เสมอ) */
+  mobileRequestListHeader: cn(
+    glass.surfaceStrong,
+    'shrink-0 border-b border-[color:var(--glass-border-subtle)]',
+  ),
+  mobileRequestListHeaderInner: 'flex items-start gap-2 px-3 pb-3 pt-2',
+  /** เนื้อหารายการใน main (ไม่มีหัวข้อซ้ำ) */
+  mobileListBody: 'space-y-3 px-4 pb-4 pt-2 md:hidden',
 } as const
 
 /** App-wide layout chrome */
@@ -122,17 +146,17 @@ export const app = {
     cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 md:gap-8 md:pb-12 md:pt-5', ink.base),
   pageAdminTitle: cn('block w-full shrink-0 pb-1 pt-0 font-bold tracking-tight', ink.base),
   pageAdminSection: cn('block w-full min-w-0', space.section),
-  tableWrap: cn('overflow-x-auto rounded-[14px]', glass.surface),
+  tableWrap: cn('pour-scroll-x min-w-0 max-w-full rounded-[14px]', glass.surface),
   tableWrapDesktop: cn(
-    'hidden overflow-x-auto rounded-[14px] md:block',
+    'hidden pour-scroll-x min-w-0 max-w-full rounded-[14px] md:block',
     glass.surface,
   ),
   mobileCardStack: 'space-y-3 md:hidden',
-  table: 'w-full text-sm',
+  table: 'w-full min-w-[36rem] text-sm',
   tableHead:
-    'border-b-2 border-[color:var(--glass-border-subtle)] bg-white/30 text-left text-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-2)] backdrop-blur-md [&_th]:px-4 [&_th]:py-3',
+    'border-b-2 border-[color:var(--glass-border-subtle)] bg-white/30 text-left text-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-2)] backdrop-blur-md [&_th]:px-3 [&_th]:py-3 sm:[&_th]:px-4',
   tableBody:
-    'divide-y divide-[color:var(--glass-border)] [&_td]:px-4 [&_td]:py-3 [&_td]:align-middle [&_td]:text-[color:var(--pour-ink-0)] [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_var(--pour-accent-ring)]',
+    'divide-y divide-[color:var(--glass-border)] [&_td]:max-w-[18rem] [&_td]:break-words [&_td]:px-3 [&_td]:py-3 [&_td]:align-middle [&_td]:text-[color:var(--pour-ink-0)] sm:[&_td]:px-4 [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_var(--pour-accent-ring)]',
   tableRowHover: '[&_tr]:transition-colors [&_tr:hover]:bg-[var(--pour-bg)]',
   mutedText: ink.muted,
 } as const
@@ -153,7 +177,9 @@ export const rq = {
   heroTitle: type.hero,
   sub: type.caption,
   label: cn(type.caption, 'font-semibold'),
-  value: 'text-sm font-semibold text-[color:var(--pour-ink-0)]',
+  value: 'min-w-0 text-sm font-semibold break-words text-[color:var(--pour-ink-0)]',
+  detailRow: 'flex min-w-0 flex-col gap-0.5 sm:flex-row sm:gap-2',
+  detailLabel: cn('w-full shrink-0 sm:w-28', type.caption, 'font-semibold'),
   spinner:
     'h-8 w-8 animate-spin rounded-full border-2 border-[color:var(--glass-border-subtle)] border-t-[color:var(--pour-accent)]',
   stepActive: 'bg-[color:var(--pour-accent)] font-semibold text-white shadow-sm shadow-black/15',
@@ -175,7 +201,7 @@ export const rq = {
     'mt-3 flex flex-wrap justify-end gap-2 border-t border-[color:var(--glass-border)] pt-3',
   actions: {
     panelBody: cn(space.cardPadTight, 'flex flex-col gap-3'),
-    buttonRow: 'flex flex-wrap items-center gap-2',
+    buttonRow: 'flex min-w-0 flex-wrap items-center gap-2',
     strip:
       'flex flex-col gap-2.5 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md md:flex-row md:flex-wrap md:items-center md:gap-x-2 md:gap-y-2 md:px-5 md:py-3.5',
     sectionLabel: cn(type.overline, 'w-full basis-full text-[color:var(--pour-ink-2)]'),

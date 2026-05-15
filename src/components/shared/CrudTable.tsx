@@ -162,7 +162,7 @@ export function CrudTable<T extends { id: number }>({
               data.map((row) => (
                 <tr key={row.id}>
                   {columns.map((col) => (
-                    <td key={String(col.key)} className="text-[#374151]">
+                    <td key={String(col.key)} className="min-w-0 break-words text-[#374151]">
                       {renderCell(col, row)}
                     </td>
                   ))}

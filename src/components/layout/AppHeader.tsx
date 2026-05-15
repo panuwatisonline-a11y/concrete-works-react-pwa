@@ -1,4 +1,4 @@
-import { useState, type ElementType } from 'react'
+import { useLayoutEffect, useRef, useState, type ElementType } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Menu, X, LogOut, PlusCircle, User, LayoutDashboard, Users,
@@ -14,6 +14,7 @@ import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
+import { MobileRequestListHeader } from '@/components/requests/MobileRequestListHeader'
 
 interface NavItem {
   to: string
@@ -92,6 +93,7 @@ function MobilePrimaryNav() {
 }
 
 export function AppHeader() {
+  const headerRef = useRef<HTMLElement>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const { profile, role } = useAuthStore()
   const navigate = useNavigate()
@@ -109,14 +111,49 @@ export function AppHeader() {
     setRequestFiltersOpen(true)
   }
 
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const el = headerRef.current
+    const clear = () => root.style.removeProperty('--pour-mobile-header-h')
+
+    if (!el) {
+      clear()
+      return clear
+    }
+
+    const mq = window.matchMedia('(min-width: 768px)')
+    const sync = () => {
+      if (mq.matches) {
+        clear()
+        return
+      }
+      root.style.setProperty('--pour-mobile-header-h', `${el.offsetHeight}px`)
+    }
+
+    sync()
+    const ro = new ResizeObserver(sync)
+    ro.observe(el)
+    mq.addEventListener('change', sync)
+    return () => {
+      ro.disconnect()
+      mq.removeEventListener('change', sync)
+      clear()
+    }
+  }, [role])
+
   return (
     <>
-      <header className={cn('sticky top-0 z-40 shrink-0 md:hidden', theme.headerBar)}>
+      <header
+        ref={headerRef}
+        className={cn('sticky top-0 z-40 shrink-0 md:hidden', theme.headerBar)}
+      >
         {/* Mobile wireframe header: เมนู | ชื่อกลาง | ค้นหา */}
         <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 md:hidden', theme.headerBarMobile)}>
           <button
             type="button"
-            className={cn('pour-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl text-[#374151] hover:bg-[rgba(17,24,39,0.05)]')}
+            className={cn(
+              'pour-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl border border-transparent text-[color:var(--pour-ink-2)] hover:border-[color:var(--glass-border-subtle)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]',
+            )}
             onClick={() => setDrawerOpen(true)}
             aria-label="เปิดเมนู"
           >
@@ -140,6 +177,7 @@ export function AppHeader() {
         </div>
 
         <MobilePrimaryNav />
+        <MobileRequestListHeader />
       </header>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -155,7 +193,7 @@ export function AppHeader() {
               <DialogTitle className={type.title}>เมนู</DialogTitle>
               <button
                 type="button"
-                className="rounded-lg p-2 text-[#6b7280] hover:bg-[rgba(17,24,39,0.05)]"
+                className="rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="ปิด"
               >
@@ -181,7 +219,7 @@ export function AppHeader() {
                       theme.navLink,
                       isNavToActive(to, location)
                         ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
                     )
                   }
                 >
@@ -199,7 +237,7 @@ export function AppHeader() {
                       theme.navLink,
                       isNavToActive('/admin', location)
                         ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
                     )
                   }
                 >
@@ -224,7 +262,7 @@ export function AppHeader() {
                           theme.navLink,
                           isActive
                         ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-                        : 'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/5',
+                        : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
                         )
                       }
                     >

@@ -17,7 +17,7 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Profile } from '@/types/app.types'
-import { rq } from '@/lib/requestUi'
+import { layout, rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { Pencil } from 'lucide-react'
@@ -164,7 +164,7 @@ export function ProfilePage() {
         <CardContent className={cn(rq.cardContent, 'space-y-4')}>
           {editingProfile ? (
             <form onSubmit={handleSubmit(onSaveProfile)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className={layout.formGrid2}>
                 <div className="space-y-1.5">
                   <Label>ชื่อ *</Label>
                   <Input className="rounded-xl" {...register('fname')} />
@@ -191,7 +191,7 @@ export function ProfilePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3 rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80">
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
@@ -222,7 +222,7 @@ export function ProfilePage() {
             </form>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className={layout.formGrid2}>
                 <div>
                   <p className={cn(rq.label, 'mb-1')}>ชื่อ</p>
                   <p className="font-medium text-[#111827]">{profile?.fname?.trim() || '-'}</p>
@@ -240,7 +240,7 @@ export function ProfilePage() {
                 <p className={cn(rq.label, 'mb-1')}>โครงการ</p>
                 <p className="font-medium text-[#111827]">{jobName?.trim() || '-'}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3 rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80">
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#e2e6ec]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>

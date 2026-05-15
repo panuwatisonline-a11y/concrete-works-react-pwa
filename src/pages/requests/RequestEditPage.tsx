@@ -16,7 +16,7 @@ import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { rq } from '@/lib/requestUi'
+import { layout, rq } from '@/lib/requestUi'
 import {
   REQUEST_DETAIL_SEARCH_ARIA,
   REQUEST_DETAIL_SEARCH_PLACEHOLDER,
@@ -127,7 +127,7 @@ export function RequestEditPage() {
         </CardHeader>
         <CardContent className={cn(rq.cardContent, 'space-y-4')}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>วันเท *</Label>
                 <Input type="date" {...register('casting_date')} />
@@ -147,7 +147,7 @@ export function RequestEditPage() {
                 )}
               />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>DWG volume (cu.m)</Label>
                 <Input type="number" step="0.01" {...register('volume_dwg')} />
@@ -157,7 +157,7 @@ export function RequestEditPage() {
                 <Input type="number" step="0.01" {...register('volume_request')} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className={layout.formGrid2}>
               <div className="space-y-1.5">
                 <Label>Structure No.</Label>
                 <Input {...register('structure_no')} />
