@@ -9,7 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
-  const { user, role, isLoading, profileHydrated } = useAuthStore()
+  const { user, profile, role, isLoading, profileHydrated } = useAuthStore()
 
   if (isLoading) {
     return (
