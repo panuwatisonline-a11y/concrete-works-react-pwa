@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
-import { RegisterPage } from '@/pages/auth/RegisterPage'
+import { CompleteProfilePage } from '@/pages/auth/CompleteProfilePage'
 import { ProfilePage } from '@/pages/profile/ProfilePage'
 import { RequestListPage } from '@/pages/requests/RequestListPage'
 import { RequestNewPage } from '@/pages/requests/RequestNewPage'
@@ -45,7 +45,7 @@ function AppInner() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/complete-profile" element={<CompleteProfilePage />} />
 
       <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
 

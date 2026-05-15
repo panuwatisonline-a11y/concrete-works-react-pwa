@@ -29,6 +29,8 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     )
   }
 
+  if (!profile?.employee_id) return <Navigate to="/complete-profile" replace />
+
   if (requiredRole && role !== requiredRole) {
     return <Navigate to={APP_HOME} replace />
   }
