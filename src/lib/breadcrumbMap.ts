@@ -3,6 +3,8 @@ export const BREADCRUMB_MAP: Record<string, string> = {
   '/requests': 'สถานะ',
   '/requests/new': 'จองคอนกรีต',
   '/profile': 'โปรไฟล์',
+  '/preview': 'ตัวอย่าง',
+  '/preview/forms': 'แบบฟอร์ม',
   '/admin': 'Admin',
   '/admin/users': 'Users Settings',
   '/admin/client': 'Client',

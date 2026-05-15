@@ -1,0 +1,481 @@
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import {
+  fillChecklistBeforePourTemplate,
+  loadChecklistBeforePourTemplate,
+  type ChecklistBeforePourTemplateData,
+} from '@/lib/checklistBeforePourTemplate'
+import {
+  defaultCstStrengthReportTemplateData,
+  fillCstStrengthReportTemplate,
+  loadCstStrengthReportTemplate,
+  type CstStrengthReportTemplateData,
+} from '@/lib/cstStrengthReportTemplate'
+import { Button } from '@/components/ui/button'
+import { theme } from '@/lib/requestUi'
+import { cn } from '@/lib/utils'
+
+const CHECKLIST_SAMPLE: ChecklistBeforePourTemplateData = {
+  pageCurrent: '1',
+  pageTotal: '1',
+  clientName: 'หจก. ตัวอย่างยิงคอนกรีต',
+  locationText: 'โครงการถนนสายบางนา–ตราด กม. 12+500',
+  structureNo: 'C-12',
+  requestDate: '15 พ.ค. 2569',
+  structureName: 'Deck ชั้น 2',
+  concreteGrade: '350 ksc',
+  remarks: 'ตัวอย่างหมายเหตุการตรวจก่อนเท',
+  inspectorName: 'สมชาย ใจดี',
+  witnessName: 'สมหญิง รับรองงาน',
+}
+
+const CST_SAMPLE: CstStrengthReportTemplateData = {
+  ...defaultCstStrengthReportTemplateData(),
+  castingDate: '10 พ.ค. 2569',
+  testDate: '7 มิ.ย. 2569',
+  age: '28',
+  reportNumber: 'CST-2569-042',
+  concreteWork: 'Casting of concrete for slab on grade',
+  structureName: 'สะพานข้ามลำน้ำ บางส่วน',
+  locationText: 'ตำบลริมกก อำเภอเมืองเชียงราย',
+  structureNo: 'BR-12',
+  mixcode: '350/20/T40',
+  strength: '350 ksc',
+  slump: '120±25 mm.',
+  volume: '45',
+  supplier: 'CPAC',
+  sampleType: 'คาน',
+  testMachine: '2000 kN',
+  serialNo: 'SN-8821',
+  factor: '1.02',
+  s1: '1',
+  w1: '8.42',
+  d1: '2401',
+  f1: '412.5',
+  adj1: '420.8',
+  ksc1: '358',
+  s2: '2',
+  w2: '8.39',
+  d2: '2398',
+  f2: '408.1',
+  adj2: '416.3',
+  ksc2: '352',
+  s3: '3',
+  w3: '8.44',
+  d3: '2405',
+  f3: '415.0',
+  adj3: '423.3',
+  ksc3: '361',
+  avg1: '357',
+  remark1: '',
+  s4: '4',
+  w4: '8.40',
+  d4: '2399',
+  f4: '410.2',
+  adj4: '418.4',
+  ksc4: '354',
+  s5: '5',
+  w5: '8.41',
+  d5: '2400',
+  f5: '411.0',
+  adj5: '419.2',
+  ksc5: '356',
+  s6: '6',
+  w6: '8.38',
+  d6: '2397',
+  f6: '407.5',
+  adj6: '415.7',
+  ksc6: '351',
+  avg2: '354',
+  remark2: '',
+  s7: '7',
+  w7: '8.43',
+  d7: '2403',
+  f7: '413.8',
+  adj7: '422.1',
+  ksc7: '359',
+  s8: '8',
+  w8: '8.40',
+  d8: '2400',
+  f8: '409.5',
+  adj8: '417.7',
+  ksc8: '353',
+  s9: '9',
+  w9: '8.42',
+  d9: '2402',
+  f9: '412.0',
+  adj9: '420.2',
+  ksc9: '357',
+  avg3: '356',
+  remark3: '',
+  s10: '10',
+  w10: '8.39',
+  d10: '2398',
+  f10: '408.8',
+  adj10: '417.0',
+  ksc10: '352',
+  s11: '11',
+  w11: '8.41',
+  d11: '2401',
+  f11: '411.5',
+  adj11: '419.7',
+  ksc11: '355',
+  s12: '12',
+  w12: '8.40',
+  d12: '2399',
+  f12: '409.9',
+  adj12: '418.1',
+  ksc12: '353',
+  avg4: '353',
+  remark4: '',
+  s13: '13',
+  w13: '8.44',
+  d13: '2404',
+  f13: '414.2',
+  adj13: '422.5',
+  ksc13: '360',
+  s14: '14',
+  w14: '8.39',
+  d14: '2398',
+  f14: '408.3',
+  adj14: '416.5',
+  ksc14: '351',
+  s15: '15',
+  w15: '8.42',
+  d15: '2402',
+  f15: '412.7',
+  adj15: '421.0',
+  ksc15: '358',
+  avg5: '356',
+  remark5: '',
+  testedByUnit: 'CKST-DC3',
+  testedByName: 'นางสาวบุญเจริญ บุญเลิศ',
+  testedByRole: 'Technician Lab Concrete',
+  reviewedByUnit: 'CKST-DC3',
+  reviewedByName: 'นางสาวไปรดา ลิขิตหัดศิลป',
+  reviewedByRole: 'QC Lab Engineer',
+  approvedByUnit: 'CSC3',
+  approvedByName: 'นายธนวัฒน์ ดาศักดิ์',
+  approvedByRole: 'Material Specialist',
+  documentNo: 'F-LAB-ST-DC3-01',
+  releaseInfo: 'Issue No. 1 Date: 24 Apr. 2026',
+  pageNo: 'Page 1 of 1',
+}
+
+/** ความกว้าง A4 ที่ 96dpi — อ้างอิงจากขนาดกระดาษในเทมเพลต */
+const PREVIEW_PAPER_WIDTH_PX = Math.round((210 * 96) / 25.4)
+/** กว้างกว่าแผ่นเล็กน้อย — ใช้เป็นฐานคำนวณ scale ให้ตรงกับเทมเพลต */
+const PREVIEW_IFRAME_WIDTH_PX = PREVIEW_PAPER_WIDTH_PX + 28
+/** ระยะรอบเนื้อหาหลัง scale — กันขอบโค้ง/กรอบทับเส้นประ (พิกเซลจอ) */
+const PREVIEW_SCALE_SAFE_INSET_PX = 6
+
+function AutoHeightIframe({
+  title,
+  srcDoc,
+  className,
+}: {
+  title: string
+  srcDoc: string
+  className?: string
+}) {
+  const slotRef = useRef<HTMLDivElement>(null)
+  const ref = useRef<HTMLIFrameElement>(null)
+  const lastHeightRef = useRef(0)
+  const slotWidthForRoRef = useRef(0)
+  const syncRafRef = useRef<number | null>(null)
+  const [heightPx, setHeightPx] = useState(Math.round((297 * 96) / 25.4))
+  const [scale, setScale] = useState(1)
+
+  const measureHeight = useCallback(() => {
+    const el = ref.current
+    const doc = el?.contentDocument
+    if (!doc?.body) return
+    const paper = doc.querySelector('.a4-page') as HTMLElement | null
+    const h = paper
+      ? Math.max(
+          paper.scrollHeight,
+          paper.offsetHeight,
+          Math.ceil(paper.getBoundingClientRect().height),
+        )
+      : Math.max(
+          doc.body.scrollHeight,
+          doc.documentElement.scrollHeight,
+          doc.body.offsetHeight,
+        )
+    if (h <= 0) return
+    const next = Math.min(Math.ceil(h) + 12, 16000)
+    if (Math.abs(next - lastHeightRef.current) < 2) return
+    lastHeightRef.current = next
+    setHeightPx(next)
+  }, [])
+
+  const applyScale = useCallback(() => {
+    const slot = slotRef.current
+    if (!slot) return
+    const cs = getComputedStyle(slot)
+    const n = (v: string) => parseFloat(v) || 0
+    const hPad = n(cs.paddingLeft) + n(cs.paddingRight)
+    const avail = Math.max(80, slot.clientWidth - hPad)
+    const s = Math.min(1, avail / PREVIEW_IFRAME_WIDTH_PX)
+    setScale((prev) => (Math.abs(prev - s) < 1e-6 ? prev : s))
+  }, [])
+
+  const scheduleSync = useCallback(() => {
+    if (syncRafRef.current != null) return
+    syncRafRef.current = window.requestAnimationFrame(() => {
+      syncRafRef.current = null
+      measureHeight()
+      applyScale()
+    })
+  }, [measureHeight, applyScale])
+
+  useEffect(() => {
+    lastHeightRef.current = 0
+    slotWidthForRoRef.current = 0
+  }, [srcDoc])
+
+  useEffect(() => {
+    const run = () => {
+      scheduleSync()
+    }
+    const onOrientation = () => {
+      scheduleSync()
+      window.setTimeout(scheduleSync, 120)
+    }
+    window.addEventListener('resize', run)
+    window.addEventListener('orientationchange', onOrientation)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', run)
+
+    const slot = slotRef.current
+    window.requestAnimationFrame(run)
+
+    let ro: ResizeObserver | null = null
+    if (slot && typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver((entries) => {
+        const w = entries[0]?.contentRect.width ?? 0
+        const prev = slotWidthForRoRef.current
+        if (prev !== 0 && Math.abs(w - prev) < 0.5) return
+        slotWidthForRoRef.current = w
+        scheduleSync()
+      })
+      ro.observe(slot)
+    }
+
+    return () => {
+      window.removeEventListener('resize', run)
+      window.removeEventListener('orientationchange', onOrientation)
+      vv?.removeEventListener('resize', run)
+      ro?.disconnect()
+      if (syncRafRef.current != null) {
+        window.cancelAnimationFrame(syncRafRef.current)
+        syncRafRef.current = null
+      }
+    }
+  }, [scheduleSync, srcDoc])
+
+  const innerW = Math.ceil(PREVIEW_IFRAME_WIDTH_PX * scale)
+  const innerH = Math.ceil(heightPx * scale)
+  const scaledW = innerW + 2 * PREVIEW_SCALE_SAFE_INSET_PX
+  const scaledH = innerH + 2 * PREVIEW_SCALE_SAFE_INSET_PX
+
+  return (
+    <div
+      ref={slotRef}
+      className={cn(
+        'w-full max-w-full overflow-x-hidden rounded-2xl bg-slate-100/95 p-3 ring-1 ring-slate-200/90',
+        className,
+      )}
+    >
+      <div className="flex w-full justify-center">
+        <div
+          className="relative overflow-hidden rounded-none bg-slate-200/40 shadow-inner"
+          style={{ width: scaledW, height: scaledH }}
+        >
+          <iframe
+            ref={ref}
+            title={title}
+            srcDoc={srcDoc}
+            width={PREVIEW_IFRAME_WIDTH_PX}
+            scrolling="no"
+            onLoad={() => {
+              scheduleSync()
+              window.requestAnimationFrame(() => {
+                scheduleSync()
+              })
+              window.setTimeout(() => {
+                scheduleSync()
+              }, 250)
+            }}
+            className="m-0 block border-0 p-0"
+            style={{
+              position: 'absolute',
+              left: PREVIEW_SCALE_SAFE_INSET_PX,
+              top: PREVIEW_SCALE_SAFE_INSET_PX,
+              width: PREVIEW_IFRAME_WIDTH_PX,
+              height: heightPx,
+              transform: `scale(${scale})`,
+              transformOrigin: 'top left',
+            }}
+            sandbox="allow-same-origin"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CollapsiblePreviewBlock(props: {
+  id: string
+  title: string
+  description: string
+  open: boolean
+  onToggle: () => void
+  loading: boolean
+  error: string | null
+  html: string | null
+  iframeTitle: string
+  onReload: () => void
+}) {
+  const { id, title, description, open, onToggle, loading, error, html, iframeTitle, onReload } = props
+  const panelId = `${id}-panel`
+
+  return (
+    <div className="rounded-2xl border border-[#e5e7eb] bg-white shadow-sm">
+      <button
+        type="button"
+        id={`${id}-trigger`}
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[#f9fafb]"
+      >
+        <span className="font-semibold text-[#111827]">{title}</span>
+        <ChevronDown
+          className={cn(
+            'h-5 w-5 shrink-0 text-[#64748b] transition-transform duration-200',
+            open && 'rotate-180',
+          )}
+          aria-hidden
+        />
+      </button>
+      {open ? (
+        <div id={panelId} className="border-t border-[#e5e7eb] p-3" role="region" aria-labelledby={`${id}-trigger`}>
+          <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <p className="text-sm text-[#6b7280]">{description}</p>
+            <Button type="button" variant="outline" className="shrink-0 rounded-xl" onClick={() => void onReload()} disabled={loading}>
+              โหลดใหม่
+            </Button>
+          </div>
+
+          {loading ? (
+            <div
+              className={cn(
+                'flex min-h-[320px] items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white',
+                theme.shell,
+              )}
+            >
+              <div className={cn('h-9 w-9 rounded-full border-2 border-[#e5e7eb] border-t-[#2563eb] animate-spin')} aria-hidden />
+              <span className="sr-only">กำลังโหลด</span>
+            </div>
+          ) : null}
+
+          {error ? (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+              <p className="font-semibold">โหลดเทมเพลตไม่สำเร็จ</p>
+              <p className="mt-1">{error}</p>
+            </div>
+          ) : null}
+
+          {html && !loading ? (
+            <AutoHeightIframe title={iframeTitle} srcDoc={html} />
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+export function FormTemplatesPreviewPage() {
+  const [checklistOpen, setChecklistOpen] = useState(true)
+  const [cstOpen, setCstOpen] = useState(true)
+
+  const [checklistHtml, setChecklistHtml] = useState<string | null>(null)
+  const [checklistLoading, setChecklistLoading] = useState(true)
+  const [checklistError, setChecklistError] = useState<string | null>(null)
+
+  const [cstHtml, setCstHtml] = useState<string | null>(null)
+  const [cstLoading, setCstLoading] = useState(true)
+  const [cstError, setCstError] = useState<string | null>(null)
+
+  const loadChecklist = useCallback(async () => {
+    setChecklistLoading(true)
+    setChecklistError(null)
+    try {
+      const raw = await loadChecklistBeforePourTemplate()
+      setChecklistHtml(fillChecklistBeforePourTemplate(raw, CHECKLIST_SAMPLE))
+    } catch (e) {
+      setChecklistError(e instanceof Error ? e.message : String(e))
+      setChecklistHtml(null)
+    } finally {
+      setChecklistLoading(false)
+    }
+  }, [])
+
+  const loadCst = useCallback(async () => {
+    setCstLoading(true)
+    setCstError(null)
+    try {
+      const raw = await loadCstStrengthReportTemplate()
+      setCstHtml(fillCstStrengthReportTemplate(raw, CST_SAMPLE))
+    } catch (e) {
+      setCstError(e instanceof Error ? e.message : String(e))
+      setCstHtml(null)
+    } finally {
+      setCstLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadChecklist()
+    void loadCst()
+  }, [loadChecklist, loadCst])
+
+  return (
+    <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 md:px-4">
+      <div className="mb-4">
+        <h1 className="text-lg font-bold tracking-tight text-[#111827] md:text-xl">ตัวอย่างแบบฟอร์ม</h1>
+        <p className="mt-1 text-sm text-[#6b7280]">
+          รวมฟอร์มจาก <code className="rounded bg-[#f3f4f6] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <CollapsiblePreviewBlock
+          id="checklist"
+          title="Check List ก่อนเทคอนกรีต"
+          description="ข้อมูลตัวอย่าง — ใช้ดู layout ก่อนเทคอนกรีต"
+          open={checklistOpen}
+          onToggle={() => setChecklistOpen((o) => !o)}
+          loading={checklistLoading}
+          error={checklistError}
+          html={checklistHtml}
+          iframeTitle="ตัวอย่าง Check List Before Concrete Placement"
+          onReload={loadChecklist}
+        />
+        <CollapsiblePreviewBlock
+          id="cst"
+          title="รายงาน Compressive Strength Test (CST)"
+          description="ข้อมูลตัวอย่าง — ใช้ดู layout รายงานทดสอบความแข็งแรง"
+          open={cstOpen}
+          onToggle={() => setCstOpen((o) => !o)}
+          loading={cstLoading}
+          error={cstError}
+          html={cstHtml}
+          iframeTitle="ตัวอย่าง Compressive Strength Test Report"
+          onReload={loadCst}
+        />
+      </div>
+    </div>
+  )
+}

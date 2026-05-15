@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COMPRESSIVE STRENGTH TEST REPORT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @page { size: 210mm 297mm; margin: 0; }
+    * { box-sizing: border-box; }
+    html {
+      font-size: 9.5pt;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: Sarabun, "Segoe UI", system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.35;
+      color: #111827;
+      background: #fff;
+    }
+    @media screen {
+      html,
+      body {
+        overflow-x: hidden;
+        overflow-y: hidden;
+      }
+      body {
+        background: #e2e8f0;
+        padding: 10px;
+      }
+      .a4-page {
+        box-shadow: none;
+      }
+      .a4-page-caption {
+        margin: 8px;
+      }
+    }
+    .a4-page {
+      box-sizing: border-box;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 10mm;
+      border: 2px dashed #64748b;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+    }
+    .a4-page-caption {
+      flex-shrink: 0;
+      margin: 0 0 10px;
+      font-size: 11px;
+      color: #475569;
+      text-align: center;
+    }
+    .sheet {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    .sheet-body { flex: 1 1 auto; min-width: 0; min-height: 0; }
+    .sheet-footer { flex-shrink: 0; margin-top: auto; padding-top: 12px; }
+    @media print {
+      html, body { width: 210mm; margin: 0; padding: 0; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
+      .a4-page {
+        width: 210mm;
+        max-width: none;
+        min-height: 297mm;
+        margin: 0;
+        padding: 10mm;
+        border: 2px dashed #64748b;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .a4-page-caption { display: none !important; }
+    }
+    .logos { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .logos img { display: block; height: 28px; width: auto; }
+    .org-line { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+    .report-title-th { font-size: 0.95rem; font-weight: 700; text-align: center; margin-bottom: 2px; }
+    .report-title-en { font-size: 1.05rem; font-weight: 700; text-align: center; margin-bottom: 10px; }
+    .meta {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+    }
+    .meta th, .meta td {
+      border: none;
+      padding: 3px 8px 4px 0;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .meta .k { font-weight: 700; padding-right: 6px; white-space: nowrap; }
+    .meta th:nth-child(3),
+    .meta th:nth-child(5),
+    .meta th:nth-child(7) {
+      padding-left: 14px;
+    }
+    .meta .meta-machine-line {
+      padding: 4px 0 2px;
+      vertical-align: middle;
+    }
+    .meta .meta-machine-line .k { padding-right: 6px; }
+    .results-wrap {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .results {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.8rem;
+      border: 1px solid #111827;
+      background: #fff;
+    }
+    .results col.cw-item { width: 5.5%; }
+    .results col.cw-sample { width: 8%; }
+    .results col.cw-w { width: 9%; }
+    .results col.cw-d { width: 11%; }
+    .results col.cw-fr { width: 11%; }
+    .results col.cw-fa { width: 11%; }
+    .results col.cw-ksc { width: 10%; }
+    .results col.cw-avg { width: 10%; }
+    .results col.cw-rmk { width: 14.5%; }
+    .results th, .results td {
+      border: 1px solid #111827;
+      padding: 5px 4px;
+      vertical-align: middle;
+      text-align: center;
+      overflow-wrap: break-word;
+      word-break: normal;
+      background: #fff;
+      color: #111827;
+    }
+    .results thead th {
+      background: #fff;
+      font-weight: 700;
+      font-size: 0.72rem;
+      line-height: 1.25;
+      letter-spacing: 0.01em;
+      padding: 6px 3px;
+      border-bottom: 2px solid #111827;
+    }
+    .results thead th sup { font-size: 0.65em; }
+    .results tbody td:nth-child(1) {
+      font-weight: 600;
+    }
+    .results .res-num { font-variant-numeric: tabular-nums; }
+    .results .res-avg {
+      vertical-align: middle;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+    .results .res-rmk {
+      vertical-align: middle;
+      text-align: center;
+      padding: 5px 4px;
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+    .sign3 {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.82rem;
+      margin-bottom: 8px;
+    }
+    .sign3 td {
+      border: 1px solid #111827;
+      padding: 8px 6px;
+      vertical-align: top;
+      width: 33.33%;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .sign3 .sig-h { font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .sign3 .sig-pad {
+      margin: 0 8px 10px;
+      min-height: 26px;
+      border-bottom: 1px solid #111827;
+    }
+    .sign3 .sig-n { text-align: center; font-size: 0.88rem; margin-bottom: 4px; }
+    .sign3 .sig-r { text-align: center; font-size: 0.82rem; color: #111827; margin-bottom: 6px; }
+    .sign3 .sig-d { text-align: center; font-size: 0.82rem; margin-top: 10px; }
+    .doc-foot {
+      text-align: center;
+      font-size: 0.72rem;
+      line-height: 1.4;
+      color: #374151;
+      padding-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="a4-page">
+    <p class="a4-page-caption">เส้นประ = ขอบกระดาษ A4 แนวตั้ง (210×297 mm) · พื้นที่ข้อความห่างขอบ 10 mm · บรรทัดนี้ไม่ถูกพิมพ์</p>
+    <div class="sheet">
+      <div class="sheet-body">
+        <div class="logos">
+          <img src="/templates/cst-report-logo-2.png" alt="" />
+          <img src="/templates/cst-report-logo-1.png" alt="" />
+          <img src="/templates/cst-report-logo-3.png" alt="" />
+        </div>
+        <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
+        <p class="report-title-th">โครงการก่อสร้างทางรถไฟ สายเด่นชัย-เชียงราย-เชียงของ สัญญาที่ 3 ช่วงราย-เชียงของ</p>
+        <p class="report-title-en">COMPRESSIVE STRENGTH TEST REPORT</p>
+
+        <table class="meta" aria-label="ข้อมูลรายงาน">
+          <tbody>
+            <tr>
+              <th class="k" scope="row">Casting Date:</th><td>{{castingDate}}</td>
+              <th class="k" scope="row">Test Date:</th><td>{{testDate}}</td>
+              <th class="k" scope="row">Age:</th><td>{{age}} Days</td>
+              <th class="k" scope="row">Report No.:</th><td>{{reportNumber}}</td>
+            </tr>
+            <tr>
+              <th class="k" scope="row">Concrete Work:</th><td colspan="3">{{concreteWork}}</td>
+              <th class="k" scope="row">Structural:</th><td colspan="3">{{structureName}}</td>
+            </tr>
+            <tr>
+              <th class="k" scope="row">Location:</th><td colspan="3">{{locationText}}</td>
+              <th class="k" scope="row">Structural No.:</th><td colspan="3">{{structureNo}}</td>
+            </tr>
+            <tr>
+              <th class="k" scope="row">Mix Code:</th><td>{{mixcode}}</td>
+              <th class="k" scope="row">Strength:</th><td>{{strength}}</td>
+              <th class="k" scope="row">Slump:</th><td>{{slump}}</td>
+              <th class="k" scope="row">Volume:</th><td>{{volume}} cu.m.</td>
+            </tr>
+            <tr>
+              <th class="k" scope="row">Supplier:</th><td>{{supplier}}</td>
+              <th class="k" scope="row">Sample Type:</th><td colspan="5">{{sampleType}}</td>
+            </tr>
+            <tr>
+              <td class="meta-machine-line" colspan="8">
+                <span class="k">Test Machine:</span> {{testMachine}}
+                &nbsp;&nbsp;&nbsp;
+                <span class="k">Serial No.:</span> {{serialNo}}
+                &nbsp;&nbsp;&nbsp;
+                <span class="k">Factor:</span> {{factor}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="results-wrap">
+        <table class="results" aria-label="ผลการทดสอบ">
+          <colgroup>
+            <col class="cw-item" />
+            <col class="cw-sample" />
+            <col class="cw-w" />
+            <col class="cw-d" />
+            <col class="cw-fr" />
+            <col class="cw-fa" />
+            <col class="cw-ksc" />
+            <col class="cw-avg" />
+            <col class="cw-rmk" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="res-item">Item</th>
+              <th>Sample No.</th>
+              <th>Weight<br />(kg)</th>
+              <th>Density<br />(kg/m<sup>3</sup>)</th>
+              <th>Force<br />Reading<br />(kN)</th>
+              <th>Force<br />Adjust<br />(kN)</th>
+              <th>Compressive<br />Strength<br />(ksc)</th>
+              <th>Compressive Strength<br />Average<br />(ksc)</th>
+              <th>Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+        <tr>
+          <td class="res-num">1</td>
+          <td class="res-num">{{s1}}</td>
+          <td class="res-num">{{w1}}</td>
+          <td class="res-num">{{d1}}</td>
+          <td class="res-num">{{f1}}</td>
+          <td class="res-num">{{adj1}}</td>
+          <td class="res-num">{{ksc1}}</td><td class="res-num res-avg" rowspan="3">{{avg1}}</td><td class="res-num res-rmk" rowspan="3">{{remark1}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">2</td>
+          <td class="res-num">{{s2}}</td>
+          <td class="res-num">{{w2}}</td>
+          <td class="res-num">{{d2}}</td>
+          <td class="res-num">{{f2}}</td>
+          <td class="res-num">{{adj2}}</td>
+          <td class="res-num">{{ksc2}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">3</td>
+          <td class="res-num">{{s3}}</td>
+          <td class="res-num">{{w3}}</td>
+          <td class="res-num">{{d3}}</td>
+          <td class="res-num">{{f3}}</td>
+          <td class="res-num">{{adj3}}</td>
+          <td class="res-num">{{ksc3}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">4</td>
+          <td class="res-num">{{s4}}</td>
+          <td class="res-num">{{w4}}</td>
+          <td class="res-num">{{d4}}</td>
+          <td class="res-num">{{f4}}</td>
+          <td class="res-num">{{adj4}}</td>
+          <td class="res-num">{{ksc4}}</td><td class="res-num res-avg" rowspan="3">{{avg2}}</td><td class="res-num res-rmk" rowspan="3">{{remark2}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">5</td>
+          <td class="res-num">{{s5}}</td>
+          <td class="res-num">{{w5}}</td>
+          <td class="res-num">{{d5}}</td>
+          <td class="res-num">{{f5}}</td>
+          <td class="res-num">{{adj5}}</td>
+          <td class="res-num">{{ksc5}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">6</td>
+          <td class="res-num">{{s6}}</td>
+          <td class="res-num">{{w6}}</td>
+          <td class="res-num">{{d6}}</td>
+          <td class="res-num">{{f6}}</td>
+          <td class="res-num">{{adj6}}</td>
+          <td class="res-num">{{ksc6}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">7</td>
+          <td class="res-num">{{s7}}</td>
+          <td class="res-num">{{w7}}</td>
+          <td class="res-num">{{d7}}</td>
+          <td class="res-num">{{f7}}</td>
+          <td class="res-num">{{adj7}}</td>
+          <td class="res-num">{{ksc7}}</td><td class="res-num res-avg" rowspan="3">{{avg3}}</td><td class="res-num res-rmk" rowspan="3">{{remark3}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">8</td>
+          <td class="res-num">{{s8}}</td>
+          <td class="res-num">{{w8}}</td>
+          <td class="res-num">{{d8}}</td>
+          <td class="res-num">{{f8}}</td>
+          <td class="res-num">{{adj8}}</td>
+          <td class="res-num">{{ksc8}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">9</td>
+          <td class="res-num">{{s9}}</td>
+          <td class="res-num">{{w9}}</td>
+          <td class="res-num">{{d9}}</td>
+          <td class="res-num">{{f9}}</td>
+          <td class="res-num">{{adj9}}</td>
+          <td class="res-num">{{ksc9}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">10</td>
+          <td class="res-num">{{s10}}</td>
+          <td class="res-num">{{w10}}</td>
+          <td class="res-num">{{d10}}</td>
+          <td class="res-num">{{f10}}</td>
+          <td class="res-num">{{adj10}}</td>
+          <td class="res-num">{{ksc10}}</td><td class="res-num res-avg" rowspan="3">{{avg4}}</td><td class="res-num res-rmk" rowspan="3">{{remark4}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">11</td>
+          <td class="res-num">{{s11}}</td>
+          <td class="res-num">{{w11}}</td>
+          <td class="res-num">{{d11}}</td>
+          <td class="res-num">{{f11}}</td>
+          <td class="res-num">{{adj11}}</td>
+          <td class="res-num">{{ksc11}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">12</td>
+          <td class="res-num">{{s12}}</td>
+          <td class="res-num">{{w12}}</td>
+          <td class="res-num">{{d12}}</td>
+          <td class="res-num">{{f12}}</td>
+          <td class="res-num">{{adj12}}</td>
+          <td class="res-num">{{ksc12}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">13</td>
+          <td class="res-num">{{s13}}</td>
+          <td class="res-num">{{w13}}</td>
+          <td class="res-num">{{d13}}</td>
+          <td class="res-num">{{f13}}</td>
+          <td class="res-num">{{adj13}}</td>
+          <td class="res-num">{{ksc13}}</td><td class="res-num res-avg" rowspan="3">{{avg5}}</td><td class="res-num res-rmk" rowspan="3">{{remark5}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">14</td>
+          <td class="res-num">{{s14}}</td>
+          <td class="res-num">{{w14}}</td>
+          <td class="res-num">{{d14}}</td>
+          <td class="res-num">{{f14}}</td>
+          <td class="res-num">{{adj14}}</td>
+          <td class="res-num">{{ksc14}}</td>
+        </tr>
+        <tr>
+          <td class="res-num">15</td>
+          <td class="res-num">{{s15}}</td>
+          <td class="res-num">{{w15}}</td>
+          <td class="res-num">{{d15}}</td>
+          <td class="res-num">{{f15}}</td>
+          <td class="res-num">{{adj15}}</td>
+          <td class="res-num">{{ksc15}}</td>
+        </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="sheet-footer">
+        <table class="sign3" aria-label="ลงนาม">
+          <tbody>
+            <tr>
+              <td>
+                <div class="sig-h">Tested by: {{testedByUnit}}</div>
+                <div class="sig-pad" aria-hidden="true"></div>
+                <div class="sig-n">Name: {{testedByName}}</div>
+                <div class="sig-r">{{testedByRole}}</div>
+                <div class="sig-d">Date: {{testDate}}</div>
+              </td>
+              <td>
+                <div class="sig-h">Reviewed by: {{reviewedByUnit}}</div>
+                <div class="sig-pad" aria-hidden="true"></div>
+                <div class="sig-n">Name: {{reviewedByName}}</div>
+                <div class="sig-r">{{reviewedByRole}}</div>
+                <div class="sig-d">Date: {{testDate}}</div>
+              </td>
+              <td>
+                <div class="sig-h">Approved by: {{approvedByUnit}}</div>
+                <div class="sig-pad" aria-hidden="true"></div>
+                <div class="sig-n">Name: {{approvedByName}}</div>
+                <div class="sig-r">{{approvedByRole}}</div>
+                <div class="sig-d">Date: {{testDate}}</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="doc-foot">
+          Document No. {{documentNo}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Release/Amendment {{releaseInfo}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Page No. {{pageNo}}
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

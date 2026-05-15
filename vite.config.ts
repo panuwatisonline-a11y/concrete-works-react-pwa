@@ -15,7 +15,18 @@ export default defineConfig({
        * Chrome never gets a SW and will not offer install / add-to-home-screen as a PWA.
        */
       injectRegister: 'inline',
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: [
+        'favicon.svg',
+        'apple-touch-icon.png',
+        'pwa-192x192.png',
+        'pwa-512x512.png',
+        'templates/checksheet-logo.png',
+        'templates/checklist-before-concrete-placement.html',
+        'templates/cst-strength-report.html',
+        'templates/cst-report-logo-1.png',
+        'templates/cst-report-logo-2.png',
+        'templates/cst-report-logo-3.png',
+      ],
       devOptions: {
         enabled: true,
       },

@@ -25,6 +25,7 @@ import { MixcodePage } from '@/pages/admin/MixcodePage'
 import { AbcCodePage } from '@/pages/admin/AbcCodePage'
 import { WbsCodePage } from '@/pages/admin/WbsCodePage'
 import { JobsPage } from '@/pages/admin/JobsPage'
+import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
 
 function AppInner() {
   useAuthInit()
@@ -50,6 +51,9 @@ function AppInner() {
         <Route path="/requests/:id" element={<RequestDetailPage />} />
         <Route path="/requests/:id/edit" element={<RequestEditPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/preview/forms" element={<FormTemplatesPreviewPage />} />
+        <Route path="/preview/checklist-before-concrete" element={<Navigate to="/preview/forms" replace />} />
+        <Route path="/preview/cst-strength-report" element={<Navigate to="/preview/forms" replace />} />
 
         <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
           <Route index element={<AdminDashboard />} />

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check List Before Concrete Placement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* พิมพ์เต็มแผ่น — margin ควบคุมด้วย padding ใน .a4-page ให้ตรงกับหน้าจอ */
+    @page {
+      size: 210mm 297mm;
+      margin: 0;
+    }
+    * { box-sizing: border-box; }
+    html {
+      font-size: 9.5pt;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+    body {
+      margin: 0;
+      font-family: Sarabun, "Segoe UI", system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.35;
+      color: #111827;
+      background: #fff;
+    }
+    /* บนหน้าจอ: พื้นหลังรอบกระดาษ — พิมพ์เป็นขาว */
+    @media screen {
+      html,
+      body {
+        overflow-x: hidden;
+        overflow-y: hidden;
+      }
+      body {
+        background: #e2e8f0;
+        padding: 10px;
+      }
+      .a4-page {
+        box-shadow: none;
+      }
+      .a4-page-caption {
+        margin: 8px;
+      }
+    }
+    .a4-page {
+      box-sizing: border-box;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 10mm;
+      border: 2px dashed #64748b;
+      background: #fff;
+      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+    }
+    .a4-page-caption {
+      margin: 0 0 10px;
+      padding: 0;
+      font-size: 11px;
+      line-height: 1.35;
+      color: #475569;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .sheet {
+      width: 100%;
+      max-width: 190mm;
+      margin: 0 auto;
+      padding: 6mm 8mm 8mm;
+      overflow: visible;
+    }
+    .a4-page .sheet {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sheet-body {
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
+    }
+    .sheet-footer {
+      flex-shrink: 0;
+      margin-top: auto;
+      padding-top: 14px;
+    }
+    @media print {
+      html,
+      body {
+        width: 210mm;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        background: #fff;
+      }
+      .a4-page {
+        width: 210mm;
+        max-width: none;
+        min-height: 297mm;
+        margin: 0;
+        padding: 10mm;
+        border: 2px dashed #64748b;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .a4-page-caption {
+        display: none !important;
+      }
+      .sheet {
+        max-width: none;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+    }
+    .header {
+      display: grid;
+      grid-template-columns: 76px 1fr auto;
+      align-items: center;
+      gap: 8px 10px;
+      margin-bottom: 10px;
+      padding-bottom: 0;
+      border: none;
+    }
+    .header-logo img {
+      display: block;
+      width: 72px;
+      height: auto;
+    }
+    .header-title {
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .header-page {
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      align-self: start;
+      padding-top: 1px;
+    }
+    .meta {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+      table-layout: fixed;
+      border: none;
+      font-size: 0.92rem;
+    }
+    .meta col:first-child { width: 19%; }
+    .meta col:nth-child(2) { width: 31%; }
+    .meta col:nth-child(3) { width: 19%; }
+    .meta col:nth-child(4) { width: 31%; }
+    .meta th,
+    .meta td {
+      border: none;
+      padding: 4px 8px 5px 0;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .meta .label {
+      font-weight: 700;
+      background: transparent;
+      padding-right: 6px;
+    }
+    .meta .value {
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .meta th:nth-child(3),
+    .meta td:nth-child(3) {
+      padding-left: 14px;
+    }
+    .chk {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+      table-layout: fixed;
+      font-size: 0.92rem;
+    }
+    .chk th,
+    .chk td {
+      border: 1px solid #1f2937;
+      padding: 5px 6px;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .chk thead th {
+      background: #f3f4f6;
+      font-weight: 700;
+      text-align: center;
+      font-size: 0.88rem;
+      line-height: 1.2;
+    }
+    .chk .col-no {
+      width: 28px;
+      min-width: 28px;
+      text-align: center;
+    }
+    .chk .col-pass,
+    .chk .col-fail,
+    .chk .col-na {
+      width: 42px;
+      min-width: 42px;
+      max-width: 42px;
+      text-align: center;
+      padding-left: 4px;
+      padding-right: 4px;
+      min-height: 2.1em;
+    }
+    .chk .col-item {
+      text-align: left;
+      width: auto;
+      max-width: none;
+    }
+    .chk .item-title {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.92rem;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .chk .item-detail {
+      font-weight: 400;
+      font-size: 0.88rem;
+      line-height: 1.32;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .notes { margin-bottom: 10px; font-size: 0.92rem; }
+    .notes-label { font-weight: 700; font-size: 0.88rem; margin-bottom: 4px; }
+    .notes-box {
+      border: 1px solid #1f2937;
+      min-height: 48px;
+      padding: 5px 7px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: normal;
+      font-size: 0.9rem;
+      line-height: 1.32;
+    }
+    .sign {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9rem;
+    }
+    .sign td {
+      border: 1px solid #1f2937;
+      padding: 8px 10px;
+      width: 50%;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+    .sign .sign-title {
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 5px;
+      font-size: 0.88rem;
+    }
+    .sign .line {
+      border-bottom: 1px solid #374151;
+      margin: 18px 6px 6px;
+      min-height: 1px;
+    }
+    .sign .name { text-align: center; margin-bottom: 4px; }
+    .sign .date-line { text-align: center; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="a4-page">
+    <p class="a4-page-caption">เส้นประ = ขอบกระดาษ A4 แนวตั้ง (210×297 mm) · พื้นที่ข้อความห่างขอบ 10 mm เหมือนตอนพิมพ์ · บรรทัดนี้ไม่ถูกพิมพ์</p>
+    <div class="sheet">
+    <div class="sheet-body">
+    <header class="header">
+      <div class="header-logo">
+        <img src="/templates/checksheet-logo.png" alt="" width="72" />
+      </div>
+      <div class="header-title">Check List Before Concrete Placement</div>
+      <div class="header-page">Page: {{pageCurrent}}/{{pageTotal}}</div>
+    </header>
+
+    <table class="meta" aria-label="ข้อมูลทั่วไป">
+      <colgroup>
+        <col />
+        <col />
+        <col />
+        <col />
+      </colgroup>
+      <tbody>
+        <tr>
+          <th class="label" scope="row">โครงการ (Project)</th>
+          <td class="value">{{clientName}}</td>
+          <th class="label" scope="row">วันที่ตรวจสอบ (Date)</th>
+          <td class="value">{{requestDate}}</td>
+        </tr>
+        <tr>
+          <th class="label" scope="row">สถานที่ (Location)</th>
+          <td class="value">{{locationText}}</td>
+          <th class="label" scope="row">โครงสร้าง (Structure)</th>
+          <td class="value">{{structureName}}</td>
+        </tr>
+        <tr>
+          <th class="label" scope="row">เลขที่โครงสร้าง (Structure No.)</th>
+          <td class="value">{{structureNo}}</td>
+          <th class="label" scope="row">ชั้นคุณภาพคอนกรีต (Concrete Grade)</th>
+          <td class="value">{{concreteGrade}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="chk" aria-label="รายการตรวจสอบ">
+      <thead>
+        <tr>
+          <th class="col-no">ลำดับ</th>
+          <th class="col-item">รายการตรวจสอบ (Items of Inspection)</th>
+          <th class="col-pass">ผ่าน<br />(Pass)</th>
+          <th class="col-fail">ไม่ผ่าน<br />(Fail)</th>
+          <th class="col-na">N/A</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-no">1</td>
+          <td class="col-item">
+            <span class="item-title">การตรวจสอบงานสำรวจ (Survey Check)</span>
+            <span class="item-detail">ตำแหน่ง, ระดับ, ขนาด, ทิศทาง, แนวดิ่ง</span>
+          </td>
+          <td class="col-pass"></td>
+          <td class="col-fail"></td>
+          <td class="col-na"></td>
+        </tr>
+        <tr>
+          <td class="col-no">2</td>
+          <td class="col-item">
+            <span class="item-title">การเตรียมผิวหน้า (Surface Preparation)</span>
+            <span class="item-detail">ความสะอาดและสภาพผิวหน้าคอนกรีต</span>
+          </td>
+          <td class="col-pass"></td>
+          <td class="col-fail"></td>
+          <td class="col-na"></td>
+        </tr>
+        <tr>
+          <td class="col-no">3</td>
+          <td class="col-item">
+            <span class="item-title">งานแบบหล่อ (Formwork)</span>
+            <span class="item-detail">ขนาด, ความแข็งแรง, ผิวหน้า, การป้องกันฝน, น้ำยาทาแบบ, การปาดมุม, ความสะอาด</span>
+          </td>
+          <td class="col-pass"></td>
+          <td class="col-fail"></td>
+          <td class="col-na"></td>
+        </tr>
+        <tr>
+          <td class="col-no">4</td>
+          <td class="col-item">
+            <span class="item-title">งานเหล็กเสริม (Reinforcement)</span>
+            <span class="item-detail">ขนาด, ตำแหน่ง, ระยะห่าง, การทาบเหล็ก, ลวดผูกเหล็ก, ลูกปูน, หูช้าง</span>
+          </td>
+          <td class="col-pass"></td>
+          <td class="col-fail"></td>
+          <td class="col-na"></td>
+        </tr>
+        <tr>
+          <td class="col-no">5</td>
+          <td class="col-item">
+            <span class="item-title">รายการอื่นๆ (Other Features)</span>
+            <span class="item-detail">ทรายบดอัด, คอนกรีตหยาบ, เหล็กเดือย, สภาพหัวเสาเข็ม</span>
+          </td>
+          <td class="col-pass"></td>
+          <td class="col-fail"></td>
+          <td class="col-na"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="notes">
+      <div class="notes-label">บันทึกเพิ่มเติม (Notes)</div>
+      <div class="notes-box">{{remarks}}</div>
+    </div>
+    </div>
+
+    <div class="sheet-footer">
+    <table class="sign" aria-label="ลงชื่อ">
+      <tbody>
+        <tr>
+          <td>
+            <div class="sign-title">ลงชื่อ (Inspected by)</div>
+            <div class="line"></div>
+            <div class="name">( {{inspectorName}} )</div>
+            <div class="date-line">วันที่: {{requestDate}}</div>
+          </td>
+          <td>
+            <div class="sign-title">ลงชื่อ (Witnessed by)</div>
+            <div class="line"></div>
+            <div class="name">( {{witnessName}} )</div>
+            <div class="date-line">วันที่: {{requestDate}}</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    </div>
+  </div>
+</body>
+</html>
