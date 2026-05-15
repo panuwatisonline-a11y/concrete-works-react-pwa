@@ -1,5 +1,4 @@
 import type { ReactNode, MouseEvent } from 'react'
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { rq } from '@/lib/requestUi'
@@ -23,14 +22,17 @@ function ActionButtons({
       {items.map((a) => {
         if ('cloneFromRequestId' in a) {
           return (
-            <Button key={a.key} size="action" variant={a.variant} asChild>
-              <Link
-                to="/requests/new"
-                state={{ cloneFromRequestId: a.cloneFromRequestId }}
-                onClick={(e) => onItemClick(a, e as unknown as MouseEvent<HTMLButtonElement>)}
-              >
-                {a.label}
-              </Link>
+            <Button
+              key={a.key}
+              type="button"
+              size="action"
+              variant={a.variant}
+              onClick={(e) => {
+                e.stopPropagation()
+                onItemClick(a, e)
+              }}
+            >
+              {a.label}
             </Button>
           )
         }

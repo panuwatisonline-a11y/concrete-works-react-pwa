@@ -140,10 +140,12 @@ export const theme = {
 
 /** App-wide layout chrome */
 export const app = {
-  shell: cn(
-    'flex min-h-[100dvh] flex-col items-center justify-center px-4 py-10 pour-shell',
+  /** Full-viewport scroll host for standalone auth pages (html/body/#root use overflow:hidden). */
+  shellScroll: cn(
+    'flex min-h-0 h-[100dvh] max-h-[100dvh] flex-col overflow-y-auto overscroll-y-contain px-4 py-10 pour-shell',
     ink.base,
   ),
+  shellInner: 'flex w-full flex-1 flex-col items-center justify-center py-4',
   pageAdmin:
     cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 md:gap-8 md:pb-12 md:pt-5', ink.base),
   pageAdminTitle: cn('block w-full shrink-0 pb-1 pt-0 font-bold tracking-tight', ink.base),

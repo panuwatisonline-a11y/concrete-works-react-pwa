@@ -200,13 +200,12 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
           layout="strip"
           items={quickActions}
           onItemClick={(a, e) => {
-            e.preventDefault()
             e.stopPropagation()
             if ('cloneFromRequestId' in a) {
               navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
-            } else {
-              navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
+              return
             }
+            navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
           }}
         />
       ) : null}

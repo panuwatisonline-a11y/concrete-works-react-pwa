@@ -170,7 +170,8 @@ export function RegisterPage() {
   }
 
   return (
-    <div className={app.shell}>
+    <div className={app.shellScroll}>
+      <div className={app.shellInner}>
       <Card className="w-full max-w-md">
         <CardHeader className={cn(rq.cardHeader, 'space-y-1 text-center')}>
           <CardTitle className="text-2xl font-extrabold tracking-tight text-[#111827]">Concrete Works</CardTitle>
@@ -258,6 +259,7 @@ export function RegisterPage() {
           </p>
         </CardContent>
       </Card>
+      </div>
     </div>
   )
 }

@@ -397,9 +397,11 @@ export function RequestDetailPage() {
             bookedBy: request.booked_by,
           })}
           onItemClick={(item, e) => {
-            e.preventDefault()
             e.stopPropagation()
-            if ('cloneFromRequestId' in item) return
+            if ('cloneFromRequestId' in item) {
+              navigate('/requests/new', { state: { cloneFromRequestId: item.cloneFromRequestId } })
+              return
+            }
             setModal(item.modal)
           }}
         >
