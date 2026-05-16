@@ -8,7 +8,12 @@ import {
 } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePullRefreshStore } from '@/stores/pullRefreshStore'
-import { isPourDesktopViewport, subscribePourDesktop } from '@/lib/pourLayout'
+import {
+  isPullRefreshEnabled,
+  isScrollAtTop,
+  resolveScrollRoot,
+  subscribePullRefreshEnabled,
+} from '@/lib/pourLayout'
 import { type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -21,10 +26,16 @@ type PullToRefreshMainProps = ComponentPropsWithoutRef<'main'> & {
   children: ReactNode
 }
 
+type TouchSession = {
+  active: boolean
+  startY: number
+  scrollRoot: HTMLElement | null
+}
+
 export function PullToRefreshMain({ children, className, ...rest }: PullToRefreshMainProps) {
   const handler = usePullRefreshStore((s) => s.handler)
   const mainRef = useRef<HTMLElement>(null)
-  const touchRef = useRef({ active: false, startY: 0 })
+  const touchRef = useRef<TouchSession>({ active: false, startY: 0, scrollRoot: null })
   const pullRef = useRef(0)
   const handlerRef = useRef(handler)
   const refreshingRef = useRef(false)
@@ -33,16 +44,16 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
 
   handlerRef.current = handler
 
-  const [mobile, setMobile] = useState(() =>
-    typeof window !== 'undefined' ? !isPourDesktopViewport() : true,
+  const [pullEnabled, setPullEnabled] = useState(() =>
+    typeof window !== 'undefined' ? isPullRefreshEnabled() : true,
   )
 
   pullRef.current = pull
 
-  useEffect(() => subscribePourDesktop((isDesktop) => setMobile(!isDesktop)), [])
+  useEffect(() => subscribePullRefreshEnabled(setPullEnabled), [])
 
   const resetPull = useCallback(() => {
-    touchRef.current.active = false
+    touchRef.current = { active: false, startY: 0, scrollRoot: null }
     setPull(0)
   }, [])
 
@@ -73,17 +84,19 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
 
   useEffect(() => {
     const el = mainRef.current
-    if (!el || !mobile || !handler) return
+    if (!el || !pullEnabled || !handler) return
 
     const onTouchStart = (e: TouchEvent) => {
       if (refreshingRef.current || e.touches.length !== 1) return
-      if (el.scrollTop > 0) return
-      touchRef.current = { active: true, startY: e.touches[0].clientY }
+      const scrollRoot = resolveScrollRoot(e.target, el)
+      if (!isScrollAtTop(scrollRoot)) return
+      touchRef.current = { active: true, startY: e.touches[0].clientY, scrollRoot }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchRef.current.active || refreshingRef.current || e.touches.length !== 1) return
-      if (el.scrollTop > 0) {
+      const scrollRoot = touchRef.current.scrollRoot ?? el
+      if (!isScrollAtTop(scrollRoot)) {
         resetPull()
         return
       }
@@ -110,17 +123,20 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
       resetPull()
     }
 
-    el.addEventListener('touchstart', onTouchStart, { passive: false })
-    el.addEventListener('touchmove', onTouchMove, { passive: false })
-    el.addEventListener('touchend', onTouchEnd, { passive: true })
-    el.addEventListener('touchcancel', onTouchCancel, { passive: true })
+    const opts = { capture: true } as const
+    const moveOpts = { capture: true, passive: false } as const
+
+    el.addEventListener('touchstart', onTouchStart, opts)
+    el.addEventListener('touchmove', onTouchMove, moveOpts)
+    el.addEventListener('touchend', onTouchEnd, opts)
+    el.addEventListener('touchcancel', onTouchCancel, opts)
     return () => {
-      el.removeEventListener('touchstart', onTouchStart)
-      el.removeEventListener('touchmove', onTouchMove)
-      el.removeEventListener('touchend', onTouchEnd)
-      el.removeEventListener('touchcancel', onTouchCancel)
+      el.removeEventListener('touchstart', onTouchStart, opts)
+      el.removeEventListener('touchmove', onTouchMove, moveOpts)
+      el.removeEventListener('touchend', onTouchEnd, opts)
+      el.removeEventListener('touchcancel', onTouchCancel, opts)
     }
-  }, [mobile, handler, resetPull, runRefresh])
+  }, [pullEnabled, handler, resetPull, runRefresh])
 
   const ready = pull >= THRESHOLD
   const label = refreshing
@@ -129,7 +145,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
       ? 'ปล่อยเพื่อรีเฟรช'
       : 'ดึงลงเพื่อรีเฟรช'
 
-  const showIndicator = mobile && handler && (pull > 0 || refreshing)
+  const showIndicator = pullEnabled && handler && (pull > 0 || refreshing)
   const indicatorHeight = showIndicator ? Math.max(pull, refreshing ? THRESHOLD * 0.65 : 0) : 0
 
   return (
@@ -138,7 +154,8 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         aria-live="polite"
         aria-hidden={!showIndicator}
         className={cn(
-          'flex items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out pour-desktop:hidden',
+          'flex items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out',
+          !pullEnabled && 'hidden',
           !showIndicator && 'pointer-events-none opacity-0',
         )}
         style={{ height: indicatorHeight }}
