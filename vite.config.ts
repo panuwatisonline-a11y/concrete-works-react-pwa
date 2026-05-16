@@ -11,10 +11,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       /**
-       * Inline registration avoids `workbox-window` dynamic import; if that chunk fails to load,
-       * Chrome never gets a SW and will not offer install / add-to-home-screen as a PWA.
+       * Script registration lets us probe for new SWs on focus/visibility so deploys apply without
+       * requiring users to close the tab. See `src/register-pwa.ts`.
        */
-      injectRegister: 'inline',
+      injectRegister: 'script',
       includeAssets: [
         'favicon.png',
         'apple-touch-icon.png',
@@ -50,6 +50,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
         runtimeCaching: [
           {
             urlPattern:
