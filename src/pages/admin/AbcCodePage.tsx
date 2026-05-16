@@ -17,6 +17,59 @@ type SegmentKey = 'ABC Code1' | 'ABC Code2' | 'ABC Code3' | 'ABC Code4'
 
 const SEGMENT_KEYS: SegmentKey[] = ['ABC Code1', 'ABC Code2', 'ABC Code3', 'ABC Code4']
 
+function normSegmentCode(code: string | null | undefined) {
+  return String(code ?? '').trim().toLowerCase()
+}
+
+function duplicateSegmentCodeName(rows: { id: number; code_name: string }[], candidate: string, excludeId?: number): boolean {
+  const k = normSegmentCode(candidate)
+  if (!k) return false
+  return rows.some((r) => r.id !== excludeId && normSegmentCode(r.code_name) === k)
+}
+
+function normComboLine(s: string) {
+  return s.trim().toLowerCase()
+}
+
+function abcTupleKey(row: Partial<AbcCode>): string {
+  return ([1, 2, 3, 4] as const).map((n) => {
+    const v = row[`abc_code${n}` as keyof AbcCode] as number | null | undefined
+    return v == null || Number.isNaN(Number(v)) ? '' : String(Number(v))
+  }).join('|')
+}
+
+function previewAbcLine(row: Partial<AbcCode>, segs: Record<SegmentKey, AbcCodeSegment[]>): string {
+  const parts: string[] = []
+  SEGMENT_KEYS.forEach((sk, idx) => {
+    const field = `abc_code${idx + 1}` as keyof AbcCode
+    const id = row[field] as number | null | undefined
+    if (id == null) return
+    const name = segs[sk].find((s) => s.id === id)?.code_name
+    if (name) parts.push(String(name).trim())
+  })
+  return parts.join('-')
+}
+
+function abcComboDuplicate(
+  combos: AbcCode[],
+  candidate: Partial<AbcCode>,
+  segs: Record<SegmentKey, AbcCodeSegment[]>,
+  excludeId?: number,
+): boolean {
+  const tupleK = abcTupleKey(candidate)
+  const candLine = previewAbcLine(candidate, segs)
+  const candNorm = candLine ? normComboLine(candLine) : ''
+  return combos.some((c) => {
+    if (c.id === excludeId) return false
+    if (abcTupleKey(c) === tupleK) return true
+    const existingRaw = (c.full_abc && String(c.full_abc).trim() !== '')
+      ? String(c.full_abc)
+      : previewAbcLine(c, segs)
+    const exNorm = existingRaw ? normComboLine(existingRaw) : ''
+    return Boolean(candNorm && exNorm && candNorm === exNorm)
+  })
+}
+
 export function AbcCodePage() {
   const [tab, setTab] = useState<'segments' | 'combos'>('segments')
   const [segments, setSegments] = useState<Record<SegmentKey, AbcCodeSegment[]>>({
@@ -116,12 +169,50 @@ export function AbcCodePage() {
                   </div>
                 )}
                 onAdd={async (item) => {
-                  const { error } = await supabase.from(key).insert({ code_name: item.code_name ?? '', description: item.description ?? null })
-                  if (!error) { toast.success('เพิ่มสำเร็จ'); loadSegments() } else toast.error('เกิดข้อผิดพลาด')
+                  const code = String(item.code_name ?? '').trim()
+                  if (!code) {
+                    toast.error('กรุณากรอก Code')
+                    return false
+                  }
+                  if (duplicateSegmentCodeName(segments[key], code)) {
+                    toast.error(`รหัสนี้มีอยู่แล้วใน ${key}`)
+                    return false
+                  }
+                  const descTrim = String(item.description ?? '').trim()
+                  const { error } = await supabase.from(key).insert({
+                    code_name: code,
+                    description: descTrim === '' ? null : descTrim,
+                  })
+                  if (!error) {
+                    toast.success('เพิ่มสำเร็จ')
+                    await loadSegments()
+                    return
+                  }
+                  toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
+                  return false
                 }}
                 onEdit={async (item) => {
-                  const { error } = await supabase.from(key).update({ code_name: item.code_name, description: item.description }).eq('id', item.id)
-                  if (!error) { toast.success('บันทึกสำเร็จ'); loadSegments() } else toast.error('เกิดข้อผิดพลาด')
+                  const code = String(item.code_name ?? '').trim()
+                  if (!code) {
+                    toast.error('กรุณากรอก Code')
+                    return false
+                  }
+                  if (duplicateSegmentCodeName(segments[key], code, item.id)) {
+                    toast.error(`รหัสนี้มีอยู่แล้วใน ${key}`)
+                    return false
+                  }
+                  const descTrim = String(item.description ?? '').trim()
+                  const { error } = await supabase.from(key).update({
+                    code_name: code,
+                    description: descTrim === '' ? null : descTrim,
+                  }).eq('id', item.id)
+                  if (!error) {
+                    toast.success('บันทึกสำเร็จ')
+                    await loadSegments()
+                    return
+                  }
+                  toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
+                  return false
                 }}
                 onDelete={async (id) => {
                   const { error } = await supabase.from(key).delete().eq('id', id)
@@ -186,14 +277,49 @@ export function AbcCodePage() {
             )
           }}
           onAdd={async (item) => {
-            const { full_abc: _full, ...payload } = item as Partial<AbcCode>
+            const r = item as Partial<AbcCode>
+            const descTrim = String(r.description ?? '').trim()
+            const payload = {
+              abc_code1: r.abc_code1 ?? null,
+              abc_code2: r.abc_code2 ?? null,
+              abc_code3: r.abc_code3 ?? null,
+              abc_code4: r.abc_code4 ?? null,
+              description: descTrim === '' ? null : descTrim,
+            }
+            if (abcComboDuplicate(combos, payload, segments)) {
+              toast.error('ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว')
+              return false
+            }
             const { error } = await supabase.from('ABC Code').insert(payload)
-            if (!error) { toast.success('เพิ่มสำเร็จ'); loadCombos() } else toast.error('เกิดข้อผิดพลาด')
+            if (!error) {
+              toast.success('เพิ่มสำเร็จ')
+              await loadCombos()
+              return
+            }
+            toast.error(error.code === '23505' ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+            return false
           }}
           onEdit={async (item) => {
-            const { full_abc: _full, ...payload } = item
+            const descTrim = String(item.description ?? '').trim()
+            const payload = {
+              abc_code1: item.abc_code1 ?? null,
+              abc_code2: item.abc_code2 ?? null,
+              abc_code3: item.abc_code3 ?? null,
+              abc_code4: item.abc_code4 ?? null,
+              description: descTrim === '' ? null : descTrim,
+            }
+            if (abcComboDuplicate(combos, payload, segments, item.id)) {
+              toast.error('ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว')
+              return false
+            }
             const { error } = await supabase.from('ABC Code').update(payload).eq('id', item.id)
-            if (!error) { toast.success('บันทึกสำเร็จ'); loadCombos() } else toast.error('เกิดข้อผิดพลาด')
+            if (!error) {
+              toast.success('บันทึกสำเร็จ')
+              await loadCombos()
+              return
+            }
+            toast.error(error.code === '23505' ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+            return false
           }}
           onDelete={async (id) => {
             const { error } = await supabase.from('ABC Code').delete().eq('id', id)

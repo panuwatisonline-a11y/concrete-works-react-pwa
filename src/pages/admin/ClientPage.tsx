@@ -10,6 +10,15 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 
+function clientNameKey(name: string | null | undefined) {
+  return String(name ?? '').trim().toLowerCase()
+}
+
+function duplicateClientWithin(rows: ClientItem[], candidateName: string, excludeId?: number): boolean {
+  const k = clientNameKey(candidateName)
+  return rows.some((r) => r.id !== excludeId && clientNameKey(r.client_name) === k)
+}
+
 export function ClientPage() {
   const [data, setData] = useState<ClientItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -35,14 +44,44 @@ export function ClientPage() {
   useEffect(() => { load() }, [])
   usePullToRefreshOnLoad(load)
 
-  async function onAdd(item: Partial<ClientItem>) {
-    const { error } = await supabase.from('Client').insert({ client_name: item.client_name ?? '' })
-    if (!error) { toast.success('เพิ่มสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+  async function onAdd(item: Partial<ClientItem>): Promise<boolean | void> {
+    const name = String(item.client_name ?? '').trim()
+    if (!name) {
+      toast.error('กรุณากรอกชื่อบริษัท')
+      return false
+    }
+    if (duplicateClientWithin(data, name)) {
+      toast.error('ชื่อบริษัทนี้มีอยู่แล้ว')
+      return false
+    }
+    const { error } = await supabase.from('Client').insert({ client_name: name })
+    if (!error) {
+      toast.success('เพิ่มสำเร็จ')
+      load()
+      return
+    }
+    toast.error(error.code === '23505' ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    return false
   }
 
-  async function onEdit(item: ClientItem) {
-    const { error } = await supabase.from('Client').update({ client_name: item.client_name }).eq('id', item.id)
-    if (!error) { toast.success('บันทึกสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+  async function onEdit(item: ClientItem): Promise<boolean | void> {
+    const name = String(item.client_name ?? '').trim()
+    if (!name) {
+      toast.error('กรุณากรอกชื่อบริษัท')
+      return false
+    }
+    if (duplicateClientWithin(data, name, item.id)) {
+      toast.error('ชื่อบริษัทนี้มีอยู่แล้ว')
+      return false
+    }
+    const { error } = await supabase.from('Client').update({ client_name: name }).eq('id', item.id)
+    if (!error) {
+      toast.success('บันทึกสำเร็จ')
+      load()
+      return
+    }
+    toast.error(error.code === '23505' ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    return false
   }
 
   async function onDelete(id: number) {

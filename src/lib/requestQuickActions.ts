@@ -12,6 +12,7 @@ export type RequestActionModal =
   | 'postpone'
   | 'complete'
   | 'reApprove'
+  | 'uploadBeforeOnly'
 
 export type RequestListActionItem =
   | { key: string; modal: RequestActionModal; label: string; variant: BtnVariant }
@@ -30,14 +31,25 @@ export function getRequestListQuickActions(opts: {
   role: string | null | undefined
   userId: string | undefined
   bookedBy: string | null
+  beforeImage: string | null | undefined
 }): RequestListActionItem[] {
-  const { requestId, statusId: sid, role, userId, bookedBy } = opts
+  const { requestId, statusId: sid, role, userId, bookedBy, beforeImage } = opts
   const isOwner = Boolean(userId && bookedBy === userId)
   const canAct = role === 'admin' || role === 'manager'
   const showPanel =
     canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ((sid === 6 || sid === 7) && isOwner)
+  const missingBeforeImage = !beforeImage?.trim()
 
   const out: RequestListActionItem[] = []
+
+  if (showPanel && sid === 1 && missingBeforeImage && (canAct || isOwner)) {
+    out.push({
+      key: 'uploadBefore',
+      modal: 'uploadBeforeOnly',
+      label: 'อัปโหลดรูปก่อนเท',
+      variant: 'secondary',
+    })
+  }
 
   if (showPanel) {
     if (sid === 1 && canAct) {

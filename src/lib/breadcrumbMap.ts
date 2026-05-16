@@ -5,7 +5,7 @@ export const BREADCRUMB_MAP: Record<string, string> = {
   '/profile': 'โปรไฟล์',
   '/preview': 'ตัวอย่าง',
   '/preview/forms': 'แบบฟอร์ม',
-  '/admin': 'Admin',
+  '/admin': 'Dashboard',
   '/admin/users': 'Users Settings',
   '/admin/client': 'Client',
   '/admin/location': 'Location',

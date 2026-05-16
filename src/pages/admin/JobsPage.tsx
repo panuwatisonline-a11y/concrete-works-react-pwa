@@ -10,6 +10,15 @@ import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Job } from '@/types/app.types'
 
+function jobNameKey(name: string | null | undefined) {
+  return String(name ?? '').trim().toLowerCase()
+}
+
+function duplicateJobWithin(rows: Job[], candidateName: string, excludeId?: number): boolean {
+  const k = jobNameKey(candidateName)
+  return rows.some((r) => r.id !== excludeId && jobNameKey(r.job_name) === k)
+}
+
 export function JobsPage() {
   const [data, setData] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
@@ -38,7 +47,7 @@ export function JobsPage() {
   return (
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>Jobs</h1>
-      <CrudTable
+      <CrudTable<Job>
         title="โครงการ"
         data={filtered}
         loading={loading}
@@ -52,12 +61,42 @@ export function JobsPage() {
           </div>
         )}
         onAdd={async (item) => {
-          const { error } = await supabase.from('Jobs').insert({ job_name: item.job_name ?? '' })
-          if (!error) { toast.success('เพิ่มสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+          const name = String(item.job_name ?? '').trim()
+          if (!name) {
+            toast.error('กรุณากรอกชื่อโครงการ')
+            return false
+          }
+          if (duplicateJobWithin(data, name)) {
+            toast.error('ชื่อโครงการนี้มีอยู่แล้ว')
+            return false
+          }
+          const { error } = await supabase.from('Jobs').insert({ job_name: name })
+          if (!error) {
+            toast.success('เพิ่มสำเร็จ')
+            load()
+            return
+          }
+          toast.error(error.code === '23505' ? 'ชื่อโครงการนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+          return false
         }}
         onEdit={async (item) => {
-          const { error } = await supabase.from('Jobs').update({ job_name: item.job_name }).eq('id', item.id)
-          if (!error) { toast.success('บันทึกสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+          const name = String(item.job_name ?? '').trim()
+          if (!name) {
+            toast.error('กรุณากรอกชื่อโครงการ')
+            return false
+          }
+          if (duplicateJobWithin(data, name, item.id)) {
+            toast.error('ชื่อโครงการนี้มีอยู่แล้ว')
+            return false
+          }
+          const { error } = await supabase.from('Jobs').update({ job_name: name }).eq('id', item.id)
+          if (!error) {
+            toast.success('บันทึกสำเร็จ')
+            load()
+            return
+          }
+          toast.error(error.code === '23505' ? 'ชื่อโครงการนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+          return false
         }}
         onDelete={async (id) => {
           const { error } = await supabase.from('Jobs').delete().eq('id', id)

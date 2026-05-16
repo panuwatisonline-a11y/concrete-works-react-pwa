@@ -1,5 +1,5 @@
 ﻿import { useMemo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, formatVolumeNumber, formatPercentNumber } from '@/lib/utils'
 import type { NamedVolumeSlice, TrendGranularity, TrendPoint } from '@/lib/adminDashboardAnalytics'
 import { formatTrendAxisLabel } from '@/lib/adminDashboardAnalytics'
 
@@ -167,7 +167,7 @@ export function VolumeTrendDualLineChart({
                 <g key={`gy-${v}`}>
                   <line x1={x0} y1={y} x2={x1} y2={y} stroke="#e2e8f0" strokeWidth="1" />
                   <text x={x0 - 8} y={y + 4} textAnchor="end" className="fill-[#94a3b8] text-[11px] font-medium">
-                    {v}
+                    {formatVolumeNumber(v)}
                   </text>
                 </g>
               )
@@ -200,12 +200,12 @@ export function VolumeTrendDualLineChart({
               <g key={p.key}>
                 <circle cx={p.x} cy={p.yr} r="4" fill="white" stroke="#64748b" strokeWidth="2">
                   <title>
-                    Request: {p.requestVol.toFixed(2)} m³ — {formatTrendAxisLabel(p.key, granularity)}
+                    Request: {formatVolumeNumber(p.requestVol)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
                 </circle>
                 <circle cx={p.x} cy={p.yc} r="4" fill="white" stroke="[color:var(--pour-accent)]" strokeWidth="2">
                   <title>
-                    Confirm: {p.confirmVol.toFixed(2)} m³ — {formatTrendAxisLabel(p.key, granularity)}
+                    Confirm: {formatVolumeNumber(p.confirmVol)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
                 </circle>
               </g>
@@ -241,9 +241,9 @@ export function VolumeTrendDualLineChart({
   )
 }
 
-function fmtVol(v: number) {
+function fmtVolSummary(v: number): string {
   if (v >= 1000) return `${(v / 1000).toFixed(2)}k`
-  return v.toFixed(v >= 10 ? 1 : 2)
+  return formatVolumeNumber(v)
 }
 
 export function HorizontalVolumeBarChart({
@@ -293,7 +293,7 @@ export function HorizontalVolumeBarChart({
                   {s.label}
                 </span>
                 <span className="shrink-0 tabular-nums text-[#6b7280]">
-                  {s.volume.toFixed(2)} m³ · {s.pct.toFixed(1)}%
+                  {formatVolumeNumber(s.volume)} m³ · {formatPercentNumber(s.pct)}%
                 </span>
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-[#eef2f7]">
@@ -302,7 +302,7 @@ export function HorizontalVolumeBarChart({
                   style={{ width: `${wPct}%` }}
                 >
                   <span className="sr-only">
-                    {s.label} {s.volume.toFixed(2)} ลูกบาศก์เมตร คิดเป็น {s.pct.toFixed(1)} เปอร์เซ็นต์
+                    {s.label} {formatVolumeNumber(s.volume)} ลูกบาศก์เมตร คิดเป็น {formatPercentNumber(s.pct)} เปอร์เซ็นต์
                   </span>
                 </div>
               </div>
@@ -313,7 +313,7 @@ export function HorizontalVolumeBarChart({
       <div className="border-t border-[#ccf0ed]/80 px-3 py-2 text-[10px] text-[#64748b] md:px-4">
         รวม confirmed volume ทั้งหมดในกราฟนี้:{' '}
         <span className="font-semibold text-[#111827]">
-          {fmtVol(slices.reduce((a, b) => a + b.volume, 0))} m³
+          {fmtVolSummary(slices.reduce((a, b) => a + b.volume, 0))} m³
         </span>
       </div>
     </div>
@@ -379,7 +379,7 @@ export function StatusVolumeStrip({
                 key={id}
                 style={{ width: `${pct}%`, backgroundColor: colors[id] ?? '#64748b' }}
                 className="min-w-0 transition-[width] duration-300 first:rounded-l-full last:rounded-r-full"
-                title={`${name}: ${c} (${pct.toFixed(1)}%)`}
+                title={`${name}: ${c} (${formatPercentNumber(pct)}%)`}
               />
             )
           })}
@@ -401,7 +401,7 @@ export function StatusVolumeStrip({
                   </span>
                 </span>
                 <span className="shrink-0 tabular-nums text-[#6b7280]">
-                  {c} ({pct.toFixed(0)}%)
+                  {c} ({formatPercentNumber(pct)}%)
                 </span>
               </li>
             )

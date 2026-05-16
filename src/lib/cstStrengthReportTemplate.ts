@@ -82,7 +82,7 @@ function formatStrength(req: RequestWithRelations): string {
 function formatVolume(req: RequestWithRelations): string {
   const v = req.volume_actual ?? req.volume_request
   if (v == null || Number.isNaN(v)) return ''
-  return String(v)
+  return v.toFixed(2)
 }
 
 function profileDisplayName(p: Profile | undefined): string {

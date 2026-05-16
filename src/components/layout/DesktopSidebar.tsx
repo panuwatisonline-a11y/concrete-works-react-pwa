@@ -102,7 +102,7 @@ export function DesktopSidebar() {
       </NavLink>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
-        <p className={cn(theme.navSectionLabel, 'mb-3 px-3 tracking-[0.15em]')}>เมนู</p>
+        <p className={cn(theme.navSectionLabel, 'mb-3 px-3 tracking-[0.15em]')}>MENU</p>
         <nav aria-label="เมนูหลัก" className="flex flex-col gap-1">
           <NavLink
             key={homeMainLink.to}

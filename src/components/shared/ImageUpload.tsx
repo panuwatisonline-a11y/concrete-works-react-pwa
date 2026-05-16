@@ -50,6 +50,8 @@ function invokeUploadDriveImageWithProgress(
 interface ImageUploadProps {
   value?: string
   onChange: (url: string | null) => void
+  /** เรียกเมื่อเข้า/ออกช่วงอัปโหลด (ใช้กับปุ่มส่งฟอร์ม: ระหว่างอัปโหลดยังไม่มี URL — ควรปิดการกด) */
+  onUploadingChange?: (uploading: boolean) => void
   bucket?: string
   folder?: string
   label?: string
@@ -59,6 +61,7 @@ interface ImageUploadProps {
 export function ImageUpload({
   value,
   onChange,
+  onUploadingChange,
   folder = 'uploads',
   label = 'อัปโหลดรูป',
   disabled = false,
@@ -68,6 +71,14 @@ export function ImageUpload({
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadPercent, setUploadPercent] = useState(0)
+
+  useEffect(() => {
+    onUploadingChange?.(uploading)
+  }, [uploading, onUploadingChange])
+
+  useEffect(() => {
+    return () => onUploadingChange?.(false)
+  }, [onUploadingChange])
 
   function setLocalPreviewFromFile(file: File) {
     if (previewObjectUrlRef.current) {
@@ -111,7 +122,12 @@ export function ImageUpload({
       toast.error('ยังไม่ได้ตั้งค่า Supabase')
       return
     }
+    const trimmedValue = typeof value === 'string' ? value.trim() : ''
+    const previousUrl = trimmedValue !== '' ? trimmedValue : null
+
     setLocalPreviewFromFile(file)
+    /** ล้าง URL ที่บันทึกไว้ทันที จนได้ URL จากรอบอัปโหลดนี้คืนมา — ป้องกันส่งฟอร์มด้วยลิงก์เก่าระหว่างอัปโหลด */
+    onChange(null)
     setUploading(true)
     setUploadPercent(0)
     try {
@@ -119,6 +135,7 @@ export function ImageUpload({
       if (!session) {
         toast.error('กรุณาเข้าสู่ระบบก่อนอัปโหลดรูป')
         clearLocalPreview()
+        if (previousUrl) onChange(previousUrl)
         return
       }
 
@@ -134,6 +151,7 @@ export function ImageUpload({
       if (!result.ok) {
         toast.error(result.message)
         clearLocalPreview()
+        if (previousUrl) onChange(previousUrl)
         return
       }
       onChange(result.url)

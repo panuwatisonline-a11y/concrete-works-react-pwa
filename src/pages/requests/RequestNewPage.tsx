@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { formatDate, cn } from '@/lib/utils'
+import { formatDate, cn, formatVolumeCuM } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { APP_HOME } from '@/lib/appHome'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
@@ -70,6 +70,7 @@ export function RequestNewPage() {
   const [submitting, setSubmitting] = useState(false)
   const submitLockRef = useRef(false)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
+  const [beforeImageUploading, setBeforeImageUploading] = useState(false)
 
   const { control, register, handleSubmit, watch, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -406,7 +407,12 @@ export function RequestNewPage() {
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label>รูปก่อนเท</Label>
-          <ImageUpload value={beforeImage ?? undefined} onChange={(url) => setBeforeImage(url)} folder="before" />
+          <ImageUpload
+            value={beforeImage ?? undefined}
+            onChange={(url) => setBeforeImage(url)}
+            onUploadingChange={setBeforeImageUploading}
+            folder="before"
+          />
         </div>
 
         <Card className={rq.cardMuted}>
@@ -421,7 +427,7 @@ export function RequestNewPage() {
               ['วันเท', formatDate(vals.casting_date)],
               ['เวลา', vals.request_time],
               ['Mixcode', mixcode?.mixcode],
-              ['Request Volume (cu.m)', vals.volume_request ? `${vals.volume_request} cu.m` : '-'],
+              ['Request Volume (cu.m)', formatVolumeCuM(vals.volume_request)],
             ].map(([label, value]) => (
               <div key={label} className="flex gap-2">
                 <span className={cn('w-24 shrink-0', rq.label)}>{label}</span>
@@ -493,7 +499,7 @@ export function RequestNewPage() {
                 <Button
                   type="button"
                   className="rounded-xl shadow-md shadow-teal-500/20"
-                  disabled={submitting}
+                  disabled={submitting || beforeImageUploading}
                   onClick={() => { void handleSubmit(onSubmit)() }}
                 >
                   {submitting ? 'กำลังส่ง...' : 'ยืนยันการขอ'}

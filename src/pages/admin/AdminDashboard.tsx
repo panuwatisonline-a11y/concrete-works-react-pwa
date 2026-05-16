@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { formatDate, cn } from '@/lib/utils'
+import { formatDate, cn, formatVolumeNumber, formatPercentNumber } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { STATUS_LABELS } from '@/types/app.types'
 import { app, layout, rq, theme } from '@/lib/requestUi'
@@ -110,9 +110,9 @@ export function AdminDashboard() {
 
   const lossPctLabel =
     totals.lossPctOfDwg != null
-      ? `${totals.lossPctOfDwg.toFixed(1)}% ของ DWG volume`
+      ? `${formatPercentNumber(totals.lossPctOfDwg)}% ของ DWG volume`
       : totals.lossPctOfConfirm != null
-        ? `${totals.lossPctOfConfirm.toFixed(1)}% ของ Confirm volume`
+        ? `${formatPercentNumber(totals.lossPctOfConfirm)}% ของ Confirm volume`
         : '—'
 
   return (
@@ -124,7 +124,7 @@ export function AdminDashboard() {
           app.pageAdminTitle,
         )}
       >
-        Admin Dashboard
+        Dashboard
       </h1>
 
       <section
@@ -241,7 +241,7 @@ export function AdminDashboard() {
                 Request volume (m³)
               </p>
               <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
-                {loading ? '—' : totals.request.toFixed(1)}
+                {loading ? '—' : formatVolumeNumber(totals.request)}
               </p>
             </CardContent>
           </Card>
@@ -252,7 +252,7 @@ export function AdminDashboard() {
                 DWG volume (m³)
               </p>
               <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
-                {loading ? '—' : totals.dwg.toFixed(1)}
+                {loading ? '—' : formatVolumeNumber(totals.dwg)}
               </p>
             </CardContent>
           </Card>
@@ -263,7 +263,7 @@ export function AdminDashboard() {
                 Confirm volume (m³)
               </p>
               <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
-                {loading ? '—' : totals.confirm.toFixed(1)}
+                {loading ? '—' : formatVolumeNumber(totals.confirm)}
               </p>
             </CardContent>
           </Card>
@@ -274,7 +274,7 @@ export function AdminDashboard() {
                 Loss concrete (Confirm − DWG)
               </p>
               <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
-                {loading ? '—' : `${totals.loss.toFixed(1)} m³`}
+                {loading ? '—' : `${formatVolumeNumber(totals.loss)} m³`}
               </p>
               {!loading ? (
                 <p className="mt-1 text-[10px] leading-snug text-[#64748b] md:text-xs">{lossPctLabel}</p>

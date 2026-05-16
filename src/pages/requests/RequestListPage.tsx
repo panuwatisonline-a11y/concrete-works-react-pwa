@@ -9,7 +9,7 @@ import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistrati
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { formatDate, formatDateTime, formatTime, cn } from '@/lib/utils'
+import { formatDate, formatDateTime, formatTime, cn, formatVolumeNumber } from '@/lib/utils'
 import { collectRequestIdsMatchingSearch } from '@/lib/requestListSearch'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import {
@@ -20,9 +20,21 @@ import { getRequestListQuickActions } from '@/lib/requestQuickActions'
 import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklistPrint'
 import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
+import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
 import {
   Plus,
-  Building2, MapPin, Droplets, Ruler, FileText, Layers, GitBranch, Beaker, Calendar,
+  Building2,
+  MapPin,
+  Droplets,
+  Ruler,
+  FileText,
+  Layers,
+  GitBranch,
+  Beaker,
+  Calendar,
+  Landmark,
+  Hash,
+  ChevronDown,
 } from 'lucide-react'
 import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
@@ -30,6 +42,147 @@ import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 
 const PAGE_SIZE = 20
+
+type RequestFeedSection = {
+  dateKey: string
+  heading: string
+  items: RequestWithRelations[]
+  staggerStart: number
+}
+
+/** คีย์ yyyy-mm-dd สำหรับจัดกลุ่มตามวันเท */
+function castingDateKey(r: RequestWithRelations): string | null {
+  const raw = r.casting_date?.trim()
+  if (!raw) return null
+  return raw.length >= 10 ? raw.slice(0, 10) : raw
+}
+
+/** วันเทใหม่สุดก่อน ภายในวันเดียวกันเรียงตามเวลาที่จอง (booked_at) จากเก่าไปใหม่ */
+function compareRequestsForGroupedFeed(a: RequestWithRelations, b: RequestWithRelations): number {
+  const ka = castingDateKey(a)
+  const kb = castingDateKey(b)
+  if (ka !== kb) {
+    if (!ka && !kb) return (a.booked_at ?? '').localeCompare(b.booked_at ?? '')
+    if (!ka) return 1
+    if (!kb) return -1
+    return kb.localeCompare(ka)
+  }
+  return (a.booked_at ?? '').localeCompare(b.booked_at ?? '')
+}
+
+function buildGroupedRequestSections(requests: RequestWithRelations[]): RequestFeedSection[] {
+  const sorted = [...requests].sort(compareRequestsForGroupedFeed)
+  const chunks: Omit<RequestFeedSection, 'staggerStart'>[] = []
+  for (const r of sorted) {
+    const dk = castingDateKey(r) ?? '__none'
+    const heading = dk === '__none' ? 'ไม่ระบุวันเท' : `วันเท ${formatDate(`${dk}T12:00:00`)}`
+    const last = chunks[chunks.length - 1]
+    if (!last || last.dateKey !== dk) {
+      chunks.push({ dateKey: dk, heading, items: [r] })
+    } else {
+      last.items.push(r)
+    }
+  }
+  let start = 0
+  return chunks.map((s) => {
+    const row: RequestFeedSection = { ...s, staggerStart: start }
+    start += s.items.length
+    return row
+  })
+}
+
+function RequestGroupedFeedBody({
+  sections,
+  onRequestUpdated,
+}: {
+  sections: RequestFeedSection[]
+  onRequestUpdated?: () => void
+}) {
+  const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
+
+  useEffect(() => {
+    if (sections.length === 0) return
+    const valid = new Set(sections.map((s) => s.dateKey))
+    const firstKey = sections[0].dateKey
+    setOpenMap((prev) => {
+      const next: Record<string, boolean> = { ...prev }
+      for (const k of Object.keys(next)) {
+        if (!valid.has(k)) delete next[k]
+      }
+      for (const s of sections) {
+        if (next[s.dateKey] === undefined) {
+          next[s.dateKey] = s.dateKey === firstKey
+        }
+      }
+      return next
+    })
+  }, [sections])
+
+  return (
+    <div className="space-y-3">
+      {sections.map((section) => {
+        const isOpen = openMap[section.dateKey] ?? false
+        const headingId = `feed-section-h-${section.dateKey}`
+        const panelId = `feed-section-p-${section.dateKey}`
+        return (
+          <section
+            key={section.dateKey}
+            className="overflow-hidden rounded-[14px] border border-[color:var(--glass-border-subtle)] bg-[color:color-mix(in_srgb,var(--glass-bg)_92%,transparent)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-md"
+            aria-label={section.heading}
+          >
+            <button
+              type="button"
+              id={headingId}
+              className={cn(
+                'pour-interactive flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[color:var(--pour-accent-muted)]/35',
+              )}
+              aria-expanded={isOpen}
+              aria-controls={panelId}
+              onClick={() =>
+                setOpenMap((m) => ({
+                  ...m,
+                  [section.dateKey]: !isOpen,
+                }))
+              }
+            >
+              <ChevronDown
+                className={cn(
+                  icon.sm,
+                  'shrink-0 text-pour-subtle transition-transform duration-200',
+                  isOpen && 'rotate-180',
+                )}
+                strokeWidth={ICON_STROKE}
+                aria-hidden
+              />
+              <span className={cn('min-w-0 flex-1 font-semibold leading-snug text-[color:var(--pour-ink-0)]')}>
+                {section.heading}
+              </span>
+              <span className={cn('shrink-0 tabular-nums text-xs font-medium text-pour-muted')}>
+                {section.items.length} รายการ
+              </span>
+            </button>
+            {isOpen ? (
+              <div
+                id={panelId}
+                role="region"
+                aria-labelledby={headingId}
+                className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-3 pt-3 sm:px-4"
+              >
+                <div className="space-y-3.5">
+                  {section.items.map((r, i) => (
+                    <StaggerItem key={r.id} index={section.staggerStart + i}>
+                      <RequestFeedCard r={r} onRequestUpdated={onRequestUpdated} />
+                    </StaggerItem>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </section>
+        )
+      })}
+    </div>
+  )
+}
 
 function FeedDetailRow({
   icon: Icon,
@@ -52,9 +205,16 @@ function FeedDetailRow({
   )
 }
 
-function RequestFeedCard({ r }: { r: RequestWithRelations }) {
+function RequestFeedCard({
+  r,
+  onRequestUpdated,
+}: {
+  r: RequestWithRelations
+  onRequestUpdated?: () => void
+}) {
   const [thumbFailed, setThumbFailed] = useState(false)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [workflowModal, setWorkflowModal] = useState<string | null>(null)
   const rawThumb = r.after_image?.trim() || r.before_image?.trim() || null
   const thumbUrl = imageSrcForImgTag(rawThumb, 'card')
   useEffect(() => {
@@ -68,10 +228,14 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
     role,
     userId: user?.id,
     bookedBy: r.booked_by ?? null,
+    beforeImage: r.before_image,
   })
 
-  const structure = (r.structure as { structure_name: string } | null)?.structure_name ?? '-'
-  const initial = structure.trim().slice(0, 1).toUpperCase() || '?'
+  const structureNameRaw = (r.structure as { structure_name: string } | null)?.structure_name?.trim() ?? ''
+  const structure = structureNameRaw || '-'
+  const structureDetailName = structureNameRaw || null
+  const structureNoDetail = r.structure_no?.trim() || null
+  const initial = (structureNameRaw || structureNoDetail || '?').slice(0, 1).toUpperCase()
   const client = (r.client as { client_name: string } | null)?.client_name
   const loc = r.location as { full_location: string | null; location1: string } | null
   const locationLine = loc?.full_location ?? loc?.location1 ?? null
@@ -90,12 +254,14 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
   const bookerDisplay = [bookerName || null, bookerEmp].filter(Boolean).join(' · ') || 'ไม่ระบุ'
   const isMyBooking = Boolean(user?.id && r.booked_by === user.id)
 
-  const volumeParts = [
-    r.volume_request != null ? `Request vol. ${r.volume_request} cu.m` : null,
-    r.volume_dwg != null ? `DWG ${r.volume_dwg} cu.m` : null,
-    r.volume_actual != null ? `Actual ${r.volume_actual} cu.m` : null,
-  ].filter(Boolean)
-  const volumeLine = volumeParts.length > 0 ? volumeParts.join(' · ') : null
+  const volumeFeed =
+    r.volume_confirm != null
+      ? { label: 'Confirm volume (cu.m)', value: `${formatVolumeNumber(r.volume_confirm)} cu.m` }
+      : r.volume_actual != null
+        ? { label: 'Actual volume (cu.m)', value: `${formatVolumeNumber(r.volume_actual)} cu.m` }
+        : r.volume_request != null
+          ? { label: 'Request volume (cu.m)', value: `${formatVolumeNumber(r.volume_request)} cu.m` }
+          : null
 
   const castingLine = [formatDate(r.casting_date), formatTime(r.request_time)].filter((x) => x && x !== '-').join(' ')
 
@@ -148,7 +314,9 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
                 <div className="min-w-0">
                   <p className={cn(type.bodyStrong, 'leading-tight')}>
                     {structure}
-                    {r.structure_no ? <span className={cn(type.caption, 'font-normal')}> · {r.structure_no}</span> : null}
+                    {structureNoDetail ? (
+                      <span className={cn(type.caption, 'font-normal')}> · {structureNoDetail}</span>
+                    ) : null}
                   </p>
                   {r.booked_at ? (
                     <p className={cn('mt-0.5 md:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
@@ -174,9 +342,13 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
             <FeedDetailRow icon={Building2} label="Client" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
+            <FeedDetailRow icon={Landmark} label="Structure" value={structureDetailName} />
+            <FeedDetailRow icon={Hash} label="Structure No." value={structureNoDetail} />
             <FeedDetailRow icon={Calendar} label="วันเท / เวลา" value={castingLine || null} />
-            <FeedDetailRow icon={Droplets} label="Mix" value={mixLine} />
-            <FeedDetailRow icon={Ruler} label="Volume (cu.m)" value={volumeLine} />
+            <FeedDetailRow icon={Droplets} label="Mix Code" value={mixLine} />
+            {volumeFeed ? (
+              <FeedDetailRow icon={Ruler} label={volumeFeed.label} value={volumeFeed.value} />
+            ) : null}
             {r.sample_qty != null && (
               <FeedDetailRow icon={Beaker} label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
             )}
@@ -215,11 +387,20 @@ function RequestFeedCard({ r }: { r: RequestWithRelations }) {
               }
               return
             }
-            navigate(`/requests/${r.id}`, { state: { initialModal: a.modal } })
+            setWorkflowModal(a.modal)
           }}
         />
       ) : null}
     </div>
+
+      <RequestWorkflowModals
+        request={r}
+        modal={workflowModal}
+        onClose={() => setWorkflowModal(null)}
+        onCompleted={() => {
+          void onRequestUpdated?.()
+        }}
+      />
 
       <Dialog open={lightboxSrc != null} onOpenChange={(open) => { if (!open) setLightboxSrc(null) }}>
         <DialogContent
@@ -342,7 +523,10 @@ export function RequestListPage() {
       if (filter.casting_date_to) query = query.lte('casting_date', filter.casting_date_to)
       if (searchIds !== null) query = query.in('id', searchIds)
 
-      query = query.order('booked_at', { ascending: false }).range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
+      query = query
+        .order('casting_date', { ascending: false, nullsFirst: false })
+        .order('booked_at', { ascending: true })
+        .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
 
       const { data, count, error } = await query
       if (error) {
@@ -442,6 +626,8 @@ export function RequestListPage() {
     [statusCounts],
   )
 
+  const feedSections = useMemo(() => buildGroupedRequestSections(requests), [requests])
+
   /** Same card feed as mobile — desktop shows these cards instead of the old table. */
   const listBlock = (
     <>
@@ -455,11 +641,10 @@ export function RequestListPage() {
             ไม่พบรายการ
           </p>
         ) : (
-          requests.map((r, i) => (
-            <StaggerItem key={r.id} index={i}>
-              <RequestFeedCard r={r} />
-            </StaggerItem>
-          ))
+          <RequestGroupedFeedBody
+            sections={feedSections}
+            onRequestUpdated={() => void fetchRequests({ background: true })}
+          />
         )}
       </div>
 
@@ -485,11 +670,10 @@ export function RequestListPage() {
             ไม่พบรายการ
           </p>
         ) : (
-          requests.map((r, i) => (
-            <StaggerItem key={r.id} index={i}>
-              <RequestFeedCard r={r} />
-            </StaggerItem>
-          ))
+          <RequestGroupedFeedBody
+            sections={feedSections}
+            onRequestUpdated={() => void fetchRequests({ background: true })}
+          />
         )}
       </div>
 

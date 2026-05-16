@@ -10,6 +10,19 @@ import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Structure } from '@/types/app.types'
 
+function structureNameKey(name: string | null | undefined) {
+  return String(name ?? '').trim().toLowerCase()
+}
+
+function duplicateStructureWithin(
+  rows: Structure[],
+  candidateName: string,
+  excludeId?: number,
+): boolean {
+  const k = structureNameKey(candidateName)
+  return rows.some((r) => r.id !== excludeId && structureNameKey(r.structure_name) === k)
+}
+
 export function StructurePage() {
   const [data, setData] = useState<Structure[]>([])
   const [loading, setLoading] = useState(true)
@@ -36,13 +49,43 @@ export function StructurePage() {
   usePullToRefreshOnLoad(load)
 
   async function onAdd(item: Partial<Structure>) {
-    const { error } = await supabase.from('Structure').insert({ structure_name: item.structure_name ?? '' })
-    if (!error) { toast.success('เพิ่มสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+    const name = String(item.structure_name ?? '').trim()
+    if (!name) {
+      toast.error('กรุณากรอกชื่อโครงสร้าง')
+      return false
+    }
+    if (duplicateStructureWithin(data, name)) {
+      toast.error('ชื่อโครงสร้างนี้มีอยู่แล้ว')
+      return false
+    }
+    const { error } = await supabase.from('Structure').insert({ structure_name: name })
+    if (!error) {
+      toast.success('เพิ่มสำเร็จ')
+      load()
+      return
+    }
+    toast.error(error.code === '23505' ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    return false
   }
 
   async function onEdit(item: Structure) {
-    const { error } = await supabase.from('Structure').update({ structure_name: item.structure_name }).eq('id', item.id)
-    if (!error) { toast.success('บันทึกสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+    const name = String(item.structure_name ?? '').trim()
+    if (!name) {
+      toast.error('กรุณากรอกชื่อโครงสร้าง')
+      return false
+    }
+    if (duplicateStructureWithin(data, name, item.id)) {
+      toast.error('ชื่อโครงสร้างนี้มีอยู่แล้ว')
+      return false
+    }
+    const { error } = await supabase.from('Structure').update({ structure_name: name }).eq('id', item.id)
+    if (!error) {
+      toast.success('บันทึกสำเร็จ')
+      load()
+      return
+    }
+    toast.error(error.code === '23505' ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    return false
   }
 
   async function onDelete(id: number) {

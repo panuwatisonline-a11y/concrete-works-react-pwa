@@ -33,13 +33,27 @@ const STATUS_BADGE: Record<UserStatus, { label: string; className: string }> = {
 /** Radix Select.Item cannot use value=""; reserve empty selection for placeholder UX. */
 const SELECT_NONE = '__none__'
 
+/** Only this login may modify profiles whose role is admin (client-side guard; mirror in RLS if needed). */
+const PROFILE_SUPER_ADMIN_EMAIL = 'panuwat.isonline@gmail.com'
+
+function normalizeEmail(email: string | undefined | null): string {
+  return (email ?? '').trim().toLowerCase()
+}
+
+function canModifyAdminTarget(actorEmail: string | undefined | null, target: Profile): boolean {
+  if (target.role !== 'admin') return true
+  return normalizeEmail(actorEmail) === normalizeEmail(PROFILE_SUPER_ADMIN_EMAIL)
+}
+
 export function UsersPage() {
   const { clients, jobs } = useMasterDataStore()
   const currentProfileId = useAuthStore((s) => s.profile?.id)
+  const actorEmail = useAuthStore((s) => s.user?.email)
   const [users, setUsers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [editUser, setEditUser] = useState<Profile | null>(null)
   const [draftRole, setDraftRole] = useState<UserRole>('user')
+  const [draftStatus, setDraftStatus] = useState<UserStatus>('pending')
   const [draftClient, setDraftClient] = useState(SELECT_NONE)
   const [draftJob, setDraftJob] = useState(SELECT_NONE)
   const [saving, setSaving] = useState(false)
@@ -70,6 +84,7 @@ export function UsersPage() {
   useEffect(() => {
     if (!editUser) return
     setDraftRole(editUser.role)
+    setDraftStatus(editUser.status)
     setDraftClient(editUser.client_id != null ? String(editUser.client_id) : SELECT_NONE)
     setDraftJob(editUser.job_id != null ? String(editUser.job_id) : SELECT_NONE)
   }, [editUser])
@@ -86,10 +101,17 @@ export function UsersPage() {
   }
 
   async function setStatus(userId: string, status: UserStatus) {
+    const target = users.find((u) => u.id === userId)
+    if (target && !canModifyAdminTarget(actorEmail, target)) {
+      toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
+      return
+    }
     const { error } = await supabase.from('profiles').update({ status }).eq('id', userId)
     if (error) { toast.error('บันทึกไม่สำเร็จ'); return }
     setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, status } : u))
-    toast.success(status === 'approved' ? 'อนุมัติแล้ว' : 'ปฏิเสธแล้ว')
+    toast.success(
+      status === 'approved' ? 'อนุมัติแล้ว' : status === 'rejected' ? 'ปฏิเสธแล้ว' : 'ตั้งเป็นรออนุมัติ',
+    )
   }
 
   const pendingCount = users.filter((u) => u.status === 'pending').length
@@ -108,6 +130,10 @@ export function UsersPage() {
 
   async function saveEdit() {
     if (!editUser) return
+    if (!canModifyAdminTarget(actorEmail, editUser)) {
+      toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
+      return
+    }
     const cid = draftClient === SELECT_NONE ? null : Number.parseInt(draftClient, 10)
     const jid = draftJob === SELECT_NONE ? null : Number.parseInt(draftJob, 10)
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
@@ -116,6 +142,7 @@ export function UsersPage() {
       .from('profiles')
       .update({
         role: draftRole,
+        status: draftStatus,
         client_id: cid,
         client_name: client?.client_name ?? null,
         job_id: jid,
@@ -129,7 +156,7 @@ export function UsersPage() {
     setUsers((prev) =>
       prev.map((u) =>
         u.id === editUser.id
-          ? { ...u, role: draftRole, client_id: cid, client_name: client?.client_name ?? null, job_id: jid }
+          ? { ...u, role: draftRole, status: draftStatus, client_id: cid, client_name: client?.client_name ?? null, job_id: jid }
           : u,
       ),
     )
@@ -139,6 +166,12 @@ export function UsersPage() {
 
   async function confirmDelete() {
     if (deleteUserId === null) return
+    const target = users.find((u) => u.id === deleteUserId)
+    if (target && !canModifyAdminTarget(actorEmail, target)) {
+      toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
+      setDeleteUserId(null)
+      return
+    }
     const { error } = await supabase.from('profiles').delete().eq('id', deleteUserId)
     if (error) {
       toast.error(error.message || 'ลบไม่สำเร็จ (อาจมีข้อมูลเชื่อมโยงหรือสิทธิ์ไม่เพียงพอ)')
@@ -184,7 +217,9 @@ export function UsersPage() {
             {users.length === 0 ? 'ไม่มีผู้ใช้' : 'ไม่พบผู้ใช้ที่ตรงกับคำค้น'}
           </div>
         ) : (
-          filteredUsers.map((u) => (
+          filteredUsers.map((u) => {
+            const allowManage = canModifyAdminTarget(actorEmail, u)
+            return (
             <div key={u.id} className={rq.dataRowCard}>
               <dl className="space-y-1.5">
                 <div>
@@ -222,7 +257,7 @@ export function UsersPage() {
                 </div>
               </dl>
               <div className={rq.dataRowActions}>
-                {u.status === 'pending' && (
+                {allowManage && u.status === 'pending' && (
                   <>
                     <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                       <CheckCircle className="h-3.5 w-3.5" />
@@ -232,22 +267,30 @@ export function UsersPage() {
                     </Button>
                   </>
                 )}
-                {u.status === 'rejected' && (
+                {allowManage && u.status === 'approved' && (
+                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                    <XCircle className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {allowManage && u.status === 'rejected' && (
                   <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                     <CheckCircle className="h-3.5 w-3.5" />
                   </Button>
                 )}
-                <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                  <Edit className="h-3.5 w-3.5" />
-                </Button>
-                {u.id !== currentProfileId && (
+                {allowManage && (
+                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                    <Edit className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                {allowManage && u.id !== currentProfileId && (
                   <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
                     <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                   </Button>
                 )}
               </div>
             </div>
-          ))
+            )
+          })
         )}
       </div>
 
@@ -274,7 +317,9 @@ export function UsersPage() {
                 </td>
               </tr>
             ) : (
-              filteredUsers.map((u) => (
+              filteredUsers.map((u) => {
+                const allowManage = canModifyAdminTarget(actorEmail, u)
+                return (
                 <tr key={u.id}>
                   <td className="min-w-0 break-words px-3 py-2 font-mono text-xs">{u.employee_id ?? '-'}</td>
                   <td className="min-w-0 break-words px-3 py-2">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
@@ -297,7 +342,7 @@ export function UsersPage() {
                   <td className="min-w-0 whitespace-nowrap text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
                   <td className="shrink-0 whitespace-nowrap">
                     <div className="flex gap-0.5">
-                      {u.status === 'pending' && (
+                      {allowManage && u.status === 'pending' && (
                         <>
                           <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                             <CheckCircle className="h-4 w-4" />
@@ -307,15 +352,22 @@ export function UsersPage() {
                           </Button>
                         </>
                       )}
-                      {u.status === 'rejected' && (
+                      {allowManage && u.status === 'approved' && (
+                        <Button type="button" size="icon" variant="ghost" className="rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {allowManage && u.status === 'rejected' && (
                         <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                           <CheckCircle className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {u.id !== currentProfileId && (
+                      {allowManage && (
+                        <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {allowManage && u.id !== currentProfileId && (
                         <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
                           <Trash2 className="h-4 w-4 text-[#9ca3af]" />
                         </Button>
@@ -323,7 +375,8 @@ export function UsersPage() {
                     </div>
                   </td>
                 </tr>
-              ))
+                )
+              })
             )}
           </tbody>
         </table>
@@ -344,6 +397,21 @@ export function UsersPage() {
               <p className="break-words text-sm leading-snug text-[#6b7280]">
                 {[editUser.fname, editUser.lname].filter(Boolean).join(' ') || editUser.employee_id || editUser.id}
               </p>
+              <div>
+                <p className={cn(rq.dataRowLabel, 'mb-1.5')}>สถานะการอนุมัติ</p>
+                <Select value={draftStatus} onValueChange={(v) => setDraftStatus(v as UserStatus)}>
+                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
+                    {(['pending', 'approved', 'rejected'] as const).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {STATUS_BADGE[s].label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Role</p>
                 <Select value={draftRole} onValueChange={(v) => setDraftRole(v as UserRole)}>

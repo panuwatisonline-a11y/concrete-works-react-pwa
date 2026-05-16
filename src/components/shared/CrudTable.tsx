@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from 'react'
+﻿import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
@@ -12,6 +12,13 @@ export interface Column<T> {
   render?: (row: T) => ReactNode
 }
 
+export interface CrudTableGroupBy<T> {
+  groupKey: (row: T) => string
+  /** เรียงลำดับกลุ่ม (สตริงคีย์จาก `groupKey`) — ว่างควรไปท้าย */
+  compareGroups?: (groupKeyA: string, groupKeyB: string) => number
+  renderGroupHeading: (groupKey: string, rowCountInGroup: number) => ReactNode
+}
+
 interface CrudTableProps<T extends { id: number }> {
   title: string
   data: T[]
@@ -21,13 +28,17 @@ interface CrudTableProps<T extends { id: number }> {
     formData: Partial<T>,
     onChange: (key: keyof T, value: unknown) => void,
   ) => ReactNode
-  onAdd: (item: Partial<T>) => Promise<void>
-  onEdit: (item: T) => Promise<void>
+  onAdd: (item: Partial<T>) => Promise<void | boolean>
+  onEdit: (item: T) => Promise<void | boolean>
   onDelete: (id: number) => Promise<void>
   canDelete?: (item: T) => boolean
   loading?: boolean
   /** ใช้ใน accordion — ไม่แสดงหัวข้อซ้ำ มีแค่ปุ่มเพิ่ม */
   embedded?: boolean
+  /** เมื่อกำหนด จัดกลุ่มแถวในตารางเดสก์ท็อปและการ์ดมือถือตามผลจาก `groupKey` */
+  groupBy?: CrudTableGroupBy<T>
+  /** เรียงแถวภายในกลุ่มเดียวกัน (ใช้หลัง `compareGroups`) */
+  sortWithinGroup?: (a: T, b: T) => number
 }
 
 function renderCell<T>(col: Column<T>, row: T) {
@@ -45,6 +56,8 @@ export function CrudTable<T extends { id: number }>({
   canDelete,
   loading,
   embedded = false,
+  groupBy,
+  sortWithinGroup,
 }: CrudTableProps<T>) {
   const [modalOpen, setModalOpen] = useState(false)
   const [editItem, setEditItem] = useState<T | null>(null)
@@ -67,12 +80,17 @@ export function CrudTable<T extends { id: number }>({
     setFormData((prev) => ({ ...prev, [key]: value }))
   }
 
+  /** ถ้าคืนค่า `false` จะไม่ปิดโมดัล (เช่น validation fail) — อย่างอื่นรวม `undefined`: ปิดหลังรันสำเร็จ */
   async function handleSave() {
     setSaving(true)
-    if (editItem) await onEdit({ ...editItem, ...formData } as T)
-    else await onAdd(formData)
-    setSaving(false)
-    setModalOpen(false)
+    try {
+      const result = editItem
+        ? await onEdit({ ...editItem, ...formData } as T)
+        : await onAdd(formData)
+      if (result !== false) setModalOpen(false)
+    } finally {
+      setSaving(false)
+    }
   }
 
   async function handleDelete() {
@@ -84,6 +102,42 @@ export function CrudTable<T extends { id: number }>({
   const emptyState = (
     <div className={rq.dataRowEmpty}>{loading ? 'กำลังโหลด…' : 'ไม่มีข้อมูล'}</div>
   )
+
+  const displayRows = useMemo(() => {
+    const rows = [...data]
+    if (!groupBy) return rows
+    const cg =
+      groupBy.compareGroups ??
+      ((a: string, b: string) => {
+        const ta = a.trim()
+        const tb = b.trim()
+        const ea = ta === ''
+        const eb = tb === ''
+        if (ea && eb) return 0
+        if (ea) return 1
+        if (eb) return -1
+        return ta.localeCompare(tb, 'th')
+      })
+    rows.sort((a, b) => {
+      const ka = groupBy.groupKey(a)
+      const kb = groupBy.groupKey(b)
+      const g = cg(ka, kb)
+      if (g !== 0) return g
+      if (sortWithinGroup) return sortWithinGroup(a, b)
+      return a.id - b.id
+    })
+    return rows
+  }, [data, groupBy, sortWithinGroup])
+
+  const groupRowCounts = useMemo(() => {
+    if (!groupBy) return new Map<string, number>()
+    const m = new Map<string, number>()
+    for (const row of displayRows) {
+      const k = groupBy.groupKey(row)
+      m.set(k, (m.get(k) ?? 0) + 1)
+    }
+    return m
+  }, [displayRows, groupBy])
 
   return (
     <div className="space-y-4">
@@ -105,31 +159,49 @@ export function CrudTable<T extends { id: number }>({
       )}
 
       <div className={app.mobileCardStack}>
-        {loading || data.length === 0 ? (
+        {loading || displayRows.length === 0 ? (
           emptyState
         ) : (
-          data.map((row) => (
-            <div key={row.id} className={rq.dataRowCard}>
-              <dl className={rq.dataRowFields}>
-                {columns.map((col) => (
-                  <div key={String(col.key)}>
-                    <dt className={rq.dataRowLabel}>{col.label}</dt>
-                    <dd className={cn(rq.dataRowValue, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
+          displayRows.map((row, i) => {
+            const showGroup =
+              groupBy &&
+              (i === 0 || groupBy.groupKey(displayRows[i - 1]!) !== groupBy.groupKey(row))
+            const gKey = groupBy?.groupKey(row) ?? ''
+            return (
+              <Fragment key={row.id}>
+                {showGroup ? (
+                  <div
+                    className={cn(
+                      'rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-4 py-2 text-[color:var(--pour-ink-0)] backdrop-blur-sm',
+                      i > 0 && 'mt-2',
+                    )}
+                  >
+                    {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                   </div>
-                ))}
-              </dl>
-              <div className={rq.dataRowActions}>
-                <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => openEdit(row)}>
-                  <Edit className="h-3.5 w-3.5" />
-                </Button>
-                {(!canDelete || canDelete(row)) && (
-                  <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteId(row.id)}>
-                    <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))
+                ) : null}
+                <div className={rq.dataRowCard}>
+                  <dl className={rq.dataRowFields}>
+                    {columns.map((col) => (
+                      <div key={String(col.key)}>
+                        <dt className={rq.dataRowLabel}>{col.label}</dt>
+                        <dd className={cn(rq.dataRowValue, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                  <div className={rq.dataRowActions}>
+                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => openEdit(row)}>
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                    {(!canDelete || canDelete(row)) && (
+                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </Fragment>
+            )
+          })
         )}
       </div>
 
@@ -152,34 +224,54 @@ export function CrudTable<T extends { id: number }>({
                   กำลังโหลด…
                 </td>
               </tr>
-            ) : data.length === 0 ? (
+            ) : displayRows.length === 0 ? (
               <tr>
                 <td colSpan={columns.length + 1} className="py-10 text-center text-[#6b7280]">
                   ไม่มีข้อมูล
                 </td>
               </tr>
             ) : (
-              data.map((row) => (
-                <tr key={row.id}>
-                  {columns.map((col) => (
-                    <td key={String(col.key)} className="min-w-0 break-words text-[#374151]">
-                      {renderCell(col, row)}
-                    </td>
-                  ))}
-                  <td>
-                    <div className="flex gap-0.5">
-                      <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => openEdit(row)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      {(!canDelete || canDelete(row)) && (
-                        <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteId(row.id)}>
-                          <Trash2 className="h-4 w-4 text-[#9ca3af]" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))
+              displayRows.map((row, i) => {
+                const showGroup =
+                  groupBy &&
+                  (i === 0 || groupBy.groupKey(displayRows[i - 1]!) !== groupBy.groupKey(row))
+                const gKey = groupBy?.groupKey(row) ?? ''
+                return (
+                  <Fragment key={row.id}>
+                    {showGroup ? (
+                      <tr
+                        className="border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/85 text-[color:var(--pour-ink-0)] first:border-t-0"
+                      >
+                        <td
+                          colSpan={columns.length + 1}
+                          className="px-3 py-2.5 align-middle text-sm font-semibold text-[color:var(--pour-ink-0)] sm:px-4"
+                        >
+                          {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
+                        </td>
+                      </tr>
+                    ) : null}
+                    <tr>
+                      {columns.map((col) => (
+                        <td key={String(col.key)} className="min-w-0 break-words text-[#374151]">
+                          {renderCell(col, row)}
+                        </td>
+                      ))}
+                      <td>
+                        <div className="flex gap-0.5">
+                          <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => openEdit(row)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {(!canDelete || canDelete(row)) && (
+                            <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteId(row.id)}>
+                              <Trash2 className="h-4 w-4 text-[#9ca3af]" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  </Fragment>
+                )
+              })
             )}
           </tbody>
         </table>

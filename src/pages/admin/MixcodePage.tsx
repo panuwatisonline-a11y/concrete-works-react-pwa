@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { toast } from 'sonner'
+import { cn, formatVolumeNumber } from '@/lib/utils'
 import { app, layout, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
@@ -27,14 +28,43 @@ const MIXCODE_SAMPLE_TYPE_PRESETS = [
   'Cube 5x5x5 cm.',
 ] as const
 
+const REQ_PAGE_SIZE = 1000
+
+/** ผลรวม volume_confirm (m³) จาก Request — จัดกลุ่มด้วย mixcode_id เหมือนใช้ในหน้ารายการคำขอ */
+async function fetchConfirmVolumeSumByMixcodeId(): Promise<Record<number, number>> {
+  const sums: Record<number, number> = {}
+  for (let from = 0; ; from += REQ_PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('Request')
+      .select('mixcode_id, volume_confirm')
+      .not('volume_confirm', 'is', null)
+      .range(from, from + REQ_PAGE_SIZE - 1)
+    if (error) {
+      console.error('Load Request volume_confirm for Mixcode:', error.message)
+      toast.error('โหลดยอด confirm volume ไม่สำเร็จ')
+      return sums
+    }
+    const chunk = data ?? []
+    for (const row of chunk) {
+      const mid = row.mixcode_id
+      const vc = row.volume_confirm
+      if (mid == null || vc == null || Number.isNaN(vc)) continue
+      sums[mid] = (sums[mid] ?? 0) + vc
+    }
+    if (chunk.length < REQ_PAGE_SIZE) break
+  }
+  return sums
+}
+
 export function MixcodePage() {
   const [data, setData] = useState<MixedCode[]>([])
   const [structures, setStructures] = useState<Structure[]>([])
+  const [confirmVolumeByMixcodeId, setConfirmVolumeByMixcodeId] = useState<Record<number, number>>({})
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
 
   useDesktopSearchRegistration({
-    placeholder: 'ค้นหา Mixcode, Supplier, Structure list, Strength, Slump…',
+    placeholder: 'ค้นหา Mixcode, Supplier, Structure list, Strength, Slump, ปริมาณ…',
     ariaLabel: 'ค้นหาในตาราง Mixcode',
     showRequestFilterButton: false,
     search: q,
@@ -60,6 +90,7 @@ export function MixcodePage() {
         'strength_type',
         'slump',
         'sample_type',
+        'qty',
       ]),
     [data, q],
   )
@@ -108,12 +139,14 @@ export function MixcodePage() {
 
   async function load() {
     setLoading(true)
-    const [{ data: rows }, { data: structRows }] = await Promise.all([
+    const [{ data: rows }, { data: structRows }, sums] = await Promise.all([
       supabase.from('Mixed Code').select('*').order('mixcode'),
       supabase.from('Structure').select('id, structure_name').order('structure_name'),
+      fetchConfirmVolumeSumByMixcodeId(),
     ])
     setData((rows ?? []) as MixedCode[])
     setStructures((structRows ?? []) as Structure[])
+    setConfirmVolumeByMixcodeId(sums)
     setLoading(false)
   }
 
@@ -152,25 +185,63 @@ export function MixcodePage() {
         title="Mixcode"
         data={filtered}
         loading={loading}
+        groupBy={{
+          groupKey: (r) => r.supplier?.trim() ?? '',
+          renderGroupHeading: (key, count) =>
+            key.trim() ? (
+              <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span>{key}</span>
+                <span className="text-xs font-medium tabular-nums text-[color:var(--pour-ink-2)]">
+                  {count} รายการ
+                </span>
+              </span>
+            ) : (
+              <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-[color:var(--pour-ink-2)]">ไม่ระบุ Supplier</span>
+                <span className="text-xs font-medium tabular-nums text-[color:var(--pour-ink-2)]">
+                  {count} รายการ
+                </span>
+              </span>
+            ),
+        }}
+        sortWithinGroup={(a, b) => a.mixcode.localeCompare(b.mixcode, 'th')}
         columns={[
-          { key: 'mixcode', label: 'Mixcode' },
           { key: 'supplier', label: 'Supplier' },
+          { key: 'mixcode', label: 'Mixcode' },
           { key: 'strength', label: 'Strength', render: (r) => `${r.strength ?? '-'} ${r.strength_type ?? ''}` },
           { key: 'slump', label: 'Slump' },
           { key: 'sample_type', label: 'Sample Type' },
+          {
+            key: 'qty',
+            label: 'QUANTITY',
+            render: (r) =>
+              r.qty != null && !Number.isNaN(r.qty) ? `${formatVolumeNumber(r.qty)} cu.m` : '—',
+          },
+          {
+            key: 'remaining_qty_display',
+            label: 'REMAINING',
+            render: (r) => {
+              const confirmed = confirmVolumeByMixcodeId[r.id] ?? 0
+              const cap = r.qty
+              const capOk = cap != null && !Number.isNaN(cap)
+              if (!capOk) return <span className="text-[#6b7280]">—</span>
+              const remaining = cap - confirmed
+              return (
+                <span className={cn(remaining < 0 && 'font-medium text-rose-600')}>
+                  {formatVolumeNumber(remaining)} cu.m
+                </span>
+              )
+            },
+          },
           {
             key: 'structure_list',
             label: 'Structure list',
             render: (r) => (r.structure_list?.trim() ? r.structure_list : '—'),
           },
         ]}
-        formContent={(_item, formData, onChange) => (
+        formContent={(item, formData, onChange) => (
           <div className="space-y-3">
             <div className={layout.formGridDialog}>
-              <div className={layout.formField}>
-                <Label>Mixcode *</Label>
-                <Input value={String(formData.mixcode ?? '')} onChange={(e) => onChange('mixcode', e.target.value)} />
-              </div>
               <div className={layout.formField}>
                 <Label>Supplier</Label>
                 <datalist id="mixcode-supplier-suggestions">
@@ -184,6 +255,10 @@ export function MixcodePage() {
                   value={String(formData.supplier ?? '')}
                   onChange={(e) => onChange('supplier', e.target.value)}
                 />
+              </div>
+              <div className={layout.formField}>
+                <Label>Mixcode *</Label>
+                <Input value={String(formData.mixcode ?? '')} onChange={(e) => onChange('mixcode', e.target.value)} />
               </div>
             </div>
             <div className={layout.formField}>
@@ -266,6 +341,43 @@ export function MixcodePage() {
                   onChange={(e) => onChange('slump', e.target.value)}
                 />
               </div>
+            </div>
+            <div className={layout.formField}>
+              <Label>ปริมาณ (m³)</Label>
+              <Input
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                placeholder="เช่น 100"
+                value={formData.qty != null && !Number.isNaN(formData.qty as number) ? String(formData.qty) : ''}
+                onChange={(e) => {
+                  const v = e.target.value
+                  onChange('qty', v === '' ? null : parseFloat(v))
+                }}
+              />
+              {item != null &&
+                (() => {
+                  const used = confirmVolumeByMixcodeId[item.id] ?? 0
+                  const raw = formData.qty ?? item.qty
+                  const capOk = raw != null && !Number.isNaN(raw as number)
+                  const cap = capOk ? Number(raw) : null
+                  return (
+                    <div className="mt-2 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/60 px-3 py-2 text-xs text-[#374151]">
+                      <div className="flex justify-between gap-2 tabular-nums">
+                        <span className="text-[#6b7280]">Σ Confirm volume (Request)</span>
+                        <span>{formatVolumeNumber(used)} cu.m</span>
+                      </div>
+                      {cap != null && (
+                        <div className="mt-1 flex justify-between gap-2 tabular-nums">
+                          <span className="text-[#6b7280]">คงเหลือ (จากค่าข้างบนนี้)</span>
+                          <span className={cn(cap - used < 0 && 'font-medium text-rose-600')}>
+                            {formatVolumeNumber(cap - used)} cu.m
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
             </div>
           </div>
         )}

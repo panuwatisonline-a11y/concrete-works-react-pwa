@@ -25,10 +25,14 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { showCloseButton?: boolean }
->(({ className, children, showCloseButton = true, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    showCloseButton?: boolean
+    /** ปรับชั้น overlay (ค่าเริ่มต้น z-50) — ใช้เมื่อต้องการทับ dialog อื่น */
+    overlayClassName?: string
+  }
+>(({ className, children, showCloseButton = true, overlayClassName, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay />
+    <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(

@@ -3,6 +3,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
@@ -18,12 +19,17 @@ interface ConfirmModalProps {
   noteLabel?: string
   noteRequired?: boolean
   isLoading?: boolean
+  /** ทับ dialog ชั้นล่าง — ส่งคู่กับ dialogContentClassName */
+  overlayClassName?: string
+  dialogContentClassName?: string
 }
 
 export function ConfirmModal({
   open, onClose, onConfirm, title, description,
   confirmLabel = 'ยืนยัน', confirmVariant = 'default',
   showNote = false, noteLabel = 'หมายเหตุ', noteRequired = false, isLoading = false,
+  overlayClassName,
+  dialogContentClassName,
 }: ConfirmModalProps) {
   const [note, setNote] = useState('')
   const [pending, setPending] = useState(false)
@@ -48,7 +54,10 @@ export function ConfirmModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) { setNote(''); onClose() } }}>
-      <DialogContent className="max-w-lg">
+      <DialogContent
+        overlayClassName={overlayClassName}
+        className={cn('max-w-lg', dialogContentClassName)}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}

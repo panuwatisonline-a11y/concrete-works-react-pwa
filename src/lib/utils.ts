@@ -24,3 +24,37 @@ export function formatTime(time: string | null | undefined): string {
 export function shortId(uuid: string): string {
   return uuid.slice(0, 8).toUpperCase()
 }
+
+/** ตัวเลขปริมาตร (m³ / cu.m) — แสดงทศนิยม 2 ตำแหน่งเสมอ */
+export function formatVolumeNumber(value: number | null | undefined, empty = '—'): string {
+  if (value == null || Number.isNaN(value)) return empty
+  return value.toFixed(2)
+}
+
+/** ปริมาตรจากค่าที่พิมพ์หรือตัวเลข — ทศนิยม 2 ตำแหน่ง */
+export function formatVolumeNumberFromInput(
+  value: number | string | null | undefined,
+  empty = '—',
+): string {
+  if (value === '' || value == null) return empty
+  const n = typeof value === 'number' ? value : Number(String(value).trim())
+  if (Number.isNaN(n)) return empty
+  return n.toFixed(2)
+}
+
+/** บรรทัดแสดง cu.m (ใช้ทั่วแอป) */
+export function formatVolumeCuM(
+  value: number | string | null | undefined,
+  empty = '-',
+): string {
+  if (value === '' || value == null) return empty
+  const n = typeof value === 'number' ? value : Number(String(value).trim())
+  if (Number.isNaN(n)) return empty
+  return `${n.toFixed(2)} cu.m`
+}
+
+/** เปอร์เซ็นต์ — ทศนิยม 2 ตำแหน่ง (ไม่รวมเครื่องหมาย %) */
+export function formatPercentNumber(value: number | null | undefined, empty = '—'): string {
+  if (value == null || Number.isNaN(value)) return empty
+  return value.toFixed(2)
+}

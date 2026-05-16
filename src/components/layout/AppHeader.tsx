@@ -15,6 +15,7 @@ import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/reque
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
 import { MobileRequestListHeader } from '@/components/requests/MobileRequestListHeader'
+import { UserAvatar } from '@/components/shared/UserAvatar'
 
 interface NavItem {
   to: string
@@ -95,10 +96,13 @@ function MobilePrimaryNav() {
 export function AppHeader() {
   const headerRef = useRef<HTMLElement>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const { profile, role } = useAuthStore()
+  const { profile, role, user } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
   const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
+
+  const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
+  const profileSubtitle = user?.email ?? profile?.role ?? '—'
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -200,9 +204,6 @@ export function AppHeader() {
                 <X className={icon.md} strokeWidth={ICON_STROKE} />
               </button>
             </div>
-            <p className={cn('text-left', type.caption)}>
-              {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.role}
-            </p>
           </DialogHeader>
 
           <nav className="flex-1 overflow-y-auto px-3 py-3">
@@ -276,6 +277,18 @@ export function AppHeader() {
           </nav>
 
           <div className="border-t border-[color:var(--glass-border-subtle)] p-4">
+            <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[rgba(17,24,39,0.03)] p-3 backdrop-blur-md">
+              <UserAvatar
+                profile={profile}
+                avatarUrl={user?.user_metadata?.avatar_url as string | undefined}
+                size="sm"
+                className="shrink-0 ring-2 ring-[color:var(--glass-border-subtle)]"
+              />
+              <div className="min-w-0 flex-1">
+                <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
+                <p className={cn('truncate', type.caption)}>{profileSubtitle}</p>
+              </div>
+            </div>
             <Button variant="outline" className="h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] backdrop-blur-sm" onClick={handleLogout}>
               <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
               ออกจากระบบ
