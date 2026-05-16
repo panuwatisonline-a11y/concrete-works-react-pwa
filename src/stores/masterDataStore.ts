@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type {
   StatusItem, ClientItem, LocationItem, ConcreteWork, Structure,
-  MixedCode, AbcCode, AbcCodeSegment, WbsCode, WbsSegment, Job,
+  MixedCode, AbcCode, AbcCodeSegment, WbsCode, WbsSegment, Job, CompressionMachine,
 } from '@/types/app.types'
 
 interface MasterDataState {
@@ -25,6 +25,7 @@ interface MasterDataState {
   wbs6: WbsSegment[]
   wbs7: WbsSegment[]
   jobs: Job[]
+  compressionMachines: CompressionMachine[]
   isLoaded: boolean
   setAll: (data: Partial<MasterDataState>) => void
   setLoaded: (loaded: boolean) => void
@@ -51,6 +52,7 @@ export const useMasterDataStore = create<MasterDataState>((set) => ({
   wbs6: [],
   wbs7: [],
   jobs: [],
+  compressionMachines: [],
   isLoaded: false,
   setAll: (data) => set((state) => ({ ...state, ...data })),
   setLoaded: (isLoaded) => set({ isLoaded }),

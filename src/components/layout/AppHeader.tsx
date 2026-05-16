@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, useState, type ElementType } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Menu, X, LogOut, PlusCircle, User, LayoutDashboard, Users,
-  Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase,
+  Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase, Gauge,
   Search, Star, Activity, Files,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
@@ -31,6 +31,8 @@ const mainLinks: NavItem[] = [
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
 
+const cstConsoleLink: NavItem = { to: '/cst', label: 'CST', icon: FlaskConical }
+
 /** เมนูตั้งค่าใน drawer Admin (ไม่รวม Dashboard — แสดงแถบบนมือถือ + หมวดหลักใน drawer) */
 const adminMenuLinks: NavItem[] = [
   { to: '/admin/users', label: 'Users Settings', icon: Users },
@@ -42,7 +44,14 @@ const adminMenuLinks: NavItem[] = [
   { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
   { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
+  { to: '/admin/cst-machine', label: 'CST Machine', icon: Gauge },
 ]
+
+function adminConsoleLinks(role: string | null | undefined): NavItem[] {
+  if (role === 'admin') return [cstConsoleLink, ...adminMenuLinks]
+  if (role === 'manager') return [cstConsoleLink]
+  return []
+}
 
 /** แถบหน้าหลักบนมือถือ — แทน bottom tab */
 function MobilePrimaryNav() {
@@ -54,7 +63,6 @@ function MobilePrimaryNav() {
   const isStatusTab =
     location.pathname === '/requests' && q.get('view') === 'summary' && q.get('scope') !== 'mine'
   const isAdminArea = location.pathname.startsWith('/admin')
-
   const pill = (active: boolean) =>
     cn(
       'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2',
@@ -248,22 +256,24 @@ export function AppHeader() {
               ) : null}
             </div>
 
-            {role === 'admin' && (
+            {adminConsoleLinks(role).length > 0 ? (
               <>
                 <p className={cn(theme.navSectionLabel, 'mt-5 px-2')}>Admin</p>
                 <div className="space-y-0.5">
-                  {adminMenuLinks.map(({ to, label, icon: Icon, end }) => (
+                  {adminConsoleLinks(role).map(({ to, label, icon: Icon, end }) => (
                     <NavLink
                       key={to}
                       to={to}
                       end={end}
                       onClick={() => setDrawerOpen(false)}
-                      className={({ isActive }) =>
+                      className={() =>
                         cn(
                           theme.navLink,
-                          isActive
-                        ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-                        : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
+                          (to === '/cst'
+                            ? location.pathname.startsWith('/cst')
+                            : isNavToActive(to, location))
+                            ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
+                            : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
                         )
                       }
                     >
@@ -273,7 +283,7 @@ export function AppHeader() {
                   ))}
                 </div>
               </>
-            )}
+            ) : null}
           </nav>
 
           <div className="border-t border-[color:var(--glass-border-subtle)] p-4">

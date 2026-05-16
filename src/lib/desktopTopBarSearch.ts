@@ -14,6 +14,12 @@ export const REQUEST_DETAIL_SEARCH_PLACEHOLDER =
 
 export const REQUEST_DETAIL_SEARCH_ARIA = 'ค้นหาคำขอ แล้วกด Enter เพื่อไปหน้ารายการ'
 
+/** CST list — ค้นหาในคำขอ Complete (เดียวกับรายการคำขอ) */
+export const CST_LIST_SEARCH_PLACEHOLDER =
+  'ค้นหา CST — Client, โครงสร้าง, Location, Mix, ABC, WBS…'
+
+export const CST_LIST_SEARCH_ARIA = 'ค้นหาในหน้า CST'
+
 export interface DesktopSearchBarConfig {
   bindFilter: boolean
   showRequestFilterButton: boolean
@@ -42,6 +48,8 @@ function adminIdle(pathname: string): DesktopSearchBarConfig {
     placeholder = 'WBS Code — แก้ไขจากตารางในหน้านี้'
   } else if (pathname.startsWith('/admin/jobs')) {
     placeholder = 'โครงการ (Jobs) — แก้ไขจากตารางในหน้านี้'
+  } else if (pathname.startsWith('/admin/cst-machine')) {
+    placeholder = 'CST Machine — ค้นหา/แก้ไขเครื่องอัดจากตารางในหน้านี้'
   } else if (pathname === '/admin' || pathname === '/admin/') {
     placeholder = 'Dashboard — การค้นหากลางใช้ที่หน้าสถานะ (คำขอ)'
   }
@@ -71,6 +79,15 @@ export function getDesktopSearchBarConfig(pathname: string): DesktopSearchBarCon
       placeholder: 'หน้าโปรไฟล์ — การค้นหารายการคำขอใช้ที่เมนูสถานะ',
       ariaLabel: 'การค้นหาคำขอไม่ใช้ในหน้าโปรไฟล์',
       inputDisabled: true,
+    }
+  }
+  if (pathname.startsWith('/cst')) {
+    return {
+      bindFilter: true,
+      showRequestFilterButton: true,
+      placeholder: CST_LIST_SEARCH_PLACEHOLDER,
+      ariaLabel: CST_LIST_SEARCH_ARIA,
+      inputDisabled: false,
     }
   }
   if (pathname.startsWith('/admin')) {

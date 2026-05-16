@@ -163,6 +163,22 @@ export const app = {
     'divide-y divide-[color:var(--glass-border)] [&_td]:max-w-[18rem] [&_td]:break-words [&_td]:px-3 [&_td]:py-3 [&_td]:align-middle [&_td]:text-[color:var(--pour-ink-0)] sm:[&_td]:px-4 [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_var(--pour-accent-ring)]',
   tableRowHover: '[&_tr]:transition-colors [&_tr:hover]:bg-[var(--pour-bg)]',
   mutedText: ink.muted,
+  mobileCardStackCompact: 'space-y-2 md:hidden',
+} as const
+
+/** ตารางแบบกระชับ — ใช้ใน admin / CST (คล้าย CstListPage) */
+export const tableCompact = {
+  table: cn(app.table, 'text-xs leading-tight'),
+  head: cn(
+    app.tableHead,
+    '[&_th]:px-2 [&_th]:py-1.5 [&_th]:text-[10px] [&_th]:leading-tight sm:[&_th]:px-2.5',
+  ),
+  body: cn(
+    app.tableBody,
+    app.tableRowHover,
+    '[&_td]:max-w-[12rem] [&_td]:px-2 [&_td]:py-1.5 [&_td]:text-xs [&_td]:leading-tight sm:[&_td]:px-2.5',
+  ),
+  emptyCell: 'py-6 text-center text-xs text-[#6b7280]',
 } as const
 
 /** Shared visual language for /requests/* flows */
@@ -215,4 +231,13 @@ export const rq = {
     glass.surface,
     ink.muted,
   ),
+} as const
+
+/** การ์ดมือถือแบบกระชับ — คู่กับ tableCompact ในหน้า admin */
+export const adminDataRow = {
+  card: cn(rq.dataRowCard, 'p-3 text-xs leading-tight'),
+  fields: 'space-y-1',
+  label: cn(rq.dataRowLabel, 'text-[10px]'),
+  value: cn(rq.dataRowValue, 'text-xs font-medium'),
+  actions: cn(rq.dataRowActions, 'mt-2 gap-1.5 pt-2'),
 } as const

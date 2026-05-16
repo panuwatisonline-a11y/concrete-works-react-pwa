@@ -98,6 +98,29 @@ export interface Job {
   job_name: string
 }
 
+/** เครื่องอัดคอนกรีต — ตาราง `Compression Machine` */
+export interface CompressionMachine {
+  id: number
+  machine: string | null
+  serial: string | null
+  k1: number | null
+  k2: number | null
+  cal_date: string | null
+  file: string | null
+  k: string | null
+  k_display: string | null
+}
+
+/** บันทึกผล CST (Compressive Strength Test) — ตาราง `CST` */
+export type { CstRow as CstRecord } from './database.cst.types'
+
+/** ผล CST พร้อมคำนวณจาก view `CST_View` — alias ของ database type */
+export type { CstViewRow } from './database.cst.types'
+
+/** อายุตัวอย่างมาตรฐานสำหรับ CST (วัน) */
+export const CST_TEST_AGES = [1, 3, 7, 14, 28] as const
+export type CstTestAge = (typeof CST_TEST_AGES)[number]
+
 export interface Request {
   id: string
   status_id: number

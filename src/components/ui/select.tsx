@@ -3,6 +3,9 @@ import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+/** Dropdown ต้องสูงกว่า Dialog ชั้น workflow/CST (overlay z-[260], content z-[270]) */
+export const SELECT_CONTENT_ELEVATED_Z = 'z-[300]'
+
 const Select = SelectPrimitive.Root
 const SelectGroup = SelectPrimitive.Group
 const SelectValue = SelectPrimitive.Value

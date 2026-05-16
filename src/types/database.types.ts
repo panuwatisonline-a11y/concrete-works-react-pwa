@@ -1,3 +1,13 @@
+import type {
+  CompressionMachineInsert,
+  CompressionMachineRow,
+  CompressionMachineUpdate,
+  CstInsert,
+  CstRow,
+  CstUpdate,
+  CstViewRow,
+} from './database.cst.types'
+
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
@@ -132,9 +142,14 @@ export interface Database {
         }
       }
       'Compression Machine': {
-        Row: { id: number; machine_name: string; description: string | null }
-        Insert: { id?: number; machine_name: string; description?: string | null }
-        Update: { id?: number; machine_name?: string; description?: string | null }
+        Row: CompressionMachineRow
+        Insert: CompressionMachineInsert
+        Update: CompressionMachineUpdate
+      }
+      CST: {
+        Row: CstRow
+        Insert: CstInsert
+        Update: CstUpdate
       }
       'ABC Code': {
         Row: {
@@ -404,7 +419,12 @@ export interface Database {
         Update: { id?: number }
       }
     }
-    Views: Record<string, never>
+    Views: {
+      CST_View: {
+        Row: CstViewRow
+        Relationships: []
+      }
+    }
     Functions: Record<string, never>
     Enums: {
       user_role: 'admin' | 'manager' | 'user'

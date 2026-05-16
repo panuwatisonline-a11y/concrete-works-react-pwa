@@ -15,7 +15,7 @@ import {
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { app, rq } from '@/lib/requestUi'
+import { adminDataRow, app, rq, tableCompact } from '@/lib/requestUi'
 import type { Profile, UserRole } from '@/types/app.types'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
@@ -209,7 +209,7 @@ export function UsersPage() {
         ))}
       </div>
 
-      <div className={app.mobileCardStack}>
+      <div className={app.mobileCardStackCompact}>
         {loading ? (
           <div className={rq.dataRowEmpty}>กำลังโหลด…</div>
         ) : filteredUsers.length === 0 ? (
@@ -220,20 +220,20 @@ export function UsersPage() {
           filteredUsers.map((u) => {
             const allowManage = canModifyAdminTarget(actorEmail, u)
             return (
-            <div key={u.id} className={rq.dataRowCard}>
-              <dl className="space-y-1.5">
+            <div key={u.id} className={adminDataRow.card}>
+              <dl className={adminDataRow.fields}>
                 <div>
-                  <dt className={rq.dataRowLabel}>ชื่อ-นามสกุล</dt>
-                  <dd className={cn(rq.dataRowValue, 'font-semibold')}>
+                  <dt className={adminDataRow.label}>ชื่อ-นามสกุล</dt>
+                  <dd className={cn(adminDataRow.value, 'font-semibold')}>
                     {[u.fname, u.lname].filter(Boolean).join(' ') || '-'}
                   </dd>
                 </div>
                 <div>
-                  <dt className={rq.dataRowLabel}>รหัสพนักงาน</dt>
-                  <dd className="font-pour-mono text-[13px] text-[#374151]">{u.employee_id ?? '-'}</dd>
+                  <dt className={adminDataRow.label}>รหัสพนักงาน</dt>
+                  <dd className="font-pour-mono text-xs text-[#374151]">{u.employee_id ?? '-'}</dd>
                 </div>
                 <div>
-                  <dt className={cn(rq.dataRowLabel, 'mb-0.5')}>Role / สถานะ</dt>
+                  <dt className={cn(adminDataRow.label, 'mb-0.5')}>Role / สถานะ</dt>
                   <dd className="flex flex-wrap gap-1.5">
                     <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                       {ROLE_LABELS[u.role]}
@@ -244,46 +244,46 @@ export function UsersPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className={rq.dataRowLabel}>Client</dt>
-                  <dd className={cn(rq.dataRowValue, 'text-[#374151]')}>{clientLabel(u)}</dd>
+                  <dt className={adminDataRow.label}>Client</dt>
+                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{clientLabel(u)}</dd>
                 </div>
                 <div>
-                  <dt className={rq.dataRowLabel}>โครงการ</dt>
-                  <dd className={cn(rq.dataRowValue, 'text-[#374151]')}>{jobLabel(u)}</dd>
+                  <dt className={adminDataRow.label}>โครงการ</dt>
+                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{jobLabel(u)}</dd>
                 </div>
                 <div>
-                  <dt className={rq.dataRowLabel}>วันที่สมัคร</dt>
-                  <dd className={cn(rq.dataRowValue, 'text-[#374151]')}>{formatDate(u.created_at)}</dd>
+                  <dt className={adminDataRow.label}>วันที่สมัคร</dt>
+                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{formatDate(u.created_at)}</dd>
                 </div>
               </dl>
-              <div className={rq.dataRowActions}>
+              <div className={adminDataRow.actions}>
                 {allowManage && u.status === 'pending' && (
                   <>
-                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                       <CheckCircle className="h-3.5 w-3.5" />
                     </Button>
-                    <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
                       <XCircle className="h-3.5 w-3.5" />
                     </Button>
                   </>
                 )}
                 {allowManage && u.status === 'approved' && (
-                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
                     <XCircle className="h-3.5 w-3.5" />
                   </Button>
                 )}
                 {allowManage && u.status === 'rejected' && (
-                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
                     <CheckCircle className="h-3.5 w-3.5" />
                   </Button>
                 )}
                 {allowManage && (
-                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
                     <Edit className="h-3.5 w-3.5" />
                   </Button>
                 )}
                 {allowManage && u.id !== currentProfileId && (
-                  <Button type="button" size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
+                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
                     <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                   </Button>
                 )}
@@ -295,24 +295,24 @@ export function UsersPage() {
       </div>
 
       <div className={app.tableWrapDesktop}>
-        <table className={app.table}>
-          <thead className={app.tableHead}>
+        <table className={tableCompact.table}>
+          <thead className={tableCompact.head}>
             <tr>
               {['รหัสพนักงาน', 'ชื่อ-นามสกุล', 'Role', 'สถานะ', 'Client', 'โครงการ', 'วันที่สมัคร', 'การจัดการ'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
           </thead>
-          <tbody className={cn(app.tableBody, app.tableRowHover)}>
+          <tbody className={tableCompact.body}>
             {loading ? (
               <tr>
-                <td colSpan={8} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={8} className={tableCompact.emptyCell}>
                   กำลังโหลด…
                 </td>
               </tr>
             ) : filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={8} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={8} className={tableCompact.emptyCell}>
                   {users.length === 0 ? 'ไม่มีผู้ใช้' : 'ไม่พบผู้ใช้ที่ตรงกับคำค้น'}
                 </td>
               </tr>
@@ -321,22 +321,22 @@ export function UsersPage() {
                 const allowManage = canModifyAdminTarget(actorEmail, u)
                 return (
                 <tr key={u.id}>
-                  <td className="min-w-0 break-words px-3 py-2 font-mono text-xs">{u.employee_id ?? '-'}</td>
-                  <td className="min-w-0 break-words px-3 py-2">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
-                  <td className="min-w-0 px-3 py-2">
+                  <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
+                  <td className="min-w-0 break-words">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
+                  <td className="min-w-0">
                     <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                       {ROLE_LABELS[u.role]}
                     </Badge>
                   </td>
-                  <td className="min-w-0 whitespace-nowrap px-3 py-2">
+                  <td className="min-w-0 whitespace-nowrap">
                     <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
                       {STATUS_BADGE[u.status].label}
                     </span>
                   </td>
-                  <td className="min-w-0 max-w-[12rem] break-words px-3 py-2 text-[#374151] sm:max-w-[200px]" title={clientLabel(u)}>
+                  <td className="min-w-0 break-words text-[#374151]" title={clientLabel(u)}>
                     {clientLabel(u)}
                   </td>
-                  <td className="min-w-0 max-w-[12rem] break-words px-3 py-2 text-[#374151] sm:max-w-[220px]" title={jobLabel(u)}>
+                  <td className="min-w-0 break-words text-[#374151]" title={jobLabel(u)}>
                     {jobLabel(u)}
                   </td>
                   <td className="min-w-0 whitespace-nowrap text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
@@ -344,32 +344,32 @@ export function UsersPage() {
                     <div className="flex gap-0.5">
                       {allowManage && u.status === 'pending' && (
                         <>
-                          <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                            <CheckCircle className="h-4 w-4" />
+                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                            <CheckCircle className="h-3.5 w-3.5" />
                           </Button>
-                          <Button type="button" size="icon" variant="ghost" className="rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                            <XCircle className="h-4 w-4" />
+                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                            <XCircle className="h-3.5 w-3.5" />
                           </Button>
                         </>
                       )}
                       {allowManage && u.status === 'approved' && (
-                        <Button type="button" size="icon" variant="ghost" className="rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                          <XCircle className="h-4 w-4" />
+                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                          <XCircle className="h-3.5 w-3.5" />
                         </Button>
                       )}
                       {allowManage && u.status === 'rejected' && (
-                        <Button type="button" size="icon" variant="ghost" className="rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                          <CheckCircle className="h-4 w-4" />
+                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                          <CheckCircle className="h-3.5 w-3.5" />
                         </Button>
                       )}
                       {allowManage && (
-                        <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                          <Edit className="h-4 w-4" />
+                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                       )}
                       {allowManage && u.id !== currentProfileId && (
-                        <Button type="button" size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                          <Trash2 className="h-4 w-4 text-[#9ca3af]" />
+                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
+                          <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                         </Button>
                       )}
                     </div>

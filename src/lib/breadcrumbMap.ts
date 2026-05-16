@@ -1,6 +1,7 @@
 /** Route segment labels for breadcrumbs (Thai UI). */
 export const BREADCRUMB_MAP: Record<string, string> = {
   '/requests': 'สถานะ',
+  '/cst': 'Compressive Strength Test',
   '/requests/new': 'จองคอนกรีต',
   '/profile': 'โปรไฟล์',
   '/preview': 'ตัวอย่าง',
@@ -15,4 +16,5 @@ export const BREADCRUMB_MAP: Record<string, string> = {
   '/admin/abc-code': 'ABC Code',
   '/admin/wbs-code': 'WBS Code',
   '/admin/jobs': 'Jobs',
+  '/admin/cst-machine': 'CST Machine',
 }

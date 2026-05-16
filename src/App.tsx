@@ -26,8 +26,11 @@ import { MixcodePage } from '@/pages/admin/MixcodePage'
 import { AbcCodePage } from '@/pages/admin/AbcCodePage'
 import { WbsCodePage } from '@/pages/admin/WbsCodePage'
 import { JobsPage } from '@/pages/admin/JobsPage'
+import { CstMachinePage } from '@/pages/admin/CstMachinePage'
 import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
 import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
+import { PrintCstPreviewPage } from '@/pages/print/PrintCstPreviewPage'
+import { CstListPage } from '@/pages/cst/CstListPage'
 
 function AppInner() {
   useAuthInit()
@@ -50,6 +53,7 @@ function AppInner() {
       <Route path="/pending-approval" element={<PendingApprovalPage />} />
 
       <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
+      <Route path="/print/cst" element={<PrintCstPreviewPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<Navigate to={APP_HOME} replace />} />
@@ -57,6 +61,7 @@ function AppInner() {
         <Route path="/requests/new" element={<RequestNewPage />} />
         <Route path="/requests/:id" element={<RequestDetailPage />} />
         <Route path="/requests/:id/edit" element={<RequestEditPage />} />
+        <Route path="/cst" element={<CstListPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/preview/forms" element={<FormTemplatesPreviewPage />} />
         <Route path="/preview/checklist-before-concrete" element={<Navigate to="/preview/forms" replace />} />
@@ -73,6 +78,7 @@ function AppInner() {
           <Route path="abc-code" element={<AbcCodePage />} />
           <Route path="wbs-code" element={<WbsCodePage />} />
           <Route path="jobs" element={<JobsPage />} />
+          <Route path="cst-machine" element={<CstMachinePage />} />
         </Route>
       </Route>
 

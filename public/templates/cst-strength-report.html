@@ -57,7 +57,15 @@
       width: 100%;
     }
     .sheet-body { flex: 1 1 auto; min-width: 0; min-height: 0; }
-    .sheet-footer { flex-shrink: 0; margin-top: auto; padding-top: 12px; }
+    .sheet-footer {
+      flex-shrink: 0;
+      margin-top: auto;
+      padding-top: 12px;
+      padding-bottom: 2mm;
+      display: flex;
+      flex-direction: column;
+      min-height: 50mm;
+    }
     @media print {
       html, body { width: 210mm; margin: 0; padding: 0; }
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: #fff; }
@@ -73,36 +81,90 @@
         break-inside: avoid;
       }
     }
-    .logos { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: fit-content;
+      margin: 0 0 6px;
+    }
+    .logos {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .logos img { display: block; height: 28px; width: auto; }
-    .org-line { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; }
+    .org-line {
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin: 4px 0 0;
+      text-align: center;
+      width: 100%;
+    }
     .report-title-th { font-size: 0.95rem; font-weight: 700; text-align: center; margin-bottom: 2px; }
     .report-title-en { font-size: 1.05rem; font-weight: 700; text-align: center; margin-bottom: 10px; }
     .meta {
       width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed;
       margin-bottom: 10px;
-      font-size: 0.88rem;
+      font-size: 0.84rem;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
     }
-    .meta th, .meta td {
-      border: none;
-      padding: 3px 8px 4px 0;
-      vertical-align: top;
-      overflow-wrap: break-word;
+    .meta-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-gap: 14px;
+      row-gap: 8px;
+      align-items: start;
+    }
+    .meta-field {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 8px;
+      align-items: start;
+      min-width: 0;
+      padding: 1px 0;
+    }
+    .meta-field .k {
+      font-weight: 700;
+      white-space: nowrap;
+      line-height: 1.5;
+      padding-right: 4px;
+    }
+    .meta-field .v {
+      min-width: 0;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
       word-break: normal;
     }
-    .meta .k { font-weight: 700; padding-right: 6px; white-space: nowrap; }
-    .meta th:nth-child(3),
-    .meta th:nth-child(5),
-    .meta th:nth-child(7) {
-      padding-left: 14px;
+    .meta-field-wide {
+      grid-column: span 2;
     }
-    .meta .meta-machine-line {
-      padding: 4px 0 2px;
-      vertical-align: middle;
+    .meta-row-dates .meta-field:not(:last-child) .v {
+      white-space: nowrap;
     }
-    .meta .meta-machine-line .k { padding-right: 6px; }
+    .meta-row-dates .meta-field:last-child .v {
+      white-space: normal;
+      font-size: 0.78rem;
+    }
+    .meta-field-sample-type .v {
+      white-space: nowrap;
+    }
+    .meta-slot-empty {
+      min-height: 0;
+      visibility: hidden;
+    }
+    .meta-machine-line {
+      margin-top: 2px;
+      padding: 3px 0;
+      line-height: 1.5;
+    }
+    .meta-machine-line .k {
+      font-weight: 700;
+      margin-right: 4px;
+    }
     .results-wrap {
       width: 100%;
       margin-bottom: 10px;
@@ -166,84 +228,96 @@
       border-collapse: collapse;
       table-layout: fixed;
       font-size: 0.82rem;
-      margin-bottom: 8px;
+      margin-bottom: 0;
     }
     .sign3 td {
-      border: 1px solid #111827;
+      border: none;
       padding: 8px 6px;
       vertical-align: top;
       width: 33.33%;
       overflow-wrap: break-word;
       word-break: normal;
     }
-    .sign3 .sig-h { font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .sign3 .sig-h { font-weight: 700; text-align: center; margin-bottom: 8px; }
     .sign3 .sig-pad {
-      margin: 0 8px 10px;
-      min-height: 26px;
+      margin: 0 auto 12px;
+      width: 68%;
+      max-width: 46mm;
+      min-height: 44px;
       border-bottom: 1px solid #111827;
     }
     .sign3 .sig-n { text-align: center; font-size: 0.88rem; margin-bottom: 4px; }
     .sign3 .sig-r { text-align: center; font-size: 0.82rem; color: #111827; margin-bottom: 6px; }
     .sign3 .sig-d { text-align: center; font-size: 0.82rem; margin-top: 10px; }
     .doc-foot {
-      text-align: center;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: baseline;
+      gap: 8px;
       font-size: 0.72rem;
       line-height: 1.4;
       color: #374151;
-      padding-top: 4px;
+      margin-top: auto;
+      padding-top: 14px;
     }
+    .doc-foot-left { text-align: left; }
+    .doc-foot-center { text-align: center; }
+    .doc-foot-right { text-align: right; }
   </style>
 </head>
 <body>
   <div class="a4-page">
     <div class="sheet">
       <div class="sheet-body">
-        <div class="logos">
-          <img src="/templates/cst-report-logo-2.png" alt="" />
-          <img src="/templates/cst-report-logo-1.png" alt="" />
-          <img src="/templates/cst-report-logo-3.png" alt="" />
+        <div class="header-brand">
+          <div class="logos">
+            <img src="/templates/cst-report-logo-2.png" alt="" />
+            <img src="/templates/cst-report-logo-1.png" alt="" />
+            <img src="/templates/cst-report-logo-3.png" alt="" />
+          </div>
+          <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
         </div>
-        <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
         <p class="report-title-th">โครงการก่อสร้างทางรถไฟ สายเด่นชัย-เชียงราย-เชียงของ สัญญาที่ 3 ช่วงราย-เชียงของ</p>
         <p class="report-title-en">COMPRESSIVE STRENGTH TEST REPORT</p>
 
-        <table class="meta" aria-label="ข้อมูลรายงาน">
-          <tbody>
-            <tr>
-              <th class="k" scope="row">Casting Date:</th><td>{{castingDate}}</td>
-              <th class="k" scope="row">Test Date:</th><td>{{testDate}}</td>
-              <th class="k" scope="row">Age:</th><td>{{age}} Days</td>
-              <th class="k" scope="row">Report No.:</th><td>{{reportNumber}}</td>
-            </tr>
-            <tr>
-              <th class="k" scope="row">Concrete Work:</th><td colspan="3">{{concreteWork}}</td>
-              <th class="k" scope="row">Structural:</th><td colspan="3">{{structureName}}</td>
-            </tr>
-            <tr>
-              <th class="k" scope="row">Location:</th><td colspan="3">{{locationText}}</td>
-              <th class="k" scope="row">Structural No.:</th><td colspan="3">{{structureNo}}</td>
-            </tr>
-            <tr>
-              <th class="k" scope="row">Mix Code:</th><td>{{mixcode}}</td>
-              <th class="k" scope="row">Strength:</th><td>{{strength}}</td>
-              <th class="k" scope="row">Slump:</th><td>{{slump}}</td>
-              <th class="k" scope="row">Volume:</th><td>{{volume}} cu.m.</td>
-            </tr>
-            <tr>
-              <th class="k" scope="row">Supplier:</th><td>{{supplier}}</td>
-              <th class="k" scope="row">Sample Type:</th><td colspan="5">{{sampleType}}</td>
-            </tr>
-            <tr>
-              <td class="meta-machine-line" colspan="8">
-                <span class="k">Test Machine:</span> {{testMachine}}
-                &nbsp;&nbsp;&nbsp;
-                <span class="k">Serial No.:</span> {{serialNo}}
-                &nbsp;&nbsp;&nbsp;
-                <span class="k">Factor:</span> {{factor}}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="meta" aria-label="ข้อมูลรายงาน">
+          <div class="meta-row meta-row-dates">
+            <div class="meta-field"><span class="k">Casting Date:</span><span class="v">{{castingDate}}</span></div>
+            <div class="meta-field"><span class="k">Test Date:</span><span class="v">{{testDate}}</span></div>
+            <div class="meta-field"><span class="k">Age:</span><span class="v">{{ageLabel}}</span></div>
+            <div class="meta-field"><span class="k">Report No.:</span><span class="v">{{reportNumber}}</span></div>
+          </div>
+          <div class="meta-row meta-row-pair">
+            <div class="meta-field"><span class="k">Concrete Work:</span><span class="v">{{concreteWork}}</span></div>
+            <div class="meta-slot-empty" aria-hidden="true"></div>
+            <div class="meta-field"><span class="k">Structural:</span><span class="v">{{structureName}}</span></div>
+            <div class="meta-slot-empty" aria-hidden="true"></div>
+          </div>
+          <div class="meta-row meta-row-pair">
+            <div class="meta-field meta-field-wide"><span class="k">Location:</span><span class="v">{{locationText}}</span></div>
+            <div class="meta-field"><span class="k">Structural No.:</span><span class="v">{{structureNo}}</span></div>
+            <div class="meta-slot-empty" aria-hidden="true"></div>
+          </div>
+          <div class="meta-row meta-row-dates">
+            <div class="meta-field"><span class="k">Mix Code:</span><span class="v">{{mixcode}}</span></div>
+            <div class="meta-field"><span class="k">Strength:</span><span class="v">{{strength}}</span></div>
+            <div class="meta-field"><span class="k">Slump:</span><span class="v">{{slump}}</span></div>
+            <div class="meta-field"><span class="k">Volume:</span><span class="v">{{volume}} cu.m.</span></div>
+          </div>
+          <div class="meta-row meta-row-pair">
+            <div class="meta-field"><span class="k">Supplier:</span><span class="v">{{supplier}}</span></div>
+            <div class="meta-field meta-field-sample-type"><span class="k">Sample Type:</span><span class="v">{{sampleType}}</span></div>
+            <div class="meta-slot-empty" aria-hidden="true"></div>
+            <div class="meta-slot-empty" aria-hidden="true"></div>
+          </div>
+          <div class="meta-machine-line">
+            <span class="k">Test Machine:</span> {{testMachine}}
+            &nbsp;&nbsp;&nbsp;
+            <span class="k">Serial No.:</span> {{serialNo}}
+            &nbsp;&nbsp;&nbsp;
+            <span class="k">Factor:</span> {{factor}}
+          </div>
+        </div>
 
         <div class="results-wrap">
         <table class="results" aria-label="ผลการทดสอบ">
@@ -266,8 +340,8 @@
               <th>Density<br />(kg/m<sup>3</sup>)</th>
               <th>Force<br />Reading<br />(kN)</th>
               <th>Force<br />Adjust<br />(kN)</th>
-              <th>Compressive<br />Strength<br />(ksc)</th>
-              <th>Compressive Strength<br />Average<br />(ksc)</th>
+              <th>Compressive<br />Strength<br />({{strengthUnit}})</th>
+              <th>Compressive Strength<br />Average<br />({{strengthUnit}})</th>
               <th>Remark</th>
             </tr>
           </thead>
@@ -440,9 +514,11 @@
             </tr>
           </tbody>
         </table>
-        <p class="doc-foot">
-          Document No. {{documentNo}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Release/Amendment {{releaseInfo}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Page No. {{pageNo}}
-        </p>
+        <div class="doc-foot" role="contentinfo">
+          <span class="doc-foot-left">Document No. {{documentNo}}</span>
+          <span class="doc-foot-center">Release/Amendment {{releaseInfo}}</span>
+          <span class="doc-foot-right">Page No. {{pageNo}}</span>
+        </div>
       </div>
     </div>
   </div>

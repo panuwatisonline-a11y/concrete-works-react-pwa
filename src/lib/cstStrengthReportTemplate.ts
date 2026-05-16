@@ -1,4 +1,5 @@
-import type { Profile, RequestWithRelations } from '@/types/app.types'
+import { activeCastingDateIso } from '@/lib/activeCastingDate'
+import type { RequestWithRelations } from '@/types/app.types'
 
 /** Path under `public/` — served as static file by Vite */
 export const CST_STRENGTH_REPORT_TEMPLATE_PATH = '/templates/cst-strength-report.html'
@@ -16,6 +17,8 @@ function cstTemplateKeys() {
     'castingDate',
     'testDate',
     'age',
+    'ageLabel',
+    'strengthUnit',
     'reportNumber',
     'concreteWork',
     'structureName',
@@ -52,6 +55,22 @@ const CST_STRENGTH_REPORT_KEYS = cstTemplateKeys()
 export type CstStrengthReportTemplateKey = (typeof CST_STRENGTH_REPORT_KEYS)[number]
 export type CstStrengthReportTemplateData = Record<CstStrengthReportTemplateKey, string>
 
+/** ค่าคงที่ในเทมเพลตรายงาน CST (ลายเซ็น / ท้ายเอกสาร) */
+export const CST_REPORT_TEMPLATE_STATIC_DEFAULTS = {
+  testedByUnit: 'CKST-DC3',
+  testedByName: 'นางสาวบุญเจริญ บุญเลิศ',
+  testedByRole: 'Technician Lab Concrete',
+  reviewedByUnit: 'CKST-DC3',
+  reviewedByName: 'นางสาวไปรดา ลิขิตหัดศิลป',
+  reviewedByRole: 'QC Lab Engineer',
+  approvedByUnit: 'CSC3',
+  approvedByName: 'นายธนวัฒน์ ดาศักดิ์',
+  approvedByRole: 'Material Specialist',
+  documentNo: 'F-LAB-ST-DC3-01',
+  releaseInfo: 'Issue No. 1 Date: 24 Apr. 2026',
+  pageNo: 'Page 1 of 1',
+} as const satisfies Partial<CstStrengthReportTemplateData>
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -67,6 +86,20 @@ function formatLocation(req: RequestWithRelations): string {
   const full = loc.full_location?.trim()
   if (full) return full
   return [loc.location1, loc.location2, loc.location3].filter(Boolean).join(' ')
+}
+
+/** 1 Day / 3 Days สำหรับหัวรายงาน */
+export function formatCstAgeLabel(age: string | number | null | undefined): string {
+  const n = typeof age === 'number' ? age : Number(String(age ?? '').trim())
+  if (!Number.isFinite(n)) return ''
+  return `${n} ${n === 1 ? 'Day' : 'Days'}`
+}
+
+/** หน่วยกำลังอัดจาก Mixed Code (เช่น ksc., MPa.) */
+export function cstStrengthUnitLabel(strengthType: string | null | undefined): string {
+  const raw = strengthType?.trim() ?? ''
+  if (!raw) return 'ksc'
+  return raw.replace(/\.+$/, '')
 }
 
 function formatStrength(req: RequestWithRelations): string {
@@ -85,16 +118,11 @@ function formatVolume(req: RequestWithRelations): string {
   return v.toFixed(2)
 }
 
-function profileDisplayName(p: Profile | undefined): string {
-  if (!p) return ''
-  const a = p.fname?.trim() ?? ''
-  const b = p.lname?.trim() ?? ''
-  const name = [a, b].filter(Boolean).join(' ')
-  return name || p.employee_id?.trim() || ''
-}
-
 export function defaultCstStrengthReportTemplateData(): CstStrengthReportTemplateData {
-  return Object.fromEntries(CST_STRENGTH_REPORT_KEYS.map((k) => [k, ''])) as CstStrengthReportTemplateData
+  return {
+    ...(Object.fromEntries(CST_STRENGTH_REPORT_KEYS.map((k) => [k, ''])) as CstStrengthReportTemplateData),
+    ...CST_REPORT_TEMPLATE_STATIC_DEFAULTS,
+  }
 }
 
 export async function loadCstStrengthReportTemplate(): Promise<string> {
@@ -152,13 +180,18 @@ export function cstStrengthReportDataFromRequest(
     mix?.sample_type?.trim() ||
     (sq != null && !Number.isNaN(sq) ? `จำนวนตัวอย่าง ${sq}` : '')
 
-  const testDate = o.testDateFormatted?.trim() || req.request_date?.trim() || ''
+  const testDate = o.testDateFormatted?.trim() || ''
+  const ageStr = o.age?.trim() || '28'
+  const strengthUnit = cstStrengthUnitLabel(mix?.strength_type)
 
-  return {
+  const out: CstStrengthReportTemplateData = {
     ...defaultCstStrengthReportTemplateData(),
-    castingDate: o.castingDateFormatted?.trim() || req.casting_date?.trim() || '',
+    castingDate:
+      o.castingDateFormatted?.trim() || activeCastingDateIso(req) || req.casting_date?.trim() || '',
     testDate,
-    age: o.age?.trim() || '28',
+    age: ageStr,
+    ageLabel: formatCstAgeLabel(ageStr),
+    strengthUnit,
     reportNumber: o.reportNumber?.trim() || req.id?.trim() || '',
     concreteWork: req.concrete_work?.concrete_work?.trim() ?? '',
     structureName: req.structure?.structure_name?.trim() ?? '',
@@ -173,17 +206,17 @@ export function cstStrengthReportDataFromRequest(
     testMachine: o.testMachine?.trim() ?? '',
     serialNo: o.serialNo?.trim() ?? '',
     factor: o.factor?.trim() ?? '',
-    testedByUnit: o.testedByUnit?.trim() ?? '',
-    testedByName: o.testedByName?.trim() ?? profileDisplayName(req.inspected_by_profile),
-    testedByRole: o.testedByRole?.trim() ?? '',
-    reviewedByUnit: o.reviewedByUnit?.trim() ?? '',
-    reviewedByName: o.reviewedByName?.trim() ?? '',
-    reviewedByRole: o.reviewedByRole?.trim() ?? '',
-    approvedByUnit: o.approvedByUnit?.trim() ?? '',
-    approvedByName: o.approvedByName?.trim() ?? profileDisplayName(req.approved_by_profile),
-    approvedByRole: o.approvedByRole?.trim() ?? '',
-    documentNo: o.documentNo?.trim() ?? '',
-    releaseInfo: o.releaseInfo?.trim() ?? '',
-    pageNo: o.pageNo?.trim() ?? '1',
   }
+
+  const staticKeys = Object.keys(CST_REPORT_TEMPLATE_STATIC_DEFAULTS) as Array<
+    keyof typeof CST_REPORT_TEMPLATE_STATIC_DEFAULTS
+  >
+  for (const key of staticKeys) {
+    const override = o[key as keyof CstStrengthReportFromRequestOptions]
+    if (typeof override === 'string' && override.trim()) {
+      out[key] = override.trim()
+    }
+  }
+
+  return out
 }

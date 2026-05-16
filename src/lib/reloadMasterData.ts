@@ -47,6 +47,7 @@ export async function reloadMasterData(): Promise<void> {
       { data: wbs6 },
       { data: wbs7 },
       { data: jobs },
+      { data: compressionMachines },
     ] = await Promise.race([
       Promise.all([
         supabase.from('Status').select('*').order('id'),
@@ -69,6 +70,10 @@ export async function reloadMasterData(): Promise<void> {
         supabase.from('WBS6').select('*').order('code_name'),
         supabase.from('WBS7').select('*').order('code_name'),
         supabase.from('Jobs').select('*').order('job_name'),
+        supabase
+          .from('Compression Machine')
+          .select('id, machine, serial, k1, k2, cal_date, file, k, k_display')
+          .order('machine'),
       ]),
       timeoutPromise,
     ])
@@ -99,6 +104,7 @@ export async function reloadMasterData(): Promise<void> {
       wbs6: wbs6 ?? [],
       wbs7: wbs7 ?? [],
       jobs: jobs ?? [],
+      compressionMachines: compressionMachines ?? [],
     })
   } catch (e) {
     console.error('Master data load:', e)

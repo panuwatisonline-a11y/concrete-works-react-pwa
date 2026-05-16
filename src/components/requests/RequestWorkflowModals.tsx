@@ -8,7 +8,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SELECT_CONTENT_ELEVATED_Z,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -290,7 +297,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 onValueChange={(v) => setInspectData((p) => ({ ...p, location_id: v }))}
               >
                 <SelectTrigger><SelectValue placeholder="เลือก Location" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
                   {locations.map((l) => (
                     <SelectItem key={l.id} value={String(l.id)}>{l.full_location ?? l.location1}</SelectItem>
                   ))}
@@ -309,7 +316,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 }))}
               >
                 <SelectTrigger><SelectValue placeholder="เลือก Concrete work" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
                   {concreteWorks.map((cw) => (
                     <SelectItem key={cw.id} value={String(cw.id)}>{cw.concrete_work}</SelectItem>
                   ))}
@@ -323,7 +330,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 onValueChange={(v) => setInspectData((p) => ({ ...p, structure_id: v, mixcode_id: '' }))}
               >
                 <SelectTrigger><SelectValue placeholder="เลือก Structure" /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
                   {filteredStructuresInspect.map((s) => (
                     <SelectItem key={s.id} value={String(s.id)}>{s.structure_name}</SelectItem>
                   ))}

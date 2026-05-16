@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ConfirmModal } from './ConfirmModal'
 import { Edit, Trash2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { app, rq } from '@/lib/requestUi'
+import { adminDataRow, app, rq, tableCompact } from '@/lib/requestUi'
 
 export interface Column<T> {
   key: keyof T | string
@@ -158,7 +158,7 @@ export function CrudTable<T extends { id: number }>({
         </div>
       )}
 
-      <div className={app.mobileCardStack}>
+      <div className={app.mobileCardStackCompact}>
         {loading || displayRows.length === 0 ? (
           emptyState
         ) : (
@@ -172,28 +172,28 @@ export function CrudTable<T extends { id: number }>({
                 {showGroup ? (
                   <div
                     className={cn(
-                      'rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-4 py-2 text-[color:var(--pour-ink-0)] backdrop-blur-sm',
+                      'rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-3 py-1.5 text-xs text-[color:var(--pour-ink-0)] backdrop-blur-sm',
                       i > 0 && 'mt-2',
                     )}
                   >
                     {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                   </div>
                 ) : null}
-                <div className={rq.dataRowCard}>
-                  <dl className={rq.dataRowFields}>
+                <div className={adminDataRow.card}>
+                  <dl className={adminDataRow.fields}>
                     {columns.map((col) => (
                       <div key={String(col.key)}>
-                        <dt className={rq.dataRowLabel}>{col.label}</dt>
-                        <dd className={cn(rq.dataRowValue, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
+                        <dt className={adminDataRow.label}>{col.label}</dt>
+                        <dd className={cn(adminDataRow.value, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
                       </div>
                     ))}
                   </dl>
-                  <div className={rq.dataRowActions}>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => openEdit(row)}>
+                  <div className={adminDataRow.actions}>
+                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
                       <Edit className="h-3.5 w-3.5" />
                     </Button>
                     {(!canDelete || canDelete(row)) && (
-                      <Button size="icon" variant="ghost" className="h-8 w-8 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
                         <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                       </Button>
                     )}
@@ -206,8 +206,8 @@ export function CrudTable<T extends { id: number }>({
       </div>
 
       <div className={app.tableWrapDesktop}>
-        <table className={app.table}>
-          <thead className={app.tableHead}>
+        <table className={tableCompact.table}>
+          <thead className={tableCompact.head}>
             <tr>
               {columns.map((col) => (
                 <th key={String(col.key)} className="font-medium">
@@ -217,16 +217,16 @@ export function CrudTable<T extends { id: number }>({
               <th className="font-medium">Actions</th>
             </tr>
           </thead>
-          <tbody className={cn(app.tableBody, app.tableRowHover)}>
+          <tbody className={tableCompact.body}>
             {loading ? (
               <tr>
-                <td colSpan={columns.length + 1} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={columns.length + 1} className={tableCompact.emptyCell}>
                   กำลังโหลด…
                 </td>
               </tr>
             ) : displayRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className="py-10 text-center text-[#6b7280]">
+                <td colSpan={columns.length + 1} className={tableCompact.emptyCell}>
                   ไม่มีข้อมูล
                 </td>
               </tr>
@@ -244,7 +244,7 @@ export function CrudTable<T extends { id: number }>({
                       >
                         <td
                           colSpan={columns.length + 1}
-                          className="px-3 py-2.5 align-middle text-sm font-semibold text-[color:var(--pour-ink-0)] sm:px-4"
+                          className="px-2 py-1.5 align-middle text-xs font-semibold text-[color:var(--pour-ink-0)] sm:px-2.5"
                         >
                           {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                         </td>
@@ -258,12 +258,12 @@ export function CrudTable<T extends { id: number }>({
                       ))}
                       <td>
                         <div className="flex gap-0.5">
-                          <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => openEdit(row)}>
-                            <Edit className="h-4 w-4" />
+                          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
+                            <Edit className="h-3.5 w-3.5" />
                           </Button>
                           {(!canDelete || canDelete(row)) && (
-                            <Button size="icon" variant="ghost" className="rounded-lg" onClick={() => setDeleteId(row.id)}>
-                              <Trash2 className="h-4 w-4 text-[#9ca3af]" />
+                            <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                              <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                             </Button>
                           )}
                         </div>

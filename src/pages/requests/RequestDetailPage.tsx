@@ -15,6 +15,7 @@ import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { canPrintChecklistBeforePour, getRequestListQuickActions } from '@/lib/requestQuickActions'
 import { localPrintChecklist } from '@/lib/checklistPrint'
+import { warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
 import { rq } from '@/lib/requestUi'
@@ -24,10 +25,10 @@ import {
 } from '@/lib/desktopTopBarSearch'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { Edit, History } from 'lucide-react'
-import type { RequestWithRelations, RequestLogWithProfile } from '@/types/app.types'
-
-/** อายุตัวอย่าง (วัน) สำหรับ CST — ปุ่ม placeholder รอเชื่อมฟังก์ชัน */
-const CST_PLACEHOLDER_DAYS = [1, 3, 7, 14, 28] as const
+import type { CstTestAge, RequestWithRelations, RequestLogWithProfile } from '@/types/app.types'
+import { fetchCstByRequestId } from '@/lib/cstData'
+import { CstFormDialog } from '@/components/requests/CstFormDialog'
+import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -60,6 +61,8 @@ export function RequestDetailPage() {
 
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<string | null>(null)
+  const [cstAge, setCstAge] = useState<CstTestAge | null>(null)
+  const [cstAgesSaved, setCstAgesSaved] = useState<number[]>([])
   const [imageLightbox, setImageLightbox] = useState<{ items: { src: string; label: string }[] } | null>(null)
 
   const [error, setError] = useState<string | null>(null)
@@ -69,12 +72,16 @@ export function RequestDetailPage() {
     initialModalConsumedRef.current = false
   }, [id])
 
+  useEffect(() => {
+    warmCstReportTemplateCache()
+  }, [])
+
   const loadData = useCallback(async (opts?: { background?: boolean }) => {
     if (!id) return
     if (!opts?.background) setLoading(true)
     setError(null)
     try {
-      const [{ data: req, error: reqErr }, { data: logData, error: logErr }] = await Promise.all([
+      const [{ data: req, error: reqErr }, { data: logData, error: logErr }, cstRows] = await Promise.all([
         supabase.from('Request').select(`
           *,
           status:Status(id, status_name),
@@ -82,7 +89,7 @@ export function RequestDetailPage() {
           location:Location(id, full_location),
           concrete_work:"Concrete Works"(id, concrete_work),
           structure:Structure(id, structure_name),
-          mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type),
+          mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type, sample_type, supplier),
           abc_code:"ABC Code"(id, full_abc),
           wbs_code:"WBS Code"(id, full_wbs)
         `).eq('id', id).single(),
@@ -90,11 +97,17 @@ export function RequestDetailPage() {
           *,
           profile:profiles!action_by(fname, lname)
         `).eq('request_id', id).order('created_at', { ascending: false }),
+        fetchCstByRequestId(id).catch(() => []),
       ])
       if (reqErr) throw reqErr
       if (logErr) throw logErr
       setRequest(req as RequestWithRelations)
       setLogs((logData ?? []) as RequestLogWithProfile[])
+      setCstAgesSaved(
+        cstRows
+          .map((r) => r.age)
+          .filter((a): a is number => a != null && !Number.isNaN(a)),
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'โหลดข้อมูลไม่สำเร็จ')
     } finally {
@@ -223,22 +236,7 @@ export function RequestDetailPage() {
           {sid === 8 && canAct ? (
             <>
               <p className={rq.actions.sectionLabel}>CST — กำลังอัดคอนกรีต (วันทดสอบ)</p>
-              <div className={rq.actions.buttonRow}>
-                {CST_PLACEHOLDER_DAYS.map((d) => (
-                  <Button
-                    key={d}
-                    type="button"
-                    size="action"
-                    variant="outline"
-                    className="tabular-nums"
-                    disabled
-                    title="เร็วๆ นี้ — บันทึกผล CST"
-                    aria-label={`CST วันที่ +${d} (ยังไม่เปิดใช้งาน)`}
-                  >
-                    +{d}
-                  </Button>
-                ))}
-              </div>
+              <CstAgeQuickActions savedAges={cstAgesSaved} onAgeClick={setCstAge} />
             </>
           ) : null}
         </RequestActionBar>
@@ -425,6 +423,16 @@ export function RequestDetailPage() {
         modal={modal}
         onClose={() => setModal(null)}
         onCompleted={() => void loadData({ background: true })}
+      />
+
+      <CstFormDialog
+        request={request}
+        age={cstAge}
+        open={cstAge != null}
+        onOpenChange={(open) => {
+          if (!open) setCstAge(null)
+        }}
+        onSaved={() => void loadData({ background: true })}
       />
 
       <Dialog open={imageLightbox != null} onOpenChange={(open) => { if (!open) setImageLightbox(null) }}>
