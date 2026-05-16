@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils'
 
 const THRESHOLD = 72
 const MAX_PULL = 112
+/** กันหมุนค้างถ้า refresh ค้างจริง (มากกว่า reload master + ดึงหน้าโดยประมาณ) */
+const REFRESH_SAFETY_TIMEOUT_MS = 60_000
 
 type PullToRefreshMainProps = ComponentPropsWithoutRef<'main'> & {
   children: ReactNode
@@ -29,7 +31,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   const [refreshing, setRefreshing] = useState(false)
 
   handlerRef.current = handler
-  refreshingRef.current = refreshing
+
   const [mobile, setMobile] = useState(() =>
     typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false,
   )
@@ -55,13 +57,20 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
       resetPull()
       return
     }
+    refreshingRef.current = true
     setRefreshing(true)
     setPull(THRESHOLD * 0.65)
     try {
-      await activeHandler()
+      await Promise.race([
+        activeHandler(),
+        new Promise<never>((_, reject) => {
+          window.setTimeout(() => reject(new Error('Pull refresh timed out')), REFRESH_SAFETY_TIMEOUT_MS)
+        }),
+      ])
     } catch (e) {
       console.error('Pull refresh:', e)
     } finally {
+      refreshingRef.current = false
       setRefreshing(false)
       resetPull()
     }
