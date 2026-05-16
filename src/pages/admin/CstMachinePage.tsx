@@ -178,8 +178,8 @@ export function CstMachinePage() {
                   />
                 </div>
               </div>
-              <p className="text-sm text-[#6b7280]">
-                Factor (ตัวอย่าง): <span className="font-medium text-[#374151]">{factorPreview(k1, k2)}</span>
+              <p className="text-sm text-pour-muted">
+                Factor (ตัวอย่าง): <span className="font-medium text-[color:var(--pour-ink-1)]">{factorPreview(k1, k2)}</span>
               </p>
               <div className="space-y-1.5">
                 <Label>วันสอบเทียบ</Label>

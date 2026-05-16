@@ -13,7 +13,7 @@ export function MobileRequestListHeader() {
       <div className={theme.mobileRequestListHeaderInner}>
         <Link
           to="/requests?view=summary"
-          className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-white/92 text-[color:var(--pour-ink-2)] shadow-md shadow-slate-900/10 backdrop-blur-md transition hover:border-[color:var(--pour-accent)] hover:bg-white hover:text-[color:var(--pour-accent)] active:scale-95"
+          className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-strong)] text-[color:var(--pour-ink-2)] shadow-md shadow-slate-900/10 backdrop-blur-md transition hover:border-[color:var(--pour-accent)] hover:bg-[color:var(--glass-bg-strong)] hover:text-[color:var(--pour-accent)] active:scale-95"
           aria-label="กลับไปหน้าสรุปสถานะ"
         >
           <ChevronLeft className={icon.md} strokeWidth={ICON_STROKE} aria-hidden />

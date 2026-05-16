@@ -1,7 +1,6 @@
 import { AnimatedOutlet } from '@/components/motion/AnimatedOutlet'
 import { PullToRefreshMain } from '@/components/layout/PullToRefreshMain'
 import { AppHeader } from './AppHeader'
-import { AppBreadcrumbs } from './AppBreadcrumbs'
 import { DesktopSidebar } from './DesktopSidebar'
 import { DesktopTopBar } from './DesktopTopBar'
 import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog'
@@ -47,8 +46,7 @@ export function AppLayout() {
             'pour-wide:px-10 pour-wide:pt-6 pour-wide:pb-10',
           )}
         >
-          <div className="flex min-w-0 flex-col gap-4 pour-desktop:gap-6 pour-wide:mx-auto pour-wide:w-full pour-wide:max-w-328 pour-wide:gap-7">
-            <AppBreadcrumbs />
+          <div className="flex min-w-0 flex-col pour-wide:mx-auto pour-wide:w-full pour-wide:max-w-328">
             <AnimatedOutlet />
           </div>
         </PullToRefreshMain>

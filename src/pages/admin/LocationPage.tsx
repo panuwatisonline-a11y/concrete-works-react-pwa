@@ -164,10 +164,10 @@ export function LocationPage() {
             <div className="space-y-1.5">
               <Label className="text-[color:var(--pour-ink-2)]">
                 Full Location
-                <span className="ml-1 text-xs font-normal text-[#9ca3af]">อ่านอย่างเดียว</span>
+                <span className="ml-1 text-xs font-normal text-pour-subtle">อ่านอย่างเดียว</span>
               </Label>
               <div
-                className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/55 px-3 py-2.5 text-sm text-[#374151]"
+                className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/55 px-3 py-2.5 text-sm text-[color:var(--pour-ink-1)]"
                 aria-live="polite"
               >
                 {previewFullLocationFromLevels(formData.location1, formData.location2, formData.location3)}

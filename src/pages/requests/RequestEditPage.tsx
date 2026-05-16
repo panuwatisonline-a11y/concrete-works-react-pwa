@@ -117,7 +117,7 @@ export function RequestEditPage() {
       <div className={rq.pageNarrow}>
         <div className="flex flex-col items-center justify-center py-20">
           <div className={rq.spinner} />
-          <p className="mt-3 text-sm text-[#6b7280]">กำลังโหลด…</p>
+          <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
         </div>
       </div>
     )

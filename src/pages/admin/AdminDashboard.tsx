@@ -131,7 +131,7 @@ export function AdminDashboard() {
         aria-label="ตัวกรองช่วงวันที่"
         className={cn(
           app.pageAdminSection,
-          'overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]',
         )}
       >
         <button
@@ -144,21 +144,21 @@ export function AdminDashboard() {
         >
           <ChevronDown
             className={cn(
-              'h-5 w-5 shrink-0 text-[#6b7280] transition-transform duration-200',
+              'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
               dateFilterOpen && 'rotate-180',
             )}
             strokeWidth={2}
             aria-hidden
           />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-[#111827]">ตัวกรองช่วงวันที่</p>
+            <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">ตัวกรองช่วงวันที่</p>
             {!dateFilterOpen && hasDateFilter && dateFilterSummaryLine ? (
               <p className="mt-0.5 truncate text-xs font-medium text-[color:var(--pour-accent)]">
                 {dateFilterSummaryLine}
                 {!loading ? ` · ${filteredRows.length} รายการ` : null}
               </p>
             ) : !dateFilterOpen ? (
-              <p className="mt-0.5 text-xs text-[#9ca3af]">แตะเพื่อเปิดตั้งค่า</p>
+              <p className="mt-0.5 text-xs text-pour-subtle">แตะเพื่อเปิดตั้งค่า</p>
             ) : null}
           </div>
         </button>
@@ -173,7 +173,7 @@ export function AdminDashboard() {
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
               <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 <div className="min-w-0 space-y-1.5">
-                  <Label htmlFor="dash-filter-from" className="text-xs font-semibold text-[#374151]">
+                  <Label htmlFor="dash-filter-from" className="text-xs font-semibold text-[color:var(--pour-ink-1)]">
                     วันที่เริ่ม
                   </Label>
                   <Input
@@ -185,7 +185,7 @@ export function AdminDashboard() {
                   />
                 </div>
                 <div className="min-w-0 space-y-1.5">
-                  <Label htmlFor="dash-filter-to" className="text-xs font-semibold text-[#374151]">
+                  <Label htmlFor="dash-filter-to" className="text-xs font-semibold text-[color:var(--pour-ink-1)]">
                     วันที่สิ้นสุด
                   </Label>
                   <Input
@@ -200,7 +200,7 @@ export function AdminDashboard() {
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 shrink-0 rounded-xl border-[color:var(--pour-surface-border)] font-semibold text-[#374151]"
+                className="h-10 shrink-0 rounded-xl border-[color:var(--pour-surface-border)] font-semibold text-[color:var(--pour-ink-1)]"
                 disabled={!hasDateFilter}
                 onClick={() => {
                   setFilterDateFrom('')
@@ -226,10 +226,10 @@ export function AdminDashboard() {
           <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[0])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 จำนวนคำขอทั้งหมด
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : totalRequests}
               </p>
             </CardContent>
@@ -237,10 +237,10 @@ export function AdminDashboard() {
           <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[1])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 Request volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.request)}
               </p>
             </CardContent>
@@ -248,10 +248,10 @@ export function AdminDashboard() {
           <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[2])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 DWG volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.dwg)}
               </p>
             </CardContent>
@@ -259,10 +259,10 @@ export function AdminDashboard() {
           <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[3])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 Confirm volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.confirm)}
               </p>
             </CardContent>
@@ -270,14 +270,14 @@ export function AdminDashboard() {
           <Card className="col-span-2 overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80 pour-desktop:col-span-1">
             <div className="h-1 bg-gradient-to-r from-[#d97706] to-[#ea580c]" />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 Loss concrete (Confirm − DWG)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : `${formatVolumeNumber(totals.loss)} m³`}
               </p>
               {!loading ? (
-                <p className="mt-1 text-[10px] leading-snug text-[#64748b] pour-desktop:text-xs">{lossPctLabel}</p>
+                <p className="mt-1 text-[10px] leading-snug text-pour-muted pour-desktop:text-xs">{lossPctLabel}</p>
               ) : null}
             </CardContent>
           </Card>
@@ -302,10 +302,10 @@ export function AdminDashboard() {
           >
             <div className={cn('h-1 bg-gradient-to-r', accentBar[i % accentBar.length])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-pour-muted pour-desktop:text-xs">
                 {label}
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[color:var(--pour-ink-0)] pour-desktop:text-2xl">
                 {loading ? '—' : (counts[id] ?? 0)}
               </p>
             </CardContent>

@@ -8,7 +8,8 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { CstRequestPourInfo } from '@/components/requests/CstRequestPourInfo'
-import { rq } from '@/lib/requestUi'
+import { modal, rq } from '@/lib/requestUi'
+import { cn } from '@/lib/utils'
 import { shortId } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
 
@@ -23,7 +24,7 @@ export function CstRequestInfoDialog({ request, open, onOpenChange }: CstRequest
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg sm:max-w-xl" showCloseButton>
+      <DialogContent className={cn(modal.lg)} showCloseButton>
         <DialogHeader>
           <DialogTitle className={rq.cardTitle}>ข้อมูลการเท</DialogTitle>
           <p className="font-mono text-xs font-semibold text-pour-muted">{shortId(request.id)}</p>

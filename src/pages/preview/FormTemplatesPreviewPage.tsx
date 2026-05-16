@@ -339,7 +339,7 @@ function CollapsiblePreviewBlock(props: {
   const panelId = `${id}-panel`
 
   return (
-    <div className="rounded-2xl border border-[#e5e7eb] bg-white shadow-sm">
+    <div className="rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] shadow-sm">
       <button
         type="button"
         id={`${id}-trigger`}
@@ -348,19 +348,19 @@ function CollapsiblePreviewBlock(props: {
         onClick={onToggle}
         className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[color:var(--pour-surface-tint)]"
       >
-        <span className="font-semibold text-[#111827]">{title}</span>
+        <span className="font-semibold text-[color:var(--pour-ink-0)]">{title}</span>
         <ChevronDown
           className={cn(
-            'h-5 w-5 shrink-0 text-[#64748b] transition-transform duration-200',
+            'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
             open && 'rotate-180',
           )}
           aria-hidden
         />
       </button>
       {open ? (
-        <div id={panelId} className="border-t border-[#e5e7eb] p-3" role="region" aria-labelledby={`${id}-trigger`}>
+        <div id={panelId} className="border-t border-[color:var(--glass-border-subtle)] p-3" role="region" aria-labelledby={`${id}-trigger`}>
           <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <p className="text-sm text-[#6b7280]">{description}</p>
+            <p className="text-sm text-pour-muted">{description}</p>
             <Button type="button" variant="outline" className="shrink-0 rounded-xl" onClick={() => void onReload()} disabled={loading}>
               โหลดใหม่
             </Button>
@@ -369,11 +369,11 @@ function CollapsiblePreviewBlock(props: {
           {loading ? (
             <div
               className={cn(
-                'flex min-h-[320px] items-center justify-center rounded-2xl border border-[#e5e7eb] bg-white',
+                'flex min-h-[320px] items-center justify-center rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]',
                 theme.shell,
               )}
             >
-              <div className={cn('h-9 w-9 rounded-full border-2 border-[#e5e7eb] border-t-[color:var(--pour-accent)] animate-spin')} aria-hidden />
+              <div className={cn('h-9 w-9 rounded-full border-2 border-[color:var(--glass-border-subtle)] border-t-[color:var(--pour-accent)] animate-spin')} aria-hidden />
               <span className="sr-only">กำลังโหลด</span>
             </div>
           ) : null}
@@ -446,9 +446,9 @@ export function FormTemplatesPreviewPage() {
   return (
     <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 pour-desktop:px-4">
       <div className="mb-4">
-        <h1 className="text-lg font-bold tracking-tight text-[#111827] pour-desktop:text-xl">ตัวอย่างแบบฟอร์ม</h1>
-        <p className="mt-1 text-sm text-[#6b7280]">
-          รวมฟอร์มจาก <code className="rounded bg-[#dcfce7] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
+        <h1 className="text-lg font-bold tracking-tight text-[color:var(--pour-ink-0)] pour-desktop:text-xl">ตัวอย่างแบบฟอร์ม</h1>
+        <p className="mt-1 text-sm text-pour-muted">
+          รวมฟอร์มจาก <code className="rounded bg-[color:var(--pour-accent-muted)] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
         </p>
       </div>
 

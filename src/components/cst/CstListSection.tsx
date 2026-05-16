@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { frame } from '@/lib/requestUi'
 
 type CstListSectionProps = {
   title: string
@@ -25,31 +26,26 @@ export function CstListSection({
   const panelId = `cst-section-${title.replace(/\s+/g, '-')}`
 
   return (
-    <section
-      className={cn(
-        'overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-white/60 shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
-        className,
-      )}
-    >
+    <section className={cn(frame.section, className)}>
       <button
         type="button"
         id={`${panelId}-trigger`}
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left transition-colors hover:bg-[rgba(17,24,39,0.03)] sm:px-4 sm:py-3"
+        className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]/70 sm:px-5"
       >
-        <span className="flex min-w-0 flex-1 items-center gap-2">
+        <span className="flex min-w-0 flex-1 items-center gap-2.5">
           <ChevronDown
             className={cn(
-              'h-4 w-4 shrink-0 text-pour-muted transition-transform duration-200',
+              'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
               open && 'rotate-180',
             )}
             strokeWidth={2}
             aria-hidden
           />
-          <span className="truncate text-sm font-semibold text-[color:var(--pour-ink-0)]">{title}</span>
-          <span className="shrink-0 rounded-full bg-[color:var(--pour-accent-muted)] px-2 py-0.5 text-[10px] font-semibold tabular-nums text-[color:var(--pour-accent)]">
+          <span className={cn(frame.sectionTitle, 'truncate')}>{title}</span>
+          <span className="shrink-0 rounded-full bg-[color:var(--pour-accent-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-accent)]">
             {count}
           </span>
         </span>
@@ -59,7 +55,7 @@ export function CstListSection({
           id={panelId}
           role="region"
           aria-labelledby={`${panelId}-trigger`}
-          className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-3 pt-2 sm:px-4 sm:pb-4"
+          className={frame.sectionBody}
         >
           {count === 0 && emptyMessage ? (
             <p className="py-4 text-center text-sm text-pour-muted">{emptyMessage}</p>

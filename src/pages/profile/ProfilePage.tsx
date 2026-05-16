@@ -113,7 +113,7 @@ export function ProfilePage() {
               type="button"
               variant="outline"
               size="sm"
-              className="gap-1.5 rounded-xl border-[color:var(--pour-surface-border)] text-[#374151]"
+              className="gap-1.5 rounded-xl border-[color:var(--pour-surface-border)] text-[color:var(--pour-ink-1)]"
               onClick={() => setEditingProfile(true)}
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
@@ -127,16 +127,16 @@ export function ProfilePage() {
         <div className={cn(rq.cardHeader, 'rounded-t-2xl')}>
           <div className="flex items-center gap-5">
             <div className="shrink-0 rounded-full bg-gradient-to-tr from-blue-400 via-blue-500 to-indigo-600 p-[3px] shadow-sm">
-              <div className="rounded-full bg-white p-[2px]">
+              <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[2px]">
                 <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="lg" className="h-[4.5rem] w-[4.5rem] border-0" />
               </div>
             </div>
             <div className="min-w-0 flex-1 space-y-1">
-              <p className="truncate text-lg font-bold text-[#111827]">
+              <p className="truncate text-lg font-bold text-[color:var(--pour-ink-0)]">
                 {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.employee_id || 'โปรไฟล์'}
               </p>
-              <p className="text-sm text-[#6b7280]">{profile?.employee_id}</p>
-              <Badge variant="secondary" className="border border-[color:var(--pour-surface-border)] bg-[#dcfce7] text-xs font-semibold text-[#374151]">
+              <p className="text-sm text-pour-muted">{profile?.employee_id}</p>
+              <Badge variant="secondary" className="border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] text-xs font-semibold text-[color:var(--pour-ink-1)]">
                 {roleLabels[profile?.role ?? ''] ?? profile?.role}
               </Badge>
             </div>
@@ -173,14 +173,14 @@ export function ProfilePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
-                  <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{profile?.client_name ?? '-'}</p>
                 </div>
                 <div>
                   <p className={rq.label}>วันที่สมัคร</p>
-                  <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-4">
@@ -204,29 +204,29 @@ export function ProfilePage() {
               <div className={layout.formGrid2}>
                 <div>
                   <p className={cn(rq.label, 'mb-1')}>ชื่อ</p>
-                  <p className="font-medium text-[#111827]">{profile?.fname?.trim() || '-'}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{profile?.fname?.trim() || '-'}</p>
                 </div>
                 <div>
                   <p className={cn(rq.label, 'mb-1')}>นามสกุล</p>
-                  <p className="font-medium text-[#111827]">{profile?.lname?.trim() || '-'}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{profile?.lname?.trim() || '-'}</p>
                 </div>
               </div>
               <div>
                 <p className={cn(rq.label, 'mb-1')}>เบอร์โทร</p>
-                <p className="font-medium text-[#111827]">{profile?.phone?.trim() || '-'}</p>
+                <p className="font-medium text-[color:var(--pour-ink-0)]">{profile?.phone?.trim() || '-'}</p>
               </div>
               <div>
                 <p className={cn(rq.label, 'mb-1')}>โครงการ</p>
-                <p className="font-medium text-[#111827]">{jobName?.trim() || '-'}</p>
+                <p className="font-medium text-[color:var(--pour-ink-0)]">{jobName?.trim() || '-'}</p>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
-                  <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{profile?.client_name ?? '-'}</p>
                 </div>
                 <div>
                   <p className={rq.label}>วันที่สมัคร</p>
-                  <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
+                  <p className="font-medium text-[color:var(--pour-ink-0)]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
             </div>

@@ -184,9 +184,9 @@ export function ImageUpload({
               aria-busy="true"
             >
               <span className="text-sm font-medium text-white">กำลังอัปโหลด {uploadPercent}%</span>
-              <div className="h-2 w-full max-w-[220px] overflow-hidden rounded-full bg-white/25">
+              <div className="h-2 w-full max-w-[220px] overflow-hidden rounded-full bg-[color:var(--glass-bg-muted)]">
                 <div
-                  className="h-full rounded-full bg-white transition-[width] duration-150 ease-out"
+                  className="h-full rounded-full bg-[color:var(--glass-bg)] transition-[width] duration-150 ease-out"
                   style={{ width: `${uploadPercent}%` }}
                 />
               </div>

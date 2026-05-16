@@ -75,7 +75,7 @@ export function DesktopTopBar() {
               type.body,
               'placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)]',
               'focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--pour-accent-ring)]',
-              inputDisabled && 'cursor-not-allowed bg-white/30 text-[#6b7280]',
+              inputDisabled && 'cursor-not-allowed opacity-50',
             )}
             aria-label={ariaLabel}
           />
@@ -88,7 +88,7 @@ export function DesktopTopBar() {
             className={cn(
               'pour-glass flex h-10 shrink-0 items-center justify-center rounded-xl px-3',
               type.body,
-              'text-[#6b7280] transition hover:border-[#c8ced8] hover:bg-[rgba(17,24,39,0.04)] hover:text-[#374151] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9ca3af]/35',
+              'text-[color:var(--pour-ink-2)] transition hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)]',
             )}
             aria-label="เปิดตัวกรองคำขอ"
           >

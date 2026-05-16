@@ -448,7 +448,7 @@ export function RequestNewPage() {
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex gap-0 rounded-2xl border border-[color:var(--pour-surface-border)] bg-white/80 px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
+      <div className="flex gap-0 rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
         {STEPS.map((label, i) => (
           <div key={label} className="flex min-w-0 flex-1 items-center">
             <div
@@ -462,7 +462,7 @@ export function RequestNewPage() {
             <span
               className={cn(
                 'ml-1 truncate text-[10px] pour-desktop:ml-1.5 pour-desktop:text-xs',
-                i === step ? 'font-semibold text-[#111827]' : 'text-[#9ca3af]',
+                i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
               )}
             >
               {label}

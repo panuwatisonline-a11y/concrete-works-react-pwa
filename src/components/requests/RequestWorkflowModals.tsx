@@ -35,6 +35,7 @@ import {
 } from '@/lib/utils'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import type { RequestWithRelations } from '@/types/app.types'
+import { modal as uiModal } from '@/lib/requestUi'
 
 /** ชั้น overlay / เนื้อหา — สูงกว่า dialog ทั่วไป (z-50) */
 const WF_OVERLAY = 'z-[260]'
@@ -281,7 +282,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       <Dialog open={modal === 'inspect'} onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent
           overlayClassName={WF_OVERLAY}
-          className={cn('max-h-[min(92dvh,720px)] max-w-lg overflow-y-auto', WF_CONTENT)}
+          className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
         >
           <DialogHeader>
             <DialogTitle>ตรวจสอบและแก้ไขข้อมูลงาน</DialogTitle>
@@ -376,7 +377,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 label="อัปโหลดรูปก่อนเท"
               />
               {!request?.before_image?.trim() ? (
-                <p className="text-xs text-[#6b7280]">ผู้จองยังไม่แนบรูป — ต้องอัปโหลดในนี้ก่อนยืนยันตรวจสอบ</p>
+                <p className="text-xs text-pour-muted">ผู้จองยังไม่แนบรูป — ต้องอัปโหลดในนี้ก่อนยืนยันตรวจสอบ</p>
               ) : null}
             </div>
             <div className="space-y-1.5">
@@ -409,7 +410,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       <Dialog open={modal === 'confirmOrder'} onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent
           overlayClassName={WF_OVERLAY}
-          className={cn('max-h-[min(92dvh,720px)] max-w-lg overflow-y-auto', WF_CONTENT)}
+          className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
         >
           <DialogHeader>
             <DialogTitle>ยืนยันการสั่งเทคอนกรีต</DialogTitle>
@@ -419,7 +420,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-xl border border-(--glass-border-subtle) bg-(--glass-bg-muted) px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">สรุปคำขอ</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-pour-muted">สรุปคำขอ</p>
               <dl className="mt-2 space-y-2 text-sm">
                 {(() => {
                   const client = (request.client as { client_name: string } | null)?.client_name
@@ -461,8 +462,8 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
                   return [...core, ...extra].map((row) => (
                     <div key={row.label} className="min-w-0 border-b border-(--glass-border-subtle) pb-2 last:border-0 last:pb-0">
-                      <dt className="text-[11px] font-medium leading-tight text-[#6b7280]">{row.label}</dt>
-                      <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[#111827]">{row.value}</dd>
+                      <dt className="text-[11px] font-medium leading-tight text-pour-muted">{row.label}</dt>
+                      <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[color:var(--pour-ink-0)]">{row.value}</dd>
                     </div>
                   ))
                 })()}
@@ -535,7 +536,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       />
 
       <Dialog open={modal === 'reject'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn('max-w-md', WF_CONTENT)}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_CONTENT)}>
           <DialogHeader><DialogTitle>ระบุเหตุผล Reject</DialogTitle></DialogHeader>
           <div className="space-y-2">
             <Label>เหตุผล <span className="text-zinc-600">*</span></Label>
@@ -551,7 +552,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       </Dialog>
 
       <Dialog open={modal === 'postpone'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn('max-w-md', WF_CONTENT)}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_CONTENT)}>
           <DialogHeader><DialogTitle>เลื่อนวันเทคอนกรีต</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -582,7 +583,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       </Dialog>
 
       <Dialog open={modal === 'complete'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn('max-w-lg', WF_CONTENT)}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.lg, WF_CONTENT)}>
           <DialogHeader><DialogTitle>Confirm รายการ & ดำเนินการ</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -597,7 +598,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 onUploadingChange={setCompleteAfterUploading}
                 folder="after"
               />
-              <p className="text-xs text-[#6b7280]">ต้องอัปโหลดรูปให้ครบ และรอให้ระบบรับลิงก์ก่อนกด Confirm</p>
+              <p className="text-xs text-pour-muted">ต้องอัปโหลดรูปให้ครบ และรอให้ระบบรับลิงก์ก่อนกด Confirm</p>
             </div>
             <div className="space-y-1.5">
               <Label>หมายเหตุ</Label>

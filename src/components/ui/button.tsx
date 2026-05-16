@@ -17,7 +17,7 @@ const buttonVariants = cva(
         secondary:
           'border border-[color:var(--glass-border-subtle)] bg-[var(--pour-bg-2)] text-[color:var(--pour-ink-0)] shadow-none hover:bg-[var(--pour-line)]',
         ghost:
-          'text-[color:var(--pour-ink-1)] hover:bg-neutral-900/[0.06]',
+          'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
         link:
           'font-semibold text-[color:var(--pour-accent)] underline-offset-2 hover:text-[color:var(--pour-accent-hover)] hover:underline',
         warning:

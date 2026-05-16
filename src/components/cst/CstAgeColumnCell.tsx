@@ -29,7 +29,7 @@ function cstAgeCellClass(saved: boolean, interactive: boolean) {
       ? 'border-[rgba(22,163,74,0.45)] bg-[rgba(22,163,74,0.12)] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]'
       : cn(
           glass.borderSubtle,
-          'border-dashed bg-white/40 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]',
+          'border-dashed bg-[color:var(--glass-bg-muted)] shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]',
         ),
     interactive &&
       !saved &&
@@ -43,7 +43,7 @@ function cstAgeCellClass(saved: boolean, interactive: boolean) {
 function dateClass(saved: boolean) {
   return cn(
     'text-[11px] font-semibold leading-tight tabular-nums',
-    saved ? 'text-[#15803d]' : 'text-pour-muted',
+    saved ? 'text-[#4ade80]' : 'text-pour-muted',
   )
 }
 

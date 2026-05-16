@@ -4,6 +4,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { modal } from '@/lib/requestUi'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
@@ -56,7 +57,7 @@ export function ConfirmModal({
     <Dialog open={open} onOpenChange={(o) => { if (!o) { setNote(''); onClose() } }}>
       <DialogContent
         overlayClassName={overlayClassName}
-        className={cn('max-w-lg', dialogContentClassName)}
+        className={cn(modal.md, dialogContentClassName)}
       >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

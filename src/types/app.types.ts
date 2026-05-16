@@ -209,16 +209,16 @@ export interface RequestFilter {
   search: string
 }
 
-/** POUR-style status chips: soft tint + semantic border */
+/** Status chips — tuned for dark UI */
 export const STATUS_COLORS: Record<number, string> = {
-  1: 'border border-[rgba(107,114,128,0.28)] bg-[rgba(107,114,128,0.10)] text-[#6b7280]',
-  2: 'border border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.10)] text-[#d97706]',
+  1: 'border border-[rgba(163,163,163,0.35)] bg-[rgba(163,163,163,0.12)] text-[#d4d4d4]',
+  2: 'border border-[rgba(251,191,36,0.35)] bg-[rgba(251,191,36,0.12)] text-[#fbbf24]',
   3: 'border border-[var(--pour-accent-ring)] bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent)]',
-  4: 'border border-[rgba(8,145,178,0.28)] bg-[rgba(8,145,178,0.10)] text-[#0891b2]',
-  5: 'border border-[rgba(217,119,6,0.35)] bg-[rgba(217,119,6,0.12)] text-[#b45309]',
-  6: 'border border-[rgba(220,38,38,0.28)] bg-[rgba(220,38,38,0.10)] text-[#dc2626]',
-  7: 'border border-dashed border-[#c8ced8] bg-white text-[#6b7280]',
-  8: 'border border-[rgba(22,163,74,0.28)] bg-[rgba(22,163,74,0.10)] text-[#16a34a]',
+  4: 'border border-[rgba(34,211,238,0.35)] bg-[rgba(34,211,238,0.12)] text-[#22d3ee]',
+  5: 'border border-[rgba(251,146,60,0.35)] bg-[rgba(251,146,60,0.14)] text-[#fb923c]',
+  6: 'border border-[rgba(248,113,113,0.35)] bg-[rgba(248,113,113,0.12)] text-[#f87171]',
+  7: 'border border-dashed border-[color:var(--pour-line)] bg-[color:var(--glass-bg-muted)] text-pour-muted',
+  8: 'border border-[rgba(74,222,128,0.35)] bg-[rgba(74,222,128,0.12)] text-[#4ade80]',
 }
 
 export const STATUS_LABELS: Record<number, string> = {

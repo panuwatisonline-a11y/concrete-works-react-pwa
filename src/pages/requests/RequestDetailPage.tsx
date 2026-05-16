@@ -153,7 +153,7 @@ export function RequestDetailPage() {
       <div className={rq.page}>
         <div className="flex flex-col items-center justify-center py-20">
           <div className={rq.spinner} />
-          <p className="mt-3 text-sm text-[#6b7280]">กำลังโหลด…</p>
+          <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
         </div>
       </div>
     )
@@ -168,7 +168,7 @@ export function RequestDetailPage() {
   if (!request) {
     return (
       <div className={rq.page}>
-        <p className="py-16 text-center text-sm text-[#6b7280]">ไม่พบข้อมูล</p>
+        <p className="py-16 text-center text-sm text-pour-muted">ไม่พบข้อมูล</p>
       </div>
     )
   }
@@ -185,7 +185,7 @@ export function RequestDetailPage() {
         onBack={() => navigate(-1)}
         title={
           <span className="flex flex-wrap items-center gap-2">
-            <span className="font-pour-mono text-base font-bold tracking-tight text-[#374151] pour-desktop:text-lg">{shortId(request.id)}</span>
+            <span className="font-pour-mono text-base font-bold tracking-tight text-[color:var(--pour-ink-1)] pour-desktop:text-lg">{shortId(request.id)}</span>
             <StatusBadge statusId={sid} size="lg" />
           </span>
         }
@@ -255,8 +255,8 @@ export function RequestDetailPage() {
                 label: 'รหัสคำขอ',
                 value: (
                   <span className="min-w-0">
-                    <span className="font-mono font-semibold text-[#374151]">{shortId(request.id)}</span>
-                    <span className="mt-1 block break-all font-mono text-[10px] leading-snug text-[#9ca3af]">{request.id}</span>
+                    <span className="font-mono font-semibold text-[color:var(--pour-ink-1)]">{shortId(request.id)}</span>
+                    <span className="mt-1 block break-all font-mono text-[10px] leading-snug text-pour-subtle">{request.id}</span>
                   </span>
                 ),
               },
@@ -332,7 +332,7 @@ export function RequestDetailPage() {
                       aria-label={request.after_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปก่อนเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.before_image, 'detail') ?? request.before_image}
                           alt=""
@@ -352,7 +352,7 @@ export function RequestDetailPage() {
                       aria-label={request.before_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปหลังเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.after_image, 'detail') ?? request.after_image}
                           alt=""
@@ -381,7 +381,7 @@ export function RequestDetailPage() {
             <CardTitle className={rq.cardTitle}>หมายเหตุ</CardTitle>
           </CardHeader>
           <CardContent className={rq.cardContent}>
-            <p className="whitespace-pre-wrap rounded-xl bg-[#f5f6f8]/80 px-3 py-2.5 text-sm leading-relaxed text-[#374151] ring-1 ring-[color:var(--pour-surface-border)]/80">{request.remarks}</p>
+            <p className="whitespace-pre-wrap rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--pour-ink-1)] ring-1 ring-[color:var(--pour-surface-border)]/80">{request.remarks}</p>
           </CardContent>
         </Card>
       )}
@@ -390,19 +390,19 @@ export function RequestDetailPage() {
       <Card className={rq.card}>
         <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
           <CardTitle className={cn(rq.cardTitle, 'flex items-center gap-2')}>
-            <History className="h-4 w-4 shrink-0 text-[#6b7280]" strokeWidth={1.75} aria-hidden />
+            <History className="h-4 w-4 shrink-0 text-pour-muted" strokeWidth={1.75} aria-hidden />
             History
           </CardTitle>
         </CardHeader>
         <CardContent className={cn(rq.cardContent, 'space-y-4')}>
           {filteredLogs.length === 0 ? (
-            <p className="text-sm text-[#6b7280]">ไม่พบรายการที่ตรงกับคำค้น</p>
+            <p className="text-sm text-pour-muted">ไม่พบรายการที่ตรงกับคำค้น</p>
           ) : (
             filteredLogs.map((log) => (
             <div key={log.id} className="flex gap-3">
               <div className={rq.timelineDot} />
               <div className="min-w-0 text-sm">
-                <p className="font-semibold text-[#374151]">
+                <p className="font-semibold text-[color:var(--pour-ink-1)]">
                   <StatusBadge statusId={log.status_id ?? 0} size="sm" />
                 </p>
                 <p className={cn('mt-0.5', rq.sub)}>
@@ -410,7 +410,7 @@ export function RequestDetailPage() {
                     ? `${(log.profile as { fname: string | null }).fname ?? ''} ${(log.profile as { lname: string | null }).lname ?? ''}`.trim()
                     : '-'} · {formatDateTime(log.created_at)}
                 </p>
-                {log.note && <p className="mt-1 text-[#6b7280] italic">"{log.note}"</p>}
+                {log.note && <p className="mt-1 text-pour-muted italic">"{log.note}"</p>}
               </div>
             </div>
           ))
@@ -440,7 +440,7 @@ export function RequestDetailPage() {
           className={cn(
             'flex h-[calc(100dvh-10px)] max-h-none w-[calc(100vw-10px)] max-w-none flex-col overflow-hidden gap-0 rounded-2xl border-0 bg-zinc-950/96 p-0 shadow-none sm:h-[calc(100dvh-16px)] sm:w-[calc(100vw-16px)]',
             'pt-12 pb-[max(10px,env(safe-area-inset-bottom,0px))] pl-[max(6px,env(safe-area-inset-left,0px))] pr-[max(6px,env(safe-area-inset-right,0px))]',
-            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-white/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
+            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-[color:var(--glass-bg-strong)]/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
           )}
         >
           <DialogTitle className="sr-only">

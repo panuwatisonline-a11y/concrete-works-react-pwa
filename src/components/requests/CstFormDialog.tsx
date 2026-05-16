@@ -53,13 +53,13 @@ import { localPrintCstReport, warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { cstReportNoFromSuffix, cstReportNoPrefix, cstReportNoSuffix } from '@/lib/cstReportNo'
 import { cstStrengthUnitLabel } from '@/lib/cstStrengthReportTemplate'
 import { cn, shortId } from '@/lib/utils'
-import { layout, rq } from '@/lib/requestUi'
+import { layout, modal, rq } from '@/lib/requestUi'
 import { CstRequestPourInfo } from '@/components/requests/CstRequestPourInfo'
 import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 
 const CST_OVERLAY = 'z-[260]'
-const CST_CONTENT = '!z-[270] max-w-4xl sm:max-w-4xl'
+const CST_CONTENT = cn('!z-[270]', modal.xl)
 /** ฟิลด์คู่ (วันทดสอบ / เครื่องอัด) — คอลัมน์เดียวแนวตั้ง, สองคอลัมน์เมื่อ pour-desktop */
 const CST_META_GRID = 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2'
 const CST_CONFIRM_OVERLAY = 'z-[280]'
@@ -105,21 +105,21 @@ function ComputedPreview({ view, strengthUnit }: { view: CstViewRow; strengthUni
 
   return (
     <div className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)]/60 p-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6b7280]">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-pour-muted">
         ผลคำนวณ (จากระบบ)
-        <span className="ml-2 font-normal normal-case text-[#9ca3af]">{rows.length} ตัวอย่าง</span>
+        <span className="ml-2 font-normal normal-case text-pour-subtle">{rows.length} ตัวอย่าง</span>
       </p>
       <div className="max-h-56 overflow-y-auto overscroll-y-contain">
         <div className="grid min-w-[280px] grid-cols-4 gap-x-2 gap-y-1 text-center text-xs sm:text-sm">
-          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[#374151]">ตัวอย่าง</span>
-          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[#374151]">Density</span>
-          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[#374151]">Adj (kN)</span>
-          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[#374151]">{unit}</span>
+          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[color:var(--pour-ink-1)]">ตัวอย่าง</span>
+          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[color:var(--pour-ink-1)]">Density</span>
+          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[color:var(--pour-ink-1)]">Adj (kN)</span>
+          <span className="sticky top-0 bg-[var(--glass-bg)]/95 py-1 font-semibold text-[color:var(--pour-ink-1)]">{unit}</span>
           {rows.map((r) => (
             <div key={r.index} className="contents">
-              <span className="tabular-nums text-[#374151]">{r.label}</span>
+              <span className="tabular-nums text-[color:var(--pour-ink-1)]">{r.label}</span>
               <span className="tabular-nums">{r.density}</span>
-              <span className="tabular-nums text-[#6b7280]">{r.adj}</span>
+              <span className="tabular-nums text-pour-muted">{r.adj}</span>
               <span className="tabular-nums font-medium text-[color:var(--pour-accent)]">{r.ksc}</span>
             </div>
           ))}
@@ -130,7 +130,7 @@ function ComputedPreview({ view, strengthUnit }: { view: CstViewRow; strengthUni
           {groupAvgs.map(({ group, avg }) => (
             <span
               key={group}
-              className="rounded-full border border-[color:var(--glass-border-subtle)] bg-white/70 px-2.5 py-0.5 text-xs tabular-nums text-[#374151]"
+              className="rounded-full border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]/70 px-2.5 py-0.5 text-xs tabular-nums text-[color:var(--pour-ink-1)]"
             >
               ชุด {group} เฉลี่ย <strong className="text-[color:var(--pour-accent)]">{avg}</strong> {unit}
             </span>
@@ -322,7 +322,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
         {loading || !values || age == null ? (
           <div className="flex flex-col items-center justify-center gap-2 py-16">
             <Loader2 className="h-8 w-8 animate-spin text-[color:var(--pour-accent)]" aria-hidden />
-            <p className="text-sm text-[#6b7280]">กำลังโหลดฟอร์ม…</p>
+            <p className="text-sm text-pour-muted">กำลังโหลดฟอร์ม…</p>
           </div>
         ) : (
           <div className="min-w-0 space-y-5">
@@ -334,7 +334,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   onChange={(e) => setValues((v) => v && { ...v, report_no: e.target.value })}
                   placeholder={`เช่น ${cstReportNoPrefix(age)}000001`}
                 />
-                <p className="text-xs text-[#9ca3af]">
+                <p className="text-xs text-pour-subtle">
                   สร้างอัตโนมัติเมื่อบันทึกครั้งแรกของคำขอเท — ลำดับเลขเดียวกันทุกอายุ (R1, R3, R7… ตามวันทดสอบ)
                 </p>
               </div>
@@ -402,12 +402,12 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
               return (
                 <section
                   key={groupNo}
-                  className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-white/40 p-3 sm:p-4"
+                  className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] p-3 sm:p-4"
                 >
                   <div className="mb-3 flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-[#374151]">
+                    <h3 className="text-sm font-semibold text-[color:var(--pour-ink-1)]">
                       ชุดที่ {groupNo}
-                      <span className="ml-2 font-normal text-[#9ca3af]">
+                      <span className="ml-2 font-normal text-pour-subtle">
                         · ตัวอย่าง {startIdx + 1}–{startIdx + rows.length}
                       </span>
                     </h3>
@@ -416,7 +416,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 shrink-0 rounded-lg text-[#9ca3af] hover:bg-rose-50 hover:text-rose-600"
+                        className="h-8 w-8 shrink-0 rounded-lg text-pour-subtle hover:bg-rose-50 hover:text-rose-600"
                         aria-label={`ลบชุดที่ ${groupNo}`}
                         onClick={() => handleRemoveGroup(g)}
                       >
@@ -427,7 +427,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   <div className="hidden overflow-x-auto sm:block">
                     <table className="w-full min-w-[520px] border-collapse text-sm">
                       <thead>
-                        <tr className="border-b border-[#e5e7eb] text-left text-xs text-[#6b7280]">
+                        <tr className="border-b border-[color:var(--glass-border-subtle)] text-left text-xs text-pour-muted">
                           <th className="pb-2 pr-2 font-medium">#</th>
                           <th className="pb-2 pr-2 font-medium">Sample No.</th>
                           <th className="pb-2 pr-2 font-medium">น้ำหนัก (kg)</th>
@@ -445,7 +445,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                           const idx = startIdx + ri
                           return (
                             <tr key={idx} className="border-b border-[#f3f4f6] last:border-0">
-                              <td className="py-2 pr-2 tabular-nums text-[#9ca3af]">{idx + 1}</td>
+                              <td className="py-2 pr-2 tabular-nums text-pour-subtle">{idx + 1}</td>
                               <td className="py-2 pr-2">
                                 <Input
                                   className="h-9"
@@ -563,9 +563,9 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                       return (
                         <div
                           key={idx}
-                          className="rounded-lg border border-[#e5e7eb] bg-white/80 p-3 space-y-2"
+                          className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-3 space-y-2"
                         >
-                          <p className="text-xs font-semibold text-[#6b7280]">ตัวอย่างที่ {idx + 1}</p>
+                          <p className="text-xs font-semibold text-pour-muted">ตัวอย่างที่ {idx + 1}</p>
                           <div className="grid grid-cols-2 gap-2">
                             <div className="col-span-2 space-y-1">
                               <Label className="text-xs">Sample No.</Label>
@@ -705,7 +705,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
               >
                 <Plus className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
                 เพิ่มชุดที่ {visibleGroups + 1}
-                <span className="text-[#9ca3af]">
+                <span className="text-pour-subtle">
                   ({visibleGroups}/{groupCount})
                 </span>
               </Button>

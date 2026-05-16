@@ -37,13 +37,13 @@ const cstTableCompact = {
     tableCompact.head,
     '[&_th.cst-age-col]:max-w-none [&_th.cst-age-col]:w-[5rem] [&_th.cst-age-col]:px-1 [&_th.cst-age-col]:text-center [&_th.cst-age-col]:normal-case [&_th.cst-age-col]:tracking-normal',
     '[&_th.cst-age-col:first-of-type]:border-l-2 [&_th.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
-    '[&_th.cst-age-col]:bg-[rgba(17,24,39,0.03)]',
+    '[&_th.cst-age-col]:bg-[color:var(--pour-bg-2)]/60',
   ),
   body: cn(
     tableCompact.body,
     '[&_td.cst-age-col]:max-w-none [&_td.cst-age-col]:w-[5rem] [&_td.cst-age-col]:px-1 [&_td.cst-age-col]:align-top',
     '[&_td.cst-age-col:first-of-type]:border-l-2 [&_td.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
-    '[&_td.cst-age-col]:bg-[rgba(17,24,39,0.02)]',
+    '[&_td.cst-age-col]:bg-[color:var(--pour-bg-2)]/40',
   ),
 } as const
 
@@ -137,7 +137,7 @@ function CstMobileCard({
     <article className={cn(rq.card, 'overflow-hidden text-xs leading-tight')}>
       <button
         type="button"
-        className="w-full cursor-pointer text-left transition-colors hover:bg-[rgba(17,24,39,0.03)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)] focus-visible:ring-inset"
+        className="w-full cursor-pointer text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)] focus-visible:ring-inset"
         onClick={onInfoClick}
       >
         <div className="flex items-start justify-between gap-2 border-b border-[color:var(--glass-border-subtle)] px-3 py-2">
@@ -158,7 +158,7 @@ function CstMobileCard({
           )}
         </div>
       </button>
-      <div className="border-t border-[color:var(--glass-border)] bg-[rgba(17,24,39,0.02)] px-3 py-2.5">
+      <div className="border-t border-[color:var(--glass-border)] bg-[color:var(--pour-bg-2)]/50 px-4 py-3">
         <p className={cn(rq.actions.sectionLabel, 'mb-2 text-[10px]')}>บันทึกผล CST</p>
         <CstAgeQuickActions
           savedAges={savedAges}
@@ -213,7 +213,7 @@ function CstListContent({
         })}
       </div>
 
-      <div className={cn(app.tableWrapDesktop, 'mt-0')}>
+      <div className={cn(app.tableWrapNested, 'mt-0')}>
         <table className={cstTableCompact.table}>
           <thead className={cstTableCompact.head}>
             <tr>
@@ -412,7 +412,7 @@ export function CstListPage() {
       {loading && requests.length === 0 && dueTodayRequests.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className={rq.spinner} />
-          <p className="mt-3 text-sm text-[#6b7280]">กำลังโหลด…</p>
+          <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
         </div>
       ) : error && requests.length === 0 ? (
         <p className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800">
@@ -461,7 +461,7 @@ export function CstListPage() {
               <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>
                 ก่อนหน้า
               </Button>
-              <span className="text-sm text-[#6b7280]">
+              <span className="text-sm text-pour-muted">
                 หน้า {page + 1} / {pageCount}
               </span>
               <Button

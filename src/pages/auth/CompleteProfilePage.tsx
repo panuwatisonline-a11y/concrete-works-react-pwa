@@ -148,12 +148,12 @@ export function CompleteProfilePage() {
       <div className={app.shellInner}>
         <Card className="w-full max-w-md">
           <CardHeader className={cn(rq.cardHeader, 'space-y-1 text-center')}>
-            <CardTitle className="text-2xl font-extrabold tracking-tight text-[#111827]">Concrete Works</CardTitle>
-            <CardDescription className="text-sm text-[#6b7280]">
+            <CardTitle className="text-2xl font-extrabold tracking-tight text-[color:var(--pour-ink-0)]">Concrete Works</CardTitle>
+            <CardDescription className="text-sm text-pour-muted">
               กรอกข้อมูลเพื่อเริ่มใช้งาน — ทำเพียงครั้งเดียว
             </CardDescription>
             {user?.email && (
-              <p className="text-xs text-[#9ca3af]">{user.email}</p>
+              <p className="text-xs text-pour-subtle">{user.email}</p>
             )}
           </CardHeader>
           <CardContent className={rq.cardContent}>
@@ -215,7 +215,7 @@ export function CompleteProfilePage() {
                 {loading ? 'กำลังบันทึก...' : 'เริ่มใช้งาน'}
               </Button>
             </form>
-            <p className="mt-4 text-center text-xs text-[#9ca3af]">
+            <p className="mt-4 text-center text-xs text-pour-subtle">
               ไม่ใช่บัญชีของคุณ?{' '}
               <Link
                 to="/login"

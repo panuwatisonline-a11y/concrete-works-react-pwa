@@ -34,8 +34,8 @@ export function TrendGranularityToggle({
           className={cn(
             'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
             value === g
-              ? 'bg-white text-[color:var(--pour-accent)] shadow-sm ring-1 ring-[color:var(--pour-surface-border)]'
-              : 'text-[#64748b] hover:bg-white/80 hover:text-[#111827]',
+              ? 'bg-[color:var(--glass-bg)] text-[color:var(--pour-accent)] shadow-sm ring-1 ring-[color:var(--pour-surface-border)]'
+              : 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
           )}
         >
           {TREND_LABELS[g]}
@@ -115,7 +115,7 @@ export function VolumeTrendDualLineChart({
 
   if (loading) {
     return (
-      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-56">
+      <div className="flex min-h-44 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-sm text-pour-muted shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-56">
         กำลังโหลดกราฟ…
       </div>
     )
@@ -123,7 +123,7 @@ export function VolumeTrendDualLineChart({
 
   if (points.length === 0) {
     return (
-      <div className="flex min-h-44 items-center justify-center rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-56">
+      <div className="flex min-h-44 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-sm text-pour-muted shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-56">
         ไม่มีข้อมูลในช่วงที่เลือก (ต้องมีวันเลื่อน วันเท หรือวันที่จองสำหรับจัดกลุ่มกราฟ)
       </div>
     )
@@ -143,9 +143,9 @@ export function VolumeTrendDualLineChart({
       : pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.yc.toFixed(1)}`).join(' ')
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
       <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
-        <p className="text-[11px] leading-snug text-[#64748b] pour-desktop:text-xs">
+        <p className="text-[11px] leading-snug text-pour-muted pour-desktop:text-xs">
           สะสมต่อช่วง: วันเลื่อน (postpone) ก่อน แล้ววันเท แล้ววันที่จอง — เทียบ Request volume กับ Confirmed volume
         </p>
       </div>
@@ -160,26 +160,26 @@ export function VolumeTrendDualLineChart({
           role="img"
           aria-label="กราฟแนวโน้มปริมาณคำขอและยืนยันเท"
         >
-            <rect x={x0} y={y0} width={innerW} height={innerH} fill="#f8fafc" rx="8" />
+            <rect x={x0} y={y0} width={innerW} height={innerH} fill="var(--chart-surface)" rx="8" />
             {tickVs.map((v) => {
               const y = y1 - (v / maxY) * innerH
               return (
                 <g key={`gy-${v}`}>
-                  <line x1={x0} y1={y} x2={x1} y2={y} stroke="#e2e8f0" strokeWidth="1" />
-                  <text x={x0 - 8} y={y + 4} textAnchor="end" className="fill-[#94a3b8] text-[11px] font-medium">
+                  <line x1={x0} y1={y} x2={x1} y2={y} stroke="var(--chart-grid)" strokeWidth="1" />
+                  <text x={x0 - 8} y={y + 4} textAnchor="end" className="fill-[color:var(--chart-axis)] text-[11px] font-medium">
                     {formatVolumeNumber(v)}
                   </text>
                 </g>
               )
             })}
-            <line x1={x0} y1={y0} x2={x0} y2={y1} stroke="#cbd5e1" strokeWidth="1" />
-            <line x1={x0} y1={y1} x2={x1} y2={y1} stroke="#cbd5e1" strokeWidth="1" />
+            <line x1={x0} y1={y0} x2={x0} y2={y1} stroke="var(--chart-grid)" strokeWidth="1" />
+            <line x1={x0} y1={y1} x2={x1} y2={y1} stroke="var(--chart-grid)" strokeWidth="1" />
 
             {pathR ? (
               <path
                 d={pathR}
                 fill="none"
-                stroke="#64748b"
+                stroke="#a3a3a3"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -189,7 +189,7 @@ export function VolumeTrendDualLineChart({
               <path
                 d={pathC}
                 fill="none"
-                stroke="#171717"
+                stroke="#e5e5e5"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -198,12 +198,12 @@ export function VolumeTrendDualLineChart({
 
             {pts.map((p) => (
               <g key={p.key}>
-                <circle cx={p.x} cy={p.yr} r="4" fill="white" stroke="#64748b" strokeWidth="2">
+                <circle cx={p.x} cy={p.yr} r="4" fill="#333333" stroke="#a3a3a3" strokeWidth="2">
                   <title>
                     Request: {formatVolumeNumber(p.requestVol)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
                 </circle>
-                <circle cx={p.x} cy={p.yc} r="4" fill="white" stroke="[color:var(--pour-accent)]" strokeWidth="2">
+                <circle cx={p.x} cy={p.yc} r="4" fill="#333333" stroke="[color:var(--pour-accent)]" strokeWidth="2">
                   <title>
                     Confirm: {formatVolumeNumber(p.confirmVol)} m³ — {formatTrendAxisLabel(p.key, granularity)}
                   </title>
@@ -219,14 +219,14 @@ export function VolumeTrendDualLineChart({
                   x={p.x}
                   y={vbH - 10}
                   textAnchor={n <= 2 ? 'middle' : i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}
-                  className="fill-[#6b7280] text-[8.5px] pour-desktop:text-[9.5px]"
+                  className="fill-[color:var(--chart-label)] text-[8.5px] pour-desktop:text-[9.5px]"
                 >
                   {label}
                 </text>
               )
             })}
         </svg>
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[color:var(--pour-surface-border)]/80 pt-3 text-[10px] text-[#374151] pour-desktop:text-xs">
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[color:var(--pour-surface-border)]/80 pt-3 text-[10px] text-[color:var(--pour-ink-1)] pour-desktop:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-5 rounded-sm bg-[#64748b]" aria-hidden />
             Request volume (m³)
@@ -261,7 +261,7 @@ export function HorizontalVolumeBarChart({
 }) {
   if (loading) {
     return (
-      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-48">
+      <div className="flex min-h-36 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-sm text-pour-muted shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-48">
         กำลังโหลด…
       </div>
     )
@@ -269,7 +269,7 @@ export function HorizontalVolumeBarChart({
 
   if (slices.length === 0) {
     return (
-      <div className="flex min-h-36 items-center justify-center rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-48">
+      <div className="flex min-h-36 items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-sm text-pour-muted shadow-[0_1px_3px_rgba(0,0,0,0.04)] pour-desktop:min-h-48">
         {emptyMessage}
       </div>
     )
@@ -278,10 +278,10 @@ export function HorizontalVolumeBarChart({
   const maxV = Math.max(...slices.map((s) => s.volume), 1)
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
       <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
-        <p className="text-sm font-semibold text-[#111827]">{title}</p>
-        {subtitle ? <p className="mt-0.5 text-[11px] text-[#64748b] pour-desktop:text-xs">{subtitle}</p> : null}
+        <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">{title}</p>
+        {subtitle ? <p className="mt-0.5 text-[11px] text-pour-muted pour-desktop:text-xs">{subtitle}</p> : null}
       </div>
       <div className="space-y-3 p-3 pour-desktop:p-4">
         {slices.map((s) => {
@@ -289,14 +289,14 @@ export function HorizontalVolumeBarChart({
           return (
             <div key={s.label} className="min-w-0">
               <div className="mb-1 flex items-baseline justify-between gap-2 text-xs">
-                <span className="min-w-0 truncate font-medium text-[#374151]" title={s.label}>
+                <span className="min-w-0 truncate font-medium text-[color:var(--pour-ink-1)]" title={s.label}>
                   {s.label}
                 </span>
-                <span className="shrink-0 tabular-nums text-[#6b7280]">
+                <span className="shrink-0 tabular-nums text-pour-muted">
                   {formatVolumeNumber(s.volume)} m³ · {formatPercentNumber(s.pct)}%
                 </span>
               </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-[#eef2f7]">
+              <div className="h-2.5 overflow-hidden rounded-full bg-[color:var(--pour-bg-2)]">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-neutral-600 to-neutral-900 transition-[width] duration-500"
                   style={{ width: `${wPct}%` }}
@@ -310,9 +310,9 @@ export function HorizontalVolumeBarChart({
           )
         })}
       </div>
-      <div className="border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-[10px] text-[#64748b] pour-desktop:px-4">
+      <div className="border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-[10px] text-pour-muted pour-desktop:px-4">
         รวม confirmed volume ทั้งหมดในกราฟนี้:{' '}
-        <span className="font-semibold text-[#111827]">
+        <span className="font-semibold text-[color:var(--pour-ink-0)]">
           {fmtVolSummary(slices.reduce((a, b) => a + b.volume, 0))} m³
         </span>
       </div>
@@ -345,7 +345,7 @@ export function StatusVolumeStrip({
 
   if (loading) {
     return (
-      <div className="flex min-h-[4rem] items-center justify-center rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white text-sm text-[#6b7280]">
+      <div className="flex min-h-[4rem] items-center justify-center rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-sm text-pour-muted">
         กำลังโหลดสัดส่วนสถานะ…
       </div>
     )
@@ -353,22 +353,22 @@ export function StatusVolumeStrip({
 
   if (total === 0) {
     return (
-      <div className="rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white px-4 py-6 text-center text-sm text-[#6b7280]">
+      <div className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] px-4 py-6 text-center text-sm text-pour-muted">
         ยังไม่มีคำขอในระบบ
       </div>
     )
   }
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
       <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
-        <p className="text-sm font-semibold text-[#111827]">สัดส่วนสถานะคำขอ</p>
-        <p className="mt-0.5 text-[11px] text-[#64748b] pour-desktop:text-xs">
+        <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">สัดส่วนสถานะคำขอ</p>
+        <p className="mt-0.5 text-[11px] text-pour-muted pour-desktop:text-xs">
           ทั้งหมด {total} รายการ — ชี้ที่แถบสีเพื่อดูรายละเอียดใน tooltip
         </p>
       </div>
       <div className="p-3 pour-desktop:p-4">
-        <div className="flex h-4 overflow-hidden rounded-full bg-[#eef2f7] ring-1 ring-[color:var(--pour-surface-border)]/80">
+        <div className="flex h-4 overflow-hidden rounded-full bg-[color:var(--pour-bg-2)] ring-1 ring-[color:var(--pour-surface-border)]/80">
           {ORDER.map((id) => {
             const c = counts[id] ?? 0
             if (c === 0) return null
@@ -392,15 +392,15 @@ export function StatusVolumeStrip({
             return (
               <li
                 key={id}
-                className="flex items-center justify-between gap-2 rounded-lg border border-[#eef2f7] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-xs"
+                className="flex items-center justify-between gap-2 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-xs"
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ backgroundColor: colors[id] }} />
-                  <span className="truncate font-medium text-[#374151]" title={name}>
+                  <span className="truncate font-medium text-[color:var(--pour-ink-1)]" title={name}>
                     {name}
                   </span>
                 </span>
-                <span className="shrink-0 tabular-nums text-[#6b7280]">
+                <span className="shrink-0 tabular-nums text-pour-muted">
                   {c} ({formatPercentNumber(pct)}%)
                 </span>
               </li>

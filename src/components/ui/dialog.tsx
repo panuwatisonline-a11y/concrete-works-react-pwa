@@ -15,7 +15,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      'fixed inset-0 z-50 bg-[#111827]/35 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
       className
     )}
     {...props}
@@ -36,10 +36,11 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'pour-glass fixed left-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 gap-4 rounded-2xl p-6 text-(--pour-ink-0) duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'pour-glass fixed left-[50%] z-50 grid w-[calc(100vw-1.5rem)] max-w-md -translate-x-1/2 gap-4 rounded-2xl p-5 text-(--pour-ink-0) duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+        'sm:max-w-lg sm:p-6 pour-desktop:max-w-xl',
         'top-[max(0.75rem,env(safe-area-inset-top,0px))] translate-y-0',
         'max-h-[calc(100dvh-1.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))]',
-        'sm:top-[50%] sm:max-h-[min(85dvh,calc(100dvh-2rem))] sm:-translate-y-1/2',
+        'sm:top-[50%] sm:max-h-[min(90dvh,calc(100dvh-2rem))] sm:-translate-y-1/2',
         'overflow-y-auto overscroll-y-contain',
         'pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
         className
@@ -66,7 +67,7 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex flex-col-reverse gap-2 border-t border-(--glass-border-subtle) pt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3',
+      'flex flex-col-reverse gap-3 border-t border-(--glass-border-subtle) pt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:pt-6',
       '[&>button]:w-full sm:[&>button]:w-auto',
       className,
     )}
@@ -81,7 +82,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-xl font-semibold leading-tight tracking-[-0.015em]', className)}
+    className={cn('text-base font-semibold leading-snug tracking-[-0.01em] sm:text-lg', className)}
     {...props}
   />
 ))
@@ -93,7 +94,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-(--pour-ink-2) leading-relaxed', className)}
+    className={cn('text-[13px] text-(--pour-ink-2) leading-relaxed', className)}
     {...props}
   />
 ))

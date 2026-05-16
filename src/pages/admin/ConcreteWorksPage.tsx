@@ -154,7 +154,7 @@ export function ConcreteWorksPage() {
                   masterNames={structureNamesFromMaster}
                 />
               ) : (
-                <p className="text-sm text-[#6b7280]">กำลังโหลดรายการโครงสร้าง…</p>
+                <p className="text-sm text-pour-muted">กำลังโหลดรายการโครงสร้าง…</p>
               )}
             </div>
           </div>

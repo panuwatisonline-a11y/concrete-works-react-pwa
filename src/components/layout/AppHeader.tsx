@@ -189,7 +189,7 @@ export function AppHeader() {
           </button>
         </div>
 
-        <MobilePrimaryNav />
+        {!location.pathname.startsWith('/requests') ? <MobilePrimaryNav /> : null}
         <MobileRequestListHeader />
       </header>
 

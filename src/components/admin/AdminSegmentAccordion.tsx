@@ -1,6 +1,7 @@
 ﻿import { useState, type ReactNode } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { frame } from '@/lib/requestUi'
 
 export interface AdminSegmentGroup {
   id: string
@@ -30,38 +31,33 @@ export function AdminSegmentAccordion({ groups, defaultOpenId }: AdminSegmentAcc
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {groups.map((g) => {
         const isOpen = openId === g.id
         return (
-          <div
-            key={g.id}
-            className="overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-          >
+          <div key={g.id} className={frame.section}>
             <button
               type="button"
               onClick={() => toggle(g.id)}
               aria-expanded={isOpen}
-              className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-[#f5f6f8]/80"
+              className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-[color:var(--pour-nav-hover-bg)]/70 sm:px-5"
             >
-              <span className="flex min-w-0 flex-1 items-center gap-2">
+              <span className="flex min-w-0 flex-1 items-center gap-2.5">
                 <ChevronDown
                   className={cn(
-                    'h-4 w-4 shrink-0 text-[#6b7280] transition-transform duration-200',
+                    'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
                     isOpen && 'rotate-180',
                   )}
                   strokeWidth={2}
                   aria-hidden
                 />
-                <span className="truncate font-semibold text-[#111827]">{g.label}</span>
-                <span className="shrink-0 rounded-full bg-[#dcfce7] px-2 py-0.5 text-xs font-medium tabular-nums text-[#6b7280]">
+                <span className={cn(frame.sectionTitle, 'truncate')}>{g.label}</span>
+                <span className="shrink-0 rounded-full bg-[color:var(--pour-accent-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-accent)] sm:text-sm">
                   {g.count} รายการ
                 </span>
               </span>
             </button>
-            {isOpen ? (
-              <div className="border-t border-[color:var(--pour-surface-border)]/80 px-3 pb-4 pt-2 pour-desktop:px-4 pour-desktop:pt-3">{g.children}</div>
-            ) : null}
+            {isOpen ? <div className={frame.sectionBody}>{g.children}</div> : null}
           </div>
         )
       })}

@@ -17,7 +17,7 @@ function serializeStructureList(selected: Set<string>, masterOrder: string[]): s
 const triggerClass = (hasSelection: boolean) =>
   cn(
     'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
-    hasSelection ? 'border-[color:var(--pour-accent)]/55 bg-white text-[#111827]' : 'border-[color:var(--pour-surface-border)] bg-white text-[#b4bcc8]',
+    hasSelection ? 'border-[color:var(--pour-accent)]/55 bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-0)]' : 'border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] text-pour-subtle',
   )
 
 function StructureListPanel({
@@ -46,7 +46,7 @@ function StructureListPanel({
   return (
     <>
       {listHint ? (
-        <p className="shrink-0 text-xs leading-snug text-[#6b7280]">{listHint}</p>
+        <p className="shrink-0 text-xs leading-snug text-pour-muted">{listHint}</p>
       ) : null}
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Input
@@ -59,7 +59,7 @@ function StructureListPanel({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-[#6b7280] hover:text-[#dc2626]"
+          className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-pour-muted hover:text-[#dc2626]"
           disabled={!hasSelection}
           onClick={onClear}
         >
@@ -75,7 +75,7 @@ function StructureListPanel({
         onTouchMove={(e) => e.stopPropagation()}
       >
         {filteredRows.length === 0 ? (
-          <p className="px-2 py-3 text-center text-sm text-[#6b7280]">ไม่พบรายการ</p>
+          <p className="px-2 py-3 text-center text-sm text-pour-muted">ไม่พบรายการ</p>
         ) : (
           filteredRows.map((name) => {
             const disabled = isOptionDisabled?.(name) ?? false
@@ -85,8 +85,8 @@ function StructureListPanel({
                 className={cn(
                   'flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px]',
                   disabled
-                    ? 'cursor-not-allowed text-[#9ca3af]'
-                    : 'cursor-pointer text-[#111827] hover:bg-[#dcfce7]',
+                    ? 'cursor-not-allowed text-pour-subtle'
+                    : 'cursor-pointer text-[color:var(--pour-ink-0)] hover:bg-[color:var(--pour-nav-hover-bg)]',
                 )}
               >
                 <input
@@ -225,7 +225,7 @@ export function StructureListMultiSelect({
       <div className="min-w-0 space-y-2">
         {trigger}
         {open ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-[color:var(--pour-surface-border)] bg-white p-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+          <div className="flex flex-col gap-2 rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
             {panel}
           </div>
         ) : null}
@@ -243,7 +243,7 @@ export function StructureListMultiSelect({
           sideOffset={6}
           collisionPadding={12}
           className={cn(
-            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
+            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
             'max-h-[min(380px,55dvh)]',
           )}
           onOpenAutoFocus={(e) => e.preventDefault()}

@@ -15,7 +15,7 @@ import {
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { adminDataRow, app, rq, tableCompact } from '@/lib/requestUi'
+import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 import type { Profile, UserRole } from '@/types/app.types'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
@@ -196,12 +196,12 @@ export function UsersPage() {
               'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
               statusFilter === val
                 ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white'
-                : 'border-[#e5e7eb] bg-white text-[#374151] hover:border-[color:var(--pour-accent-ring)]',
+                : 'border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-1)] hover:border-[color:var(--pour-accent-ring)]',
             )}
           >
             {label}
             {val === 'pending' && pendingCount > 0 && (
-              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none', statusFilter === 'pending' ? 'bg-white/30 text-white' : 'bg-amber-100 text-amber-700')}>
+              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none', statusFilter === 'pending' ? 'bg-[color:var(--glass-bg-muted)] text-white' : 'bg-amber-100 text-amber-700')}>
                 {pendingCount}
               </span>
             )}
@@ -230,7 +230,7 @@ export function UsersPage() {
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>รหัสพนักงาน</dt>
-                  <dd className="font-pour-mono text-xs text-[#374151]">{u.employee_id ?? '-'}</dd>
+                  <dd className="font-pour-mono text-xs text-[color:var(--pour-ink-1)]">{u.employee_id ?? '-'}</dd>
                 </div>
                 <div>
                   <dt className={cn(adminDataRow.label, 'mb-0.5')}>Role / สถานะ</dt>
@@ -245,15 +245,15 @@ export function UsersPage() {
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>Client</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{clientLabel(u)}</dd>
+                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>โครงการ</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{jobLabel(u)}</dd>
+                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{jobLabel(u)}</dd>
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>วันที่สมัคร</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[#374151]')}>{formatDate(u.created_at)}</dd>
+                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{formatDate(u.created_at)}</dd>
                 </div>
               </dl>
               <div className={adminDataRow.actions}>
@@ -284,7 +284,7 @@ export function UsersPage() {
                 )}
                 {allowManage && u.id !== currentProfileId && (
                   <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                    <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
+                    <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
                   </Button>
                 )}
               </div>
@@ -333,13 +333,13 @@ export function UsersPage() {
                       {STATUS_BADGE[u.status].label}
                     </span>
                   </td>
-                  <td className="min-w-0 break-words text-[#374151]" title={clientLabel(u)}>
+                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
                     {clientLabel(u)}
                   </td>
-                  <td className="min-w-0 break-words text-[#374151]" title={jobLabel(u)}>
+                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
                     {jobLabel(u)}
                   </td>
-                  <td className="min-w-0 whitespace-nowrap text-xs text-[#6b7280]">{formatDate(u.created_at)}</td>
+                  <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
                   <td className="shrink-0 whitespace-nowrap">
                     <div className="flex gap-0.5">
                       {allowManage && u.status === 'pending' && (
@@ -369,7 +369,7 @@ export function UsersPage() {
                       )}
                       {allowManage && u.id !== currentProfileId && (
                         <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                          <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
+                          <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
                         </Button>
                       )}
                     </div>
@@ -388,13 +388,13 @@ export function UsersPage() {
           if (!open) setEditUser(null)
         }}
       >
-        <DialogContent className="max-w-lg rounded-[14px] border-[color:var(--pour-surface-border)]">
+        <DialogContent className={cn(modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
           <DialogHeader className="min-w-0 pr-10 text-left sm:pr-12">
-            <DialogTitle className="break-words text-[#111827]">แก้ไขผู้ใช้งาน</DialogTitle>
+            <DialogTitle className="break-words text-[color:var(--pour-ink-0)]">แก้ไขผู้ใช้งาน</DialogTitle>
           </DialogHeader>
           {editUser && (
             <div className="min-w-0 space-y-4">
-              <p className="break-words text-sm leading-snug text-[#6b7280]">
+              <p className="break-words text-sm leading-snug text-pour-muted">
                 {[editUser.fname, editUser.lname].filter(Boolean).join(' ') || editUser.employee_id || editUser.id}
               </p>
               <div>

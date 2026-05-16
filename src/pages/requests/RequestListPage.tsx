@@ -22,7 +22,6 @@ import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
 import {
-  Plus,
   Building2,
   MapPin,
   Droplets,
@@ -39,7 +38,22 @@ import {
 import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
+import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
 import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
+
+const LIST_LAYOUT_KEY = 'cw-request-list-layout'
+
+function readListLayout(): 'grid' | 'list' {
+  try {
+    return localStorage.getItem(LIST_LAYOUT_KEY) === 'list' ? 'list' : 'grid'
+  } catch {
+    return 'grid'
+  }
+}
+
+const listEmptyClass = cn(
+  'rounded-xl border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)] py-16 text-center text-sm text-[color:var(--pour-ink-3)]',
+)
 
 const PAGE_SIZE = 20
 
@@ -94,9 +108,11 @@ function buildGroupedRequestSections(requests: RequestWithRelations[]): RequestF
 function RequestGroupedFeedBody({
   sections,
   onRequestUpdated,
+  layoutMode = 'list',
 }: {
   sections: RequestFeedSection[]
   onRequestUpdated?: () => void
+  layoutMode?: 'grid' | 'list'
 }) {
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
 
@@ -127,14 +143,14 @@ function RequestGroupedFeedBody({
         return (
           <section
             key={section.dateKey}
-            className="overflow-hidden rounded-[14px] border border-[color:var(--glass-border-subtle)] bg-[color:color-mix(in_srgb,var(--glass-bg)_92%,transparent)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] backdrop-blur-md"
+            className="overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]"
             aria-label={section.heading}
           >
             <button
               type="button"
               id={headingId}
               className={cn(
-                'pour-interactive flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[color:var(--pour-accent-muted)]/35',
+                'pour-interactive flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]',
               )}
               aria-expanded={isOpen}
               aria-controls={panelId}
@@ -168,10 +184,20 @@ function RequestGroupedFeedBody({
                 aria-labelledby={headingId}
                 className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-3 pt-3 sm:px-4"
               >
-                <div className="space-y-3.5">
+                <div
+                  className={cn(
+                    layoutMode === 'grid'
+                      ? 'space-y-3.5 pour-desktop:grid pour-desktop:grid-cols-2 pour-desktop:gap-3 pour-wide:grid-cols-3'
+                      : 'space-y-3.5',
+                  )}
+                >
                   {section.items.map((r, i) => (
                     <StaggerItem key={r.id} index={section.staggerStart + i}>
-                      <RequestFeedCard r={r} onRequestUpdated={onRequestUpdated} />
+                      <RequestFeedCard
+                        r={r}
+                        variant={layoutMode}
+                        onRequestUpdated={onRequestUpdated}
+                      />
                     </StaggerItem>
                   ))}
                 </div>
@@ -207,9 +233,11 @@ function FeedDetailRow({
 
 function RequestFeedCard({
   r,
+  variant = 'list',
   onRequestUpdated,
 }: {
   r: RequestWithRelations
+  variant?: 'grid' | 'list'
   onRequestUpdated?: () => void
 }) {
   const [thumbFailed, setThumbFailed] = useState(false)
@@ -264,6 +292,77 @@ function RequestFeedCard({
           : null
 
   const castingLine = [formatDate(r.casting_date), formatTime(r.request_time)].filter((x) => x && x !== '-').join(' ')
+  const metaLine = client ?? locationLine ?? mixLine ?? concrete ?? '—'
+  const editedLine = castingLine || (r.booked_at ? formatDateTime(r.booked_at) : '—')
+
+  if (variant === 'grid') {
+    return (
+      <>
+        <div className={cn(rq.card, 'flex flex-col overflow-hidden p-0', anim.cardLift)}>
+          <Link to={`/requests/${r.id}`} className="block outline-none active:scale-[0.998]">
+            <div className="pour-file-card-preview relative flex items-center justify-center overflow-hidden">
+              {thumbUrl && !thumbFailed ? (
+                <img
+                  src={thumbUrl}
+                  alt=""
+                  referrerPolicy="no-referrer"
+                  loading="lazy"
+                  decoding="async"
+                  onError={() => setThumbFailed(true)}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-4xl font-bold text-white/85">{initial}</span>
+              )}
+              <div className="absolute right-2.5 top-2.5">
+                <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0 shadow-sm" />
+              </div>
+            </div>
+            <div className="pour-file-card-footer px-3.5 py-3">
+              <p className={cn(type.bodyStrong, 'truncate leading-tight')}>
+                {structure}
+                {structureNoDetail ? (
+                  <span className={cn(type.caption, 'font-normal')}> · {structureNoDetail}</span>
+                ) : null}
+              </p>
+              <p className={cn('mt-1 truncate', type.caption)}>{metaLine}</p>
+              <p className={cn('mt-1.5 text-[color:var(--pour-ink-3)]', type.caption)}>แก้ไขล่าสุด · {editedLine}</p>
+            </div>
+          </Link>
+          {quickActions.length > 0 ? (
+            <RequestActionBar
+              layout="strip"
+              items={quickActions}
+              onItemClick={(a, e) => {
+                e.stopPropagation()
+                if ('cloneFromRequestId' in a) {
+                  navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
+                  return
+                }
+                if ('printChecklist' in a) {
+                  try {
+                    localPrintChecklist(r)
+                  } catch (err) {
+                    toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
+                  }
+                  return
+                }
+                setWorkflowModal(a.modal)
+              }}
+            />
+          ) : null}
+        </div>
+        <RequestWorkflowModals
+          request={r}
+          modal={workflowModal}
+          onClose={() => setWorkflowModal(null)}
+          onCompleted={() => {
+            void onRequestUpdated?.()
+          }}
+        />
+      </>
+    )
+  }
 
   return (
     <>
@@ -280,7 +379,7 @@ function RequestFeedCard({
               }}
             >
               <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
-                <div className="rounded-full bg-white p-[1.5px] pour-desktop:p-[2px]">
+                <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[1.5px] pour-desktop:p-[2px]">
                   <img
                     src={thumbUrl}
                     alt=""
@@ -301,8 +400,8 @@ function RequestFeedCard({
             {(!thumbUrl || thumbFailed) && (
               <div className="shrink-0 pt-px pour-desktop:pt-0.5">
                 <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
-                  <div className="rounded-full bg-white p-[1.5px] pour-desktop:p-[2px]">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
+                  <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[1.5px] pour-desktop:p-[2px]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#525252] to-[#262626] text-sm font-bold text-white pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
                       {initial}
                     </div>
                   </div>
@@ -338,7 +437,7 @@ function RequestFeedCard({
         </div>
 
         <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
-          <div className="grid grid-cols-1 gap-y-2 border-t border-(--glass-border) bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
+          <div className="grid grid-cols-1 gap-y-2 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
             <FeedDetailRow icon={Building2} label="Client" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
@@ -355,15 +454,15 @@ function RequestFeedCard({
             <FeedDetailRow icon={FileText} label="ABC" value={abc} />
             <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
-              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
+              <div className={cn('rounded-lg bg-[color:var(--pour-bg-2)] px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
                 <span className="text-pour-subtle">หมายเหตุ </span>
                 {r.remarks}
               </div>
             ) : null}
             {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-              <div className={cn('rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 leading-relaxed text-amber-950 pour-wide:col-span-2', type.detail)}>
+              <div className={cn('rounded-lg border border-amber-700/50 bg-amber-950/40 px-3 py-2.5 leading-relaxed text-amber-200 pour-wide:col-span-2', type.detail)}>
                 {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
-                {r.reason_postpone ? <p className="mt-0.5 text-amber-900/90">{r.reason_postpone}</p> : null}
+                {r.reason_postpone ? <p className="mt-0.5 text-amber-300/90">{r.reason_postpone}</p> : null}
               </div>
             ) : null}
           </div>
@@ -407,7 +506,7 @@ function RequestFeedCard({
           className={cn(
             'flex h-[calc(100dvh-10px)] max-h-none w-[calc(100vw-10px)] max-w-none flex-col overflow-hidden gap-0 rounded-2xl border-0 bg-zinc-950/96 p-0 shadow-none sm:h-[calc(100dvh-16px)] sm:w-[calc(100vw-16px)]',
             'pt-12 pb-[max(10px,env(safe-area-inset-bottom,0px))] pl-[max(6px,env(safe-area-inset-left,0px))] pr-[max(6px,env(safe-area-inset-right,0px))]',
-            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-white/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
+            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-[color:var(--glass-bg-strong)]/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
           )}
         >
           <DialogTitle className="sr-only">รูปภาพรายการ</DialogTitle>
@@ -437,6 +536,16 @@ export function RequestListPage() {
   /** ค่าเริ่มต้นของแอป = สถานะ (summary) — ถ้าไม่มี ?view= จะถูก normalize เป็น summary */
   const mobileView = searchParams.get('view') === 'summary' ? 'summary' : 'latest'
   const scopeMine = searchParams.get('scope') === 'mine'
+  const [listLayout, setListLayout] = useState<'grid' | 'list'>(readListLayout)
+
+  const persistListLayout = useCallback((mode: 'grid' | 'list') => {
+    setListLayout(mode)
+    try {
+      localStorage.setItem(LIST_LAYOUT_KEY, mode)
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   useEffect(() => {
     warmChecklistTemplateCache()
@@ -628,133 +737,78 @@ export function RequestListPage() {
 
   const feedSections = useMemo(() => buildGroupedRequestSections(requests), [requests])
 
-  /** Same card feed as mobile — desktop shows these cards instead of the old table. */
-  const listBlock = (
-    <>
-      <div className="space-y-3.5">
-        {loading ? (
-          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            กำลังโหลด…
-          </p>
-        ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            ไม่พบรายการ
-          </p>
-        ) : (
-          <RequestGroupedFeedBody
-            sections={feedSections}
-            onRequestUpdated={() => void fetchRequests({ background: true })}
-          />
-        )}
-      </div>
+  const listTitle = scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'
+  const listSubtitle = loading ? 'กำลังโหลด…' : `${total} รายการ`
 
-      {total > PAGE_SIZE && (
-        <div className="mt-3 flex items-center justify-center gap-2 border-t border-[color:var(--pour-surface-border)] pt-3">
-          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
-          <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
-          <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
-        </div>
-      )}
-    </>
-  )
-
-  const mobileLatest = (
-    <div className={theme.mobileListBody}>
-      <div className="space-y-3.5">
-        {loading ? (
-          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            กำลังโหลด…
-          </p>
-        ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
-            ไม่พบรายการ
-          </p>
-        ) : (
-          <RequestGroupedFeedBody
-            sections={feedSections}
-            onRequestUpdated={() => void fetchRequests({ background: true })}
-          />
-        )}
-      </div>
-
-      {total > PAGE_SIZE && (
-        <div className="flex items-center justify-center gap-2 border-t border-[color:var(--pour-surface-border)] pt-4">
-          <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
-          <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
-          <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
-        </div>
-      )}
+  const pagination = total > PAGE_SIZE ? (
+    <div className="mt-4 flex items-center justify-center gap-2 border-t border-[color:var(--pour-line)] pt-4">
+      <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
+      <span className={type.caption}>หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
+      <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
     </div>
-  )
+  ) : null
 
-  const mobileSummary = (
-    <div className={cn(rq.page, 'flex flex-col')}>
-      {/* Page header — Figma-style large title + action button */}
-      <div className={cn('flex min-w-0 flex-wrap items-end justify-between gap-3', anim.fadeIn)}>
-        <div>
-          <h1 className={type.hero}>สถานะการจอง</h1>
-          <p className={cn('mt-1', type.caption)}>
-            {countsLoading ? 'กำลังโหลด…' : `รายการทั้งหมด ${grandTotal} รายการ`}
-          </p>
-        </div>
-        <Link
-          to="/requests/new"
-          className={cn(
-            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-xl border border-[color:var(--glass-border-subtle)] bg-white/90 px-4 py-2.5 shadow-sm',
-            'text-[color:var(--pour-accent)] hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent-hover)] hover:shadow-md',
-            type.bodyStrong,
-          )}
-        >
-          <Plus className={icon.md} strokeWidth={ICON_STROKE} />
-          เพิ่มรายการจอง
-        </Link>
-      </div>
-
-      <div className="mt-5 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4">
-        {!masterLoaded ? (
-          <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
-        ) : statusRowsForSummary.length === 0 ? (
-          <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
-        ) : (
-          statusRowsForSummary.map((s, i) => (
-            <StaggerItem key={s.id} index={i}>
-              <StatusSummaryCard
-                statusId={s.id}
-                statusName={s.status_name}
-                count={countsLoading ? '—' : (statusCounts[s.id] ?? 0)}
-                onClick={() => {
-                  setFilter({ ...filter, status_ids: [s.id] })
-                  setPage(0)
-                  setSearchParams({ view: 'latest' })
-                }}
-              />
-            </StaggerItem>
-          ))
-        )}
-      </div>
-    </div>
+  const feedBody = loading ? (
+    <p className={listEmptyClass}>กำลังโหลด…</p>
+  ) : requests.length === 0 ? (
+    <p className={listEmptyClass}>ไม่พบรายการ</p>
+  ) : (
+    <RequestGroupedFeedBody
+      sections={feedSections}
+      layoutMode={listLayout}
+      onRequestUpdated={() => void fetchRequests({ background: true })}
+    />
   )
 
   return (
-    <>
+    <div className={cn(rq.page, 'flex flex-col')}>
+      <RequestListPageHeader
+        title={mobileView === 'summary' ? 'สถานะการจอง' : listTitle}
+        subtitle={
+          mobileView === 'summary'
+            ? countsLoading
+              ? 'กำลังโหลด…'
+              : `รายการทั้งหมด ${grandTotal} รายการ`
+            : listSubtitle
+        }
+      />
+
+      <div className="mt-5">
+        <RequestListTabs
+          layoutMode={mobileView === 'latest' ? listLayout : undefined}
+          onLayoutModeChange={mobileView === 'latest' ? persistListLayout : undefined}
+        />
+      </div>
+
       {mobileView === 'summary' ? (
-        mobileSummary
+        <div className="mt-6 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+          {!masterLoaded ? (
+            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
+          ) : statusRowsForSummary.length === 0 ? (
+            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
+          ) : (
+            statusRowsForSummary.map((s, i) => (
+              <StaggerItem key={s.id} index={i}>
+                <StatusSummaryCard
+                  statusId={s.id}
+                  statusName={s.status_name}
+                  count={countsLoading ? '—' : (statusCounts[s.id] ?? 0)}
+                  onClick={() => {
+                    setFilter({ ...filter, status_ids: [s.id] })
+                    setPage(0)
+                    setSearchParams({ view: 'latest' })
+                  }}
+                />
+              </StaggerItem>
+            ))
+          )}
+        </div>
       ) : (
-        <>
-          <div className="pour-desktop:hidden">{mobileLatest}</div>
-
-          <div className="hidden pour-desktop:block space-y-0 pour-desktop:space-y-4">
-            <div className="border-b border-[color:var(--pour-surface-border)] bg-white px-4 py-3 pour-desktop:border-0 pour-desktop:bg-transparent pour-desktop:px-0 pour-desktop:py-0">
-              <h1 className={cn(rq.heroTitle, 'pour-desktop:text-xl')}>{scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'}</h1>
-              <p className={cn('mt-0.5', rq.sub)}>
-                {total} รายการ · เลือกสถานะได้จากไอคอน <span className="font-medium text-[#374151]">ตัวกรอง</span> ในแถบด้านบน
-              </p>
-            </div>
-
-            <div id="request-filters">{listBlock}</div>
-          </div>
-        </>
+        <div id="request-filters" className="mt-6 space-y-4">
+          {feedBody}
+          {pagination}
+        </div>
       )}
-    </>
+    </div>
   )
 }

@@ -43,7 +43,7 @@ export function StatusSummaryCard({ statusId, statusName, count, onClick }: Stat
           style={{
             color: accent.color,
             backgroundColor: 'color-mix(in srgb, var(--glass-bg-strong) 65%, transparent)',
-            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
           }}
         >
           {count}

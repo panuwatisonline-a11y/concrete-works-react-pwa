@@ -23,13 +23,13 @@ export function MixcodePicker({
     <div className="min-w-0 space-y-2">
       <div
         className={cn(
-          'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]',
           disabled && 'pointer-events-none opacity-50',
         )}
       >
         <div className="pour-scroll-x max-h-[min(45svh,380px)] overflow-y-auto overscroll-contain">
           <table className="w-full table-fixed border-collapse text-left text-sm">
-            <thead className="sticky top-0 z-[1] border-b border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] text-[10px] font-medium uppercase leading-tight tracking-wide text-[#6b7280] sm:text-xs">
+            <thead className="sticky top-0 z-[1] border-b border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] text-[10px] font-medium uppercase leading-tight tracking-wide text-pour-muted sm:text-xs">
               <tr>
                 <th className="w-9 px-1 py-2 font-medium sm:w-10 sm:px-2" aria-label="เลือก" />
                 <th className="w-[26%] px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Mixcode</th>
@@ -38,10 +38,10 @@ export function MixcodePicker({
                 <th className="px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Supplier</th>
               </tr>
             </thead>
-            <tbody className="text-[#111827]">
+            <tbody className="text-[color:var(--pour-ink-0)]">
               {mixcodes.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-sm text-[#6b7280]">
+                  <td colSpan={5} className="px-3 py-8 text-center text-sm text-pour-muted">
                     {emptyLabel}
                   </td>
                 </tr>
@@ -69,7 +69,7 @@ export function MixcodePicker({
                       className={cn(
                         'cursor-pointer border-t border-[#f0f2f5] outline-none transition-colors first:border-t-0',
                         'hover:bg-[color:var(--pour-surface-tint)] focus-visible:bg-[color:var(--pour-surface-tint)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/25',
-                        on && 'bg-[#eff6ff] hover:bg-[#eff6ff]',
+                        on && 'bg-[#eff6ff] hover:bg-[color:var(--pour-accent-muted)]',
                       )}
                     >
                       <td className="w-9 px-1 py-2 align-middle text-center sm:w-10 sm:px-2 sm:py-2.5">
@@ -82,13 +82,13 @@ export function MixcodePicker({
                       <td className="break-words px-1.5 py-2 align-middle text-[13px] font-medium leading-snug sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.mixcode}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[#374151] sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
                         {strengthLabel}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[#374151] sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.slump ?? '—'}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[#6b7280] sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-pour-muted sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.supplier ?? '—'}
                       </td>
                     </tr>
@@ -100,9 +100,9 @@ export function MixcodePicker({
         </div>
       </div>
       {selected && (
-        <p className="text-xs text-[#6b7280]">
+        <p className="text-xs text-pour-muted">
           เลือกแล้ว:{' '}
-          <span className="font-medium text-[#111827]">
+          <span className="font-medium text-[color:var(--pour-ink-0)]">
             {selected.mixcode} — {selected.strength != null ? `${selected.strength} ${selected.strength_type ?? ''}`.trim() : '—'}
           </span>
         </p>

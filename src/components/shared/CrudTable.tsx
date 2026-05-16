@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ConfirmModal } from './ConfirmModal'
 import { Edit, Trash2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { adminDataRow, app, rq, tableCompact } from '@/lib/requestUi'
+import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 
 export interface Column<T> {
   key: keyof T | string
@@ -140,7 +140,7 @@ export function CrudTable<T extends { id: number }>({
   }, [displayRows, groupBy])
 
   return (
-    <div className="space-y-4">
+    <div className={cn('min-w-0 space-y-4', embedded && 'space-y-3')}>
       {embedded ? (
         <div className="flex justify-end">
           <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
@@ -150,7 +150,7 @@ export function CrudTable<T extends { id: number }>({
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-bold tracking-tight text-[#111827] pour-desktop:text-lg">{title}</h2>
+          <h2 className="text-base font-medium text-[color:var(--pour-ink-0)]">{title}</h2>
           <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
             <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
             เพิ่ม
@@ -194,7 +194,7 @@ export function CrudTable<T extends { id: number }>({
                     </Button>
                     {(!canDelete || canDelete(row)) && (
                       <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
+                        <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
                       </Button>
                     )}
                   </div>
@@ -205,7 +205,7 @@ export function CrudTable<T extends { id: number }>({
         )}
       </div>
 
-      <div className={app.tableWrapDesktop}>
+      <div className={embedded ? app.tableWrapNested : app.tableWrapDesktop}>
         <table className={tableCompact.table}>
           <thead className={tableCompact.head}>
             <tr>
@@ -244,7 +244,7 @@ export function CrudTable<T extends { id: number }>({
                       >
                         <td
                           colSpan={columns.length + 1}
-                          className="px-1.5 py-1 align-middle text-[11px] font-semibold leading-snug text-[color:var(--pour-ink-0)] sm:px-2"
+                          className="px-2.5 py-2 align-middle text-xs font-semibold leading-snug text-[color:var(--pour-ink-0)] sm:px-3 sm:text-sm"
                         >
                           {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                         </td>
@@ -252,7 +252,7 @@ export function CrudTable<T extends { id: number }>({
                     ) : null}
                     <tr>
                       {columns.map((col) => (
-                        <td key={String(col.key)} className="min-w-0 break-words text-[#374151]">
+                        <td key={String(col.key)} className="min-w-0 break-words text-[color:var(--pour-ink-1)]">
                           {renderCell(col, row)}
                         </td>
                       ))}
@@ -263,7 +263,7 @@ export function CrudTable<T extends { id: number }>({
                           </Button>
                           {(!canDelete || canDelete(row)) && (
                             <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => setDeleteId(row.id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
+                              <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
                             </Button>
                           )}
                         </div>
@@ -287,23 +287,17 @@ export function CrudTable<T extends { id: number }>({
           }
         }}
       >
-        <DialogContent
-          className={cn(
-            'flex max-h-[min(90dvh,calc(100dvh-1.5rem))] flex-col gap-0 overflow-hidden p-0',
-            'w-[calc(100vw-1rem)] max-w-lg sm:max-w-xl pour-desktop:max-w-2xl',
-            'rounded-[14px] border-[color:var(--glass-border-subtle)]',
-          )}
-        >
-          <DialogHeader className="min-w-0 shrink-0 space-y-1.5 px-5 pb-0 pt-5 pr-12 text-left sm:px-6 sm:pt-6">
-            <DialogTitle className="break-words text-[#111827]">
+        <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
+          <DialogHeader className={modal.header}>
+            <DialogTitle className={cn(modal.title, 'break-words')}>
               {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
             </DialogTitle>
           </DialogHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-4 sm:px-6">
+          <div className={modal.body}>
             {editItem != null && (
-              <div className="mb-4 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-3 py-2">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-[#9ca3af]">ID</p>
-                <p className="font-mono text-sm tabular-nums text-[#374151]">{editItem.id}</p>
+              <div className="mb-5 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-pour-subtle">ID</p>
+                <p className="font-mono text-base tabular-nums text-[color:var(--pour-ink-1)]">{editItem.id}</p>
               </div>
             )}
             <div className="min-w-0">
@@ -314,7 +308,7 @@ export function CrudTable<T extends { id: number }>({
               )}
             </div>
           </div>
-          <DialogFooter className="mx-0 shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-4 sm:flex-row sm:justify-end sm:px-6">
+          <DialogFooter className={modal.footer}>
             <Button
               variant="outline"
               size="modalAction"

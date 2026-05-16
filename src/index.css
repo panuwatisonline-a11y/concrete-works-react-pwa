@@ -16,75 +16,81 @@
 /** Wide desktop layout: landscape + ≥1280px — content centering, wider grids, expanded typography */
 @custom-variant pour-wide (@media ((orientation: landscape) and (min-width: 1280px)));
 
-/* POUR design tokens — neutral dashboard + aqua accent */
+/* POUR design tokens — Figma-style dark dashboard */
 @layer base {
   :root {
     --pour-sky: #9ed9de;
-    /* ─── Background: neutral blue-gray (ไม่ใช่ warm cream อีกต่อไป) ─── */
-    --pour-cream: #f7f9fb;
-    --pour-bg: var(--pour-cream);
-    --pour-bg-2: #eef1f6;
-    --pour-line: #dde4ed;
-    --pour-line-2: #c8d3e0;
-    --pour-ink-0: #0f172a;
-    --pour-ink-1: #1e293b;
-    --pour-ink-2: #475569;
-    --pour-ink-3: #94a3b8;
-    --pour-accent: #ff8c5a;
-    --pour-accent-hover: #f07040;
-    --pour-accent-muted: rgba(255, 140, 90, 0.10);
-    --pour-accent-ring: rgba(255, 140, 90, 0.25);
-    /* legacy aliases */
+    --pour-cream: #1e1e1e;
+    --pour-bg: #1e1e1e;
+    --pour-bg-2: #262626;
+    --pour-sidebar: #181818;
+    --pour-line: #383838;
+    --pour-line-2: #4a4a4a;
+    --pour-ink-0: #ffffff;
+    --pour-ink-1: #e5e5e5;
+    --pour-ink-2: #a3a3a3;
+    --pour-ink-3: #737373;
+    --pour-accent: #18a0fb;
+    --pour-accent-hover: #0d8ce8;
+    --pour-accent-muted: rgba(24, 160, 251, 0.14);
+    --pour-accent-ring: rgba(24, 160, 251, 0.35);
+    --pour-brand: #ff8c5a;
+    --pour-brand-hover: #f07040;
+    --pour-nav-active-bg: rgba(255, 255, 255, 0.1);
+    --pour-nav-hover-bg: rgba(255, 255, 255, 0.06);
     --pour-blue: var(--pour-accent);
     --pour-blue-deep: var(--pour-accent-hover);
     --pour-blue-glow: var(--pour-accent-muted);
     --pour-blue-ring: var(--pour-accent-ring);
-    --pour-canvas: #edf4f8;
-    --pour-surface-border: #dde4ed;
-    --pour-surface-tint: #f0f6f9;
-    --pour-surface-warm: #f8f9fb;
+    --pour-canvas: #262626;
+    --pour-surface-border: #383838;
+    --pour-surface-tint: #2c2c2c;
+    --pour-surface-warm: #242424;
 
-    /* ─── Glass — nearly solid white (ลด blur → ดูคมขึ้น) ─── */
-    --glass-bg: rgba(255, 255, 255, 0.96);
-    --glass-bg-strong: rgba(255, 255, 255, 0.995);
-    --glass-bg-muted: rgba(255, 255, 255, 0.72);
-    --glass-border: #e2e8f0;
-    --glass-border-subtle: #eef2f7;
-    --glass-edge: #cbd5e1;
-    --glass-shadow: 0 4px 20px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
-    --glass-shadow-sm: 0 1px 6px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    --glass-blur: 6px;
-    --shell-base: var(--pour-cream);
-    --shell-blob-1: rgba(255, 255, 255, 0.85);
-    --shell-blob-2: rgba(158, 217, 222, 0.12);
-    --shell-blob-3: rgba(247, 249, 251, 0.5);
+    --glass-bg: #2c2c2c;
+    --glass-bg-strong: #333333;
+    --glass-bg-muted: #242424;
+    --glass-border: #404040;
+    --glass-border-subtle: #383838;
+    --glass-edge: #525252;
+    --glass-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --glass-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+    --glass-blur: 8px;
+    --shell-base: var(--pour-bg);
+    --shell-blob-1: rgba(44, 44, 44, 0.5);
+    --shell-blob-2: rgba(24, 160, 251, 0.06);
+    --shell-blob-3: rgba(30, 30, 30, 0.8);
 
     --ig-bg: var(--pour-bg);
-    --ig-surface: #ffffff;
+    --ig-surface: var(--glass-bg);
     --ig-border: var(--pour-line);
     --ig-text: var(--pour-ink-0);
     --ig-muted: var(--pour-ink-2);
     --ig-link: var(--pour-blue);
-    --background: 215 30% 97%;
-    --foreground: 215 40% 6%;
-    --card: 0 0% 100%;
-    --card-foreground: 215 40% 6%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 40% 6%;
-    --primary: 20 100% 68%;
+    --background: 0 0% 12%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 17%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 17%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 204 90% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 215 20% 93%;
-    --secondary-foreground: 215 40% 6%;
-    --muted: 215 18% 93%;
-    --muted-foreground: 215 16% 46%;
-    --accent: 215 22% 91%;
-    --accent-foreground: 215 40% 6%;
-    --destructive: 0 84% 49%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 22%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 0 0% 24%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 215 20% 86%;
-    --input: 215 20% 86%;
-    --ring: 20 100% 68%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --ring: 204 90% 53%;
     --radius: 0.5rem;
+    --chart-grid: #383838;
+    --chart-surface: #262626;
+    --chart-axis: #737373;
+    --chart-label: #a3a3a3;
     /* ความสูง header + MobilePrimaryNav — อัปเดตจาก AppHeader */
     --pour-mobile-header-h: 0px;
   }
@@ -122,6 +128,7 @@
     height: 100dvh;
     overflow: hidden;
     font-family: var(--font-sans);
+    color-scheme: dark;
   }
 
   body {
@@ -163,19 +170,19 @@
   }
 
   .pour-glass {
-    background: #ffffff;
+    background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    box-shadow: var(--glass-shadow-sm);
   }
 
   .pour-glass-strong {
-    background: #ffffff;
+    background: var(--glass-bg-strong);
     border: 1px solid var(--glass-border-subtle);
     box-shadow: none;
   }
 
   .pour-glass-muted {
-    background: var(--pour-cream);
+    background: var(--glass-bg-muted);
     border: 1px solid var(--glass-border-subtle);
     box-shadow: none;
   }
@@ -241,6 +248,18 @@
     overscroll-behavior-x: contain;
   }
 
+  /** ตารางในกรอบ — มุมมน clip เนื้อหา (แนว Figma) */
+  .pour-table-shell {
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  @media (min-width: 768px) and (orientation: landscape) {
+    .pour-table-shell {
+      border-radius: 14px;
+    }
+  }
+
   .pour-break-anywhere {
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -291,7 +310,7 @@
     inset: -30%;
     z-index: 0;
     pointer-events: none;
-    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(255, 140, 90, 0.12) 0%, transparent 65%);
+    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(24, 160, 251, 0.08) 0%, transparent 65%);
     animation: pour-ambient-drift 24s ease-in-out infinite alternate;
   }
 
@@ -358,7 +377,34 @@
   .pour-status-border-pulse {
     --status-accent: #64748b;
     border: none !important;
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--glass-shadow-sm);
+  }
+
+  .pour-file-card-preview {
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(145deg, #383838 0%, #2c2c2c 48%, #1e1e1e 100%);
+  }
+
+  .pour-file-card-footer {
+    border-top: 1px solid var(--glass-border-subtle);
+    background: color-mix(in srgb, var(--glass-bg) 92%, #000 8%);
+  }
+
+  .pour-surface-panel {
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border-subtle);
+    background: var(--glass-bg);
+    box-shadow: var(--glass-shadow-sm);
+  }
+
+  .pour-empty-state {
+    border-radius: 0.75rem;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    padding: 4rem 1rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--pour-ink-3);
   }
 
   .pour-status-border-pulse::after {

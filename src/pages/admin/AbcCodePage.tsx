@@ -125,7 +125,7 @@ export function AbcCodePage() {
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>ABC Code</h1>
 
-      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[color:var(--pour-surface-border)] bg-white/90 p-1 shadow-sm ring-1 ring-[color:var(--pour-surface-border)]">
+      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] p-1 shadow-sm ring-1 ring-[color:var(--pour-surface-border)]">
         {tabs.map(({ key, label }) => (
           <button
             key={key}
@@ -135,7 +135,7 @@ export function AbcCodePage() {
               'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors pour-desktop:px-4 pour-desktop:text-sm',
               tab === key
                 ? 'bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent-hover)] shadow-sm'
-                : 'text-[#6b7280] hover:bg-[#dcfce7] hover:text-[#111827]',
+                : 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
             )}
           >
             {label}
@@ -265,8 +265,8 @@ export function AbcCodePage() {
                 )
               })}
               {previewLine ? (
-                <p className="rounded-lg border border-dashed border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-[13px] leading-snug text-[#6b7280]">
-                  <span className="font-mono text-[#374151]">{previewLine}</span>
+                <p className="rounded-lg border border-dashed border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-[13px] leading-snug text-pour-muted">
+                  <span className="font-mono text-[color:var(--pour-ink-1)]">{previewLine}</span>
                 </p>
               ) : null}
               <div className="space-y-1.5">

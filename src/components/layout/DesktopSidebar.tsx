@@ -68,10 +68,9 @@ function readSidebarCollapsed(): boolean {
 function expandedNavClass(active: boolean) {
   return cn(
     theme.navLink,
-    'rounded-xl py-2.5',
     active
-      ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-      : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
+      ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
+      : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
   )
 }
 
@@ -80,8 +79,8 @@ function collapsedNavClass(active: boolean) {
     'flex w-full min-h-9 items-center justify-start rounded-lg py-1.5 pl-1.5 pr-1 text-left transition-colors duration-200',
     type.navCompact,
     active
-      ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-      : 'text-[color:var(--pour-ink-1)] hover:bg-[rgba(17,24,39,0.06)] hover:text-[color:var(--pour-ink-0)]',
+      ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
+      : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
   )
 }
 
@@ -207,7 +206,7 @@ export function DesktopSidebar() {
           <button
             type="button"
             onClick={toggleCollapsed}
-            className="absolute -right-2.5 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
+            className="absolute -right-2.5 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-ink-0)]"
             aria-expanded={false}
             aria-label="ขยายเมนูด้านข้าง"
           >
@@ -258,7 +257,7 @@ export function DesktopSidebar() {
     <aside
       data-sidebar-mode="expanded"
       className={cn(
-        'relative hidden h-full min-h-0 w-[288px] shrink-0 flex-col transition-[width] duration-300 ease-in-out',
+        'relative hidden h-full min-h-0 w-[260px] shrink-0 flex-col transition-[width] duration-300 ease-in-out',
         theme.sidebarSurface,
         'pour-desktop:flex',
       )}
@@ -291,7 +290,7 @@ export function DesktopSidebar() {
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="absolute -right-2.5 top-9 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
+          className="absolute -right-2.5 top-9 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-ink-0)]"
           aria-expanded
           aria-label="ยุบเมนูด้านข้าง"
         >
@@ -363,8 +362,8 @@ export function DesktopSidebar() {
         ) : null}
       </div>
 
-      <div className="border-t border-(--glass-border) p-5">
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-(--glass-border) bg-(--pour-cream) p-3">
+      <div className="border-t border-[color:var(--pour-line)] p-4">
+        <div className="mb-3 flex items-center gap-3 rounded-lg bg-[color:var(--pour-bg-2)] p-3">
           <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
           <div className="min-w-0 flex-1">
             <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
@@ -372,7 +371,7 @@ export function DesktopSidebar() {
           </div>
           <Link
             to="/profile"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#9ca3af] transition hover:bg-[rgba(17,24,39,0.05)] hover:text-[#374151]"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[color:var(--pour-ink-3)] transition hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
             title="โปรไฟล์"
             aria-label="ไปที่โปรไฟล์"
           >
@@ -382,7 +381,7 @@ export function DesktopSidebar() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full rounded-xl border border-(--glass-border) bg-(--pour-cream) font-semibold text-(--pour-ink-1) hover:bg-white"
+          className="h-10 w-full rounded-lg border-[color:var(--pour-line)] bg-transparent font-semibold text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
           onClick={handleLogout}
         >
           <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />

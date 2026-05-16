@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 /**
- * POUR theme — white / gray / black liquid glass.
+ * POUR theme — Figma-style dark dashboard surfaces.
  */
 export const BRAND_TAGLINE = 'Quality Management and Innovation Section'
 
@@ -22,18 +22,20 @@ export const icon = {
   lg: 'h-6 w-6 shrink-0',
 } as const
 
-/** สเกลตัวอักษร — จับคู่กับ icon.sm (18px) เป็นหลัก */
+/** สเกลตัวอักษร — แนว Figma: เล็กพอดี น้ำหนักเบา อ่านสบาย */
 export const type = {
-  tagline: cn('font-medium leading-snug tracking-wide', ink.subtle, 'text-[10px] sm:text-[11px]'),
-  overline: cn('text-[11px] font-semibold uppercase tracking-wide', ink.subtle),
-  caption: cn('text-xs font-medium', ink.muted),
-  body: cn('text-sm font-medium', ink.body),
-  bodyStrong: cn('text-sm font-semibold', ink.base),
-  detail: cn('text-[13px] font-medium leading-snug pour-desktop:text-sm', ink.body),
-  nav: 'text-sm font-semibold leading-snug',
-  navCompact: 'text-xs font-semibold leading-snug',
-  title: cn('text-xl font-bold leading-tight pour-desktop:text-2xl pour-wide:text-3xl', ink.base, 'tracking-[-0.02em]'),
-  hero: cn('text-2xl font-bold leading-tight pour-desktop:text-3xl pour-wide:text-4xl', ink.base, 'tracking-[-0.03em]'),
+  tagline: cn('font-normal leading-relaxed', ink.subtle, 'text-[10px] sm:text-[11px]'),
+  overline: cn('text-[10px] font-medium uppercase tracking-[0.08em]', ink.subtle),
+  caption: cn('text-xs font-normal leading-relaxed', ink.muted),
+  body: cn('text-[13px] font-normal leading-relaxed', ink.body),
+  bodyStrong: cn('text-[13px] font-medium leading-relaxed', ink.base),
+  detail: cn('text-[13px] font-normal leading-relaxed', ink.body),
+  nav: 'text-[13px] font-medium leading-relaxed',
+  navCompact: 'text-xs font-medium leading-relaxed',
+  title: cn('text-lg font-semibold leading-snug pour-desktop:text-xl', ink.base, 'tracking-[-0.01em]'),
+  hero: cn('text-xl font-semibold leading-snug pour-desktop:text-2xl', ink.base, 'tracking-[-0.02em]'),
+  /** หัวตาราง — ไม่ uppercase หนาเกิน */
+  tableHead: cn('text-[11px] font-medium leading-snug normal-case tracking-normal', ink.subtle),
 } as const
 
 /** CSS motion utilities (see index.css @keyframes pour-*) */
@@ -50,7 +52,7 @@ export const anim = {
 export const layout = {
   formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
   /** ฟอร์มใน modal — คอลัมน์คู่เมื่อโหมด desktop (แนวนอน + กว้างพอ) */
-  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2',
+  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2 pour-desktop:gap-4',
   formField: 'min-w-0 space-y-1.5',
   statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-wide:grid-cols-3',
   statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4',
@@ -60,15 +62,15 @@ export const layout = {
 
 /** Consistent spacing — use across pages & layout */
 export const space = {
-  page: 'space-y-5 pb-10 pt-4 pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5 pour-wide:space-y-7 pour-wide:pt-6',
-  pageNarrow: 'space-y-5 pb-10 pt-4 pour-desktop:max-w-4xl pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5 pour-wide:space-y-7',
-  section: 'space-y-4 pour-desktop:space-y-5 pour-wide:space-y-6',
-  stackSm: 'space-y-3',
+  page: 'space-y-6 pb-12 pt-5 pour-desktop:space-y-8 pour-desktop:pb-14 pour-desktop:pt-6 pour-wide:space-y-9',
+  pageNarrow: 'space-y-6 pb-12 pt-5 pour-desktop:max-w-4xl pour-desktop:space-y-8 pour-desktop:pb-14 pour-desktop:pt-6',
+  section: 'space-y-5 pour-desktop:space-y-6 pour-wide:space-y-7',
+  stackSm: 'space-y-3.5',
   insetX: 'px-4 sm:px-5 pour-desktop:px-6 pour-wide:px-8',
-  insetY: 'py-4 pour-desktop:py-5 pour-wide:py-6',
-  cardPad: 'px-5 py-5 pour-desktop:px-6 pour-desktop:py-6 pour-wide:px-8 pour-wide:py-7',
-  cardPadHeader: 'px-5 py-4 pour-desktop:px-6 pour-wide:px-8',
-  cardPadTight: 'px-5 py-4 pour-desktop:px-6 pour-wide:px-8',
+  insetY: 'py-5 pour-desktop:py-6 pour-wide:py-7',
+  cardPad: 'px-5 py-4 pour-desktop:px-6 pour-desktop:py-5 pour-wide:px-7',
+  cardPadHeader: 'px-5 py-3.5 pour-desktop:px-6 pour-wide:px-7',
+  cardPadTight: 'px-5 py-3.5 pour-desktop:px-6 pour-wide:px-7',
 } as const
 
 /** Reusable glass surface classes (see index.css .pour-glass*) */
@@ -80,61 +82,54 @@ export const glass = {
   borderSubtle: 'border-[color:var(--glass-border-subtle)]',
   borderEdge: 'border-[color:var(--glass-edge)]',
   input:
-    'border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] backdrop-blur-xl placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:bg-white/75 focus-visible:shadow-[0_0_0_3px_var(--pour-accent-ring)]',
+    'border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:bg-[var(--glass-bg-strong)] focus-visible:shadow-[0_0_0_3px_var(--pour-accent-ring)]',
 } as const
 
 export const theme = {
-  shell: cn('pour-shell', anim.shell),
+  shell: 'pour-shell',
   shellDesktopAccent: '',
   brandWordmark:
-    'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-accent)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
-  headerBar: 'bg-white border-b border-[color:var(--glass-border)]',
+    'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-brand)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
+  headerBar: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   navPillActive:
-    'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)] ring-1 ring-[color:var(--pour-accent-ring)] backdrop-blur-sm shadow-sm shadow-[color:var(--pour-accent)]/10',
+    'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)] ring-1 ring-[color:var(--pour-line)]',
   navPillInactive:
     cn(
       ink.body,
-      'border border-[color:var(--glass-border-subtle)] bg-white/75 shadow-sm shadow-slate-900/5 backdrop-blur-sm hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-ink-0)]',
+      'border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
     ),
   navPillMobile: type.navCompact,
-  navLink: cn('flex items-center gap-3 rounded-xl px-4 py-3', type.nav),
-  navSectionLabel: cn('px-2 pb-2', type.overline),
-  primaryNavStrip: 'bg-white border-b border-[color:var(--glass-border)]',
+  navLink: cn('flex items-center gap-2.5 rounded-lg px-3 py-2', type.nav),
+  navSectionLabel: cn('px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em]', ink.subtle),
+  primaryNavStrip: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   mainColumnDesktop: cn(
     'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
-    'pour-desktop:bg-[color:var(--pour-cream)]',
+    'pour-desktop:bg-[color:var(--pour-bg)]',
   ),
-  sidebarSurface: 'bg-white pour-desktop:border-r pour-desktop:border-[color:var(--glass-border)]',
-  /** กล่องแบรนด์ sidebar — clean white + accent ring เมื่อ active */
+  sidebarSurface:
+    'bg-[color:var(--pour-sidebar)] pour-desktop:border-r pour-desktop:border-[color:var(--pour-line)]',
   sidebarBrandPanel: cn(
-    'outline-none transition-[border-color,box-shadow,background-color] duration-150',
-    'rounded-xl border border-[color:var(--glass-border-subtle)]',
-    'bg-white/90 shadow-sm',
-    'hover:border-[color:var(--glass-edge)] hover:bg-white hover:shadow-md',
-    'focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40',
+    'outline-none transition-[border-color,background-color] duration-150',
+    'rounded-lg px-2 py-2',
+    'hover:bg-[color:var(--pour-nav-hover-bg)]',
+    'focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)]',
   ),
-  sidebarBrandPanelActive:
-    'border-[color:var(--pour-line)] bg-[color:var(--pour-accent-muted)] shadow-md ring-1 ring-[color:var(--pour-accent-ring)]',
+  sidebarBrandPanelActive: 'bg-[color:var(--pour-nav-active-bg)]',
   sidebarBrandTitle:
-    'block truncate leading-tight text-[color:var(--pour-ink-0)] font-extrabold uppercase tracking-tight',
-  sidebarBrandTagline: cn('mt-0.5 block text-[color:var(--pour-ink-2)]', type.tagline),
-  /** พื้นขาวหลังโลโก้ — ไฟล์ PNG มีพื้นดำ ต้องไม่ใช้ blend */
+    'block truncate leading-tight text-[color:var(--pour-ink-0)] font-semibold tracking-tight',
+  sidebarBrandTagline: cn('mt-0.5 block text-[color:var(--pour-ink-3)]', type.tagline),
   sidebarBrandLogoWrap:
-    'flex shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-[color:var(--glass-border-subtle)]',
+    'flex shrink-0 items-center justify-center rounded-lg bg-[color:var(--glass-bg)] p-1 ring-1 ring-[color:var(--glass-border-subtle)]',
   sidebarBrandLogo: 'h-full w-full object-contain object-center',
   iconTileBrand: 'pour-brand-icon-tile',
   iconButtonChrome: cn(
     glass.surfaceStrong,
     anim.interactive,
-    'inline-flex items-center justify-center rounded-[10px] font-medium shadow-sm shadow-slate-900/8',
-    cn(ink.body, 'hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent)]'),
+    'inline-flex items-center justify-center rounded-lg font-medium',
+    cn(ink.body, 'hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)] hover:text-[color:var(--pour-ink-0)]'),
   ),
-  breadcrumbStrip: cn(
-    glass.surface,
-    'rounded-xl border border-[color:var(--glass-border-subtle)]',
-    space.insetX,
-    'py-2.5 pour-desktop:py-3',
-  ),
+  sidebarSearch:
+    'h-9 w-full rounded-lg border border-[color:var(--pour-line)] bg-[color:var(--pour-bg-2)] px-3 text-sm text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus:border-[color:var(--pour-accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--pour-accent-ring)]',
   headerBarMobile: 'px-3 py-2',
   primaryNavStripPad: 'px-3 py-2.5',
   drawerPanel: cn(glass.surfaceStrong, 'border-[color:var(--glass-border-subtle)]'),
@@ -158,59 +153,95 @@ export const app = {
   ),
   shellInner: 'flex w-full flex-1 flex-col items-center justify-center py-4',
   pageAdmin:
-    cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 pour-desktop:gap-8 pour-desktop:pb-12 pour-desktop:pt-5', ink.base),
-  pageAdminTitle: cn('block w-full shrink-0 pb-1 pt-0 font-bold tracking-tight', ink.base),
+    cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-7 pb-12 pt-5 pour-desktop:gap-9 pour-desktop:pb-14 pour-desktop:pt-6', ink.base),
+  pageAdminTitle: cn(type.title, 'block w-full shrink-0 pb-2 pt-0'),
   pageAdminSection: cn('block w-full min-w-0', space.section),
-  tableWrap: cn('pour-scroll-x min-w-0 max-w-full rounded-xl', glass.surface),
+  /** ตารางเดี่ยว — มุมมน + กรอบบาง */
+  tableWrap: cn('pour-table-shell pour-scroll-x min-w-0 max-w-full', glass.surface),
   tableWrapDesktop: cn(
-    'hidden pour-scroll-x min-w-0 max-w-full rounded-xl pour-desktop:block',
+    'pour-table-shell pour-scroll-x hidden min-w-0 max-w-full pour-desktop:block',
     glass.surface,
   ),
-  mobileCardStack: 'space-y-3 pour-desktop:hidden',
-  table: 'w-full min-w-[36rem] text-sm',
+  /** ตารางใน accordion/section — ไม่ซ้อน glass */
+  tableWrapNested: 'pour-scroll-x min-w-0 max-w-full',
+  mobileCardStack: 'space-y-3.5 pour-desktop:hidden',
+  table: 'w-full min-w-[36rem] text-[13px] leading-relaxed',
   tableHead:
-    'border-b-2 border-[color:var(--glass-border-subtle)] bg-white/30 text-left text-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-2)] backdrop-blur-md [&_th]:px-3 [&_th]:py-3 sm:[&_th]:px-4',
+    cn(
+      type.tableHead,
+      'border-b border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]/80 text-left',
+      '[&_th]:px-3 [&_th]:py-2 sm:[&_th]:px-3.5 sm:[&_th]:py-2.5',
+      '[&_th:first-child]:pl-4 [&_th:last-child]:pr-4',
+    ),
   tableBody:
-    'divide-y divide-[color:var(--glass-border)] [&_td]:max-w-[18rem] [&_td]:break-words [&_td]:px-3 [&_td]:py-3 [&_td]:align-middle [&_td]:text-[color:var(--pour-ink-0)] sm:[&_td]:px-4 [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_var(--pour-accent-ring)]',
-  tableRowHover: '[&_tr]:transition-colors [&_tr:hover]:bg-[var(--pour-bg)]',
+    cn(
+      'divide-y divide-[color:var(--glass-border-subtle)]',
+      '[&_td]:max-w-[18rem] [&_td]:break-words [&_td]:px-3 [&_td]:py-2 [&_td]:align-middle [&_td]:font-normal [&_td]:text-[color:var(--pour-ink-1)]',
+      'sm:[&_td]:px-3.5 sm:[&_td]:py-2.5',
+      '[&_td:first-child]:pl-4 [&_td:last-child]:pr-4',
+      '[&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)]/60',
+    ),
+  tableRowHover: '[&_tbody_tr]:transition-colors [&_tbody_tr:hover]:bg-[color:var(--pour-nav-hover-bg)]/50',
   mutedText: ink.muted,
   mobileCardStackCompact: 'space-y-2 pour-desktop:hidden',
 } as const
 
-/** ตารางแบบกระชับ — ใช้ใน admin / CST (คล้าย CstListPage) */
+/** ตารางแบบอัด — admin / CST */
 export const tableCompact = {
-  table: cn(app.table, 'text-[11px] leading-snug'),
-  head: cn(
-    app.tableHead,
-    '[&_th]:px-1.5 [&_th]:py-1 [&_th]:text-[10px] [&_th]:leading-none sm:[&_th]:px-2',
-  ),
+  table: cn(app.table, 'text-[12px] leading-relaxed'),
+  head: cn(app.tableHead, '[&_th]:px-2.5 [&_th]:py-2'),
   body: cn(
     app.tableBody,
     app.tableRowHover,
-    '[&_td]:max-w-[12rem] [&_td]:px-1.5 [&_td]:py-1 [&_td]:text-[11px] [&_td]:leading-snug sm:[&_td]:px-2',
+    '[&_td]:max-w-[14rem] [&_td]:px-2.5 [&_td]:py-2 sm:[&_td]:px-3',
   ),
-  emptyCell: 'py-4 text-center text-[11px] text-[#6b7280]',
+  emptyCell: 'py-8 text-center text-xs text-[color:var(--pour-ink-3)]',
+} as const
+
+/** Modal — กว้างพอดี เนื้อหาโปร่ง */
+export const modal = {
+  sm: 'w-[calc(100vw-1.5rem)] max-w-sm sm:max-w-md',
+  md: 'w-[calc(100vw-1.25rem)] max-w-md sm:max-w-lg pour-desktop:max-w-xl',
+  lg: 'w-[calc(100vw-1rem)] max-w-lg sm:max-w-xl pour-desktop:max-w-2xl',
+  xl: 'w-[calc(100vw-0.75rem)] max-w-xl sm:max-w-2xl pour-desktop:max-w-3xl',
+  shell:
+    'flex max-h-[min(90dvh,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden p-0 rounded-2xl',
+  header: 'min-w-0 shrink-0 space-y-1 px-5 pt-5 pr-11 text-left sm:px-6 sm:pt-6',
+  body: 'min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-4 sm:px-6 sm:py-5',
+  footer:
+    'mx-0 shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-3.5 sm:flex-row sm:justify-end sm:px-6 sm:py-4',
+  title: cn(type.title, 'text-base font-semibold pour-desktop:text-lg'),
+} as const
+
+/** กรอบซ้อนกัน — ลด border/padding ซ้ำ */
+export const frame = {
+  section:
+    'overflow-hidden rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]/90',
+  sectionBody:
+    'min-w-0 border-t border-[color:var(--glass-border-subtle)] px-4 py-4 pour-desktop:px-5 pour-desktop:py-5',
+  sectionTitle: cn(type.bodyStrong, 'text-[13px]'),
+  insetPanel: 'rounded-xl bg-[color:var(--pour-bg-2)]/60 ring-1 ring-[color:var(--glass-border-subtle)]',
 } as const
 
 /** Shared visual language for /requests/* flows */
 export const rq = {
   page: cn('mx-auto w-full min-w-0 max-w-none', space.page, ink.base),
   pageNarrow: cn('mx-auto w-full min-w-0 max-w-3xl pour-desktop:max-w-4xl', space.pageNarrow, ink.base),
-  card: cn('rounded-xl overflow-hidden', glass.surface, anim.cardLift, ink.base),
-  cardMuted: cn('rounded-xl overflow-hidden', glass.surfaceMuted, ink.base),
+  card: cn('overflow-hidden rounded-2xl', glass.surface, anim.cardLift, ink.base),
+  cardMuted: cn('overflow-hidden rounded-2xl', glass.surfaceMuted, ink.base),
   cardHeader: cn(
-    'border-b border-[color:var(--glass-border-subtle)] bg-white/25 backdrop-blur-md',
+    'border-b border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]',
     space.cardPadHeader,
   ),
-  cardTitle: cn(type.bodyStrong, 'tracking-tight'),
+  cardTitle: cn(type.bodyStrong, 'font-medium tracking-normal'),
   cardContent: space.cardPad,
   cardContentTight: space.cardPadTight,
   heroTitle: type.hero,
   sub: type.caption,
-  label: cn(type.caption, 'font-semibold'),
-  value: 'min-w-0 text-sm font-semibold break-words text-[color:var(--pour-ink-0)]',
+  label: cn(type.caption, 'font-medium'),
+  value: 'min-w-0 text-[13px] font-medium break-words leading-relaxed text-[color:var(--pour-ink-0)]',
   detailRow: 'flex min-w-0 flex-col gap-0.5 sm:flex-row sm:gap-2',
-  detailLabel: cn('w-full shrink-0 sm:w-28', type.caption, 'font-semibold'),
+  detailLabel: cn('w-full shrink-0 sm:w-28', type.caption, 'font-medium'),
   spinner:
     'h-8 w-8 animate-spin rounded-full border-2 border-[color:var(--glass-border-subtle)] border-t-[color:var(--pour-accent)]',
   stepActive: 'bg-[color:var(--pour-accent)] font-semibold text-white shadow-sm shadow-black/15',
@@ -220,21 +251,21 @@ export const rq = {
   link: 'font-semibold text-[color:var(--pour-accent)] underline-offset-2 hover:text-[color:var(--pour-accent-hover)] hover:underline',
   timelineDot: 'mt-1 h-2 w-2 shrink-0 rounded-full bg-[color:var(--pour-accent)] ring-2 ring-[color:var(--pour-accent-ring)]',
   dataRowCard: cn(
-    'rounded-xl p-4 outline-none transition-[box-shadow,background-color] pour-desktop:p-4',
+    'rounded-2xl p-3.5 outline-none transition-[box-shadow,background-color] pour-desktop:p-4',
     glass.surface,
     ink.base,
-    'focus-within:bg-white/70 focus-within:shadow-[inset_0_0_0_2px_var(--pour-accent-ring),var(--glass-shadow-sm)]',
+    'focus-within:bg-[color:var(--glass-bg-strong)] focus-within:shadow-[inset_0_0_0_2px_var(--pour-accent-ring),var(--glass-shadow-sm)]',
   ),
   dataRowFields: 'space-y-2',
   dataRowLabel: cn(type.overline, 'tracking-wider text-[color:var(--pour-ink-2)]'),
-  dataRowValue: cn(type.detail, 'font-semibold leading-tight', ink.base),
+  dataRowValue: cn(type.detail, 'font-medium', ink.base),
   dataRowActions:
     'mt-3 flex flex-wrap justify-end gap-2 border-t border-[color:var(--glass-border)] pt-3',
   actions: {
     panelBody: cn(space.cardPadTight, 'flex flex-col gap-3'),
     buttonRow: 'flex min-w-0 flex-wrap items-center gap-2',
     strip:
-      'flex flex-col gap-2.5 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:flex-row pour-desktop:flex-wrap pour-desktop:items-center pour-desktop:gap-x-2 pour-desktop:gap-y-2 pour-desktop:px-5 pour-desktop:py-3.5',
+      'flex flex-col gap-2.5 border-t border-[color:var(--glass-border)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:flex-row pour-desktop:flex-wrap pour-desktop:items-center pour-desktop:gap-x-2 pour-desktop:gap-y-2 pour-desktop:px-5 pour-desktop:py-3.5',
     sectionLabel: cn(type.overline, 'w-full basis-full text-[color:var(--pour-ink-2)]'),
   },
   dataRowEmpty: cn(
@@ -244,11 +275,32 @@ export const rq = {
   ),
 } as const
 
+/** Surfaces & states — ใช้แทน bg-[color:var(--glass-bg)] / hex ซ้ำๆ ทั้งแอป */
+export const surface = {
+  panel: 'pour-surface-panel',
+  chart: cn(
+    'overflow-hidden rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]',
+  ),
+  inset: 'rounded-lg bg-[color:var(--pour-bg-2)] ring-1 ring-[color:var(--glass-border-subtle)]',
+  empty: 'pour-empty-state',
+  tabActive:
+    'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)] shadow-sm ring-1 ring-[color:var(--pour-line)]',
+  tabIdle: 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
+} as const
+
+/** หน้า auth แยกจาก shell หลัก */
+export const auth = {
+  shell: cn('flex flex-1 items-center justify-center bg-[color:var(--pour-bg)] px-6 py-10'),
+  card: cn(glass.surface, anim.page, 'w-full max-w-[380px] rounded-2xl p-6 sm:p-8'),
+  title: cn(type.hero, 'mb-1'),
+  subtitle: cn(type.caption, 'mb-8'),
+} as const
+
 /** การ์ดมือถือแบบกระชับ — คู่กับ tableCompact ในหน้า admin */
 export const adminDataRow = {
-  card: cn(rq.dataRowCard, 'p-3 text-xs leading-tight'),
-  fields: 'space-y-1',
+  card: cn(rq.dataRowCard, 'text-[13px] leading-relaxed'),
+  fields: 'space-y-1.5',
   label: cn(rq.dataRowLabel, 'text-[10px]'),
-  value: cn(rq.dataRowValue, 'text-xs font-medium'),
-  actions: cn(rq.dataRowActions, 'mt-2 gap-1.5 pt-2'),
+  value: cn(rq.dataRowValue, 'text-[13px]'),
+  actions: cn(rq.dataRowActions, 'mt-2.5 gap-1.5 pt-2.5'),
 } as const

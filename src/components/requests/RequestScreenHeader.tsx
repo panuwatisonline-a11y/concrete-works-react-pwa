@@ -20,7 +20,7 @@ export function RequestScreenHeader({ title, subtitle, onBack, right, className 
           type="button"
           variant="ghost"
           size="icon"
-          className="h-10 w-10 shrink-0 rounded-xl text-[#6b7280] hover:bg-[#dcfce7] hover:text-[#111827]"
+          className="h-10 w-10 shrink-0 rounded-xl text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
           onClick={onBack}
           aria-label="กลับ"
         >

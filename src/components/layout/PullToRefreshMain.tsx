@@ -143,7 +143,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         )}
         style={{ height: indicatorHeight }}
       >
-        <div className="mb-1 flex items-center gap-2 rounded-full border border-[color:var(--glass-border-subtle)] bg-white/85 px-3 py-1.5 shadow-[var(--glass-shadow-sm)]">
+        <div className="mb-1 flex items-center gap-2 rounded-full border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-strong)] px-3 py-1.5 shadow-[var(--glass-shadow-sm)]">
           <RefreshCw
             className={cn(
               'h-4 w-4 text-[color:var(--pour-accent)]',

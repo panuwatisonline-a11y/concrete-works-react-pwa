@@ -224,7 +224,7 @@ export function MixcodePage() {
               const confirmed = confirmVolumeByMixcodeId[r.id] ?? 0
               const cap = r.qty
               const capOk = cap != null && !Number.isNaN(cap)
-              if (!capOk) return <span className="text-[#6b7280]">—</span>
+              if (!capOk) return <span className="text-pour-muted">—</span>
               const remaining = cap - confirmed
               return (
                 <span className={cn(remaining < 0 && 'font-medium text-rose-600')}>
@@ -263,7 +263,7 @@ export function MixcodePage() {
             </div>
             <div className={layout.formField}>
               <Label>Structure list</Label>
-              <p className="text-xs text-[#6b7280]">
+              <p className="text-xs text-pour-muted">
                 {structureNamesFromMaster.length > 0
                   ? `เลือกจากโครงสร้างในหน้า Structure ทั้งหมด ${structureNamesFromMaster.length} รายการ`
                   : 'ยังไม่มีโครงสร้าง — เพิ่มที่หน้า Structure ก่อน'}
@@ -276,7 +276,7 @@ export function MixcodePage() {
                   masterNames={structureNamesFromMaster}
                 />
               ) : (
-                <p className="text-sm text-[#6b7280]">กำลังโหลดรายการโครงสร้าง…</p>
+                <p className="text-sm text-pour-muted">กำลังโหลดรายการโครงสร้าง…</p>
               )}
             </div>
             <div className={layout.formGridDialog}>
@@ -362,14 +362,14 @@ export function MixcodePage() {
                   const capOk = raw != null && !Number.isNaN(raw as number)
                   const cap = capOk ? Number(raw) : null
                   return (
-                    <div className="mt-2 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/60 px-3 py-2 text-xs text-[#374151]">
+                    <div className="mt-2 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/60 px-3 py-2 text-xs text-[color:var(--pour-ink-1)]">
                       <div className="flex justify-between gap-2 tabular-nums">
-                        <span className="text-[#6b7280]">Σ Confirm volume (Request)</span>
+                        <span className="text-pour-muted">Σ Confirm volume (Request)</span>
                         <span>{formatVolumeNumber(used)} cu.m</span>
                       </div>
                       {cap != null && (
                         <div className="mt-1 flex justify-between gap-2 tabular-nums">
-                          <span className="text-[#6b7280]">คงเหลือ (จากค่าข้างบนนี้)</span>
+                          <span className="text-pour-muted">คงเหลือ (จากค่าข้างบนนี้)</span>
                           <span className={cn(cap - used < 0 && 'font-medium text-rose-600')}>
                             {formatVolumeNumber(cap - used)} cu.m
                           </span>
