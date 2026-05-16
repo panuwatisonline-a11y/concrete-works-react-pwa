@@ -38,7 +38,7 @@ export function AppLayout() {
 
         <PullToRefreshMain
           className={cn(
-            'mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
+            'mx-auto min-h-0 w-full min-w-0 flex-1',
             'px-4 sm:px-6',
             'pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3',
             'pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:bg-transparent',

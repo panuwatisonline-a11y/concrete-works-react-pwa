@@ -17,9 +17,8 @@ import {
 import { type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
-const THRESHOLD = 72
+const THRESHOLD = 64
 const MAX_PULL = 112
-/** กันหมุนค้างถ้า refresh ค้างจริง (มากกว่า reload master + ดึงหน้าโดยประมาณ) */
 const REFRESH_SAFETY_TIMEOUT_MS = 60_000
 
 type PullToRefreshMainProps = ComponentPropsWithoutRef<'main'> & {
@@ -34,11 +33,12 @@ type TouchSession = {
 
 export function PullToRefreshMain({ children, className, ...rest }: PullToRefreshMainProps) {
   const handler = usePullRefreshStore((s) => s.handler)
-  const mainRef = useRef<HTMLElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const touchRef = useRef<TouchSession>({ active: false, startY: 0, scrollRoot: null })
   const pullRef = useRef(0)
   const handlerRef = useRef(handler)
   const refreshingRef = useRef(false)
+  const pullingRef = useRef(false)
   const [pull, setPull] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -54,7 +54,10 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
 
   const resetPull = useCallback(() => {
     touchRef.current = { active: false, startY: 0, scrollRoot: null }
+    pullingRef.current = false
     setPull(0)
+    document.body.style.removeProperty('touch-action')
+    document.body.style.removeProperty('overscroll-behavior-y')
   }, [])
 
   const runRefresh = useCallback(async () => {
@@ -83,30 +86,36 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   }, [resetPull])
 
   useEffect(() => {
-    const el = mainRef.current
-    if (!el || !pullEnabled || !handler) return
+    const scrollEl = scrollRef.current
+    if (!scrollEl || !pullEnabled || !handler) return
 
     const onTouchStart = (e: TouchEvent) => {
       if (refreshingRef.current || e.touches.length !== 1) return
-      const scrollRoot = resolveScrollRoot(e.target, el)
+      if (!scrollEl.contains(e.target as Node)) return
+      const scrollRoot = resolveScrollRoot(e.target, scrollEl)
       if (!isScrollAtTop(scrollRoot)) return
       touchRef.current = { active: true, startY: e.touches[0].clientY, scrollRoot }
     }
 
     const onTouchMove = (e: TouchEvent) => {
       if (!touchRef.current.active || refreshingRef.current || e.touches.length !== 1) return
-      const scrollRoot = touchRef.current.scrollRoot ?? el
+      const scrollRoot = touchRef.current.scrollRoot ?? scrollEl
       if (!isScrollAtTop(scrollRoot)) {
         resetPull()
         return
       }
       const dy = e.touches[0].clientY - touchRef.current.startY
       if (dy <= 0) {
-        resetPull()
+        if (pullingRef.current) resetPull()
         return
       }
+      if (!pullingRef.current) {
+        pullingRef.current = true
+        document.body.style.touchAction = 'none'
+        document.body.style.overscrollBehaviorY = 'none'
+      }
       e.preventDefault()
-      setPull(Math.min(dy * 0.45, MAX_PULL))
+      setPull(Math.min(dy * 0.5, MAX_PULL))
     }
 
     const onTouchEnd = () => {
@@ -126,15 +135,16 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
     const opts = { capture: true } as const
     const moveOpts = { capture: true, passive: false } as const
 
-    el.addEventListener('touchstart', onTouchStart, opts)
-    el.addEventListener('touchmove', onTouchMove, moveOpts)
-    el.addEventListener('touchend', onTouchEnd, opts)
-    el.addEventListener('touchcancel', onTouchCancel, opts)
+    scrollEl.addEventListener('touchstart', onTouchStart, opts)
+    scrollEl.addEventListener('touchmove', onTouchMove, moveOpts)
+    scrollEl.addEventListener('touchend', onTouchEnd, opts)
+    scrollEl.addEventListener('touchcancel', onTouchCancel, opts)
     return () => {
-      el.removeEventListener('touchstart', onTouchStart, opts)
-      el.removeEventListener('touchmove', onTouchMove, moveOpts)
-      el.removeEventListener('touchend', onTouchEnd, opts)
-      el.removeEventListener('touchcancel', onTouchCancel, opts)
+      scrollEl.removeEventListener('touchstart', onTouchStart, opts)
+      scrollEl.removeEventListener('touchmove', onTouchMove, moveOpts)
+      scrollEl.removeEventListener('touchend', onTouchEnd, opts)
+      scrollEl.removeEventListener('touchcancel', onTouchCancel, opts)
+      resetPull()
     }
   }, [pullEnabled, handler, resetPull, runRefresh])
 
@@ -149,12 +159,15 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   const indicatorHeight = showIndicator ? Math.max(pull, refreshing ? THRESHOLD * 0.65 : 0) : 0
 
   return (
-    <main ref={mainRef} className={className} {...rest}>
+    <main
+      className={cn('flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden', className)}
+      {...rest}
+    >
       <div
         aria-live="polite"
         aria-hidden={!showIndicator}
         className={cn(
-          'flex items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out',
+          'flex shrink-0 items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out',
           !pullEnabled && 'hidden',
           !showIndicator && 'pointer-events-none opacity-0',
         )}
@@ -172,7 +185,15 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
           <span className={cn(type.caption, 'text-[color:var(--pour-ink-2)]')}>{label}</span>
         </div>
       </div>
-      {children}
+      <div
+        ref={scrollRef}
+        className={cn(
+          'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain',
+          '[touch-action:pan-y] [-webkit-overflow-scrolling:touch]',
+        )}
+      >
+        {children}
+      </div>
     </main>
   )
 }

@@ -25,21 +25,24 @@ export function usePourDesktop(): boolean {
   return isDesktop
 }
 
-/** Pull-to-refresh — touch phones (รวมแนวนอน) หรือจอแคบ ไม่ผูกกับ pour-desktop layout */
-const PULL_REFRESH_QUERIES = ['(max-width: 767px)', '(hover: none) and (pointer: coarse)'] as const
+/** Pull-to-refresh — เปิดบนอุปกรณ์สัมผัสและจอแคบ (iOS บางรุ่นรายงาน pointer: fine) */
+const PULL_REFRESH_MEDIA = ['(max-width: 767px)', '(hover: none) and (pointer: coarse)'] as const
 
 export function isPullRefreshEnabled(): boolean {
   if (typeof window === 'undefined') return true
-  return PULL_REFRESH_QUERIES.some((q) => window.matchMedia(q).matches)
+  if (typeof navigator !== 'undefined' && navigator.maxTouchPoints > 0) return true
+  return PULL_REFRESH_MEDIA.some((q) => window.matchMedia(q).matches)
 }
 
 export function subscribePullRefreshEnabled(onChange: (enabled: boolean) => void): () => void {
-  const mqs = PULL_REFRESH_QUERIES.map((q) => window.matchMedia(q))
-  const sync = () => onChange(mqs.some((mq) => mq.matches))
+  const mqs = PULL_REFRESH_MEDIA.map((q) => window.matchMedia(q))
+  const sync = () => onChange(isPullRefreshEnabled())
   sync()
   for (const mq of mqs) mq.addEventListener('change', sync)
+  window.addEventListener('orientationchange', sync)
   return () => {
     for (const mq of mqs) mq.removeEventListener('change', sync)
+    window.removeEventListener('orientationchange', sync)
   }
 }
 
@@ -49,7 +52,7 @@ function isScrollableY(el: HTMLElement): boolean {
   return oy === 'auto' || oy === 'scroll' || oy === 'overlay'
 }
 
-/** หา element ที่เลื่อนจริง — ภายใน main boundary */
+/** หา element ที่เลื่อนจริง — ภายใน boundary */
 export function resolveScrollRoot(from: EventTarget | null, boundary: HTMLElement): HTMLElement {
   let el: HTMLElement | null = null
   if (from instanceof HTMLElement) el = from
