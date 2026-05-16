@@ -15,8 +15,9 @@ import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
-import { MobileRequestListHeader } from '@/components/requests/MobileRequestListHeader'
+import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { UserAvatar } from '@/components/shared/UserAvatar'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 
 interface NavItem {
   to: string
@@ -112,6 +113,8 @@ export function AppHeader() {
 
   const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
   const profileSubtitle = user?.email ?? profile?.role ?? '—'
+  const adminSectionActive =
+    location.pathname.startsWith('/admin') || location.pathname.startsWith('/cst')
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -160,7 +163,7 @@ export function AppHeader() {
         ref={headerRef}
         className={cn('sticky top-0 z-40 shrink-0 pour-desktop:hidden', theme.headerBar)}
       >
-        {/* Mobile wireframe header: เมนู | ชื่อกลาง | ค้นหา */}
+        {/* Mobile wireframe header: เมนู | ชื่อซ้าย | ค้นหา */}
         <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 pour-desktop:hidden', theme.headerBarMobile)}>
           <button
             type="button"
@@ -174,7 +177,7 @@ export function AppHeader() {
           </button>
           <Link
             to={APP_HOME}
-            className="min-w-0 justify-self-center px-0.5 text-center no-underline"
+            className="min-w-0 justify-self-start px-0.5 text-left no-underline"
           >
             <span className={cn('block', type.bodyStrong, theme.brandWordmark)}>Concrete Works</span>
             <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
@@ -190,7 +193,6 @@ export function AppHeader() {
         </div>
 
         {!location.pathname.startsWith('/requests') ? <MobilePrimaryNav /> : null}
-        <MobileRequestListHeader />
       </header>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -202,22 +204,35 @@ export function AppHeader() {
           )}
         >
           <DialogHeader className={cn('px-5 py-4 text-left', theme.drawerHeader)}>
+            <DialogTitle className="sr-only">เมนู</DialogTitle>
             <div className="flex items-center justify-between gap-2">
-              <DialogTitle className={type.title}>เมนู</DialogTitle>
+              <Link
+                to={APP_HOME}
+                onClick={() => setDrawerOpen(false)}
+                className="flex min-w-0 flex-1 items-center gap-3 no-underline"
+                aria-label="Concrete Works — ไปหน้าสถานะหลัก"
+              >
+                <span className={cn(theme.sidebarBrandLogoWrap, 'h-10 w-10')} aria-hidden>
+                  <img src="/pwa-512x512.png" alt="" className={theme.sidebarBrandLogo} />
+                </span>
+                <span className="min-w-0">
+                  <span className={cn('block', type.bodyStrong, theme.brandWordmark)}>Concrete Works</span>
+                  <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
+                </span>
+              </Link>
               <button
                 type="button"
-                className="rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
+                className="shrink-0 rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
                 onClick={() => setDrawerOpen(false)}
-                aria-label="ปิด"
+                aria-label="ปิดเมนู"
               >
                 <X className={icon.md} strokeWidth={ICON_STROKE} />
               </button>
             </div>
           </DialogHeader>
 
-          <nav className="flex-1 overflow-y-auto px-3 py-3">
-            <p className={cn(theme.navSectionLabel, 'px-2')}>หลัก</p>
-            <div className="space-y-1">
+          <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
+            <CollapsibleNavSection title="MENU" defaultOpen={!adminSectionActive} panelClassName="space-y-1 pb-1">
               {mainLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
@@ -255,13 +270,11 @@ export function AppHeader() {
                   Dashboard
                 </NavLink>
               ) : null}
-            </div>
+            </CollapsibleNavSection>
 
             {adminConsoleLinks(role).length > 0 ? (
-              <>
-                <p className={cn(theme.navSectionLabel, 'mt-5 px-2')}>Admin</p>
-                <div className="space-y-0.5">
-                  {adminConsoleLinks(role).map(({ to, label, icon: Icon, end }) => (
+              <CollapsibleNavSection title="ADMIN" className="pt-1" defaultOpen={adminSectionActive} panelClassName="space-y-1 pb-1">
+                {adminConsoleLinks(role).map(({ to, label, icon: Icon, end }) => (
                     <NavLink
                       key={to}
                       to={to}
@@ -281,14 +294,14 @@ export function AppHeader() {
                       <Icon className={icon.md} strokeWidth={ICON_STROKE} />
                       {label}
                     </NavLink>
-                  ))}
-                </div>
-              </>
+                ))}
+              </CollapsibleNavSection>
             ) : null}
           </nav>
 
           <div className="border-t border-[color:var(--glass-border-subtle)] p-4">
-            <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[rgba(17,24,39,0.03)] p-3 backdrop-blur-md">
+            <ThemeToggle className="mb-3" />
+            <div className="mb-3 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] p-3 backdrop-blur-md">
               <UserAvatar
                 profile={profile}
                 avatarUrl={user?.user_metadata?.avatar_url as string | undefined}

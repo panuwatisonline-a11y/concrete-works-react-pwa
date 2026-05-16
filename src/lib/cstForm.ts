@@ -280,17 +280,6 @@ function kscAt(view: CstViewRow, i: number): number | null {
   return typeof v === 'number' ? v : null
 }
 
-function groupKscAverage(view: CstViewRow, groupIndex: number): string {
-  const start = (groupIndex - 1) * CST_SAMPLES_PER_GROUP + 1
-  const vals: number[] = []
-  for (let i = start; i < start + CST_SAMPLES_PER_GROUP; i++) {
-    const k = kscAt(view, i)
-    if (k != null) vals.push(k)
-  }
-  if (!vals.length) return ''
-  return cstFormatNumber(vals.reduce((a, b) => a + b, 0) / vals.length)
-}
-
 /** แปลงแถว `CST_View` → ข้อมูลเทมเพลตรายงาน */
 export type CstComputedPreviewRow = {
   index: number
@@ -325,22 +314,53 @@ export function cstComputedPreviewRows(
   return rows
 }
 
+/** ความแข็งแรงออกแบบ (ksc) จาก CST_View หรือ mix ของคำขอ */
+export function cstResolveDesignStrength(
+  view: CstViewRow,
+  request?: Pick<RequestWithRelations, 'mixcode' | 'strength'> | null,
+): number | null {
+  if (view.design_strength != null && !Number.isNaN(view.design_strength) && view.design_strength > 0) {
+    return view.design_strength
+  }
+  const mix = request?.mixcode as { strength?: number | null } | null | undefined
+  if (mix?.strength != null && !Number.isNaN(mix.strength) && mix.strength > 0) return mix.strength
+  if (request?.strength != null && !Number.isNaN(request.strength) && request.strength > 0) {
+    return request.strength
+  }
+  return null
+}
+
+function cstGroupKscAverageNumber(view: CstViewRow, groupIndex: number): number | null {
+  const start = (groupIndex - 1) * CST_SAMPLES_PER_GROUP + 1
+  const vals: number[] = []
+  for (let i = start; i < start + CST_SAMPLES_PER_GROUP; i++) {
+    const k = kscAt(view, i)
+    if (k != null) vals.push(k)
+  }
+  if (!vals.length) return null
+  return vals.reduce((a, b) => a + b, 0) / vals.length
+}
+
+export function cstGroupStrengthPercent(avg: number, designStrength: number): string {
+  return cstFormatNumber((avg / designStrength) * 100)
+}
+
 /** ค่าเฉลี่ย ksc ต่อชุด (3 ตัวอย่าง) จาก CST_View */
 export function cstGroupAveragesFromView(
   view: CstViewRow,
   groupCount: number = CST_SAMPLE_GROUPS,
-): { group: number; avg: string }[] {
-  const out: { group: number; avg: string }[] = []
+  options?: { designStrength?: number | null; request?: Pick<RequestWithRelations, 'mixcode' | 'strength'> | null },
+): { group: number; avg: string; pct: string | null }[] {
+  const design = options?.designStrength ?? cstResolveDesignStrength(view, options?.request)
+  const out: { group: number; avg: string; pct: string | null }[] = []
   for (let g = 1; g <= groupCount; g++) {
-    const start = (g - 1) * CST_SAMPLES_PER_GROUP + 1
-    const vals: number[] = []
-    for (let i = start; i < start + CST_SAMPLES_PER_GROUP; i++) {
-      const k = view[`ksc${i}` as keyof CstViewRow]
-      if (typeof k === 'number' && !Number.isNaN(k)) vals.push(k)
-    }
-    if (vals.length) {
-      out.push({ group: g, avg: cstFormatNumber(vals.reduce((a, b) => a + b, 0) / vals.length) })
-    }
+    const avgNum = cstGroupKscAverageNumber(view, g)
+    if (avgNum == null) continue
+    out.push({
+      group: g,
+      avg: cstFormatNumber(avgNum),
+      pct: design != null && design > 0 ? cstGroupStrengthPercent(avgNum, design) : null,
+    })
   }
   return out
 }
@@ -396,11 +416,17 @@ export function cstViewRowToReportData(
     out[kk] = cstFormatNumber(kscAt(view, i))
   }
 
+  const designStrength = cstResolveDesignStrength(view, request)
+
   for (let g = 1; g <= CST_SAMPLE_GROUPS; g++) {
     const avgKey = `avg${g}` as keyof CstStrengthReportTemplateData
     const rmkKey = `remark${g}` as keyof CstStrengthReportTemplateData
-    out[avgKey] = groupKscAverage(view, g)
-    out[rmkKey] = ''
+    const avgNum = cstGroupKscAverageNumber(view, g)
+    out[avgKey] = avgNum != null ? cstFormatNumber(avgNum) : ''
+    out[rmkKey] =
+      avgNum != null && designStrength != null && designStrength > 0
+        ? `${cstGroupStrengthPercent(avgNum, designStrength)}%`
+        : ''
   }
 
   return out

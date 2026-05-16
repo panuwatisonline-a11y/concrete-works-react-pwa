@@ -67,9 +67,10 @@ export function MixcodePicker({
                         }
                       }}
                       className={cn(
-                        'cursor-pointer border-t border-[#f0f2f5] outline-none transition-colors first:border-t-0',
-                        'hover:bg-[color:var(--pour-surface-tint)] focus-visible:bg-[color:var(--pour-surface-tint)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/25',
-                        on && 'bg-[#eff6ff] hover:bg-[color:var(--pour-accent-muted)]',
+                        'cursor-pointer border-t border-[color:var(--glass-border-subtle)] outline-none transition-colors first:border-t-0',
+                        'hover:bg-[color:var(--pour-nav-hover-bg)] focus-visible:bg-[color:var(--pour-nav-hover-bg)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/35',
+                        on &&
+                          'bg-[color:var(--pour-accent-muted)] ring-1 ring-inset ring-[color:var(--pour-accent)]/45 hover:bg-[color:var(--pour-accent-muted)]',
                       )}
                     >
                       <td className="w-9 px-1 py-2 align-middle text-center sm:w-10 sm:px-2 sm:py-2.5">
@@ -100,9 +101,9 @@ export function MixcodePicker({
         </div>
       </div>
       {selected && (
-        <p className="text-xs text-pour-muted">
-          เลือกแล้ว:{' '}
-          <span className="font-medium text-[color:var(--pour-ink-0)]">
+        <p className="rounded-lg border border-[color:var(--pour-accent)]/35 bg-[color:var(--pour-accent-muted)] px-3 py-2 text-sm leading-snug">
+          <span className="text-[color:var(--pour-ink-2)]">เลือกแล้ว: </span>
+          <span className="font-semibold text-[color:var(--pour-ink-0)]">
             {selected.mixcode} — {selected.strength != null ? `${selected.strength} ${selected.strength_type ?? ''}`.trim() : '—'}
           </span>
         </p>

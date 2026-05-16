@@ -9,11 +9,13 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { UserAvatar } from '@/components/shared/UserAvatar'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
+import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 
 interface NavItem {
   to: string
@@ -121,6 +123,8 @@ export function DesktopSidebar() {
   const subtitle = user?.email ?? profile?.role ?? '—'
   const adminLinks = adminConsoleLinks(role)
   const HomeNavIcon = homeMainLink.icon
+  const adminSectionActive =
+    location.pathname.startsWith('/admin') || location.pathname.startsWith('/cst')
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((prev) => {
@@ -298,53 +302,63 @@ export function DesktopSidebar() {
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5">
-        <p className={cn(theme.navSectionLabel, 'mb-3 px-3 tracking-[0.15em]')}>MENU</p>
-        <nav aria-label="เมนูหลัก" className="flex flex-col gap-0.5">
-          <NavLink
-            key={homeMainLink.to}
-            to={homeMainLink.to}
-            end={homeMainLink.end}
-            className={() => expandedNavClass(isNavToActive(homeMainLink.to, location))}
-          >
-            <HomeNavIcon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
-            {homeMainLink.label}
-          </NavLink>
-          <NavLink
-            to={REQUESTS_MINE}
-            onClick={() => resetFilter()}
-            className={() => expandedNavClass(isNavToActive(REQUESTS_MINE, location))}
-          >
-            <Star
-              className={cn(icon.sm, 'text-amber-500 opacity-95')}
-              strokeWidth={ICON_STROKE}
-              fill="currentColor"
-              aria-hidden
-            />
-            รายการของฉัน
-          </NavLink>
-          {role === 'admin' ? (
-            <NavLink to="/admin" end className={({ isActive }) => expandedNavClass(isActive)}>
-              <LayoutDashboard className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
-              Dashboard
-            </NavLink>
-          ) : null}
-          {restMainLinks.map(({ to, label, icon: Icon, end }) => (
+      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5">
+        <CollapsibleNavSection
+          title="MENU"
+          defaultOpen={!adminSectionActive}
+          headerClassName="px-3 tracking-[0.15em]"
+          panelClassName="pb-1"
+        >
+          <nav aria-label="เมนูหลัก" className="flex flex-col gap-0.5">
             <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={() => expandedNavClass(isNavToActive(to, location))}
+              key={homeMainLink.to}
+              to={homeMainLink.to}
+              end={homeMainLink.end}
+              className={() => expandedNavClass(isNavToActive(homeMainLink.to, location))}
             >
-              <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
-              {label}
+              <HomeNavIcon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+              {homeMainLink.label}
             </NavLink>
-          ))}
-        </nav>
+            <NavLink
+              to={REQUESTS_MINE}
+              onClick={() => resetFilter()}
+              className={() => expandedNavClass(isNavToActive(REQUESTS_MINE, location))}
+            >
+              <Star
+                className={cn(icon.sm, 'text-amber-500 opacity-95')}
+                strokeWidth={ICON_STROKE}
+                fill="currentColor"
+                aria-hidden
+              />
+              รายการของฉัน
+            </NavLink>
+            {role === 'admin' ? (
+              <NavLink to="/admin" end className={({ isActive }) => expandedNavClass(isActive)}>
+                <LayoutDashboard className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+                Dashboard
+              </NavLink>
+            ) : null}
+            {restMainLinks.map(({ to, label, icon: Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={() => expandedNavClass(isNavToActive(to, location))}
+              >
+                <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+        </CollapsibleNavSection>
 
         {adminLinks.length > 0 ? (
-          <>
-            <p className={cn(theme.navSectionLabel, 'mb-3 mt-8 px-3 tracking-[0.15em]')}>Admin</p>
+          <CollapsibleNavSection
+            title="ADMIN"
+            defaultOpen={adminSectionActive}
+            headerClassName="px-3 tracking-[0.15em]"
+            panelClassName="pb-1"
+          >
             <nav aria-label="เมนูผู้ดูแล" className="flex flex-col gap-0.5">
               {adminLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
@@ -358,11 +372,12 @@ export function DesktopSidebar() {
                 </NavLink>
               ))}
             </nav>
-          </>
+          </CollapsibleNavSection>
         ) : null}
       </div>
 
       <div className="border-t border-[color:var(--pour-line)] p-4">
+        <ThemeToggle className="mb-3" />
         <div className="mb-3 flex items-center gap-3 rounded-lg bg-[color:var(--pour-bg-2)] p-3">
           <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
           <div className="min-w-0 flex-1">

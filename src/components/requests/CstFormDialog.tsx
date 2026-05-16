@@ -97,9 +97,17 @@ function blurCstNumericField(
 const CST_NUM_STEP = (10 ** -CST_DECIMAL_PLACES).toFixed(CST_DECIMAL_PLACES)
 
 
-function ComputedPreview({ view, strengthUnit }: { view: CstViewRow; strengthUnit: string }) {
+function ComputedPreview({
+  view,
+  strengthUnit,
+  request,
+}: {
+  view: CstViewRow
+  strengthUnit: string
+  request: RequestWithRelations
+}) {
   const rows = cstComputedPreviewRows(view, CST_MAX_SAMPLES)
-  const groupAvgs = cstGroupAveragesFromView(view, CST_SAMPLE_GROUPS)
+  const groupAvgs = cstGroupAveragesFromView(view, CST_SAMPLE_GROUPS, { request })
   const unit = strengthUnit.trim() || 'ksc'
   if (!rows.length) return null
 
@@ -127,12 +135,18 @@ function ComputedPreview({ view, strengthUnit }: { view: CstViewRow; strengthUni
       </div>
       {groupAvgs.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 border-t border-[color:var(--glass-border-subtle)] pt-3">
-          {groupAvgs.map(({ group, avg }) => (
+          {groupAvgs.map(({ group, avg, pct }) => (
             <span
               key={group}
               className="rounded-full border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]/70 px-2.5 py-0.5 text-xs tabular-nums text-[color:var(--pour-ink-1)]"
             >
               ชุด {group} เฉลี่ย <strong className="text-[color:var(--pour-accent)]">{avg}</strong> {unit}
+              {pct != null ? (
+                <>
+                  {' '}
+                  · <strong className="text-[color:var(--pour-ink-1)]">{pct}%</strong>
+                </>
+              ) : null}
             </span>
           ))}
         </div>
@@ -392,7 +406,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
             </div>
 
             {preview ? (
-              <ComputedPreview view={preview} strengthUnit={previewStrengthUnit} />
+              <ComputedPreview view={preview} strengthUnit={previewStrengthUnit} request={request} />
             ) : null}
 
             {Array.from({ length: visibleGroups }, (_, g) => {

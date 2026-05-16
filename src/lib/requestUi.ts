@@ -134,13 +134,7 @@ export const theme = {
   primaryNavStripPad: 'px-3 py-2.5',
   drawerPanel: cn(glass.surfaceStrong, 'border-[color:var(--glass-border-subtle)]'),
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
-  /** หัวข้อรายการจอง — อยู่ใน AppHeader ใต้ MobilePrimaryNav (เลื่อนติด nav เสมอ) */
-  mobileRequestListHeader: cn(
-    glass.surfaceStrong,
-    'shrink-0 border-b border-[color:var(--glass-border-subtle)]',
-  ),
-  mobileRequestListHeaderInner: 'flex items-start gap-2 px-3 pb-3 pt-2',
-  /** เนื้อหารายการใน main (ไม่มีหัวข้อซ้ำ) */
+  /** เนื้อหารายการใน main */
   mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
 } as const
 

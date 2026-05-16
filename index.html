@@ -15,6 +15,19 @@
     <title>Concrete Works</title>
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          if (localStorage.getItem('pour-theme') === 'light') {
+            document.documentElement.classList.add('light')
+          } else {
+            document.documentElement.classList.add('dark')
+          }
+        } catch (e) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

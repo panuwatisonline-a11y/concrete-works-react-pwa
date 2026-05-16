@@ -528,7 +528,7 @@ function RequestFeedCard({
 
 export function RequestListPage() {
   const { user, profile } = useAuthStore()
-  const { filter, setFilter, setMobileRequestListChrome } = useFilterStore()
+  const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
@@ -718,18 +718,6 @@ export function RequestListPage() {
     setPage(0)
   }, [scopeMine, mobileView])
 
-  useEffect(() => {
-    if (mobileView !== 'latest') {
-      setMobileRequestListChrome(null)
-      return
-    }
-    setMobileRequestListChrome({
-      title: scopeMine ? 'รายการของฉัน' : 'รายการจอง',
-      subtitle: loading ? 'กำลังโหลด…' : `${total} รายการ`,
-    })
-    return () => setMobileRequestListChrome(null)
-  }, [mobileView, scopeMine, loading, total, setMobileRequestListChrome])
-
   const grandTotal = useMemo(
     () => Object.values(statusCounts).reduce((a, b) => a + b, 0),
     [statusCounts],
@@ -781,7 +769,7 @@ export function RequestListPage() {
       </div>
 
       {mobileView === 'summary' ? (
-        <div className="mt-6 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
+        <div className="mt-6 grid grid-cols-1 gap-3 pour-desktop:grid-cols-3 pour-wide:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
           {!masterLoaded ? (
             <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
           ) : statusRowsForSummary.length === 0 ? (
