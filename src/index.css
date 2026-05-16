@@ -13,47 +13,51 @@
 /** Desktop layout: แนวนอน + กว้าง ≥768px (แนวตั้ง = มือถือเสมอ) */
 @custom-variant pour-desktop (@media ((orientation: landscape) and (min-width: 768px)));
 
-/* POUR design tokens — aqua (ฟ้าอมเขียว) → cream + coral accent */
+/** Wide desktop layout: landscape + ≥1280px — content centering, wider grids, expanded typography */
+@custom-variant pour-wide (@media ((orientation: landscape) and (min-width: 1280px)));
+
+/* POUR design tokens — neutral dashboard + aqua accent */
 @layer base {
   :root {
     --pour-sky: #9ed9de;
-    --pour-cream: #faf6f2;
+    /* ─── Background: neutral blue-gray (ไม่ใช่ warm cream อีกต่อไป) ─── */
+    --pour-cream: #f7f9fb;
     --pour-bg: var(--pour-cream);
-    --pour-bg-2: #f2f0eb;
-    --pour-line: #d2ebe6;
-    --pour-line-2: #b8ddd6;
-    --pour-ink-0: #111111;
-    --pour-ink-1: #2d2d2d;
-    --pour-ink-2: #525252;
-    --pour-ink-3: #737373;
+    --pour-bg-2: #eef1f6;
+    --pour-line: #dde4ed;
+    --pour-line-2: #c8d3e0;
+    --pour-ink-0: #0f172a;
+    --pour-ink-1: #1e293b;
+    --pour-ink-2: #475569;
+    --pour-ink-3: #94a3b8;
     --pour-accent: #ff8c5a;
     --pour-accent-hover: #f07040;
-    --pour-accent-muted: rgba(255, 140, 90, 0.12);
-    --pour-accent-ring: rgba(255, 140, 90, 0.28);
+    --pour-accent-muted: rgba(255, 140, 90, 0.10);
+    --pour-accent-ring: rgba(255, 140, 90, 0.25);
     /* legacy aliases */
     --pour-blue: var(--pour-accent);
     --pour-blue-deep: var(--pour-accent-hover);
     --pour-blue-glow: var(--pour-accent-muted);
     --pour-blue-ring: var(--pour-accent-ring);
-    --pour-canvas: #ecf8f5;
-    --pour-surface-border: #d4ebe6;
-    --pour-surface-tint: #f2faf8;
-    --pour-surface-warm: #faf7f4;
+    --pour-canvas: #edf4f8;
+    --pour-surface-border: #dde4ed;
+    --pour-surface-tint: #f0f6f9;
+    --pour-surface-warm: #f8f9fb;
 
-    /* Liquid glass — soft aqua-white */
-    --glass-bg: rgba(255, 255, 255, 0.58);
-    --glass-bg-strong: rgba(255, 255, 255, 0.82);
-    --glass-bg-muted: rgba(255, 255, 255, 0.32);
-    --glass-border: #c8e6df;
-    --glass-border-subtle: #e6f2ef;
-    --glass-edge: #b5d9d0;
-    --glass-shadow: 0 4px 28px rgba(25, 55, 48, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
-    --glass-shadow-sm: 0 1px 12px rgba(25, 55, 48, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.96);
-    --glass-blur: 22px;
+    /* ─── Glass — nearly solid white (ลด blur → ดูคมขึ้น) ─── */
+    --glass-bg: rgba(255, 255, 255, 0.96);
+    --glass-bg-strong: rgba(255, 255, 255, 0.995);
+    --glass-bg-muted: rgba(255, 255, 255, 0.72);
+    --glass-border: #e2e8f0;
+    --glass-border-subtle: #eef2f7;
+    --glass-edge: #cbd5e1;
+    --glass-shadow: 0 4px 20px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 1);
+    --glass-shadow-sm: 0 1px 6px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    --glass-blur: 6px;
     --shell-base: var(--pour-cream);
-    --shell-blob-1: rgba(255, 255, 255, 0.75);
-    --shell-blob-2: rgba(158, 217, 222, 0.26);
-    --shell-blob-3: rgba(250, 246, 242, 0.48);
+    --shell-blob-1: rgba(255, 255, 255, 0.85);
+    --shell-blob-2: rgba(158, 217, 222, 0.12);
+    --shell-blob-3: rgba(247, 249, 251, 0.5);
 
     --ig-bg: var(--pour-bg);
     --ig-surface: #ffffff;
@@ -61,26 +65,26 @@
     --ig-text: var(--pour-ink-0);
     --ig-muted: var(--pour-ink-2);
     --ig-link: var(--pour-blue);
-    --background: 168 38% 97%;
-    --foreground: 0 0% 7%;
+    --background: 215 30% 97%;
+    --foreground: 215 40% 6%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 215 40% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 215 40% 6%;
     --primary: 20 100% 68%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 168 32% 94%;
-    --secondary-foreground: 0 0% 7%;
-    --muted: 168 22% 94%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 168 28% 92%;
-    --accent-foreground: 0 0% 7%;
+    --secondary: 215 20% 93%;
+    --secondary-foreground: 215 40% 6%;
+    --muted: 215 18% 93%;
+    --muted-foreground: 215 16% 46%;
+    --accent: 215 22% 91%;
+    --accent-foreground: 215 40% 6%;
     --destructive: 0 84% 49%;
     --destructive-foreground: 0 0% 100%;
-    --border: 168 26% 86%;
-    --input: 168 26% 86%;
+    --border: 215 20% 86%;
+    --input: 215 20% 86%;
     --ring: 20 100% 68%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     /* ความสูง header + MobilePrimaryNav — อัปเดตจาก AppHeader */
     --pour-mobile-header-h: 0px;
   }
@@ -122,10 +126,7 @@
 
   body {
     background-color: var(--pour-cream);
-    background-image:
-      radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, transparent 58%),
-      radial-gradient(ellipse 70% 50% at 100% 100%, var(--shell-blob-3) 0%, transparent 52%),
-      linear-gradient(180deg, var(--pour-sky) 0%, #bfe8e2 38%, var(--pour-cream) 100%);
+    background-image: none;
     color: var(--pour-ink-0);
     margin: 0;
     height: 100%;
@@ -134,8 +135,8 @@
     overscroll-behavior-x: none;
     font-family: inherit;
     letter-spacing: 0;
-    -webkit-font-smoothing: auto;
-    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -162,27 +163,21 @@
   }
 
   .pour-glass {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-edge);
-    box-shadow: var(--glass-shadow-sm);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
   }
 
   .pour-glass-strong {
-    background: var(--glass-bg-strong);
+    background: #ffffff;
     border: 1px solid var(--glass-border-subtle);
-    box-shadow: var(--glass-shadow);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
-    backdrop-filter: blur(var(--glass-blur)) saturate(1.12);
+    box-shadow: none;
   }
 
   .pour-glass-muted {
-    background: var(--glass-bg-muted);
+    background: var(--pour-cream);
     border: 1px solid var(--glass-border-subtle);
-    box-shadow: var(--glass-shadow-sm);
-    -webkit-backdrop-filter: blur(14px) saturate(1.12);
-    backdrop-filter: blur(14px) saturate(1.12);
+    box-shadow: none;
   }
 
   .pour-glass-dark {

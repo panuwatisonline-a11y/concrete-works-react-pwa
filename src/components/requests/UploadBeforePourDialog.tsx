@@ -66,11 +66,11 @@ export function UploadBeforePourDialog({
       >
         <DialogHeader>
           <DialogTitle>อัปโหลดรูปก่อนเท</DialogTitle>
-          <DialogDescription className="text-left text-sm text-[#6b7280]">
+          <DialogDescription className="text-left">
             แนบรูปภาพบริเวณงานก่อนเทคอนกรีต — บันทึกเมื่ออัปโหลดเสร็จและได้ลิงก์จากระบบ
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-3 py-1">
+        <div className="space-y-4">
           <ImageUpload
             value={imageUrl ?? undefined}
             onChange={setImageUrl}

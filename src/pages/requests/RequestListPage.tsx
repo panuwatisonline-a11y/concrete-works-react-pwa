@@ -338,7 +338,7 @@ function RequestFeedCard({
         </div>
 
         <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
-          <div className="space-y-2 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:space-y-2.5 pour-desktop:px-5 pour-desktop:py-4">
+          <div className="grid grid-cols-1 gap-y-2 border-t border-(--glass-border) bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
             <FeedDetailRow icon={Building2} label="Client" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
@@ -355,13 +355,13 @@ function RequestFeedCard({
             <FeedDetailRow icon={FileText} label="ABC" value={abc} />
             <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
-              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3', type.detail)}>
+              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
                 <span className="text-pour-subtle">หมายเหตุ </span>
                 {r.remarks}
               </div>
             ) : null}
             {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-              <div className={cn('rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 leading-relaxed text-amber-950', type.detail)}>
+              <div className={cn('rounded-lg border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 leading-relaxed text-amber-950 pour-wide:col-span-2', type.detail)}>
                 {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
                 {r.reason_postpone ? <p className="mt-0.5 text-amber-900/90">{r.reason_postpone}</p> : null}
               </div>
@@ -688,19 +688,33 @@ export function RequestListPage() {
   )
 
   const mobileSummary = (
-    <div className={cn(rq.page, 'flex flex-col pour-desktop:mx-auto pour-desktop:max-w-2xl')}>
-      <Link
-        to="/requests/new"
-        className={cn('pour-interactive inline-flex w-fit max-w-full items-center gap-2 py-1 text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)]', type.bodyStrong, anim.fadeIn)}
-      >
-        <Plus className={icon.md} strokeWidth={ICON_STROKE} />
-        เพิ่มรายการจองคอนกรีต
-      </Link>
-      <div className="mt-4 space-y-2.5">
+    <div className={cn(rq.page, 'flex flex-col')}>
+      {/* Page header — Figma-style large title + action button */}
+      <div className={cn('flex min-w-0 flex-wrap items-end justify-between gap-3', anim.fadeIn)}>
+        <div>
+          <h1 className={type.hero}>สถานะการจอง</h1>
+          <p className={cn('mt-1', type.caption)}>
+            {countsLoading ? 'กำลังโหลด…' : `รายการทั้งหมด ${grandTotal} รายการ`}
+          </p>
+        </div>
+        <Link
+          to="/requests/new"
+          className={cn(
+            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-xl border border-[color:var(--glass-border-subtle)] bg-white/90 px-4 py-2.5 shadow-sm',
+            'text-[color:var(--pour-accent)] hover:border-[color:var(--glass-edge)] hover:bg-white hover:text-[color:var(--pour-accent-hover)] hover:shadow-md',
+            type.bodyStrong,
+          )}
+        >
+          <Plus className={icon.md} strokeWidth={ICON_STROKE} />
+          เพิ่มรายการจอง
+        </Link>
+      </div>
+
+      <div className="mt-5 grid grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4">
         {!masterLoaded ? (
-          <p className={cn(rq.cardMuted, 'py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
+          <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
         ) : statusRowsForSummary.length === 0 ? (
-          <p className={cn(rq.cardMuted, 'py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
+          <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
         ) : (
           statusRowsForSummary.map((s, i) => (
             <StaggerItem key={s.id} index={i}>
@@ -718,9 +732,6 @@ export function RequestListPage() {
           ))
         )}
       </div>
-      <p className={cn('mx-auto mt-6 max-w-fit rounded-full px-5 py-2 text-center text-xs font-medium', rq.cardMuted, rq.sub, anim.fadeIn)}>
-        — รายการทั้งหมด {countsLoading ? '—' : grandTotal} รายการ —
-      </p>
     </div>
   )
 

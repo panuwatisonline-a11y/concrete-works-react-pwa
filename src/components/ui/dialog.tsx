@@ -36,7 +36,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'pour-glass fixed left-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 gap-5 rounded-[14px] p-5 text-[color:var(--pour-ink-0)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:gap-6 sm:p-6',
+        'pour-glass fixed left-[50%] z-50 grid w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 gap-4 rounded-2xl p-6 text-(--pour-ink-0) duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
         'top-[max(0.75rem,env(safe-area-inset-top,0px))] translate-y-0',
         'max-h-[calc(100dvh-1.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))]',
         'sm:top-[50%] sm:max-h-[min(85dvh,calc(100dvh-2rem))] sm:-translate-y-1/2',
@@ -66,7 +66,7 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      'flex flex-col-reverse gap-2 border-t border-[color:var(--glass-border-subtle)] pt-4 sm:flex-row sm:items-center sm:justify-end sm:gap-2 sm:pt-5',
+      'flex flex-col-reverse gap-2 border-t border-(--glass-border-subtle) pt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3',
       '[&>button]:w-full sm:[&>button]:w-auto',
       className,
     )}
@@ -81,7 +81,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+    className={cn('text-xl font-semibold leading-tight tracking-[-0.015em]', className)}
     {...props}
   />
 ))
@@ -93,7 +93,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-gray-500', className)}
+    className={cn('text-sm text-(--pour-ink-2) leading-relaxed', className)}
     {...props}
   />
 ))

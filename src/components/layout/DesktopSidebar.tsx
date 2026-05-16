@@ -183,7 +183,7 @@ export function DesktopSidebar() {
         className={cn(
           'relative hidden h-full min-h-0 w-36 shrink-0 flex-col transition-[width] duration-300 ease-in-out',
           theme.sidebarSurface,
-          'pour-desktop:flex pour-desktop:rounded-2xl',
+          'pour-desktop:flex',
         )}
       >
         <div className="relative shrink-0 border-b border-[color:var(--glass-border-subtle)] p-2.5">
@@ -260,7 +260,7 @@ export function DesktopSidebar() {
       className={cn(
         'relative hidden h-full min-h-0 w-[288px] shrink-0 flex-col transition-[width] duration-300 ease-in-out',
         theme.sidebarSurface,
-        'pour-desktop:flex pour-desktop:rounded-2xl',
+        'pour-desktop:flex',
       )}
     >
       <div className="relative border-b border-[color:var(--glass-border-subtle)] p-3">
@@ -363,8 +363,8 @@ export function DesktopSidebar() {
         ) : null}
       </div>
 
-      <div className="border-t border-[color:var(--glass-border-subtle)] p-5">
-        <div className="mb-4 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[rgba(17,24,39,0.03)] p-3 backdrop-blur-md">
+      <div className="border-t border-(--glass-border) p-5">
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-(--glass-border) bg-(--pour-cream) p-3">
           <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
           <div className="min-w-0 flex-1">
             <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
@@ -382,7 +382,7 @@ export function DesktopSidebar() {
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full rounded-2xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] font-semibold text-[#374151] shadow-sm backdrop-blur-sm hover:bg-[var(--glass-bg-strong)]"
+          className="h-11 w-full rounded-xl border border-(--glass-border) bg-(--pour-cream) font-semibold text-(--pour-ink-1) hover:bg-white"
           onClick={handleLogout}
         >
           <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />

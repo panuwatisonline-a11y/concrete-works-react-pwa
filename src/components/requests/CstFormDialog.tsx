@@ -360,7 +360,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                     <SelectTrigger>
                       <SelectValue placeholder="เลือกเครื่อง" />
                     </SelectTrigger>
-                    <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
+                    <SelectContent className={cn(SELECT_CONTENT_ELEVATED_Z, 'max-h-48')}>
                       {compressionMachines.map((m) => (
                         <SelectItem key={m.id} value={String(m.id)}>
                           {m.machine?.trim() || `เครื่อง #${m.id}`}

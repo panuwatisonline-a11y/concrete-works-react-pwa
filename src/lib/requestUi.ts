@@ -32,8 +32,8 @@ export const type = {
   detail: cn('text-[13px] font-medium leading-snug pour-desktop:text-sm', ink.body),
   nav: 'text-sm font-semibold leading-snug',
   navCompact: 'text-xs font-semibold leading-snug',
-  title: cn('text-base font-bold tracking-tight', ink.base),
-  hero: cn('text-lg font-bold tracking-tight pour-desktop:text-xl', ink.base),
+  title: cn('text-xl font-bold leading-tight pour-desktop:text-2xl pour-wide:text-3xl', ink.base, 'tracking-[-0.02em]'),
+  hero: cn('text-2xl font-bold leading-tight pour-desktop:text-3xl pour-wide:text-4xl', ink.base, 'tracking-[-0.03em]'),
 } as const
 
 /** CSS motion utilities (see index.css @keyframes pour-*) */
@@ -52,23 +52,23 @@ export const layout = {
   /** ฟอร์มใน modal — คอลัมน์คู่เมื่อโหมด desktop (แนวนอน + กว้างพอ) */
   formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2',
   formField: 'min-w-0 space-y-1.5',
-  statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2',
-  statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3',
-  statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 lg:grid-cols-5',
-  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-desktop:gap-4 lg:grid-cols-6',
+  statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-wide:grid-cols-3',
+  statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4',
+  statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-5',
+  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-desktop:gap-4 pour-wide:grid-cols-6',
 } as const
 
 /** Consistent spacing — use across pages & layout */
 export const space = {
-  page: 'space-y-5 pb-10 pt-4 pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5',
-  pageNarrow: 'space-y-5 pb-10 pt-4 pour-desktop:max-w-4xl pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5',
-  section: 'space-y-4 pour-desktop:space-y-5',
+  page: 'space-y-5 pb-10 pt-4 pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5 pour-wide:space-y-7 pour-wide:pt-6',
+  pageNarrow: 'space-y-5 pb-10 pt-4 pour-desktop:max-w-4xl pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5 pour-wide:space-y-7',
+  section: 'space-y-4 pour-desktop:space-y-5 pour-wide:space-y-6',
   stackSm: 'space-y-3',
-  insetX: 'px-4 sm:px-5 pour-desktop:px-6',
-  insetY: 'py-4 pour-desktop:py-5',
-  cardPad: 'px-5 py-5 pour-desktop:px-6 pour-desktop:py-6',
-  cardPadHeader: 'px-5 py-4 pour-desktop:px-6',
-  cardPadTight: 'px-5 py-4 pour-desktop:px-6',
+  insetX: 'px-4 sm:px-5 pour-desktop:px-6 pour-wide:px-8',
+  insetY: 'py-4 pour-desktop:py-5 pour-wide:py-6',
+  cardPad: 'px-5 py-5 pour-desktop:px-6 pour-desktop:py-6 pour-wide:px-8 pour-wide:py-7',
+  cardPadHeader: 'px-5 py-4 pour-desktop:px-6 pour-wide:px-8',
+  cardPadTight: 'px-5 py-4 pour-desktop:px-6 pour-wide:px-8',
 } as const
 
 /** Reusable glass surface classes (see index.css .pour-glass*) */
@@ -88,10 +88,7 @@ export const theme = {
   shellDesktopAccent: '',
   brandWordmark:
     'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-accent)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
-  headerBar: cn(
-    glass.surfaceStrong,
-    'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.85)_inset]',
-  ),
+  headerBar: 'bg-white border-b border-[color:var(--glass-border)]',
   navPillActive:
     'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)] ring-1 ring-[color:var(--pour-accent-ring)] backdrop-blur-sm shadow-sm shadow-[color:var(--pour-accent)]/10',
   navPillInactive:
@@ -102,27 +99,22 @@ export const theme = {
   navPillMobile: type.navCompact,
   navLink: cn('flex items-center gap-3 rounded-xl px-4 py-3', type.nav),
   navSectionLabel: cn('px-2 pb-2', type.overline),
-  primaryNavStrip: cn(
-    glass.surfaceStrong,
-    'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.75)_inset]',
-  ),
+  primaryNavStrip: 'bg-white border-b border-[color:var(--glass-border)]',
   mainColumnDesktop: cn(
     'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
-    'pour-desktop:rounded-2xl pour-desktop:border pour-desktop:border-[color:var(--glass-border-subtle)]',
-    glass.surface,
+    'pour-desktop:bg-[color:var(--pour-cream)]',
   ),
-  sidebarSurface: cn('pour-desktop:rounded-none', 'rounded-r-2xl', glass.surface),
-  /** กล่องแบรนด์ sidebar — เน้นโทน aqua + กรอบ */
+  sidebarSurface: 'bg-white pour-desktop:border-r pour-desktop:border-[color:var(--glass-border)]',
+  /** กล่องแบรนด์ sidebar — clean white + accent ring เมื่อ active */
   sidebarBrandPanel: cn(
-    'outline-none transition-[border-color,box-shadow,background-color]',
-    'rounded-2xl border-2 border-[color:var(--pour-line-2)]',
-    'bg-gradient-to-br from-[color:var(--pour-sky)]/50 via-white/80 to-[color:var(--pour-canvas)]',
-    'shadow-[0_2px_14px_rgba(25,55,48,0.07),inset_0_1px_0_rgba(255,255,255,0.9)]',
-    'hover:border-[color:var(--glass-edge)] hover:from-[color:var(--pour-sky)]/60',
-    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-sky)]/50',
+    'outline-none transition-[border-color,box-shadow,background-color] duration-150',
+    'rounded-xl border border-[color:var(--glass-border-subtle)]',
+    'bg-white/90 shadow-sm',
+    'hover:border-[color:var(--glass-edge)] hover:bg-white hover:shadow-md',
+    'focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40',
   ),
   sidebarBrandPanelActive:
-    'border-[color:var(--pour-sky)] from-[color:var(--pour-sky)]/65 via-[#f4fbfb] to-white ring-2 ring-[color:var(--pour-sky)]/30',
+    'border-[color:var(--pour-line)] bg-[color:var(--pour-accent-muted)] shadow-md ring-1 ring-[color:var(--pour-accent-ring)]',
   sidebarBrandTitle:
     'block truncate leading-tight text-[color:var(--pour-ink-0)] font-extrabold uppercase tracking-tight',
   sidebarBrandTagline: cn('mt-0.5 block text-[color:var(--pour-ink-2)]', type.tagline),
@@ -169,9 +161,9 @@ export const app = {
     cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 pour-desktop:gap-8 pour-desktop:pb-12 pour-desktop:pt-5', ink.base),
   pageAdminTitle: cn('block w-full shrink-0 pb-1 pt-0 font-bold tracking-tight', ink.base),
   pageAdminSection: cn('block w-full min-w-0', space.section),
-  tableWrap: cn('pour-scroll-x min-w-0 max-w-full rounded-[14px]', glass.surface),
+  tableWrap: cn('pour-scroll-x min-w-0 max-w-full rounded-xl', glass.surface),
   tableWrapDesktop: cn(
-    'hidden pour-scroll-x min-w-0 max-w-full rounded-[14px] pour-desktop:block',
+    'hidden pour-scroll-x min-w-0 max-w-full rounded-xl pour-desktop:block',
     glass.surface,
   ),
   mobileCardStack: 'space-y-3 pour-desktop:hidden',
@@ -204,8 +196,8 @@ export const tableCompact = {
 export const rq = {
   page: cn('mx-auto w-full min-w-0 max-w-none', space.page, ink.base),
   pageNarrow: cn('mx-auto w-full min-w-0 max-w-3xl pour-desktop:max-w-4xl', space.pageNarrow, ink.base),
-  card: cn('rounded-[14px] overflow-hidden', glass.surface, anim.cardLift, ink.base),
-  cardMuted: cn('rounded-[14px] overflow-hidden', glass.surfaceMuted, ink.base),
+  card: cn('rounded-xl overflow-hidden', glass.surface, anim.cardLift, ink.base),
+  cardMuted: cn('rounded-xl overflow-hidden', glass.surfaceMuted, ink.base),
   cardHeader: cn(
     'border-b border-[color:var(--glass-border-subtle)] bg-white/25 backdrop-blur-md',
     space.cardPadHeader,

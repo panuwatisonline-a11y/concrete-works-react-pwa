@@ -285,11 +285,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         >
           <DialogHeader>
             <DialogTitle>ตรวจสอบและแก้ไขข้อมูลงาน</DialogTitle>
-            <DialogDescription className="text-left text-sm text-[#6b7280]">
+            <DialogDescription className="text-left">
               ตรวจทานข้อมูลที่ผู้จองกรอก แก้ไขได้หากไม่ตรงก่อนยืนยันการตรวจสอบ
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Location *</Label>
               <Select
@@ -413,12 +413,12 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         >
           <DialogHeader>
             <DialogTitle>ยืนยันการสั่งเทคอนกรีต</DialogTitle>
-            <DialogDescription className="text-left text-sm text-[#6b7280]">
+            <DialogDescription className="text-left">
               ตรวจทานปริมาณก่อนสั่งเท ระบุ Actual volume (cu.m) ตามที่สั่งผลิต/เทจริง
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3">
-            <div className="rounded-lg border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2.5 text-[#374151]">
+          <div className="space-y-4">
+            <div className="rounded-xl border border-(--glass-border-subtle) bg-(--glass-bg-muted) px-4 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">สรุปคำขอ</p>
               <dl className="mt-2 space-y-2 text-sm">
                 {(() => {
@@ -460,7 +460,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                   if (request.remarks?.trim()) extra.push({ label: 'หมายเหตุผู้จอง', value: request.remarks.trim() })
 
                   return [...core, ...extra].map((row) => (
-                    <div key={row.label} className="min-w-0 border-b border-[color:var(--pour-surface-border)]/60 pb-2 last:border-0 last:pb-0">
+                    <div key={row.label} className="min-w-0 border-b border-(--glass-border-subtle) pb-2 last:border-0 last:pb-0">
                       <dt className="text-[11px] font-medium leading-tight text-[#6b7280]">{row.label}</dt>
                       <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[#111827]">{row.value}</dd>
                     </div>
@@ -553,7 +553,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       <Dialog open={modal === 'postpone'} onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent overlayClassName={WF_OVERLAY} className={cn('max-w-md', WF_CONTENT)}>
           <DialogHeader><DialogTitle>เลื่อนวันเทคอนกรีต</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>วันที่ใหม่ *</Label>
               <Input type="date" value={postponeData.date} onChange={(e) => setPostponeData((p) => ({ ...p, date: e.target.value }))} />
@@ -584,7 +584,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
       <Dialog open={modal === 'complete'} onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent overlayClassName={WF_OVERLAY} className={cn('max-w-lg', WF_CONTENT)}>
           <DialogHeader><DialogTitle>Confirm รายการ & ดำเนินการ</DialogTitle></DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Confirmed volume (cu.m) *</Label>
               <Input type="number" step="0.01" value={completeData.volume_confirm} onChange={(e) => setCompleteData((p) => ({ ...p, volume_confirm: e.target.value }))} />
