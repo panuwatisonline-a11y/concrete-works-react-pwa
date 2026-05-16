@@ -20,6 +20,8 @@ export default defineConfig({
         'apple-touch-icon.png',
         'pwa-192x192.png',
         'pwa-512x512.png',
+        'fonts/line-seed-sans.css',
+        'fonts/line-seed-sans/*.woff2',
         'templates/checksheet-logo.png',
         'templates/checklist-before-concrete-placement.html',
         'templates/cst-strength-report.html',

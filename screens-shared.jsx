@@ -1,5 +1,5 @@
 // Shared design tokens, primitives, icons — POUR concrete-order PWA.
-// Light / clean industrial theme. Monospace numerals for measurements.
+// Light / clean industrial theme. Tabular figures via LINE Seed + tnum where needed.
 
 const POUR = {
   bg:        '#f5f6f8',
@@ -23,15 +23,15 @@ const POUR = {
   pouring:   '#0891b2',
   complete:  '#16a34a',
   cancelled: '#dc2626',
-  sans: '"Geist", -apple-system, system-ui, sans-serif',
-  mono: '"Geist Mono", "JetBrains Mono", ui-monospace, monospace',
+  sans: '"LINE Seed Sans", ui-sans-serif, system-ui, sans-serif',
+  mono: '"LINE Seed Sans", ui-sans-serif, system-ui, sans-serif',
 };
 
 if (typeof document !== 'undefined' && !document.getElementById('pour-base')) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = 'https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap';
-  document.head.appendChild(link);
+  const seed = document.createElement('link');
+  seed.rel = 'stylesheet';
+  seed.href = '/fonts/line-seed-sans.css';
+  document.head.appendChild(seed);
 
   const s = document.createElement('style');
   s.id = 'pour-base';
@@ -45,7 +45,7 @@ if (typeof document !== 'undefined' && !document.getElementById('pour-base')) {
     .pour-screen *,.pour-screen *::before,.pour-screen *::after{box-sizing:border-box}
     .pour-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
     .pour-scroll::-webkit-scrollbar{display:none}
-    .pour-mono{font-family:${POUR.mono};font-feature-settings:"tnum","ss01"}
+    .pour-mono{font-family:${POUR.mono};font-variant-numeric:tabular-nums;font-feature-settings:"tnum","ss01"}
     .pour-caps{text-transform:uppercase;letter-spacing:0.07em;font-size:11px;font-weight:600;color:${POUR.ink2}}
     .pour-link{color:${POUR.blue};text-decoration:none;font-weight:500}
     .pour-input{
