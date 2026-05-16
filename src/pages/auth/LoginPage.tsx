@@ -93,55 +93,57 @@ export function LoginPage() {
   return (
     <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-y-auto overscroll-y-contain md:flex-row md:overflow-hidden">
       {/* Left brand panel — desktop only */}
-      <div className="relative hidden shrink-0 flex-col justify-between overflow-hidden bg-[linear-gradient(160deg,#134e4a_0%,#0f766e_48%,#042f2e_100%)] p-12 md:flex md:w-[42%]">
-        <svg className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.08]" aria-hidden>
-          <defs>
-            <pattern id="loginHatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-              <line x1="0" y1="0" x2="0" y2="4" stroke="#fff" strokeWidth="1.2"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#loginHatch)"/>
-        </svg>
+      <div className="relative hidden shrink-0 overflow-hidden p-12 md:flex md:h-full md:w-[42%]">
+        <div
+          className="pointer-events-none absolute inset-0 bg-[url('/login-sidebar-bg.png')] bg-cover bg-center bg-no-repeat"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-teal-950/72 via-teal-950/52 to-teal-950/78"
+          aria-hidden
+        />
 
-        <div className="relative">
-          <div className="flex items-center gap-3">
-            <img
-              src="/pwa-192x192.png"
-              alt="Concrete Works logo"
-              className="h-10 w-10 rounded-xl object-contain"
-              aria-hidden
-            />
-            <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-between gap-10">
+          <div className="relative">
+            <div className="flex items-center gap-3">
+              <img
+                src="/pwa-192x192.png"
+                alt="Concrete Works logo"
+                className="h-10 w-10 rounded-xl object-contain"
+                aria-hidden
+              />
+              <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
+            </div>
+            <div className="mt-5 max-w-md rounded-lg border border-white/15 bg-white/6 px-4 py-3 backdrop-blur-[2px]">
+              <p className="text-sm font-semibold leading-snug text-white/95">
+                Quality Management and Innovation Section
+              </p>
+            </div>
           </div>
-          <div className="mt-5 max-w-md rounded-lg border border-white/15 bg-white/6 px-4 py-3 backdrop-blur-[2px]">
-            <p className="text-sm font-semibold leading-snug text-white/95">
-              Quality Management and Innovation Section
+
+          <div className="relative">
+            <h1 className="mb-4 text-[2rem] font-bold leading-[1.15] tracking-tight text-white">
+              Application จัดการงานคอนกรีต (Prototype)
+            </h1>
+            <p className="mb-8 text-[15px] leading-relaxed text-white/75">
+              จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
             </p>
+            <div className="space-y-4">
+              {features.map(({ icon: Icon, text }, i) => (
+                <div key={i} className="flex items-center gap-3 text-[14px] text-white/90">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
+                    <Icon className="h-4 w-4" strokeWidth={1.75} />
+                  </span>
+                  {text}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="relative">
-          <h1 className="mb-4 text-[2rem] font-bold leading-[1.15] tracking-tight text-white">
-            Application จัดการงานคอนกรีต (Prototype)
-          </h1>
-          <p className="mb-8 text-[15px] leading-relaxed text-white/75">
-            จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
-          </p>
-          <div className="space-y-4">
-            {features.map(({ icon: Icon, text }, i) => (
-              <div key={i} className="flex items-center gap-3 text-[14px] text-white/90">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/15">
-                  <Icon className="h-4 w-4" strokeWidth={1.75} />
-                </span>
-                {text}
-              </div>
-            ))}
+          <div className="relative flex items-center gap-2 text-[12px] text-white/55">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            ระบบพร้อมใช้งาน
           </div>
-        </div>
-
-        <div className="relative flex items-center gap-2 text-[12px] text-white/55">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          ระบบพร้อมใช้งาน
         </div>
       </div>
 

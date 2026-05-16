@@ -36,7 +36,7 @@ export default defineConfig({
         short_name: 'Concrete Works',
         description: 'เธฃเธฐเธเธเธเธฑเธ”เธเธฒเธฃเธเธณเธเธญเธเธญเธเธเธฃเธตเธ•',
         theme_color: '#1d4ed8',
-        background_color: '#ffffff',
+        background_color: '#000000',
         display: 'standalone',
         scope: '/',
         start_url: '/',
