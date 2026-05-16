@@ -29,11 +29,11 @@ export const type = {
   caption: cn('text-xs font-medium', ink.muted),
   body: cn('text-sm font-medium', ink.body),
   bodyStrong: cn('text-sm font-semibold', ink.base),
-  detail: cn('text-[13px] font-medium leading-snug md:text-sm', ink.body),
+  detail: cn('text-[13px] font-medium leading-snug pour-desktop:text-sm', ink.body),
   nav: 'text-sm font-semibold leading-snug',
   navCompact: 'text-xs font-semibold leading-snug',
   title: cn('text-base font-bold tracking-tight', ink.base),
-  hero: cn('text-lg font-bold tracking-tight md:text-xl', ink.base),
+  hero: cn('text-lg font-bold tracking-tight pour-desktop:text-xl', ink.base),
 } as const
 
 /** CSS motion utilities (see index.css @keyframes pour-*) */
@@ -49,26 +49,26 @@ export const anim = {
 /** Responsive layout primitives — forms, tables, detail rows */
 export const layout = {
   formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
-  /** ฟอร์มใน modal — คอลัมน์คู่เมื่อ dialog กว้างพอ (md+) */
-  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 md:grid-cols-2',
+  /** ฟอร์มใน modal — คอลัมน์คู่เมื่อโหมด desktop (แนวนอน + กว้างพอ) */
+  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2',
   formField: 'min-w-0 space-y-1.5',
   statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2',
-  statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3',
-  statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
-  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 md:grid-cols-3 md:gap-4 lg:grid-cols-6',
+  statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3',
+  statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 lg:grid-cols-5',
+  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-desktop:gap-4 lg:grid-cols-6',
 } as const
 
 /** Consistent spacing — use across pages & layout */
 export const space = {
-  page: 'space-y-5 pb-10 pt-4 md:space-y-6 md:pb-12 md:pt-5',
-  pageNarrow: 'space-y-5 pb-10 pt-4 md:max-w-4xl md:space-y-6 md:pb-12 md:pt-5',
-  section: 'space-y-4 md:space-y-5',
+  page: 'space-y-5 pb-10 pt-4 pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5',
+  pageNarrow: 'space-y-5 pb-10 pt-4 pour-desktop:max-w-4xl pour-desktop:space-y-6 pour-desktop:pb-12 pour-desktop:pt-5',
+  section: 'space-y-4 pour-desktop:space-y-5',
   stackSm: 'space-y-3',
-  insetX: 'px-4 sm:px-5 md:px-6',
-  insetY: 'py-4 md:py-5',
-  cardPad: 'px-5 py-5 md:px-6 md:py-6',
-  cardPadHeader: 'px-5 py-4 md:px-6',
-  cardPadTight: 'px-5 py-4 md:px-6',
+  insetX: 'px-4 sm:px-5 pour-desktop:px-6',
+  insetY: 'py-4 pour-desktop:py-5',
+  cardPad: 'px-5 py-5 pour-desktop:px-6 pour-desktop:py-6',
+  cardPadHeader: 'px-5 py-4 pour-desktop:px-6',
+  cardPadTight: 'px-5 py-4 pour-desktop:px-6',
 } as const
 
 /** Reusable glass surface classes (see index.css .pour-glass*) */
@@ -87,7 +87,7 @@ export const theme = {
   shell: cn('pour-shell', anim.shell),
   shellDesktopAccent: '',
   brandWordmark:
-    'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[color:var(--pour-accent-hover)] to-[color:var(--pour-accent)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
+    'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-accent)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
   headerBar: cn(
     glass.surfaceStrong,
     'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.85)_inset]',
@@ -107,10 +107,29 @@ export const theme = {
     'border-b border-[color:var(--glass-border-subtle)] shadow-[0_1px_0_rgba(255,255,255,0.75)_inset]',
   ),
   mainColumnDesktop: cn(
-    'md:overflow-hidden md:rounded-2xl md:border md:border-[color:var(--glass-border-subtle)]',
+    'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
+    'pour-desktop:rounded-2xl pour-desktop:border pour-desktop:border-[color:var(--glass-border-subtle)]',
     glass.surface,
   ),
-  sidebarSurface: cn('rounded-r-2xl', glass.surface),
+  sidebarSurface: cn('pour-desktop:rounded-none', 'rounded-r-2xl', glass.surface),
+  /** กล่องแบรนด์ sidebar — เน้นโทน aqua + กรอบ */
+  sidebarBrandPanel: cn(
+    'outline-none transition-[border-color,box-shadow,background-color]',
+    'rounded-2xl border-2 border-[color:var(--pour-line-2)]',
+    'bg-gradient-to-br from-[color:var(--pour-sky)]/50 via-white/80 to-[color:var(--pour-canvas)]',
+    'shadow-[0_2px_14px_rgba(25,55,48,0.07),inset_0_1px_0_rgba(255,255,255,0.9)]',
+    'hover:border-[color:var(--glass-edge)] hover:from-[color:var(--pour-sky)]/60',
+    'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-sky)]/50',
+  ),
+  sidebarBrandPanelActive:
+    'border-[color:var(--pour-sky)] from-[color:var(--pour-sky)]/65 via-[#f4fbfb] to-white ring-2 ring-[color:var(--pour-sky)]/30',
+  sidebarBrandTitle:
+    'block truncate leading-tight text-[color:var(--pour-ink-0)] font-extrabold uppercase tracking-tight',
+  sidebarBrandTagline: cn('mt-0.5 block text-[color:var(--pour-ink-2)]', type.tagline),
+  /** พื้นขาวหลังโลโก้ — ไฟล์ PNG มีพื้นดำ ต้องไม่ใช้ blend */
+  sidebarBrandLogoWrap:
+    'flex shrink-0 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm ring-1 ring-[color:var(--glass-border-subtle)]',
+  sidebarBrandLogo: 'h-full w-full object-contain object-center',
   iconTileBrand: 'pour-brand-icon-tile',
   iconButtonChrome: cn(
     glass.surfaceStrong,
@@ -122,7 +141,7 @@ export const theme = {
     glass.surface,
     'rounded-xl border border-[color:var(--glass-border-subtle)]',
     space.insetX,
-    'py-2.5 md:py-3',
+    'py-2.5 pour-desktop:py-3',
   ),
   headerBarMobile: 'px-3 py-2',
   primaryNavStripPad: 'px-3 py-2.5',
@@ -135,7 +154,7 @@ export const theme = {
   ),
   mobileRequestListHeaderInner: 'flex items-start gap-2 px-3 pb-3 pt-2',
   /** เนื้อหารายการใน main (ไม่มีหัวข้อซ้ำ) */
-  mobileListBody: 'space-y-3 px-4 pb-4 pt-2 md:hidden',
+  mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
 } as const
 
 /** App-wide layout chrome */
@@ -147,15 +166,15 @@ export const app = {
   ),
   shellInner: 'flex w-full flex-1 flex-col items-center justify-center py-4',
   pageAdmin:
-    cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 md:gap-8 md:pb-12 md:pt-5', ink.base),
+    cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-6 pb-10 pt-4 pour-desktop:gap-8 pour-desktop:pb-12 pour-desktop:pt-5', ink.base),
   pageAdminTitle: cn('block w-full shrink-0 pb-1 pt-0 font-bold tracking-tight', ink.base),
   pageAdminSection: cn('block w-full min-w-0', space.section),
   tableWrap: cn('pour-scroll-x min-w-0 max-w-full rounded-[14px]', glass.surface),
   tableWrapDesktop: cn(
-    'hidden pour-scroll-x min-w-0 max-w-full rounded-[14px] md:block',
+    'hidden pour-scroll-x min-w-0 max-w-full rounded-[14px] pour-desktop:block',
     glass.surface,
   ),
-  mobileCardStack: 'space-y-3 md:hidden',
+  mobileCardStack: 'space-y-3 pour-desktop:hidden',
   table: 'w-full min-w-[36rem] text-sm',
   tableHead:
     'border-b-2 border-[color:var(--glass-border-subtle)] bg-white/30 text-left text-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-2)] backdrop-blur-md [&_th]:px-3 [&_th]:py-3 sm:[&_th]:px-4',
@@ -163,28 +182,28 @@ export const app = {
     'divide-y divide-[color:var(--glass-border)] [&_td]:max-w-[18rem] [&_td]:break-words [&_td]:px-3 [&_td]:py-3 [&_td]:align-middle [&_td]:text-[color:var(--pour-ink-0)] sm:[&_td]:px-4 [&_td:has(:focus-visible)]:relative [&_td:has(:focus-visible)]:z-[1] [&_td:has(:focus-visible)]:bg-[color:var(--pour-accent-muted)] [&_td:has(:focus-visible)]:shadow-[inset_0_0_0_2px_var(--pour-accent-ring)]',
   tableRowHover: '[&_tr]:transition-colors [&_tr:hover]:bg-[var(--pour-bg)]',
   mutedText: ink.muted,
-  mobileCardStackCompact: 'space-y-2 md:hidden',
+  mobileCardStackCompact: 'space-y-2 pour-desktop:hidden',
 } as const
 
 /** ตารางแบบกระชับ — ใช้ใน admin / CST (คล้าย CstListPage) */
 export const tableCompact = {
-  table: cn(app.table, 'text-xs leading-tight'),
+  table: cn(app.table, 'text-[11px] leading-snug'),
   head: cn(
     app.tableHead,
-    '[&_th]:px-2 [&_th]:py-1.5 [&_th]:text-[10px] [&_th]:leading-tight sm:[&_th]:px-2.5',
+    '[&_th]:px-1.5 [&_th]:py-1 [&_th]:text-[10px] [&_th]:leading-none sm:[&_th]:px-2',
   ),
   body: cn(
     app.tableBody,
     app.tableRowHover,
-    '[&_td]:max-w-[12rem] [&_td]:px-2 [&_td]:py-1.5 [&_td]:text-xs [&_td]:leading-tight sm:[&_td]:px-2.5',
+    '[&_td]:max-w-[12rem] [&_td]:px-1.5 [&_td]:py-1 [&_td]:text-[11px] [&_td]:leading-snug sm:[&_td]:px-2',
   ),
-  emptyCell: 'py-6 text-center text-xs text-[#6b7280]',
+  emptyCell: 'py-4 text-center text-[11px] text-[#6b7280]',
 } as const
 
 /** Shared visual language for /requests/* flows */
 export const rq = {
   page: cn('mx-auto w-full min-w-0 max-w-none', space.page, ink.base),
-  pageNarrow: cn('mx-auto w-full min-w-0 max-w-3xl md:max-w-4xl', space.pageNarrow, ink.base),
+  pageNarrow: cn('mx-auto w-full min-w-0 max-w-3xl pour-desktop:max-w-4xl', space.pageNarrow, ink.base),
   card: cn('rounded-[14px] overflow-hidden', glass.surface, anim.cardLift, ink.base),
   cardMuted: cn('rounded-[14px] overflow-hidden', glass.surfaceMuted, ink.base),
   cardHeader: cn(
@@ -209,7 +228,7 @@ export const rq = {
   link: 'font-semibold text-[color:var(--pour-accent)] underline-offset-2 hover:text-[color:var(--pour-accent-hover)] hover:underline',
   timelineDot: 'mt-1 h-2 w-2 shrink-0 rounded-full bg-[color:var(--pour-accent)] ring-2 ring-[color:var(--pour-accent-ring)]',
   dataRowCard: cn(
-    'rounded-xl p-4 outline-none transition-[box-shadow,background-color] md:p-4',
+    'rounded-xl p-4 outline-none transition-[box-shadow,background-color] pour-desktop:p-4',
     glass.surface,
     ink.base,
     'focus-within:bg-white/70 focus-within:shadow-[inset_0_0_0_2px_var(--pour-accent-ring),var(--glass-shadow-sm)]',
@@ -223,7 +242,7 @@ export const rq = {
     panelBody: cn(space.cardPadTight, 'flex flex-col gap-3'),
     buttonRow: 'flex min-w-0 flex-wrap items-center gap-2',
     strip:
-      'flex flex-col gap-2.5 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md md:flex-row md:flex-wrap md:items-center md:gap-x-2 md:gap-y-2 md:px-5 md:py-3.5',
+      'flex flex-col gap-2.5 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:flex-row pour-desktop:flex-wrap pour-desktop:items-center pour-desktop:gap-x-2 pour-desktop:gap-y-2 pour-desktop:px-5 pour-desktop:py-3.5',
     sectionLabel: cn(type.overline, 'w-full basis-full text-[color:var(--pour-ink-2)]'),
   },
   dataRowEmpty: cn(

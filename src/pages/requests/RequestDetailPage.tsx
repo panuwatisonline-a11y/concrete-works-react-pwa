@@ -185,7 +185,7 @@ export function RequestDetailPage() {
         onBack={() => navigate(-1)}
         title={
           <span className="flex flex-wrap items-center gap-2">
-            <span className="font-pour-mono text-base font-bold tracking-tight text-[#374151] md:text-lg">{shortId(request.id)}</span>
+            <span className="font-pour-mono text-base font-bold tracking-tight text-[#374151] pour-desktop:text-lg">{shortId(request.id)}</span>
             <StatusBadge statusId={sid} size="lg" />
           </span>
         }
@@ -243,7 +243,7 @@ export function RequestDetailPage() {
       )}
 
       {/* Sections */}
-      <div className="grid min-w-0 gap-4 md:grid-cols-2">
+      <div className="grid min-w-0 gap-4 pour-desktop:grid-cols-2">
         <Card className={rq.card}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
             <CardTitle className={rq.cardTitle}>ข้อมูลงาน</CardTitle>
@@ -332,7 +332,7 @@ export function RequestDetailPage() {
                       aria-label={request.after_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปก่อนเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#ccf0ed] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.before_image, 'detail') ?? request.before_image}
                           alt=""
@@ -352,7 +352,7 @@ export function RequestDetailPage() {
                       aria-label={request.before_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปหลังเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[#ccf0ed] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[#dcfce7] p-2 shadow-sm sm:min-h-[11rem]">
                         <img
                           src={imageSrcForImgTag(request.after_image, 'detail') ?? request.after_image}
                           alt=""
@@ -366,7 +366,7 @@ export function RequestDetailPage() {
               </div>
             )}
             {(request.eslip_url || request.checksheet_url) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[#ccf0ed]/70 pt-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[color:var(--pour-surface-border)]/70 pt-4">
                 {request.eslip_url && <a href={request.eslip_url} target="_blank" rel="noreferrer" className={rq.link}>E-Slip</a>}
                 {request.checksheet_url && <a href={request.checksheet_url} target="_blank" rel="noreferrer" className={rq.link}>Checksheet</a>}
               </div>
@@ -381,7 +381,7 @@ export function RequestDetailPage() {
             <CardTitle className={rq.cardTitle}>หมายเหตุ</CardTitle>
           </CardHeader>
           <CardContent className={rq.cardContent}>
-            <p className="whitespace-pre-wrap rounded-xl bg-[#f5f6f8]/80 px-3 py-2.5 text-sm leading-relaxed text-[#374151] ring-1 ring-[#ccf0ed]/80">{request.remarks}</p>
+            <p className="whitespace-pre-wrap rounded-xl bg-[#f5f6f8]/80 px-3 py-2.5 text-sm leading-relaxed text-[#374151] ring-1 ring-[color:var(--pour-surface-border)]/80">{request.remarks}</p>
           </CardContent>
         </Card>
       )}

@@ -99,7 +99,12 @@ export function CstRequestPourInfo({ request, className, embedded }: CstRequestP
           <span className="font-mono text-[10px] font-semibold text-pour-muted">{shortId(request.id)}</span>
         </div>
       ) : null}
-      <dl className="grid grid-cols-1 gap-x-4 gap-y-2.5 sm:grid-cols-2">
+      <dl
+        className={cn(
+          'grid grid-cols-1 gap-x-4 gap-y-2.5',
+          embedded ? 'pour-desktop:grid-cols-2' : 'sm:grid-cols-2',
+        )}
+      >
         {rows.map(({ label, value }) => (
           <div key={label} className="min-w-0">
             <dt className="text-[10px] font-semibold uppercase tracking-wide text-pour-muted">{label}</dt>

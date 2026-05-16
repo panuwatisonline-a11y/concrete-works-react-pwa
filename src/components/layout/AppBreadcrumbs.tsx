@@ -16,7 +16,7 @@ export function AppBreadcrumbs() {
   if (breadcrumbs.length === 0) return null
 
   return (
-    <div className={cn('hidden shrink-0 md:block', theme.breadcrumbStrip, anim.fadeIn)}>
+    <div className={cn('hidden shrink-0 pour-desktop:block', theme.breadcrumbStrip, anim.fadeIn)}>
       <div className={cn('flex flex-wrap items-center gap-x-1 gap-y-0.5', type.caption)}>
         {breadcrumbs.map((bc, i) => (
           <span key={bc.path} className="inline-flex items-center gap-1">

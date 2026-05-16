@@ -36,7 +36,7 @@ export function AdminSegmentAccordion({ groups, defaultOpenId }: AdminSegmentAcc
         return (
           <div
             key={g.id}
-            className="overflow-hidden rounded-xl border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+            className="overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
           >
             <button
               type="button"
@@ -60,7 +60,7 @@ export function AdminSegmentAccordion({ groups, defaultOpenId }: AdminSegmentAcc
               </span>
             </button>
             {isOpen ? (
-              <div className="border-t border-[#ccf0ed]/80 px-3 pb-4 pt-2 md:px-4 md:pt-3">{g.children}</div>
+              <div className="border-t border-[color:var(--pour-surface-border)]/80 px-3 pb-4 pt-2 pour-desktop:px-4 pour-desktop:pt-3">{g.children}</div>
             ) : null}
           </div>
         )

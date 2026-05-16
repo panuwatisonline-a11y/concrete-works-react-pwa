@@ -11,6 +11,7 @@ import { useFilterStore } from '@/stores/filterStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { APP_HOME } from '@/lib/appHome'
+import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { isNavToActive } from '@/lib/navActive'
@@ -71,7 +72,7 @@ function MobilePrimaryNav() {
     )
 
   return (
-    <nav aria-label="เมนูหลัก" className={cn(theme.primaryNavStrip, 'md:hidden')}>
+    <nav aria-label="เมนูหลัก" className={cn(theme.primaryNavStrip, 'pour-desktop:hidden')}>
       <div className={cn('mx-auto flex w-full min-w-0 max-w-none items-center gap-1.5 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', theme.primaryNavStripPad)}>
         <Link to="/requests?view=summary" className={pill(isStatusTab)} aria-current={isStatusTab ? 'page' : undefined}>
           <Activity className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
@@ -133,7 +134,7 @@ export function AppHeader() {
       return clear
     }
 
-    const mq = window.matchMedia('(min-width: 768px)')
+    const mq = window.matchMedia(POUR_DESKTOP_MEDIA)
     const sync = () => {
       if (mq.matches) {
         clear()
@@ -157,10 +158,10 @@ export function AppHeader() {
     <>
       <header
         ref={headerRef}
-        className={cn('sticky top-0 z-40 shrink-0 md:hidden', theme.headerBar)}
+        className={cn('sticky top-0 z-40 shrink-0 pour-desktop:hidden', theme.headerBar)}
       >
         {/* Mobile wireframe header: เมนู | ชื่อกลาง | ค้นหา */}
-        <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 md:hidden', theme.headerBarMobile)}>
+        <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 pour-desktop:hidden', theme.headerBarMobile)}>
           <button
             type="button"
             className={cn(

@@ -17,7 +17,7 @@ function serializeStructureList(selected: Set<string>, masterOrder: string[]): s
 const triggerClass = (hasSelection: boolean) =>
   cn(
     'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
-    hasSelection ? 'border-[#99e6e0] bg-white text-[#111827]' : 'border-[#ccf0ed] bg-white text-[#b4bcc8]',
+    hasSelection ? 'border-[color:var(--pour-accent)]/55 bg-white text-[#111827]' : 'border-[color:var(--pour-surface-border)] bg-white text-[#b4bcc8]',
   )
 
 function StructureListPanel({
@@ -225,7 +225,7 @@ export function StructureListMultiSelect({
       <div className="min-w-0 space-y-2">
         {trigger}
         {open ? (
-          <div className="flex flex-col gap-2 rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+          <div className="flex flex-col gap-2 rounded-xl border border-[color:var(--pour-surface-border)] bg-white p-2 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
             {panel}
           </div>
         ) : null}
@@ -243,7 +243,7 @@ export function StructureListMultiSelect({
           sideOffset={6}
           collisionPadding={12}
           className={cn(
-            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[#ccf0ed] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
+            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-white p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
             'max-h-[min(380px,55dvh)]',
           )}
           onOpenAutoFocus={(e) => e.preventDefault()}

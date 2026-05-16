@@ -268,19 +268,19 @@ function RequestFeedCard({
   return (
     <>
       <div className={cn(rq.card, 'transition hover:border-[color:var(--glass-edge)] hover:shadow-[var(--glass-shadow-sm)]')}>
-        <div className="flex gap-3 px-4 pt-4 pb-2 md:gap-3 md:px-5 md:pt-5 md:pb-3">
+        <div className="flex gap-3 px-4 pt-4 pb-2 pour-desktop:gap-3 pour-desktop:px-5 pour-desktop:pt-5 pour-desktop:pb-3">
           {thumbUrl && !thumbFailed ? (
             <button
               type="button"
-              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/45 md:pt-0.5"
+              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/45 pour-desktop:pt-0.5"
               aria-label="ขยายรูป"
               onClick={() => {
                 const src = imageSrcForImgTag(rawThumb, 'lightbox')
                 if (src) setLightboxSrc(src)
               }}
             >
-              <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm md:p-[2px]">
-                <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
+              <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
+                <div className="rounded-full bg-white p-[1.5px] pour-desktop:p-[2px]">
                   <img
                     src={thumbUrl}
                     alt=""
@@ -288,7 +288,7 @@ function RequestFeedCard({
                     loading="lazy"
                     decoding="async"
                     onError={() => setThumbFailed(true)}
-                    className="h-9 w-9 rounded-full object-cover md:h-11 md:w-11"
+                    className="h-9 w-9 rounded-full object-cover pour-desktop:h-11 pour-desktop:w-11"
                   />
                 </div>
               </div>
@@ -299,10 +299,10 @@ function RequestFeedCard({
             className="flex min-w-0 flex-1 gap-2.5 rounded-md outline-none active:scale-[0.998]"
           >
             {(!thumbUrl || thumbFailed) && (
-              <div className="shrink-0 pt-px md:pt-0.5">
-                <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm md:p-[2px]">
-                  <div className="rounded-full bg-white p-[1.5px] md:p-[2px]">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] md:h-11 md:w-11 md:text-base">
+              <div className="shrink-0 pt-px pour-desktop:pt-0.5">
+                <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
+                  <div className="rounded-full bg-white p-[1.5px] pour-desktop:p-[2px]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#f0f2f5] to-[#e8ebf0] text-sm font-bold text-[#374151] pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
                       {initial}
                     </div>
                   </div>
@@ -319,7 +319,7 @@ function RequestFeedCard({
                     ) : null}
                   </p>
                   {r.booked_at ? (
-                    <p className={cn('mt-0.5 md:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
+                    <p className={cn('mt-0.5 pour-desktop:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
                   ) : null}
                   <p className={cn('mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
                     <span className={cn('shrink-0', type.caption)}>จองโดย</span>
@@ -338,7 +338,7 @@ function RequestFeedCard({
         </div>
 
         <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
-          <div className="space-y-2 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md md:space-y-2.5 md:px-5 md:py-4">
+          <div className="space-y-2 border-t border-[color:var(--glass-border)] bg-white/20 px-4 py-3 backdrop-blur-md pour-desktop:space-y-2.5 pour-desktop:px-5 pour-desktop:py-4">
             <FeedDetailRow icon={Building2} label="Client" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
@@ -355,7 +355,7 @@ function RequestFeedCard({
             <FeedDetailRow icon={FileText} label="ABC" value={abc} />
             <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
-              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] md:px-3.5 md:py-3', type.detail)}>
+              <div className={cn('rounded-lg bg-white px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3', type.detail)}>
                 <span className="text-pour-subtle">หมายเหตุ </span>
                 {r.remarks}
               </div>
@@ -633,11 +633,11 @@ export function RequestListPage() {
     <>
       <div className="space-y-3.5">
         {loading ? (
-          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             กำลังโหลด…
           </p>
         ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             ไม่พบรายการ
           </p>
         ) : (
@@ -649,7 +649,7 @@ export function RequestListPage() {
       </div>
 
       {total > PAGE_SIZE && (
-        <div className="mt-3 flex items-center justify-center gap-2 border-t border-[#ccf0ed] pt-3">
+        <div className="mt-3 flex items-center justify-center gap-2 border-t border-[color:var(--pour-surface-border)] pt-3">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
           <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
           <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
@@ -662,11 +662,11 @@ export function RequestListPage() {
     <div className={theme.mobileListBody}>
       <div className="space-y-3.5">
         {loading ? (
-          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             กำลังโหลด…
           </p>
         ) : requests.length === 0 ? (
-          <p className="rounded-2xl border border-[#ccf0ed]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+          <p className="rounded-2xl border border-[color:var(--pour-surface-border)]/70 bg-white/90 py-16 text-center text-sm text-[#6b7280] shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
             ไม่พบรายการ
           </p>
         ) : (
@@ -678,7 +678,7 @@ export function RequestListPage() {
       </div>
 
       {total > PAGE_SIZE && (
-        <div className="flex items-center justify-center gap-2 border-t border-[#ccf0ed] pt-4">
+        <div className="flex items-center justify-center gap-2 border-t border-[color:var(--pour-surface-border)] pt-4">
           <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
           <span className="text-sm text-[#6b7280]">หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
           <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
@@ -688,7 +688,7 @@ export function RequestListPage() {
   )
 
   const mobileSummary = (
-    <div className={cn(rq.page, 'flex flex-col md:mx-auto md:max-w-2xl')}>
+    <div className={cn(rq.page, 'flex flex-col pour-desktop:mx-auto pour-desktop:max-w-2xl')}>
       <Link
         to="/requests/new"
         className={cn('pour-interactive inline-flex w-fit max-w-full items-center gap-2 py-1 text-[color:var(--pour-accent)] hover:text-[color:var(--pour-accent-hover)]', type.bodyStrong, anim.fadeIn)}
@@ -730,11 +730,11 @@ export function RequestListPage() {
         mobileSummary
       ) : (
         <>
-          <div className="md:hidden">{mobileLatest}</div>
+          <div className="pour-desktop:hidden">{mobileLatest}</div>
 
-          <div className="hidden md:block space-y-0 md:space-y-4">
-            <div className="border-b border-[#ccf0ed] bg-white px-4 py-3 md:border-0 md:bg-transparent md:px-0 md:py-0">
-              <h1 className={cn(rq.heroTitle, 'md:text-xl')}>{scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'}</h1>
+          <div className="hidden pour-desktop:block space-y-0 pour-desktop:space-y-4">
+            <div className="border-b border-[color:var(--pour-surface-border)] bg-white px-4 py-3 pour-desktop:border-0 pour-desktop:bg-transparent pour-desktop:px-0 pour-desktop:py-0">
+              <h1 className={cn(rq.heroTitle, 'pour-desktop:text-xl')}>{scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'}</h1>
               <p className={cn('mt-0.5', rq.sub)}>
                 {total} รายการ · เลือกสถานะได้จากไอคอน <span className="font-medium text-[#374151]">ตัวกรอง</span> ในแถบด้านบน
               </p>

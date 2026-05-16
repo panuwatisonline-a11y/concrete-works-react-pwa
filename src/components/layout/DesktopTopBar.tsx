@@ -44,7 +44,7 @@ export function DesktopTopBar() {
   return (
     <div
       className={cn(
-        'hidden shrink-0 items-center gap-4 px-4 py-3.5 sm:px-6 md:flex lg:px-8 xl:px-10 2xl:px-12',
+        'hidden shrink-0 items-center gap-4 px-4 py-3.5 sm:px-6 pour-desktop:flex pour-desktop:shrink-0 pour-desktop:px-6 pour-desktop:py-4 lg:pour-desktop:px-8',
         theme.headerBar,
       )}
     >

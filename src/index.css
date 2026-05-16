@@ -10,42 +10,50 @@
   --font-mono: var(--font-sans);
 }
 
-/* POUR design tokens — aligned with screens-shared.jsx */
+/** Desktop layout: แนวนอน + กว้าง ≥768px (แนวตั้ง = มือถือเสมอ) */
+@custom-variant pour-desktop (@media ((orientation: landscape) and (min-width: 768px)));
+
+/* POUR design tokens — aqua (ฟ้าอมเขียว) → cream + coral accent */
 @layer base {
   :root {
-    --pour-bg: #f0fdfb;
-    --pour-bg-2: #e0f8f5;
-    --pour-line: #c4ece7;
-    --pour-line-2: #9fd8d2;
-    --pour-ink-0: #0f172a;
-    --pour-ink-1: #334155;
-    --pour-ink-2: #475569;
-    --pour-ink-3: #64748b;
-    --pour-accent: #14b8a6;
-    --pour-accent-hover: #0d9488;
-    --pour-accent-muted: rgba(20, 184, 166, 0.09);
-    --pour-accent-ring: rgba(20, 184, 166, 0.24);
+    --pour-sky: #9ed9de;
+    --pour-cream: #faf6f2;
+    --pour-bg: var(--pour-cream);
+    --pour-bg-2: #f2f0eb;
+    --pour-line: #d2ebe6;
+    --pour-line-2: #b8ddd6;
+    --pour-ink-0: #111111;
+    --pour-ink-1: #2d2d2d;
+    --pour-ink-2: #525252;
+    --pour-ink-3: #737373;
+    --pour-accent: #ff8c5a;
+    --pour-accent-hover: #f07040;
+    --pour-accent-muted: rgba(255, 140, 90, 0.12);
+    --pour-accent-ring: rgba(255, 140, 90, 0.28);
     /* legacy aliases */
     --pour-blue: var(--pour-accent);
     --pour-blue-deep: var(--pour-accent-hover);
     --pour-blue-glow: var(--pour-accent-muted);
     --pour-blue-ring: var(--pour-accent-ring);
-    --pour-canvas: #e0f8f5;
+    --pour-canvas: #ecf8f5;
+    --pour-surface-border: #d4ebe6;
+    --pour-surface-tint: #f2faf8;
+    --pour-surface-warm: #faf7f4;
 
-    /* Liquid glass — whisper mint-teal */
-    --glass-bg: rgba(255, 255, 255, 0.52);
-    --glass-bg-strong: rgba(255, 255, 255, 0.76);
-    --glass-bg-muted: rgba(255, 255, 255, 0.28);
-    --glass-border: #b8e4df;
-    --glass-border-subtle: #e0f5f3;
-    --glass-edge: #8ec8c2;
-    --glass-shadow: 0 4px 28px rgba(5, 55, 50, 0.07), inset 0 1px 0 rgba(255, 255, 255, 1);
-    --glass-shadow-sm: 0 1px 12px rgba(5, 55, 50, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.96);
+    /* Liquid glass — soft aqua-white */
+    --glass-bg: rgba(255, 255, 255, 0.58);
+    --glass-bg-strong: rgba(255, 255, 255, 0.82);
+    --glass-bg-muted: rgba(255, 255, 255, 0.32);
+    --glass-border: #c8e6df;
+    --glass-border-subtle: #e6f2ef;
+    --glass-edge: #b5d9d0;
+    --glass-shadow: 0 4px 28px rgba(25, 55, 48, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+    --glass-shadow-sm: 0 1px 12px rgba(25, 55, 48, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.96);
     --glass-blur: 22px;
-    --shell-base: #f0fafa;
-    --shell-blob-1: rgba(255, 255, 255, 0.95);
-    --shell-blob-2: rgba(20, 184, 166, 0.10);
-    --shell-blob-3: rgba(5, 55, 50, 0.04);
+    --shell-base: var(--pour-cream);
+    --shell-blob-1: rgba(255, 255, 255, 0.75);
+    --shell-blob-2: rgba(158, 217, 222, 0.26);
+    --shell-blob-3: rgba(250, 246, 242, 0.48);
 
     --ig-bg: var(--pour-bg);
     --ig-surface: #ffffff;
@@ -53,25 +61,25 @@
     --ig-text: var(--pour-ink-0);
     --ig-muted: var(--pour-ink-2);
     --ig-link: var(--pour-blue);
-    --background: 174 65% 99%;
-    --foreground: 222 47% 11%;
+    --background: 168 38% 97%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 174 80% 40%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 20 100% 68%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 174 22% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 174 18% 95%;
-    --muted-foreground: 215 16% 44%;
-    --accent: 174 22% 94%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 168 32% 94%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 168 22% 94%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 168 28% 92%;
+    --accent-foreground: 0 0% 7%;
     --destructive: 0 84% 49%;
     --destructive-foreground: 0 0% 100%;
-    --border: 176 22% 90%;
-    --input: 176 22% 90%;
-    --ring: 174 80% 40%;
+    --border: 168 26% 86%;
+    --input: 168 26% 86%;
+    --ring: 20 100% 68%;
     --radius: 0.75rem;
     /* ความสูง header + MobilePrimaryNav — อัปเดตจาก AppHeader */
     --pour-mobile-header-h: 0px;
@@ -113,12 +121,11 @@
   }
 
   body {
-    background-color: var(--shell-base);
+    background-color: var(--pour-cream);
     background-image:
-      radial-gradient(ellipse 80% 60% at 100% 0%, var(--shell-blob-1) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 0% 100%, var(--shell-blob-3) 0%, transparent 50%),
-      radial-gradient(ellipse 55% 45% at 55% 35%, var(--shell-blob-2) 0%, transparent 60%),
-      linear-gradient(165deg, #ffffff 0%, var(--shell-base) 44%, #d8f4f1 100%);
+      radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 255, 255, 0.5) 0%, transparent 58%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, var(--shell-blob-3) 0%, transparent 52%),
+      linear-gradient(180deg, var(--pour-sky) 0%, #bfe8e2 38%, var(--pour-cream) 100%);
     color: var(--pour-ink-0);
     margin: 0;
     height: 100%;
@@ -150,9 +157,8 @@
   .pour-shell {
     background-color: transparent;
     background-image:
-      radial-gradient(ellipse 85% 65% at 100% 0%, var(--shell-blob-1) 0%, transparent 52%),
-      radial-gradient(ellipse 75% 55% at 0% 100%, var(--shell-blob-3) 0%, transparent 48%),
-      radial-gradient(ellipse 60% 50% at 50% 40%, var(--shell-blob-2) 0%, transparent 58%);
+      radial-gradient(ellipse 80% 60% at 80% 10%, var(--shell-blob-2) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 55% at 10% 90%, var(--shell-blob-3) 0%, transparent 50%);
   }
 
   .pour-glass {
@@ -193,9 +199,9 @@
     position: relative;
     overflow: hidden;
     color: #ffffff;
-    background: linear-gradient(145deg, #5eead4 0%, #14b8a6 48%, #0f766e 100%);
+    background: linear-gradient(145deg, #ffb088 0%, #ff8c5a 48%, #e86a35 100%);
     box-shadow:
-      0 2px 10px rgba(5, 80, 75, 0.22),
+      0 2px 10px rgba(180, 70, 30, 0.22),
       inset 0 1px 0 rgba(255, 255, 255, 0.22);
   }
 
@@ -290,7 +296,7 @@
     inset: -30%;
     z-index: 0;
     pointer-events: none;
-    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(20, 184, 166, 0.14) 0%, transparent 65%);
+    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(255, 140, 90, 0.12) 0%, transparent 65%);
     animation: pour-ambient-drift 24s ease-in-out infinite alternate;
   }
 

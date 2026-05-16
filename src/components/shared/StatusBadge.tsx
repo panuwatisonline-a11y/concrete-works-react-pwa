@@ -27,7 +27,7 @@ export function StatusBadge({ statusId, className, size = 'md', compact = false 
         size === 'sm' && !compact && 'px-2 py-0.5 text-xs',
         size === 'sm' &&
           compact &&
-          'shrink-0 px-1.5 py-px text-[10px] leading-tight md:px-2 md:py-0.5 md:text-xs',
+          'shrink-0 px-1.5 py-px text-[10px] leading-tight pour-desktop:px-2 pour-desktop:py-0.5 pour-desktop:text-xs',
         size === 'md' && 'px-2.5 py-1 text-xs',
         size === 'lg' && 'px-3 py-1 text-sm',
         color,

@@ -24,7 +24,7 @@ type CstAgeColumnCellProps = {
 
 function cstAgeCellClass(saved: boolean, interactive: boolean) {
   return cn(
-    'flex w-full min-w-0 flex-col items-center justify-center rounded-[10px] border px-2 py-2 text-center transition-[border-color,background-color,box-shadow]',
+    'flex w-full min-w-0 flex-col items-center justify-center rounded-[8px] border px-1.5 py-1.5 text-center transition-[border-color,background-color,box-shadow]',
     saved
       ? 'border-[rgba(22,163,74,0.45)] bg-[rgba(22,163,74,0.12)] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)]'
       : cn(

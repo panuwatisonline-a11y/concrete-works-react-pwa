@@ -35,13 +35,13 @@ const cstTableCompact = {
   table: cn(tableCompact.table, 'min-w-[58rem]'),
   head: cn(
     tableCompact.head,
-    '[&_th.cst-age-col]:max-w-none [&_th.cst-age-col]:w-[5.5rem] [&_th.cst-age-col]:px-1.5 [&_th.cst-age-col]:text-center [&_th.cst-age-col]:normal-case [&_th.cst-age-col]:tracking-normal',
+    '[&_th.cst-age-col]:max-w-none [&_th.cst-age-col]:w-[5rem] [&_th.cst-age-col]:px-1 [&_th.cst-age-col]:text-center [&_th.cst-age-col]:normal-case [&_th.cst-age-col]:tracking-normal',
     '[&_th.cst-age-col:first-of-type]:border-l-2 [&_th.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
     '[&_th.cst-age-col]:bg-[rgba(17,24,39,0.03)]',
   ),
   body: cn(
     tableCompact.body,
-    '[&_td.cst-age-col]:max-w-none [&_td.cst-age-col]:w-[5.5rem] [&_td.cst-age-col]:px-1.5 [&_td.cst-age-col]:align-top',
+    '[&_td.cst-age-col]:max-w-none [&_td.cst-age-col]:w-[5rem] [&_td.cst-age-col]:px-1 [&_td.cst-age-col]:align-top',
     '[&_td.cst-age-col:first-of-type]:border-l-2 [&_td.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
     '[&_td.cst-age-col]:bg-[rgba(17,24,39,0.02)]',
   ),
@@ -195,7 +195,7 @@ function CstListContent({
 }) {
   return (
     <>
-      <div className="space-y-2 md:hidden">
+      <div className="space-y-2 pour-desktop:hidden">
         {requests.map((r) => {
           const savedAges = savedAgesFor(r.id)
           const emphasizeAges = cstAgesDueToday(r, savedAges)

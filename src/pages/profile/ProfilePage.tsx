@@ -113,7 +113,7 @@ export function ProfilePage() {
               type="button"
               variant="outline"
               size="sm"
-              className="gap-1.5 rounded-xl border-[#ccf0ed] text-[#374151]"
+              className="gap-1.5 rounded-xl border-[color:var(--pour-surface-border)] text-[#374151]"
               onClick={() => setEditingProfile(true)}
             >
               <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
@@ -136,7 +136,7 @@ export function ProfilePage() {
                 {[profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.employee_id || 'โปรไฟล์'}
               </p>
               <p className="text-sm text-[#6b7280]">{profile?.employee_id}</p>
-              <Badge variant="secondary" className="border border-[#ccf0ed] bg-[#dcfce7] text-xs font-semibold text-[#374151]">
+              <Badge variant="secondary" className="border border-[color:var(--pour-surface-border)] bg-[#dcfce7] text-xs font-semibold text-[#374151]">
                 {roleLabels[profile?.role ?? ''] ?? profile?.role}
               </Badge>
             </div>
@@ -173,7 +173,7 @@ export function ProfilePage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#ccf0ed]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>
@@ -183,15 +183,15 @@ export function ProfilePage() {
                   <p className="font-medium text-[#111827]">{formatDate(profile?.created_at)}</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 border-t border-[#ccf0ed]/80 pt-4">
-                <Button type="submit" size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" disabled={savingProfile}>
+              <div className="flex flex-wrap gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-4">
+                <Button type="submit" size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" disabled={savingProfile}>
                   {savingProfile ? 'กำลังบันทึก...' : 'บันทึก'}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="rounded-xl border-[#ccf0ed]"
+                  className="rounded-xl border-[color:var(--pour-surface-border)]"
                   onClick={cancelProfileEdit}
                   disabled={savingProfile}
                 >
@@ -219,7 +219,7 @@ export function ProfilePage() {
                 <p className={cn(rq.label, 'mb-1')}>โครงการ</p>
                 <p className="font-medium text-[#111827]">{jobName?.trim() || '-'}</p>
               </div>
-              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[#ccf0ed]/80')}>
+              <div className={cn(layout.formGrid2, 'rounded-xl bg-[#f5f6f8]/90 px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
                 <div>
                   <p className={rq.label}>บริษัท</p>
                   <p className="font-medium text-[#111827]">{profile?.client_name ?? '-'}</p>

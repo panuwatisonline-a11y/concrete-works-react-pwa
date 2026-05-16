@@ -181,11 +181,11 @@ export function RequestEditPage() {
               <Label>รูปก่อนเท</Label>
               <ImageUpload value={beforeImage ?? undefined} onChange={(url) => setBeforeImage(url)} folder="before" />
             </div>
-            <div className="flex flex-wrap gap-2 border-t border-[#ccf0ed]/80 pt-5">
-              <Button type="submit" className="rounded-xl shadow-md shadow-teal-500/20" disabled={submitting}>
+            <div className="flex flex-wrap gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-5">
+              <Button type="submit" className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20" disabled={submitting}>
                 {submitting ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
-              <Button type="button" variant="outline" className="rounded-xl border-[#ccf0ed]" onClick={() => navigate(-1)}>
+              <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => navigate(-1)}>
                 ยกเลิก
               </Button>
             </div>

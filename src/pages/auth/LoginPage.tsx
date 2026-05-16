@@ -60,7 +60,7 @@ export function LoginPage() {
   const formPanel = (
     <div className={cn('flex flex-1 items-center justify-center px-6 py-10', theme.shell)}>
       <div className="pour-glass pour-page-enter w-full max-w-95 rounded-2xl p-6 sm:p-8">
-        <div className="mb-8 flex items-center gap-3 md:hidden">
+        <div className="mb-8 flex items-center gap-3 pour-desktop:hidden">
           <img
             src="/pwa-192x192.png"
             alt="Concrete Works logo"
@@ -70,7 +70,7 @@ export function LoginPage() {
           <span className="text-xl font-bold tracking-tight text-[#111827]">Concrete Works</span>
         </div>
 
-        <h2 className="mb-1 text-2xl font-bold tracking-tight text-[#111827] md:text-3xl">ยินดีต้อนรับ</h2>
+        <h2 className="mb-1 text-2xl font-bold tracking-tight text-[#111827] pour-desktop:text-3xl">ยินดีต้อนรับ</h2>
         <p className="mb-8 text-sm text-[#6b7280]">เข้าสู่ระบบด้วยบัญชี Google เพื่อจัดการงานคอนกรีต</p>
 
         <Button
@@ -91,15 +91,15 @@ export function LoginPage() {
   )
 
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-y-auto overscroll-y-contain md:flex-row md:overflow-hidden">
+    <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-y-auto overscroll-y-contain pour-desktop:flex-row pour-desktop:overflow-hidden">
       {/* Left brand panel — desktop only */}
-      <div className="relative hidden shrink-0 overflow-hidden p-12 md:flex md:h-full md:w-[42%]">
+      <div className="relative hidden shrink-0 overflow-hidden p-12 pour-desktop:flex pour-desktop:h-full pour-desktop:w-[42%]">
         <div
           className="pointer-events-none absolute inset-0 bg-[url('/login-sidebar-bg.png')] bg-cover bg-center bg-no-repeat"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-teal-950/72 via-teal-950/52 to-teal-950/78"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#1e4d6e]/75 via-[#2a5f7a]/55 to-[#5c3a2a]/70"
           aria-hidden
         />
 

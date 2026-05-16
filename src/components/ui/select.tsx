@@ -22,7 +22,7 @@ const SelectTrigger = React.forwardRef<
       '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:bg-[var(--glass-bg)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
       '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[#b4bcc8]',
       /* เลือกแล้ว — พื้นขาว + ขอบเขียวอ่อน */
-      '[&:not([data-placeholder])]:border-[#5eead4] [&:not([data-placeholder])]:bg-white',
+      '[&:not([data-placeholder])]:border-[color:var(--pour-accent)] [&:not([data-placeholder])]:bg-white',
       className
     )}
     {...props}
@@ -112,7 +112,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-[#f0fdfc] focus:text-[color:var(--pour-ink-0)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-[color:var(--pour-surface-tint)] focus:text-[color:var(--pour-ink-0)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}

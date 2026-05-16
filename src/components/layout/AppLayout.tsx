@@ -17,10 +17,11 @@ export function AppLayout() {
   return (
     <div
       className={cn(
-        'flex min-h-0 h-[100dvh] max-h-[100dvh] flex-col text-[color:var(--pour-ink-0)]',
+        'flex min-h-0 h-[100dvh] max-h-[100dvh] w-full flex-col text-[color:var(--pour-ink-0)]',
         theme.shell,
         theme.shellDesktopAccent,
-        'md:flex-row md:gap-4 md:p-4 md:pr-5',
+        /* โหมด PC: sidebar คงที่ซ้าย — ช่องว่างรอบ panel */
+        'pour-desktop:flex-row pour-desktop:gap-3 pour-desktop:p-3 pour-desktop:min-h-0 pour-desktop:overflow-hidden',
       )}
     >
       <DesktopSidebar />
@@ -29,6 +30,7 @@ export function AppLayout() {
         className={cn(
           'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
           theme.mainColumnDesktop,
+          'pour-desktop:min-h-0 pour-desktop:flex-1',
         )}
       >
         <AppHeader />
@@ -37,12 +39,14 @@ export function AppLayout() {
 
         <PullToRefreshMain
           className={cn(
-            'mx-auto w-full min-w-0 min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain',
-            'px-4 sm:px-6 lg:px-8 xl:px-10 2xl:px-12',
-            'pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3 md:bg-transparent md:pb-10 md:pt-4',
+            'mx-auto flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
+            'px-4 sm:px-6',
+            'pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3',
+            'pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:bg-transparent',
+            'pour-desktop:px-6 pour-desktop:pb-8 pour-desktop:pt-5 lg:pour-desktop:px-8',
           )}
         >
-          <div className="flex min-w-0 flex-col gap-4 md:gap-5">
+          <div className="flex min-w-0 flex-col gap-4 pour-desktop:gap-6">
             <AppBreadcrumbs />
             <AnimatedOutlet />
           </div>

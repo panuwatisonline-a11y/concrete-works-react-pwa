@@ -448,12 +448,12 @@ export function RequestNewPage() {
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex gap-0 rounded-2xl border border-[#ccf0ed] bg-white/80 px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 md:px-3">
+      <div className="flex gap-0 rounded-2xl border border-[color:var(--pour-surface-border)] bg-white/80 px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
         {STEPS.map((label, i) => (
           <div key={label} className="flex min-w-0 flex-1 items-center">
             <div
               className={cn(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold md:h-7 md:w-7 md:text-xs',
+                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold pour-desktop:h-7 pour-desktop:w-7 pour-desktop:text-xs',
                 i <= step ? rq.stepActive : rq.stepIdle,
               )}
             >
@@ -461,7 +461,7 @@ export function RequestNewPage() {
             </div>
             <span
               className={cn(
-                'ml-1 truncate text-[10px] md:ml-1.5 md:text-xs',
+                'ml-1 truncate text-[10px] pour-desktop:ml-1.5 pour-desktop:text-xs',
                 i === step ? 'font-semibold text-[#111827]' : 'text-[#9ca3af]',
               )}
             >
@@ -469,7 +469,7 @@ export function RequestNewPage() {
             </span>
             {i < STEPS.length - 1 && (
               <div
-                className={cn('mx-1 h-px flex-1 rounded-full md:mx-2 md:h-0.5', i < step ? rq.stepLineDone : rq.stepLineTodo)}
+                className={cn('mx-1 h-px flex-1 rounded-full pour-desktop:mx-2 pour-desktop:h-0.5', i < step ? rq.stepLineDone : rq.stepLineTodo)}
               />
             )}
           </div>
@@ -481,24 +481,24 @@ export function RequestNewPage() {
           <form onSubmit={handleSubmit(onSubmit)}>
             {stepFields(step)}
 
-            <div className="mt-8 flex justify-between gap-2 border-t border-[#ccf0ed]/80 pt-5">
+            <div className="mt-8 flex justify-between gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-5">
               {step > 0 ? (
-                <Button type="button" variant="outline" className="rounded-xl border-[#ccf0ed]" onClick={() => setStep(step - 1)}>
+                <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => setStep(step - 1)}>
                   ย้อนกลับ
                 </Button>
               ) : (
-                <Button type="button" variant="outline" className="rounded-xl border-[#ccf0ed]" onClick={() => navigate(APP_HOME)}>
+                <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => navigate(APP_HOME)}>
                   ยกเลิก
                 </Button>
               )}
               {step < 2 ? (
-                <Button type="button" className="rounded-xl shadow-md shadow-teal-500/20" onClick={nextStep}>
+                <Button type="button" className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20" onClick={nextStep}>
                   ถัดไป
                 </Button>
               ) : (
                 <Button
                   type="button"
-                  className="rounded-xl shadow-md shadow-teal-500/20"
+                  className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
                   disabled={submitting || beforeImageUploading}
                   onClick={() => { void handleSubmit(onSubmit)() }}
                 >

@@ -14,7 +14,7 @@ interface RequestScreenHeaderProps {
 
 export function RequestScreenHeader({ title, subtitle, onBack, right, className }: RequestScreenHeaderProps) {
   return (
-    <div className={cn('flex items-start gap-1 md:items-center md:gap-2', className)}>
+    <div className={cn('flex items-start gap-1 pour-desktop:items-center pour-desktop:gap-2', className)}>
       {onBack ? (
         <Button
           type="button"

@@ -143,15 +143,15 @@ export function CrudTable<T extends { id: number }>({
     <div className="space-y-4">
       {embedded ? (
         <div className="flex justify-end">
-          <Button size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" onClick={openAdd}>
+          <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
             <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
             เพิ่ม
           </Button>
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-bold tracking-tight text-[#111827] md:text-lg">{title}</h2>
-          <Button size="sm" className="rounded-xl shadow-sm shadow-teal-500/20" onClick={openAdd}>
+          <h2 className="text-base font-bold tracking-tight text-[#111827] pour-desktop:text-lg">{title}</h2>
+          <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
             <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
             เพิ่ม
           </Button>
@@ -244,7 +244,7 @@ export function CrudTable<T extends { id: number }>({
                       >
                         <td
                           colSpan={columns.length + 1}
-                          className="px-2 py-1.5 align-middle text-xs font-semibold text-[color:var(--pour-ink-0)] sm:px-2.5"
+                          className="px-1.5 py-1 align-middle text-[11px] font-semibold leading-snug text-[color:var(--pour-ink-0)] sm:px-2"
                         >
                           {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                         </td>
@@ -258,11 +258,11 @@ export function CrudTable<T extends { id: number }>({
                       ))}
                       <td>
                         <div className="flex gap-0.5">
-                          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
+                          <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => openEdit(row)}>
                             <Edit className="h-3.5 w-3.5" />
                           </Button>
                           {(!canDelete || canDelete(row)) && (
-                            <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                            <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => setDeleteId(row.id)}>
                               <Trash2 className="h-3.5 w-3.5 text-[#9ca3af]" />
                             </Button>
                           )}
@@ -290,7 +290,7 @@ export function CrudTable<T extends { id: number }>({
         <DialogContent
           className={cn(
             'flex max-h-[min(90dvh,calc(100dvh-1.5rem))] flex-col gap-0 overflow-hidden p-0',
-            'w-[calc(100vw-1rem)] max-w-lg sm:max-w-xl md:max-w-2xl',
+            'w-[calc(100vw-1rem)] max-w-lg sm:max-w-xl pour-desktop:max-w-2xl',
             'rounded-[14px] border-[color:var(--glass-border-subtle)]',
           )}
         >
@@ -325,7 +325,7 @@ export function CrudTable<T extends { id: number }>({
             </Button>
             <Button
               size="modalAction"
-              className="rounded-xl shadow-sm shadow-teal-500/20"
+              className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20"
               onClick={handleSave}
               disabled={saving}
             >

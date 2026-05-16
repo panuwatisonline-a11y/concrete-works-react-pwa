@@ -52,7 +52,7 @@ export function RequestFiltersDialog() {
                     className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
                       filter.status_ids.includes(s.id)
                         ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white shadow-sm shadow-[var(--pour-accent-ring)]'
-                        : 'border-[#ccf0ed] bg-white text-[#6b7280] hover:border-[#c8ced8]'
+                        : 'border-[color:var(--pour-surface-border)] bg-white text-[#6b7280] hover:border-[#c8ced8]'
                     }`}
                   >
                     {s.status_name}
@@ -61,7 +61,7 @@ export function RequestFiltersDialog() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2 border-t border-[#ccf0ed]/80 pt-4">
+            <div className="flex flex-wrap gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-4">
               <Button
                 type="button"
                 variant="outline"

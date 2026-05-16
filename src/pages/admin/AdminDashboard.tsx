@@ -119,7 +119,7 @@ export function AdminDashboard() {
     <div className={app.pageAdmin}>
       <h1
         className={cn(
-          'text-2xl font-bold tracking-tight md:text-3xl',
+          'text-2xl font-bold tracking-tight pour-desktop:text-3xl',
           theme.brandWordmark,
           app.pageAdminTitle,
         )}
@@ -131,7 +131,7 @@ export function AdminDashboard() {
         aria-label="ตัวกรองช่วงวันที่"
         className={cn(
           app.pageAdminSection,
-          'overflow-hidden rounded-[14px] border border-[#ccf0ed] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
+          'overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]',
         )}
       >
         <button
@@ -140,7 +140,7 @@ export function AdminDashboard() {
           aria-expanded={dateFilterOpen}
           aria-controls="dash-date-filter-panel"
           onClick={() => setDateFilterOpen((o) => !o)}
-          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[#f0fdf4]"
+          className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--pour-surface-tint)]"
         >
           <ChevronDown
             className={cn(
@@ -168,7 +168,7 @@ export function AdminDashboard() {
             id="dash-date-filter-panel"
             role="region"
             aria-labelledby="dash-date-filter-toggle"
-            className="border-t border-[#ccf0ed]/80 px-4 pb-4 pt-3"
+            className="border-t border-[color:var(--pour-surface-border)]/80 px-4 pb-4 pt-3"
           >
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
               <div className="grid min-w-0 flex-1 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -181,7 +181,7 @@ export function AdminDashboard() {
                     type="date"
                     value={filterDateFrom}
                     onChange={(e) => setFilterDateFrom(e.target.value)}
-                    className="h-10 rounded-xl border-[#ccf0ed] bg-[#f0fdf4] font-medium"
+                    className="h-10 rounded-xl border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] font-medium"
                   />
                 </div>
                 <div className="min-w-0 space-y-1.5">
@@ -193,14 +193,14 @@ export function AdminDashboard() {
                     type="date"
                     value={filterDateTo}
                     onChange={(e) => setFilterDateTo(e.target.value)}
-                    className="h-10 rounded-xl border-[#ccf0ed] bg-[#f0fdf4] font-medium"
+                    className="h-10 rounded-xl border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] font-medium"
                   />
                 </div>
               </div>
               <Button
                 type="button"
                 variant="outline"
-                className="h-10 shrink-0 rounded-xl border-[#ccf0ed] font-semibold text-[#374151]"
+                className="h-10 shrink-0 rounded-xl border-[color:var(--pour-surface-border)] font-semibold text-[#374151]"
                 disabled={!hasDateFilter}
                 onClick={() => {
                   setFilterDateFrom('')
@@ -211,7 +211,7 @@ export function AdminDashboard() {
               </Button>
             </div>
             {!loading && hasDateFilter ? (
-              <p className="mt-3 text-[11px] text-[color:var(--pour-accent)] md:text-xs">
+              <p className="mt-3 text-[11px] text-[color:var(--pour-accent)] pour-desktop:text-xs">
                 แสดง {filteredRows.length} รายการในช่วงที่เลือก
                 {rows.length !== filteredRows.length ? ` (จากทั้งหมด ${rows.length} รายการ)` : null}
               </p>
@@ -222,62 +222,62 @@ export function AdminDashboard() {
 
       <section aria-label="สรุปจำนวนและปริมาตร" className={app.pageAdminSection}>
         <h2 className={cn(rq.cardTitle, 'px-0.5')}>ภาพรวมคำขอและปริมาณ</h2>
-        <div className={cn(layout.statGrid5, 'md:gap-4')}>
-          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+        <div className={cn(layout.statGrid5, 'pour-desktop:gap-4')}>
+          <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[0])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 จำนวนคำขอทั้งหมด
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : totalRequests}
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[1])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 Request volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.request)}
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[2])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 DWG volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.dwg)}
               </p>
             </CardContent>
           </Card>
-          <Card className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
+          <Card className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80">
             <div className={cn('h-1 bg-gradient-to-r', accentBar[3])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 Confirm volume (m³)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : formatVolumeNumber(totals.confirm)}
               </p>
             </CardContent>
           </Card>
-          <Card className="col-span-2 overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80 md:col-span-1">
+          <Card className="col-span-2 overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80 pour-desktop:col-span-1">
             <div className="h-1 bg-gradient-to-r from-[#d97706] to-[#ea580c]" />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 Loss concrete (Confirm − DWG)
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : `${formatVolumeNumber(totals.loss)} m³`}
               </p>
               {!loading ? (
-                <p className="mt-1 text-[10px] leading-snug text-[#64748b] md:text-xs">{lossPctLabel}</p>
+                <p className="mt-1 text-[10px] leading-snug text-[#64748b] pour-desktop:text-xs">{lossPctLabel}</p>
               ) : null}
             </CardContent>
           </Card>
@@ -298,14 +298,14 @@ export function AdminDashboard() {
         {summaryCards.map(({ id, label }, i) => (
           <Card
             key={id}
-            className="overflow-hidden rounded-[14px] border-[#ccf0ed] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80"
+            className="overflow-hidden rounded-[14px] border-[color:var(--pour-surface-border)] shadow-[0_1px_3px_rgba(0,0,0,0.06)] ring-1 ring-white/80"
           >
             <div className={cn('h-1 bg-gradient-to-r', accentBar[i % accentBar.length])} />
             <CardContent className={rq.cardContentTight}>
-              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] md:text-xs">
+              <p className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-[#6b7280] pour-desktop:text-xs">
                 {label}
               </p>
-              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] md:text-2xl">
+              <p className="font-pour-mono text-xl font-bold tabular-nums text-[#111827] pour-desktop:text-2xl">
                 {loading ? '—' : (counts[id] ?? 0)}
               </p>
             </CardContent>
@@ -324,7 +324,7 @@ export function AdminDashboard() {
 
       <section
         aria-label="กราฟแยกตามโครงสร้างและความแข็งแรง"
-        className={cn(app.pageAdminSection, 'grid gap-4 md:grid-cols-2 md:gap-5')}
+        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:gap-5')}
       >
         <HorizontalVolumeBarChart
           title="Complete volume ตามโครงสร้าง"
@@ -344,7 +344,7 @@ export function AdminDashboard() {
 
       <section
         aria-label="กราฟตามผู้จองและซัพพลายเออร์"
-        className={cn(app.pageAdminSection, 'grid gap-4 md:grid-cols-2 md:gap-5')}
+        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:gap-5')}
       >
         <HorizontalVolumeBarChart
           title="Confirm volume ตามผู้จอง (Request by)"

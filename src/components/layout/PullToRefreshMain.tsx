@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePullRefreshStore } from '@/stores/pullRefreshStore'
+import { isPourDesktopViewport, subscribePourDesktop } from '@/lib/pourLayout'
 import { type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -33,18 +34,12 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   handlerRef.current = handler
 
   const [mobile, setMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 767px)').matches : false,
+    typeof window !== 'undefined' ? !isPourDesktopViewport() : true,
   )
 
   pullRef.current = pull
 
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const sync = () => setMobile(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
+  useEffect(() => subscribePourDesktop((isDesktop) => setMobile(!isDesktop)), [])
 
   const resetPull = useCallback(() => {
     touchRef.current.active = false
@@ -143,7 +138,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         aria-live="polite"
         aria-hidden={!showIndicator}
         className={cn(
-          'flex items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out md:hidden',
+          'flex items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out pour-desktop:hidden',
           !showIndicator && 'pointer-events-none opacity-0',
         )}
         style={{ height: indicatorHeight }}

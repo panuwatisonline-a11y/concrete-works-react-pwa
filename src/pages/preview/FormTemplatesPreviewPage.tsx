@@ -346,7 +346,7 @@ function CollapsiblePreviewBlock(props: {
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[#f0fdf4]"
+        className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[color:var(--pour-surface-tint)]"
       >
         <span className="font-semibold text-[#111827]">{title}</span>
         <ChevronDown
@@ -444,9 +444,9 @@ export function FormTemplatesPreviewPage() {
   })
 
   return (
-    <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 md:px-4">
+    <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 pour-desktop:px-4">
       <div className="mb-4">
-        <h1 className="text-lg font-bold tracking-tight text-[#111827] md:text-xl">ตัวอย่างแบบฟอร์ม</h1>
+        <h1 className="text-lg font-bold tracking-tight text-[#111827] pour-desktop:text-xl">ตัวอย่างแบบฟอร์ม</h1>
         <p className="mt-1 text-sm text-[#6b7280]">
           รวมฟอร์มจาก <code className="rounded bg-[#dcfce7] px-1 py-0.5 text-xs">public/templates/</code> — กดหัวข้อเพื่อยุบหรือขยายแต่ละรายการ
         </p>

@@ -183,35 +183,31 @@ export function DesktopSidebar() {
         className={cn(
           'relative hidden h-full min-h-0 w-36 shrink-0 flex-col transition-[width] duration-300 ease-in-out',
           theme.sidebarSurface,
-          'md:flex',
+          'pour-desktop:flex pour-desktop:rounded-2xl',
         )}
       >
-        <div className="relative shrink-0 border-b border-[color:var(--glass-border-subtle)] px-1.5 pb-2.5 pt-3">
+        <div className="relative shrink-0 border-b border-[color:var(--glass-border-subtle)] p-2.5">
           <NavLink
             to={APP_HOME}
             title="Concrete Works"
             aria-label="Concrete Works — ไปหน้าสถานะหลัก"
             className={() =>
               cn(
-                'flex w-full flex-col items-start gap-0.5 rounded-lg px-1.5 py-1 outline-none transition-colors',
-                isNavToActive(APP_HOME, location)
-                  ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
-                  : 'text-[color:var(--pour-ink-1)] hover:bg-[rgba(17,24,39,0.05)]',
+                theme.sidebarBrandPanel,
+                'flex w-full flex-col items-start gap-1 p-2.5',
+                isNavToActive(APP_HOME, location) && theme.sidebarBrandPanelActive,
               )
             }
           >
-            <img
-              src="/pwa-192x192.png"
-              alt=""
-              className="h-6 w-6 rounded-md object-contain"
-              aria-hidden
-            />
-            <span className="text-[10px] font-bold leading-tight">หน้าหลัก</span>
+            <span className={cn(theme.sidebarBrandLogoWrap, 'h-10 w-10')} aria-hidden>
+              <img src="/pwa-512x512.png" alt="" className={theme.sidebarBrandLogo} />
+            </span>
+            <span className="text-[10px] font-bold leading-tight text-[color:var(--pour-ink-0)]">หน้าหลัก</span>
           </NavLink>
           <button
             type="button"
             onClick={toggleCollapsed}
-            className="absolute -right-2.5 top-6 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
+            className="absolute -right-2.5 top-7 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
             aria-expanded={false}
             aria-label="ขยายเมนูด้านข้าง"
           >
@@ -219,8 +215,8 @@ export function DesktopSidebar() {
           </button>
         </div>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain py-2">
-          <nav aria-label="เมนูหลัก" className="flex flex-col gap-0.5 px-1.5">
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain py-2.5">
+          <nav aria-label="เมนูหลัก" className="flex flex-col gap-1 px-2.5">
             {mainNavItems.map((item) => (
               <CollapsedTextNav key={item.to} {...item} />
             ))}
@@ -229,7 +225,7 @@ export function DesktopSidebar() {
           {adminNavItems.length > 0 ? (
             <nav
               aria-label="เมนูผู้ดูแล"
-              className="mt-2 flex flex-col gap-0.5 border-t border-[color:var(--glass-border-subtle)] px-1.5 pt-2"
+              className="mt-2 flex flex-col gap-1 border-t border-[color:var(--glass-border-subtle)] px-2.5 pt-2.5"
             >
               {adminNavItems.map((item) => (
                 <CollapsedTextNav key={item.to} {...item} />
@@ -238,7 +234,7 @@ export function DesktopSidebar() {
           ) : null}
         </div>
 
-        <div className="flex shrink-0 flex-col gap-0.5 border-t border-[color:var(--glass-border-subtle)] p-1.5 pb-2">
+        <div className="flex shrink-0 flex-col gap-1 border-t border-[color:var(--glass-border-subtle)] px-2.5 py-2.5 pb-3">
           <CollapsedTextNav
             to="/profile"
             label="โปรไฟล์"
@@ -264,38 +260,38 @@ export function DesktopSidebar() {
       className={cn(
         'relative hidden h-full min-h-0 w-[288px] shrink-0 flex-col transition-[width] duration-300 ease-in-out',
         theme.sidebarSurface,
-        'md:flex',
+        'pour-desktop:flex pour-desktop:rounded-2xl',
       )}
     >
-      <div className="relative border-b border-[color:var(--glass-border-subtle)]">
+      <div className="relative border-b border-[color:var(--glass-border-subtle)] p-3">
         <NavLink
           to={APP_HOME}
           className={() =>
             cn(
-              'flex items-center gap-3 px-6 pb-5 pt-7 pr-14 outline-none transition-colors',
-              'hover:bg-[rgba(17,24,39,0.04)] focus-visible:bg-[rgba(17,24,39,0.04)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#9ca3af]/40',
-              isNavToActive(APP_HOME, location) ? 'bg-[var(--pour-accent-muted)]' : null,
+              theme.sidebarBrandPanel,
+              'flex items-center gap-3 p-4 pr-12',
+              isNavToActive(APP_HOME, location) && theme.sidebarBrandPanelActive,
             )
           }
           aria-label="Concrete Works — ไปหน้าสถานะหลัก"
         >
-          <img
-            src="/pwa-192x192.png"
-            alt="Concrete Works logo"
-            className="h-11 w-11 shrink-0 rounded-2xl object-contain"
-            aria-hidden
-          />
+          <span className={cn(theme.sidebarBrandLogoWrap, 'h-[3.25rem] w-[3.25rem]')}>
+            <img
+              src="/pwa-512x512.png"
+              alt=""
+              className={theme.sidebarBrandLogo}
+              aria-hidden
+            />
+          </span>
           <span className="min-w-0">
-            <span className={cn('block truncate leading-tight', type.bodyStrong, theme.brandWordmark)}>
-              Concrete Works
-            </span>
-            <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
+            <span className={theme.sidebarBrandTitle}>Concrete Works</span>
+            <span className={theme.sidebarBrandTagline}>{BRAND_TAGLINE}</span>
           </span>
         </NavLink>
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="absolute -right-2.5 top-8 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
+          className="absolute -right-2.5 top-9 z-10 flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border-subtle)] bg-white text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-accent)]"
           aria-expanded
           aria-label="ยุบเมนูด้านข้าง"
         >

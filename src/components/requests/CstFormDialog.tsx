@@ -52,14 +52,16 @@ import { useMasterDataStore } from '@/stores/masterDataStore'
 import { localPrintCstReport, warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { cstReportNoFromSuffix, cstReportNoPrefix, cstReportNoSuffix } from '@/lib/cstReportNo'
 import { cstStrengthUnitLabel } from '@/lib/cstStrengthReportTemplate'
-import { shortId } from '@/lib/utils'
-import { rq } from '@/lib/requestUi'
+import { cn, shortId } from '@/lib/utils'
+import { layout, rq } from '@/lib/requestUi'
 import { CstRequestPourInfo } from '@/components/requests/CstRequestPourInfo'
 import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 
 const CST_OVERLAY = 'z-[260]'
 const CST_CONTENT = '!z-[270] max-w-4xl sm:max-w-4xl'
+/** ฟิลด์คู่ (วันทดสอบ / เครื่องอัด) — คอลัมน์เดียวแนวตั้ง, สองคอลัมน์เมื่อ pour-desktop */
+const CST_META_GRID = 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2'
 const CST_CONFIRM_OVERLAY = 'z-[280]'
 const CST_CONFIRM_CONTENT = '!z-[290]'
 
@@ -315,7 +317,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
           </DialogDescription>
         </DialogHeader>
 
-        <CstRequestPourInfo request={request} />
+        <CstRequestPourInfo request={request} embedded className="border-0 bg-transparent p-0" />
 
         {loading || !values || age == null ? (
           <div className="flex flex-col items-center justify-center gap-2 py-16">
@@ -324,8 +326,8 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
           </div>
         ) : (
           <div className="min-w-0 space-y-5">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="space-y-1.5 sm:col-span-2">
+            <div className={CST_META_GRID}>
+              <div className={cn(layout.formField, 'pour-desktop:col-span-2')}>
                 <Label>Report No.</Label>
                 <Input
                   value={values.report_no}
@@ -336,7 +338,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   สร้างอัตโนมัติเมื่อบันทึกครั้งแรกของคำขอเท — ลำดับเลขเดียวกันทุกอายุ (R1, R3, R7… ตามวันทดสอบ)
                 </p>
               </div>
-              <div className="space-y-1.5">
+              <div className={layout.formField}>
                 <Label>วันทดสอบ *</Label>
                 <Input
                   type="date"
@@ -344,7 +346,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   onChange={(e) => setValues((v) => v && { ...v, test_date: e.target.value })}
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className={layout.formField}>
                 <Label>เครื่องอัด *</Label>
                 {compressionMachines.length === 0 ? (
                   <p className="text-sm text-amber-800">
@@ -369,7 +371,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   </Select>
                 )}
               </div>
-              <div className="space-y-1.5 sm:col-span-2">
+              <div className={cn(layout.formField, 'pour-desktop:col-span-2')}>
                 <Label>Sample Type *</Label>
                 <Select
                   value={values.sample_type || undefined}

@@ -388,7 +388,7 @@ export function UsersPage() {
           if (!open) setEditUser(null)
         }}
       >
-        <DialogContent className="max-w-lg rounded-[14px] border-[#ccf0ed]">
+        <DialogContent className="max-w-lg rounded-[14px] border-[color:var(--pour-surface-border)]">
           <DialogHeader className="min-w-0 pr-10 text-left sm:pr-12">
             <DialogTitle className="break-words text-[#111827]">แก้ไขผู้ใช้งาน</DialogTitle>
           </DialogHeader>
@@ -466,7 +466,7 @@ export function UsersPage() {
               type="button"
               variant="outline"
               size="modalAction"
-              className="rounded-xl border-[#ccf0ed]"
+              className="rounded-xl border-[color:var(--pour-surface-border)]"
               onClick={() => setEditUser(null)}
               disabled={saving}
             >
@@ -475,7 +475,7 @@ export function UsersPage() {
             <Button
               type="button"
               size="modalAction"
-              className="rounded-xl shadow-sm shadow-teal-500/20"
+              className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20"
               onClick={() => void saveEdit()}
               disabled={saving || !editUser}
             >

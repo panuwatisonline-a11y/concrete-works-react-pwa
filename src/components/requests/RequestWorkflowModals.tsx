@@ -418,7 +418,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="rounded-lg border border-[#ccf0ed] bg-[#f0fdf4] px-3 py-2.5 text-[#374151]">
+            <div className="rounded-lg border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2.5 text-[#374151]">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-[#6b7280]">สรุปคำขอ</p>
               <dl className="mt-2 space-y-2 text-sm">
                 {(() => {
@@ -460,7 +460,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                   if (request.remarks?.trim()) extra.push({ label: 'หมายเหตุผู้จอง', value: request.remarks.trim() })
 
                   return [...core, ...extra].map((row) => (
-                    <div key={row.label} className="min-w-0 border-b border-[#ccf0ed]/60 pb-2 last:border-0 last:pb-0">
+                    <div key={row.label} className="min-w-0 border-b border-[color:var(--pour-surface-border)]/60 pb-2 last:border-0 last:pb-0">
                       <dt className="text-[11px] font-medium leading-tight text-[#6b7280]">{row.label}</dt>
                       <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[#111827]">{row.value}</dd>
                     </div>
