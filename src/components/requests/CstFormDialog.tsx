@@ -362,7 +362,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   สร้างอัตโนมัติเมื่อบันทึกครั้งแรกของคำขอเท — ลำดับเลขเดียวกันทุกอายุ (R1, R3, R7… ตามวันทดสอบ)
                 </p>
               </div>
-              <div className={cn(layout.formField, 'pour-contain overflow-hidden')}>
+              <div className={layout.formField}>
                 <Label>วันทดสอบ *</Label>
                 <Input
                   type="date"

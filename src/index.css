@@ -312,26 +312,41 @@
   }
 
   /**
-   * iOS Safari: native date/time inputs ignore max-width with display:flex and overflow the dialog.
-   * Applied via .pour-date-input on the shared Input component (type=date|time|…).
+   * iOS Safari temporal inputs — ห้ามใช้ display:block (ทำให้สูงผิดปกติ)
+   * @see https://gomakethings.com/fixing-temporal-input-styling-in-safari/
    */
+  .pour-date-input-shell {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .pour-date-input {
-    display: block;
     width: 100%;
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
   }
 
+  .pour-date-input::-webkit-datetime-edit,
+  .pour-date-input::-webkit-datetime-edit-fields-wrapper,
+  .pour-date-input::-webkit-datetime-edit-text,
+  .pour-date-input::-webkit-datetime-edit-month-field,
+  .pour-date-input::-webkit-datetime-edit-day-field,
+  .pour-date-input::-webkit-datetime-edit-year-field,
+  .pour-date-input::-webkit-datetime-edit-hour-field,
+  .pour-date-input::-webkit-datetime-edit-minute-field,
+  .pour-date-input::-webkit-datetime-edit-meridiem-field {
+    padding: 0;
+    line-height: 1.25;
+  }
+
   .pour-date-input::-webkit-date-and-time-value {
-    min-width: 0;
     text-align: start;
   }
 
-  .pour-date-input::-webkit-datetime-edit,
-  .pour-date-input::-webkit-datetime-edit-fields-wrapper {
-    min-width: 0;
-    overflow: hidden;
+  .pour-date-input::-webkit-inner-spin-button {
+    height: auto;
   }
 
   .pour-scroll-x {
