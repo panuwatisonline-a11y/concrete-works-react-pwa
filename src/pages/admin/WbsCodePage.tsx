@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { reloadMasterData } from '@/lib/reloadMasterData'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { WbsCode, WbsSegment } from '@/types/app.types'
 
@@ -104,7 +105,17 @@ export function WbsCodePage() {
     setCombos((data ?? []) as WbsCode[])
   }
 
-  useEffect(() => { loadSegments(); loadCombos() }, [])
+  async function refreshSegmentsAndMaster() {
+    await loadSegments()
+    void reloadMasterData()
+  }
+
+  async function refreshCombosAndMaster() {
+    await loadCombos()
+    void reloadMasterData()
+  }
+
+  useEffect(() => { void loadSegments(); void loadCombos() }, [])
   usePullToRefreshOnLoad(async () => {
     await loadSegments()
     await loadCombos()
@@ -184,7 +195,7 @@ export function WbsCodePage() {
                   })
                   if (!error) {
                     toast.success('เพิ่มสำเร็จ')
-                    await loadSegments()
+                    await refreshSegmentsAndMaster()
                     return
                   }
                   toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
@@ -207,7 +218,7 @@ export function WbsCodePage() {
                   }).eq('id', item.id)
                   if (!error) {
                     toast.success('บันทึกสำเร็จ')
-                    await loadSegments()
+                    await refreshSegmentsAndMaster()
                     return
                   }
                   toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
@@ -215,7 +226,10 @@ export function WbsCodePage() {
                 }}
                 onDelete={async (id) => {
                   const { error } = await supabase.from(key).delete().eq('id', id)
-                  if (!error) { toast.success('ลบสำเร็จ'); loadSegments() } else toast.error('ไม่สามารถลบได้')
+                  if (!error) {
+                    toast.success('ลบสำเร็จ')
+                    await refreshSegmentsAndMaster()
+                  } else toast.error('ไม่สามารถลบได้')
                 }}
               />
             ),
@@ -294,7 +308,7 @@ export function WbsCodePage() {
             const { error } = await supabase.from('WBS Code').insert(payload)
             if (!error) {
               toast.success('เพิ่มสำเร็จ')
-              await loadCombos()
+              await refreshCombosAndMaster()
               return
             }
             toast.error(error.code === '23505' ? 'ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -319,7 +333,7 @@ export function WbsCodePage() {
             const { error } = await supabase.from('WBS Code').update(payload).eq('id', item.id)
             if (!error) {
               toast.success('บันทึกสำเร็จ')
-              await loadCombos()
+              await refreshCombosAndMaster()
               return
             }
             toast.error(error.code === '23505' ? 'ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -327,7 +341,10 @@ export function WbsCodePage() {
           }}
           onDelete={async (id) => {
             const { error } = await supabase.from('WBS Code').delete().eq('id', id)
-            if (!error) { toast.success('ลบสำเร็จ'); loadCombos() } else toast.error('ไม่สามารถลบได้')
+            if (!error) {
+              toast.success('ลบสำเร็จ')
+              await refreshCombosAndMaster()
+            } else toast.error('ไม่สามารถลบได้')
           }}
         />
       )}

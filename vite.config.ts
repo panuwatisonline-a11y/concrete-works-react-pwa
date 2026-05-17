@@ -62,10 +62,10 @@ export default defineConfig({
               expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
+          /** คำขอเปลี่ยนสถานะบ่อย — ไม่ cache เพื่อไม่ให้รายการ/ตัวนับสถานะค้างหลังกลับจากหน้ารายละเอียด */
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/Request/,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'requests-cache', networkTimeoutSeconds: 10 },
+            handler: 'NetworkOnly',
           },
         ],
       },

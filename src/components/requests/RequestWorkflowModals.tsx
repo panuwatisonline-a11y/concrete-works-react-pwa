@@ -4,6 +4,7 @@ import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { useActionRequest } from '@/hooks/useActionRequest'
 import { UploadBeforePourDialog } from '@/components/requests/UploadBeforePourDialog'
+import { UploadBillConcreteDialog } from '@/components/requests/UploadBillConcreteDialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -274,6 +275,18 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           if (!o) onClose()
         }}
         requestId={id}
+        onSuccess={() => void runCompleted()}
+        overlayClassName={WF_OVERLAY}
+        dialogContentClassName={WF_CONTENT}
+      />
+
+      <UploadBillConcreteDialog
+        open={modal === 'uploadEslipOnly'}
+        onOpenChange={(o) => {
+          if (!o) onClose()
+        }}
+        requestId={id}
+        initialUrl={request.eslip_url}
         onSuccess={() => void runCompleted()}
         overlayClassName={WF_OVERLAY}
         dialogContentClassName={WF_CONTENT}

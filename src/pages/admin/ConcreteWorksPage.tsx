@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import { parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
 import type { ConcreteWork, Structure } from '@/types/app.types'
@@ -49,19 +50,27 @@ export function ConcreteWorksPage() {
     [data, q],
   )
 
-  async function load() {
-    setLoading(true)
-    const [{ data: rows }, { data: structRows }] = await Promise.all([
-      supabase.from('Concrete Works').select('*').order('concrete_work'),
-      supabase.from('Structure').select('id, structure_name').order('structure_name'),
-    ])
-    setData((rows ?? []) as ConcreteWork[])
-    setStructures((structRows ?? []) as Structure[])
-    setLoading(false)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
+    try {
+      const [{ data: rows, error: rowsErr }, { data: structRows, error: structErr }] = await Promise.all([
+        supabase.from('Concrete Works').select('*').order('concrete_work'),
+        supabase.from('Structure').select('id, structure_name').order('structure_name'),
+      ])
+      if (rowsErr || structErr) {
+        console.error('Concrete Works load:', rowsErr?.message ?? structErr?.message)
+        toast.error('โหลดข้อมูลไม่สำเร็จ')
+        return
+      }
+      setData((rows ?? []) as ConcreteWork[])
+      setStructures((structRows ?? []) as Structure[])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
-  usePullToRefreshOnLoad(load)
+  useEffect(() => { void load() }, [])
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   function sanitizeStructureListForSave(raw: string | null | undefined): string | null {
     const master = new Set(structureNamesFromMaster)
@@ -88,7 +97,7 @@ export function ConcreteWorksPage() {
     })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -112,7 +121,7 @@ export function ConcreteWorksPage() {
     }).eq('id', item.id)
     if (!error) {
       toast.success('บันทึกสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -123,7 +132,7 @@ export function ConcreteWorksPage() {
     const { error } = await supabase.from('Concrete Works').delete().eq('id', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
     } else toast.error('ไม่สามารถลบได้')
   }
 

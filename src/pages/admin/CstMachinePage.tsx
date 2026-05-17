@@ -11,7 +11,7 @@ import {
 const CST_MACHINE_NUM_STEP = (10 ** -CST_MACHINE_DECIMAL_PLACES).toFixed(
   CST_MACHINE_DECIMAL_PLACES,
 )
-import { reloadMasterData } from '@/lib/reloadMasterData'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -67,10 +67,6 @@ function buildPayload(item: Partial<CompressionMachine>) {
   }
 }
 
-function syncMasterMachines() {
-  void reloadMasterData()
-}
-
 export function CstMachinePage() {
   const [data, setData] = useState<CompressionMachine[]>([])
   const [loading, setLoading] = useState(true)
@@ -89,8 +85,8 @@ export function CstMachinePage() {
     [data, q],
   )
 
-  async function load() {
-    setLoading(true)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
     try {
       const rows = await fetchCompressionMachines()
       setData(rows)
@@ -106,7 +102,7 @@ export function CstMachinePage() {
   useEffect(() => {
     void load()
   }, [])
-  usePullToRefreshOnLoad(load)
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   return (
     <div className={app.pageAdmin}>
@@ -221,8 +217,7 @@ export function CstMachinePage() {
             return false
           }
           toast.success('เพิ่มสำเร็จ')
-          syncMasterMachines()
-          void load()
+          await refreshAfterAdminMutation(load)
         }}
         onEdit={async (item) => {
           const payload = buildPayload(item)
@@ -240,8 +235,7 @@ export function CstMachinePage() {
             return false
           }
           toast.success('บันทึกสำเร็จ')
-          syncMasterMachines()
-          void load()
+          await refreshAfterAdminMutation(load)
         }}
         onDelete={async (id) => {
           const { error } = await supabase.from('Compression Machine').delete().eq('id', id)
@@ -254,8 +248,7 @@ export function CstMachinePage() {
             return
           }
           toast.success('ลบสำเร็จ')
-          syncMasterMachines()
-          void load()
+          await refreshAfterAdminMutation(load)
         }}
       />
     </div>

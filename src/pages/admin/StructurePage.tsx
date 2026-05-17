@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Structure } from '@/types/app.types'
 
@@ -38,15 +39,23 @@ export function StructurePage() {
 
   const filtered = useMemo(() => filterTableRows(data, q, ['structure_name']), [data, q])
 
-  async function load() {
-    setLoading(true)
-    const { data: rows } = await supabase.from('Structure').select('*').order('structure_name')
-    setData(rows ?? [])
-    setLoading(false)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
+    try {
+      const { data: rows, error } = await supabase.from('Structure').select('*').order('structure_name')
+      if (error) {
+        console.error('Structure load:', error.message)
+        toast.error('โหลดข้อมูลไม่สำเร็จ')
+        return
+      }
+      setData(rows ?? [])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
-  usePullToRefreshOnLoad(load)
+  useEffect(() => { void load() }, [])
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<Structure>) {
     const name = String(item.structure_name ?? '').trim()
@@ -61,7 +70,7 @@ export function StructurePage() {
     const { error } = await supabase.from('Structure').insert({ structure_name: name })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -81,7 +90,7 @@ export function StructurePage() {
     const { error } = await supabase.from('Structure').update({ structure_name: name }).eq('id', item.id)
     if (!error) {
       toast.success('บันทึกสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -90,7 +99,10 @@ export function StructurePage() {
 
   async function onDelete(id: number) {
     const { error } = await supabase.from('Structure').delete().eq('id', id)
-    if (!error) { toast.success('ลบสำเร็จ'); load() } else toast.error('ไม่สามารถลบได้')
+    if (!error) {
+      toast.success('ลบสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('ไม่สามารถลบได้')
   }
 
   return (

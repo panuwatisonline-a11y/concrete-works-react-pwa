@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { formatDate, cn, formatVolumeCuM } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
+import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { APP_HOME } from '@/lib/appHome'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { layout, rq } from '@/lib/requestUi'
@@ -314,6 +315,7 @@ export function RequestNewPage() {
       }
 
       toast.success('ส่งคำขอเรียบร้อย')
+      await notifyRequestListChanged()
       navigate(`/requests/${req.id}`)
     } finally {
       submitLockRef.current = false

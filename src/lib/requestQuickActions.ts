@@ -13,6 +13,7 @@ export type RequestActionModal =
   | 'complete'
   | 'reApprove'
   | 'uploadBeforeOnly'
+  | 'uploadEslipOnly'
 
 export type RequestListActionItem =
   | { key: string; modal: RequestActionModal; label: string; variant: BtnVariant }
@@ -32,13 +33,15 @@ export function getRequestListQuickActions(opts: {
   userId: string | undefined
   bookedBy: string | null
   beforeImage: string | null | undefined
+  eslipUrl?: string | null | undefined
 }): RequestListActionItem[] {
-  const { requestId, statusId: sid, role, userId, bookedBy, beforeImage } = opts
+  const { requestId, statusId: sid, role, userId, bookedBy, beforeImage, eslipUrl } = opts
   const isOwner = Boolean(userId && bookedBy === userId)
   const canAct = role === 'admin' || role === 'manager'
   const showPanel =
     canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ((sid === 6 || sid === 7) && isOwner)
   const missingBeforeImage = !beforeImage?.trim()
+  const hasEslip = Boolean(eslipUrl?.trim())
 
   const out: RequestListActionItem[] = []
 
@@ -64,6 +67,12 @@ export function getRequestListQuickActions(opts: {
       out.push({ key: 'postpone', modal: 'postpone', label: 'เลื่อนวัน', variant: 'warning' })
     }
     if (sid === 4 && canAct) {
+      out.push({
+        key: 'uploadEslip',
+        modal: 'uploadEslipOnly',
+        label: hasEslip ? 'Bill Concrete (แนบแล้ว)' : 'อัปโหลด Bill Concrete',
+        variant: hasEslip ? 'success' : 'secondary',
+      })
       out.push({ key: 'complete', modal: 'complete', label: 'Confirm รายการ', variant: 'success' })
     }
     if (sid === 5 && canAct) {

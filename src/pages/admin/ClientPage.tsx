@@ -8,6 +8,7 @@ import type { ClientItem } from '@/types/app.types'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
 
 function clientNameKey(name: string | null | undefined) {
@@ -34,15 +35,23 @@ export function ClientPage() {
 
   const filtered = useMemo(() => filterTableRows(data, q, ['client_name']), [data, q])
 
-  async function load() {
-    setLoading(true)
-    const { data: rows } = await supabase.from('Client').select('*').order('client_name')
-    setData(rows ?? [])
-    setLoading(false)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
+    try {
+      const { data: rows, error } = await supabase.from('Client').select('*').order('client_name')
+      if (error) {
+        console.error('Client load:', error.message)
+        toast.error('โหลดข้อมูลไม่สำเร็จ')
+        return
+      }
+      setData(rows ?? [])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
-  usePullToRefreshOnLoad(load)
+  useEffect(() => { void load() }, [])
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<ClientItem>): Promise<boolean | void> {
     const name = String(item.client_name ?? '').trim()
@@ -57,7 +66,7 @@ export function ClientPage() {
     const { error } = await supabase.from('Client').insert({ client_name: name })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -77,7 +86,7 @@ export function ClientPage() {
     const { error } = await supabase.from('Client').update({ client_name: name }).eq('id', item.id)
     if (!error) {
       toast.success('บันทึกสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
@@ -86,7 +95,10 @@ export function ClientPage() {
 
   async function onDelete(id: number) {
     const { error } = await supabase.from('Client').delete().eq('id', id)
-    if (!error) { toast.success('ลบสำเร็จ'); load() } else toast.error('ไม่สามารถลบได้ (มีข้อมูลเชื่อมโยง)')
+    if (!error) {
+      toast.success('ลบสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('ไม่สามารถลบได้ (มีข้อมูลเชื่อมโยง)')
   }
 
   return (

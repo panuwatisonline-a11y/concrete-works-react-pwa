@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { LocationItem } from '@/types/app.types'
 
@@ -59,15 +60,23 @@ export function LocationPage() {
     [data, q],
   )
 
-  async function load() {
-    setLoading(true)
-    const { data: rows } = await supabase.from('Location').select('*').order('id')
-    setData(rows ?? [])
-    setLoading(false)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
+    try {
+      const { data: rows, error } = await supabase.from('Location').select('*').order('id')
+      if (error) {
+        console.error('Location load:', error.message)
+        toast.error('โหลดข้อมูลไม่สำเร็จ')
+        return
+      }
+      setData(rows ?? [])
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
-  usePullToRefreshOnLoad(load)
+  useEffect(() => { void load() }, [])
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<LocationItem>): Promise<boolean | void> {
     const l1 = String(item.location1 ?? '').trim()
@@ -92,7 +101,7 @@ export function LocationPage() {
     })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
@@ -122,7 +131,7 @@ export function LocationPage() {
     }).eq('id', item.id)
     if (!error) {
       toast.success('บันทึกสำเร็จ')
-      load()
+      await refreshAfterAdminMutation(load)
       return
     }
     toast.error(error.code === '23505' ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
@@ -131,7 +140,10 @@ export function LocationPage() {
 
   async function onDelete(id: number) {
     const { error } = await supabase.from('Location').delete().eq('id', id)
-    if (!error) { toast.success('ลบสำเร็จ'); load() } else toast.error('ไม่สามารถลบได้')
+    if (!error) {
+      toast.success('ลบสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('ไม่สามารถลบได้')
   }
 
   return (

@@ -1,5 +1,5 @@
 ﻿import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
@@ -8,9 +8,10 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
+import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
 import { formatDate, formatDateTime, formatTime, cn, formatVolumeNumber } from '@/lib/utils'
 import { collectRequestIdsMatchingSearch } from '@/lib/requestListSearch'
+import { REQUEST_LIST_INVALIDATED_EVENT } from '@/lib/requestListInvalidate'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import {
   REQUEST_LIST_SEARCH_ARIA,
@@ -257,6 +258,7 @@ function RequestFeedCard({
     userId: user?.id,
     bookedBy: r.booked_by ?? null,
     beforeImage: r.before_image,
+    eslipUrl: r.eslip_url,
   })
 
   const structureNameRaw = (r.structure as { structure_name: string } | null)?.structure_name?.trim() ?? ''
@@ -501,36 +503,25 @@ function RequestFeedCard({
         }}
       />
 
-      <Dialog open={lightboxSrc != null} onOpenChange={(open) => { if (!open) setLightboxSrc(null) }}>
-        <DialogContent
-          className={cn(
-            'flex h-[calc(100dvh-10px)] max-h-none w-[calc(100vw-10px)] max-w-none flex-col overflow-hidden gap-0 rounded-2xl border-0 bg-zinc-950/96 p-0 shadow-none sm:h-[calc(100dvh-16px)] sm:w-[calc(100vw-16px)]',
-            'pt-12 pb-[max(10px,env(safe-area-inset-bottom,0px))] pl-[max(6px,env(safe-area-inset-left,0px))] pr-[max(6px,env(safe-area-inset-right,0px))]',
-            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-[color:var(--glass-bg-strong)]/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
-          )}
-        >
-          <DialogTitle className="sr-only">รูปภาพรายการ</DialogTitle>
-          <div className="flex min-h-0 flex-1 items-center justify-center px-1 sm:px-2">
-            {lightboxSrc ? (
-              <img
-                src={lightboxSrc}
-                alt=""
-                referrerPolicy="no-referrer"
-                className="max-h-full max-w-full object-contain object-center"
-              />
-            ) : null}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ImageLightboxDialog
+        open={lightboxSrc != null}
+        onOpenChange={(open) => {
+          if (!open) setLightboxSrc(null)
+        }}
+        src={lightboxSrc}
+        title="รูปภาพรายการ"
+      />
     </>
   )
 }
 
 export function RequestListPage() {
   const { user, profile } = useAuthStore()
+  const location = useLocation()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
+  const skipReturnRefresh = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
   const [searchParams, setSearchParams] = useSearchParams()
   /** ค่าเริ่มต้นของแอป = สถานะ (summary) — ถ้าไม่มี ?view= จะถูก normalize เป็น summary */
@@ -707,6 +698,24 @@ export function RequestListPage() {
   usePullToRefreshRegistration(refreshPage)
 
   useEffect(() => {
+    const onInvalidate = () => {
+      void refreshPage()
+    }
+    window.addEventListener(REQUEST_LIST_INVALIDATED_EVENT, onInvalidate)
+    return () => window.removeEventListener(REQUEST_LIST_INVALIDATED_EVENT, onInvalidate)
+  }, [refreshPage])
+
+  /** กลับจากหน้ารายละเอียด/แก้ไข — รีเฟรชรายการ + ตัวนับสถานะ (ครั้งแรก mount ใช้ fetchRequests อยู่แล้ว) */
+  useEffect(() => {
+    if (location.pathname !== '/requests') return
+    if (skipReturnRefresh.current) {
+      skipReturnRefresh.current = false
+      return
+    }
+    void refreshPage()
+  }, [location.pathname, location.key, refreshPage])
+
+  useEffect(() => {
     if (isFirstFilterEffect.current) {
       isFirstFilterEffect.current = false
       return
@@ -744,7 +753,7 @@ export function RequestListPage() {
     <RequestGroupedFeedBody
       sections={feedSections}
       layoutMode={listLayout}
-      onRequestUpdated={() => void fetchRequests({ background: true })}
+      onRequestUpdated={() => void refreshPage()}
     />
   )
 

@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
+import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { cn } from '@/lib/utils'
 import { layout, rq } from '@/lib/requestUi'
 import {
@@ -105,6 +106,7 @@ export function RequestEditPage() {
 
     if (!error) {
       toast.success('บันทึกสำเร็จ')
+      await notifyRequestListChanged()
       navigate(`/requests/${id}`)
     } else {
       toast.error('เกิดข้อผิดพลาด')

@@ -16,6 +16,7 @@ import { cn, formatVolumeNumber } from '@/lib/utils'
 import { app, layout, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { MixedCode, Structure } from '@/types/app.types'
 
@@ -137,21 +138,29 @@ export function MixcodePage() {
     return [...s].sort((a, b) => a.localeCompare(b, 'th', { numeric: true }))
   }, [data])
 
-  async function load() {
-    setLoading(true)
-    const [{ data: rows }, { data: structRows }, sums] = await Promise.all([
-      supabase.from('Mixed Code').select('*').order('mixcode'),
-      supabase.from('Structure').select('id, structure_name').order('structure_name'),
-      fetchConfirmVolumeSumByMixcodeId(),
-    ])
-    setData((rows ?? []) as MixedCode[])
-    setStructures((structRows ?? []) as Structure[])
-    setConfirmVolumeByMixcodeId(sums)
-    setLoading(false)
+  async function load(opts?: AdminTableLoadOptions) {
+    if (!opts?.background) setLoading(true)
+    try {
+      const [{ data: rows, error: rowsErr }, { data: structRows, error: structErr }, sums] = await Promise.all([
+        supabase.from('Mixed Code').select('*').order('mixcode'),
+        supabase.from('Structure').select('id, structure_name').order('structure_name'),
+        fetchConfirmVolumeSumByMixcodeId(),
+      ])
+      if (rowsErr || structErr) {
+        console.error('Mixcode load:', rowsErr?.message ?? structErr?.message)
+        toast.error('โหลดข้อมูลไม่สำเร็จ')
+        return
+      }
+      setData((rows ?? []) as MixedCode[])
+      setStructures((structRows ?? []) as Structure[])
+      setConfirmVolumeByMixcodeId(sums)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(() => { load() }, [])
-  usePullToRefreshOnLoad(load)
+  useEffect(() => { void load() }, [])
+  usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<MixedCode>) {
     const { error } = await supabase.from('Mixed Code').insert({
@@ -161,7 +170,10 @@ export function MixcodePage() {
       structure_list: item.structure_list?.trim() ? item.structure_list.trim() : null,
       qty: item.qty ?? null,
     })
-    if (!error) { toast.success('เพิ่มสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+    if (!error) {
+      toast.success('เพิ่มสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('เกิดข้อผิดพลาด')
   }
 
   async function onEdit(item: MixedCode) {
@@ -170,12 +182,18 @@ export function MixcodePage() {
       strength_type: item.strength_type, sample_type: item.sample_type,
       slump: item.slump, structure_list: item.structure_list?.trim() ? item.structure_list.trim() : null, qty: item.qty,
     }).eq('id', item.id)
-    if (!error) { toast.success('บันทึกสำเร็จ'); load() } else toast.error('เกิดข้อผิดพลาด')
+    if (!error) {
+      toast.success('บันทึกสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('เกิดข้อผิดพลาด')
   }
 
   async function onDelete(id: number) {
     const { error } = await supabase.from('Mixed Code').delete().eq('id', id)
-    if (!error) { toast.success('ลบสำเร็จ'); load() } else toast.error('ไม่สามารถลบได้')
+    if (!error) {
+      toast.success('ลบสำเร็จ')
+      await refreshAfterAdminMutation(load)
+    } else toast.error('ไม่สามารถลบได้')
   }
 
   return (

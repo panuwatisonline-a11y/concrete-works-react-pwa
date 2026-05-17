@@ -23,6 +23,7 @@ import {
   REQUEST_DETAIL_SEARCH_ARIA,
   REQUEST_DETAIL_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
+import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { Edit, History } from 'lucide-react'
 import type { CstTestAge, RequestWithRelations, RequestLogWithProfile } from '@/types/app.types'
@@ -141,7 +142,7 @@ export function RequestDetailPage() {
     if (loading || !request || initialModalConsumedRef.current) return
     const m = (location.state as { initialModal?: string } | null)?.initialModal
     if (!m) return
-    const allowed = ['inspect', 'approve', 'reject', 'cancel', 'confirmOrder', 'postpone', 'complete', 'reApprove', 'uploadBeforeOnly'] as const
+    const allowed = ['inspect', 'approve', 'reject', 'cancel', 'confirmOrder', 'postpone', 'complete', 'reApprove', 'uploadBeforeOnly', 'uploadEslipOnly'] as const
     if (!allowed.includes(m as (typeof allowed)[number])) return
     initialModalConsumedRef.current = true
     setModal(m)
@@ -215,6 +216,7 @@ export function RequestDetailPage() {
             userId: user?.id,
             bookedBy: request.booked_by,
             beforeImage: request.before_image,
+            eslipUrl: request.eslip_url,
           })}
           onItemClick={(item, e) => {
             e.stopPropagation()
@@ -365,12 +367,41 @@ export function RequestDetailPage() {
                 )}
               </div>
             )}
-            {(request.eslip_url || request.checksheet_url) && (
-              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[color:var(--pour-surface-border)]/70 pt-4">
-                {request.eslip_url && <a href={request.eslip_url} target="_blank" rel="noreferrer" className={rq.link}>E-Slip</a>}
-                {request.checksheet_url && <a href={request.checksheet_url} target="_blank" rel="noreferrer" className={rq.link}>Checksheet</a>}
+            {request.eslip_url?.trim() ? (
+              <div className="border-t border-[color:var(--pour-surface-border)]/70 pt-4">
+                <p className={cn('mb-1.5', rq.label)}>Bill Concrete (E-Slip)</p>
+                <button
+                  type="button"
+                  className="group flex min-h-0 w-full max-w-md rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
+                  aria-label="ขยายรูป Bill Concrete"
+                  onClick={() => {
+                    const raw = request.eslip_url!.trim()
+                    setImageLightbox({
+                      items: [
+                        {
+                          src: imageSrcForImgTag(raw, 'lightbox') ?? raw,
+                          label: 'Bill Concrete',
+                        },
+                      ],
+                    })
+                  }}
+                >
+                  <span className="flex min-h-[9.5rem] w-full items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
+                    <img
+                      src={imageSrcForImgTag(request.eslip_url, 'detail') ?? request.eslip_url}
+                      alt=""
+                      referrerPolicy="no-referrer"
+                      className="max-h-44 w-auto max-w-full object-contain object-center pointer-events-none sm:max-h-52"
+                    />
+                  </span>
+                </button>
               </div>
-            )}
+            ) : null}
+            {request.checksheet_url ? (
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[color:var(--pour-surface-border)]/70 pt-4">
+                <a href={request.checksheet_url} target="_blank" rel="noreferrer" className={rq.link}>Checksheet</a>
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       )}
@@ -435,46 +466,14 @@ export function RequestDetailPage() {
         onSaved={() => void loadData({ background: true })}
       />
 
-      <Dialog open={imageLightbox != null} onOpenChange={(open) => { if (!open) setImageLightbox(null) }}>
-        <DialogContent
-          className={cn(
-            'flex h-[calc(100dvh-10px)] max-h-none w-[calc(100vw-10px)] max-w-none flex-col overflow-hidden gap-0 rounded-2xl border-0 bg-zinc-950/96 p-0 shadow-none sm:h-[calc(100dvh-16px)] sm:w-[calc(100vw-16px)]',
-            'pt-12 pb-[max(10px,env(safe-area-inset-bottom,0px))] pl-[max(6px,env(safe-area-inset-left,0px))] pr-[max(6px,env(safe-area-inset-right,0px))]',
-            '[&>button]:right-3 [&>button]:top-3 [&>button]:text-white [&>button]:opacity-95 [&>button]:hover:bg-[color:var(--glass-bg-strong)]/12 [&>button]:hover:opacity-100 [&>button]:focus-visible:ring-white/45',
-          )}
-        >
-          <DialogTitle className="sr-only">
-            {imageLightbox?.items.map((i) => i.label).join(' · ') || 'รูปภาพ'}
-          </DialogTitle>
-          {imageLightbox ? (
-            <div
-              className={cn(
-                'flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden px-1 sm:gap-4 sm:px-2',
-                imageLightbox.items.length > 1 && 'sm:flex-row sm:items-stretch sm:gap-3 sm:overflow-hidden',
-              )}
-            >
-              {imageLightbox.items.map((item) => (
-                <figure
-                  key={item.label}
-                  className="flex min-h-0 min-w-0 flex-1 flex-col items-center sm:max-w-[50%]"
-                >
-                  <figcaption className="mb-1 shrink-0 text-center text-xs font-medium text-white/90 sm:text-sm">
-                    {item.label}
-                  </figcaption>
-                  <div className="flex min-h-0 w-full flex-1 items-center justify-center sm:min-h-0">
-                    <img
-                      src={item.src}
-                      alt=""
-                      referrerPolicy="no-referrer"
-                      className="h-auto max-h-full w-auto max-w-full object-contain object-center"
-                    />
-                  </div>
-                </figure>
-              ))}
-            </div>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      <ImageLightboxDialog
+        open={imageLightbox != null}
+        onOpenChange={(open) => {
+          if (!open) setImageLightbox(null)
+        }}
+        items={imageLightbox?.items}
+        title={imageLightbox?.items.map((i) => i.label).join(' · ') || 'รูปภาพ'}
+      />
     </div>
   )
 }
