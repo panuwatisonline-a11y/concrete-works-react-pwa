@@ -444,13 +444,13 @@ export function RequestNewPage() {
     <div className={rq.pageNarrow}>
       <RequestScreenHeader
         title="สร้างคำขอใหม่"
-        subtitle={`ขั้นตอนที่ ${step + 1} จาก ${STEPS.length}`}
+        subtitle={`${STEPS[step]} · ขั้นตอนที่ ${step + 1}/${STEPS.length}`}
         onBack={() => navigate(-1)}
       />
 
-      <div className="flex gap-0 rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
+      <div className="pour-contain flex w-full min-w-0 max-w-full gap-0 overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
         {STEPS.map((label, i) => (
-          <div key={label} className="flex min-w-0 flex-1 items-center">
+          <div key={label} className="flex min-w-0 flex-1 basis-0 items-center overflow-hidden">
             <div
               className={cn(
                 'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold pour-desktop:h-7 pour-desktop:w-7 pour-desktop:text-xs',
@@ -461,7 +461,7 @@ export function RequestNewPage() {
             </div>
             <span
               className={cn(
-                'ml-1 truncate text-[10px] pour-desktop:ml-1.5 pour-desktop:text-xs',
+                'ml-1 hidden min-w-0 flex-1 basis-0 truncate text-[10px] leading-tight sm:ml-1.5 sm:inline sm:text-xs',
                 i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
               )}
             >
@@ -469,7 +469,11 @@ export function RequestNewPage() {
             </span>
             {i < STEPS.length - 1 && (
               <div
-                className={cn('mx-1 h-px flex-1 rounded-full pour-desktop:mx-2 pour-desktop:h-0.5', i < step ? rq.stepLineDone : rq.stepLineTodo)}
+                className={cn(
+                  'mx-1 h-px w-2 shrink-0 rounded-full sm:mx-1.5 sm:w-3 pour-desktop:mx-2 pour-desktop:h-0.5 pour-desktop:w-4',
+                  i < step ? rq.stepLineDone : rq.stepLineTodo,
+                )}
+                aria-hidden
               />
             )}
           </div>
