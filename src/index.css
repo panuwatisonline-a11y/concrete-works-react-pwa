@@ -13,6 +13,9 @@
 /** Desktop layout: แนวนอน + กว้าง ≥768px (แนวตั้ง = มือถือเสมอ) */
 @custom-variant pour-desktop (@media ((orientation: landscape) and (min-width: 768px)));
 
+/** เมาส์/trackpad — ไม่รวม iPhone/iPad สัมผัส (coarse pointer) */
+@custom-variant pour-pointer-fine (@media (hover: hover) and (pointer: fine));
+
 /** Wide desktop layout: landscape + ≥1280px — content centering, wider grids, expanded typography */
 @custom-variant pour-wide (@media ((orientation: landscape) and (min-width: 1280px)));
 
@@ -306,6 +309,29 @@
   .pour-contain {
     min-width: 0;
     max-width: 100%;
+  }
+
+  /**
+   * iOS Safari: native date/time inputs ignore max-width with display:flex and overflow the dialog.
+   * Applied via .pour-date-input on the shared Input component (type=date|time|…).
+   */
+  .pour-date-input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .pour-date-input::-webkit-date-and-time-value {
+    min-width: 0;
+    text-align: start;
+  }
+
+  .pour-date-input::-webkit-datetime-edit,
+  .pour-date-input::-webkit-datetime-edit-fields-wrapper {
+    min-width: 0;
+    overflow: hidden;
   }
 
   .pour-scroll-x {

@@ -61,8 +61,12 @@ import type { CstViewRow } from '@/types/database.cst.types'
 
 const CST_OVERLAY = 'z-[260]'
 const CST_CONTENT = cn('!z-[270]', modal.xl)
-/** ฟิลด์คู่ (วันทดสอบ / เครื่องอัด) — คอลัมน์เดียวแนวตั้ง, สองคอลัมน์เมื่อ pour-desktop */
-const CST_META_GRID = 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2'
+/**
+ * ฟิลด์คู่ (วันทดสอบ / เครื่องอัด) — คอลัมน์เดียวบนมือถือ (รวม iPhone แนวนอน)
+ * สองคอลัมน์เมื่อมี pointer ละเอียด (เมาส์) — ไม่ใช้ pour-desktop เพราะ landscape บน iPhone ทำให้ชนกัน
+ */
+const CST_META_GRID = 'grid min-w-0 grid-cols-1 gap-3 pour-pointer-fine:grid-cols-2'
+const CST_META_FULL_SPAN = 'pour-pointer-fine:col-span-2'
 const CST_CONFIRM_OVERLAY = 'z-[280]'
 const CST_CONFIRM_CONTENT = '!z-[290]'
 
@@ -347,7 +351,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
         ) : (
           <div className="min-w-0 space-y-5">
             <div className={CST_META_GRID}>
-              <div className={cn(layout.formField, 'pour-desktop:col-span-2')}>
+              <div className={cn(layout.formField, CST_META_FULL_SPAN)}>
                 <Label>Report No.</Label>
                 <Input
                   value={values.report_no}
@@ -358,7 +362,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   สร้างอัตโนมัติเมื่อบันทึกครั้งแรกของคำขอเท — ลำดับเลขเดียวกันทุกอายุ (R1, R3, R7… ตามวันทดสอบ)
                 </p>
               </div>
-              <div className={layout.formField}>
+              <div className={cn(layout.formField, 'pour-contain overflow-hidden')}>
                 <Label>วันทดสอบ *</Label>
                 <Input
                   type="date"
@@ -391,7 +395,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   </Select>
                 )}
               </div>
-              <div className={cn(layout.formField, 'pour-desktop:col-span-2')}>
+              <div className={cn(layout.formField, CST_META_FULL_SPAN)}>
                 <Label>Sample Type *</Label>
                 <Select
                   value={values.sample_type || undefined}
