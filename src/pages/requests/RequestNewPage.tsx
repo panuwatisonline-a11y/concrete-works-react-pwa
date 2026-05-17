@@ -461,7 +461,7 @@ export function RequestNewPage() {
             </div>
             <span
               className={cn(
-                'ml-1 hidden min-w-0 flex-1 basis-0 truncate text-[10px] leading-tight sm:ml-1.5 sm:inline sm:text-xs',
+                'ml-1 hidden min-w-0 max-w-[42%] shrink truncate text-[10px] leading-tight sm:ml-1.5 sm:inline sm:max-w-none sm:text-xs',
                 i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
               )}
             >
@@ -470,7 +470,7 @@ export function RequestNewPage() {
             {i < STEPS.length - 1 && (
               <div
                 className={cn(
-                  'mx-1 h-px w-2 shrink-0 rounded-full sm:mx-1.5 sm:w-3 pour-desktop:mx-2 pour-desktop:h-0.5 pour-desktop:w-4',
+                  'mx-1 h-0.5 min-w-3 flex-1 self-center rounded-full pour-desktop:mx-2',
                   i < step ? rq.stepLineDone : rq.stepLineTodo,
                 )}
                 aria-hidden
