@@ -58,13 +58,3 @@ export function temporalInputPlaceholder(type: string, explicit?: string): strin
       return 'เลือกวันที่'
   }
 }
-
-export function openNativeTemporalPicker(el: HTMLInputElement | null): void {
-  if (!el || el.disabled) return
-  try {
-    el.showPicker()
-  } catch {
-    el.focus({ preventScroll: true })
-    el.click()
-  }
-}

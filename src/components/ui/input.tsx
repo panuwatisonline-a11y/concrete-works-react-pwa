@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils'
 import {
   formatTemporalInputDisplay,
   isIosWebKit,
-  openNativeTemporalPicker,
   temporalInputPlaceholder,
 } from '@/lib/iosTemporal'
 
@@ -23,7 +22,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
     const filledFromValue = isControlled && String(value ?? '').trim() !== ''
     const isNativeDateInput = type != null && NATIVE_DATE_INPUT_TYPES.has(type)
     const useIosFacade = isNativeDateInput && isIosWebKit()
-    const nativeRef = React.useRef<HTMLInputElement | null>(null)
+
     const [localValue, setLocalValue] = React.useState(() => String(value ?? defaultValue ?? ''))
 
     React.useEffect(() => {
@@ -35,82 +34,49 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       filledFromValue && 'border-[color:var(--pour-accent)] bg-[var(--glass-bg-strong)]',
     )
 
-    const openPicker = React.useCallback(() => {
-      openNativeTemporalPicker(nativeRef.current)
-    }, [])
-
     if (useIosFacade && type) {
       const rawValue = isControlled ? String(value ?? '') : localValue
       const displayValue = formatTemporalInputDisplay(type, rawValue)
       const facadeFilled = displayValue !== ''
-      const {
-        onBlur,
-        name,
-        required,
-        min,
-        max,
-        step,
-        disabled,
-        autoFocus,
-        form,
-        'aria-invalid': ariaInvalid,
-        'aria-describedby': ariaDescribedby,
-      } = props
+      const shellFilled = facadeFilled || filledFromValue
 
       return (
-        <div className="pour-date-input-shell relative w-full min-w-0 max-w-full">
+        <div
+          className={cn(
+            'pour-date-input-shell relative h-10 w-full min-w-0 max-w-full overflow-hidden',
+            'focus-within:[&>input:first-child]:border-[color:var(--pour-accent)]',
+            'focus-within:[&>input:first-child]:bg-[var(--glass-bg-strong)]',
+            'focus-within:[&>input:first-child]:shadow-[0_0_0_3px_var(--pour-accent-ring)]',
+            shellFilled && 'pour-date-input-shell--filled',
+          )}
+        >
           <input
-            id={id}
             type="text"
             readOnly
-            inputMode="none"
-            autoComplete="off"
-            disabled={disabled}
-            aria-invalid={ariaInvalid}
-            aria-describedby={ariaDescribedby}
-            aria-haspopup="dialog"
+            tabIndex={-1}
+            aria-hidden
+            disabled={props.disabled}
             placeholder={temporalInputPlaceholder(type, placeholder)}
             value={displayValue}
             className={cn(
               INPUT_BASE,
-              'pour-date-input-facade cursor-pointer caret-transparent',
+              'pointer-events-none absolute inset-0 z-0',
               facadeFilled && 'border-[color:var(--pour-accent)] bg-[var(--glass-bg-strong)]',
               className,
             )}
-            onClick={(e) => {
-              onClick?.(e)
-              if (!e.defaultPrevented) openPicker()
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                openPicker()
-              }
-            }}
           />
           <input
             type={type}
-            ref={(node) => {
-              nativeRef.current = node
-              assignRef(ref, node)
-            }}
-            name={name}
-            required={required}
-            min={min}
-            max={max}
-            step={step}
-            disabled={disabled}
-            autoFocus={autoFocus}
-            form={form}
-            tabIndex={-1}
-            aria-hidden
-            className="pour-date-input-native-offscreen"
+            id={id}
+            ref={(node) => assignRef(ref, node)}
+            className="pour-date-input-overlay"
+            onClick={onClick}
             {...(isControlled ? { value } : { defaultValue })}
             onChange={(e) => {
               if (!isControlled) setLocalValue(e.target.value)
               onChange?.(e)
             }}
-            onBlur={onBlur}
+            {...props}
           />
         </div>
       )
