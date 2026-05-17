@@ -16,29 +16,79 @@ function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {
   else if (ref) ref.current = node
 }
 
+function mergeRefs<T>(...refs: Array<React.ForwardedRef<T> | React.MutableRefObject<T | null>>) {
+  return (node: T | null) => {
+    for (const ref of refs) assignRef(ref, node)
+  }
+}
+
 const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, type, value, defaultValue, onClick, onChange, id, placeholder, ...props }, ref) => {
+  (
+    {
+      className,
+      type,
+      value,
+      defaultValue,
+      onClick,
+      onChange,
+      onInput,
+      onBlur,
+      id,
+      placeholder,
+      ...props
+    },
+    ref,
+  ) => {
     const isControlled = value !== undefined
-    const filledFromValue = isControlled && String(value ?? '').trim() !== ''
     const isNativeDateInput = type != null && NATIVE_DATE_INPUT_TYPES.has(type)
     const useIosFacade = isNativeDateInput && isIosWebKit()
+    const nativeRef = React.useRef<HTMLInputElement | null>(null)
 
-    const [localValue, setLocalValue] = React.useState(() => String(value ?? defaultValue ?? ''))
+    const [facadeRaw, setFacadeRaw] = React.useState(() => String(value ?? defaultValue ?? ''))
 
     React.useEffect(() => {
-      if (value !== undefined) setLocalValue(String(value))
+      if (value !== undefined) setFacadeRaw(String(value))
     }, [value])
+
+    const syncFacadeFromNative = React.useCallback((el: HTMLInputElement | null) => {
+      if (!el) return
+      const next = el.value
+      setFacadeRaw((prev) => (prev === next ? prev : next))
+    }, [])
+
+    React.useEffect(() => {
+      if (!useIosFacade) return
+      const el = nativeRef.current
+      if (!el) return
+      const sync = () => syncFacadeFromNative(el)
+      el.addEventListener('input', sync)
+      el.addEventListener('change', sync)
+      el.addEventListener('blur', sync)
+      return () => {
+        el.removeEventListener('input', sync)
+        el.removeEventListener('change', sync)
+        el.removeEventListener('blur', sync)
+      }
+    }, [useIosFacade, syncFacadeFromNative])
 
     const filledClasses = cn(
       '[&:not(:placeholder-shown)]:border-[color:var(--pour-accent)] [&:not(:placeholder-shown)]:bg-[var(--glass-bg-strong)]',
-      filledFromValue && 'border-[color:var(--pour-accent)] bg-[var(--glass-bg-strong)]',
+      isControlled &&
+        String(value ?? '').trim() !== '' &&
+        'border-[color:var(--pour-accent)] bg-[var(--glass-bg-strong)]',
     )
 
     if (useIosFacade && type) {
-      const rawValue = isControlled ? String(value ?? '') : localValue
-      const displayValue = formatTemporalInputDisplay(type, rawValue)
+      const displayValue = formatTemporalInputDisplay(type, facadeRaw)
       const facadeFilled = displayValue !== ''
-      const shellFilled = facadeFilled || filledFromValue
+
+      const handleNative =
+        (handler?: React.ReactEventHandler<HTMLInputElement>) =>
+        (e: React.FormEvent<HTMLInputElement>) => {
+          syncFacadeFromNative(e.currentTarget)
+          queueMicrotask(() => syncFacadeFromNative(e.currentTarget))
+          handler?.(e)
+        }
 
       return (
         <div
@@ -47,7 +97,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
             'focus-within:[&>input:first-child]:border-[color:var(--pour-accent)]',
             'focus-within:[&>input:first-child]:bg-[var(--glass-bg-strong)]',
             'focus-within:[&>input:first-child]:shadow-[0_0_0_3px_var(--pour-accent-ring)]',
-            shellFilled && 'pour-date-input-shell--filled',
+            facadeFilled && 'pour-date-input-shell--filled',
           )}
         >
           <input
@@ -68,14 +118,13 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
           <input
             type={type}
             id={id}
-            ref={(node) => assignRef(ref, node)}
+            ref={mergeRefs(ref, nativeRef)}
             className="pour-date-input-overlay"
             onClick={onClick}
             {...(isControlled ? { value } : { defaultValue })}
-            onChange={(e) => {
-              if (!isControlled) setLocalValue(e.target.value)
-              onChange?.(e)
-            }}
+            onChange={handleNative(onChange)}
+            onInput={handleNative(onInput)}
+            onBlur={handleNative(onBlur)}
             {...props}
           />
         </div>
@@ -98,6 +147,8 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
         ref={ref}
         onClick={onClick}
         onChange={onChange}
+        onInput={onInput}
+        onBlur={onBlur}
         {...props}
         {...(isControlled ? { value } : defaultValue !== undefined ? { defaultValue } : {})}
       />
