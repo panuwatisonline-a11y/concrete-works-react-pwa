@@ -1,5 +1,5 @@
 import { activeCastingDateIso } from '@/lib/activeCastingDate'
-import type { CstRecord, CstTestAge, RequestWithRelations } from '@/types/app.types'
+import type { CompressionMachine, CstRecord, CstTestAge, RequestWithRelations } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 import type { CstStrengthReportTemplateData } from '@/lib/cstStrengthReportTemplate'
 import {
@@ -138,6 +138,17 @@ export function cstInferVisibleGroupCount(
 export function needsCylinderDimensions(sampleType: string): boolean {
   const t = sampleType.trim()
   return t === 'Cylinder 10x10 cm.' || t === 'Cylinder 6x10 cm.'
+}
+
+/** ชื่อเครื่อง / serial / factor สำหรับเทมเพลตรายงาน CST */
+export function compressionMachineReportFields(
+  machine: Pick<CompressionMachine, 'machine' | 'serial' | 'k' | 'k_display'>,
+): Pick<CstStrengthReportTemplateData, 'testMachine' | 'serialNo' | 'factor'> {
+  return {
+    testMachine: machine.machine?.trim() ?? '',
+    serialNo: machine.serial?.trim() ?? '',
+    factor: machine.k_display?.trim() || machine.k?.trim() || '',
+  }
 }
 
 export function defaultTestDateIso(castingDate: string | null | undefined, age: number): string {

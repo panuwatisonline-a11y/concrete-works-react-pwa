@@ -144,6 +144,54 @@ export function fillCstStrengthReportTemplate(
   return out
 }
 
+/** ดึง `<div class="a4-page" …>` จาก HTML ที่เติมแล้ว */
+export function extractCstA4PageHtml(filledHtml: string): string {
+  const doc = new DOMParser().parseFromString(filledHtml, 'text/html')
+  const page =
+    doc.querySelector('.a4-page[data-print-doc="cst"]') ?? doc.querySelector('.a4-page')
+  if (!page) throw new Error('ไม่พบหน้ารายงาน CST ในเทมเพลต')
+  return page.outerHTML
+}
+
+/** รวมหลายหน้า CST เป็นเอกสารเดียว (ใช้ head/style จากหน้าแรก) */
+export function combineCstFilledReports(pageHtmlFragments: string[], shellFilledHtml: string): string {
+  if (!pageHtmlFragments.length) {
+    throw new Error('ไม่มีหน้ารายงาน CST ที่จะรวม')
+  }
+  const shell = new DOMParser().parseFromString(shellFilledHtml, 'text/html')
+  shell.querySelectorAll('.a4-page').forEach((el) => el.remove())
+  const body = shell.body
+  for (const fragment of pageHtmlFragments) {
+    const part = new DOMParser().parseFromString(fragment, 'text/html')
+    const page = part.querySelector('.a4-page')
+    if (!page) throw new Error('ไม่พบหน้ารายงาน CST ในเทมเพลต')
+    body.appendChild(shell.importNode(page, true))
+  }
+  return `<!DOCTYPE html>\n${shell.documentElement.outerHTML}`
+}
+
+const CST_MULTI_PAGE_STYLE = `<style id="cw-cst-multi-page">
+@media print {
+  .a4-page[data-print-doc="cst"] + .a4-page[data-print-doc="cst"] {
+    page-break-before: always;
+    break-before: page;
+  }
+}
+@media screen {
+  .a4-page[data-print-doc="cst"] + .a4-page[data-print-doc="cst"] {
+    margin-top: 14px;
+  }
+}
+</style>`
+
+/** CSS แยกหน้าตอนพิมพ์ / เว้นระยะบนจอเมื่อมีหลายแผ่น */
+export function injectCstMultiPageStyles(html: string): string {
+  if (/<\/head>/i.test(html)) {
+    return html.replace(/<\/head>/i, `${CST_MULTI_PAGE_STYLE}</head>`)
+  }
+  return CST_MULTI_PAGE_STYLE + html
+}
+
 export interface CstStrengthReportFromRequestOptions {
   castingDateFormatted?: string
   testDateFormatted?: string

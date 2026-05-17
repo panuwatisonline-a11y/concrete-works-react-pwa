@@ -23,10 +23,20 @@ export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintCh
     const doc = iframe?.contentDocument
     if (!scroll || !doc?.body) return
 
-    const paper = doc.querySelector('.a4-page') as HTMLElement | null
-    const paperH = paper
-      ? Math.max(paper.scrollHeight, paper.offsetHeight, Math.ceil(paper.getBoundingClientRect().height))
-      : 0
+    const pages = doc.querySelectorAll('.a4-page')
+    let paperH = 0
+    if (pages.length > 0) {
+      const gap = pages.length > 1 ? 14 * (pages.length - 1) : 0
+      paperH =
+        gap +
+        Array.from(pages).reduce((sum, node) => {
+          const el = node as HTMLElement
+          return (
+            sum +
+            Math.max(el.scrollHeight, el.offsetHeight, Math.ceil(el.getBoundingClientRect().height))
+          )
+        }, 0)
+    }
     const bodyH = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
     const h = Math.max(paperH, bodyH, A4_HEIGHT_PX)
     setDocHeight(Math.ceil(h) + 8)

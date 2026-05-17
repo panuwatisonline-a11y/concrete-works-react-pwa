@@ -1,16 +1,31 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { PrintChecklistDocument } from '@/components/print/PrintChecklistDocument'
-import { CST_TEST_AGES } from '@/types/app.types'
-import { loadCstPreviewForRequest, warmCstReportTemplateCache } from '@/lib/cstPrint'
+import {
+  loadCstBlankPreviewForRequest,
+  loadCstPreviewForRequest,
+  parseCstAgesFromSearchParams,
+  warmCstReportTemplateCache,
+} from '@/lib/cstPrint'
 
 export function PrintCstPreviewPage() {
   const [searchParams] = useSearchParams()
   const requestId = searchParams.get('requestId')?.trim() ?? ''
-  const ageRaw = searchParams.get('age')?.trim() ?? ''
-  const age = Number(ageRaw)
-  const ageValid = Number.isFinite(age) && (CST_TEST_AGES as readonly number[]).includes(age)
+  const ages = useMemo(
+    () => parseCstAgesFromSearchParams(searchParams.get('age'), searchParams.get('ages')),
+    [searchParams],
+  )
+  const agesValid = ages.length > 0
+  const blank = searchParams.get('blank') === '1'
+  const machineIdRaw = searchParams.get('machineId')?.trim() ?? ''
+  const machineIdParsed = Number(machineIdRaw)
+  const machineId =
+    machineIdRaw && Number.isFinite(machineIdParsed) && machineIdParsed > 0
+      ? machineIdParsed
+      : undefined
+  const singleAge = ages.length === 1 ? ages[0] : null
+  const paramsValid = agesValid
 
   const { user, isLoading: authLoading } = useAuthStore()
 
@@ -23,7 +38,7 @@ export function PrintCstPreviewPage() {
   }, [])
 
   useEffect(() => {
-    if (!requestId || !ageValid || authLoading || !user) return
+    if (!requestId || !paramsValid || authLoading || !user) return
 
     let cancelled = false
     setError(null)
@@ -32,7 +47,14 @@ export function PrintCstPreviewPage() {
     void (async () => {
       try {
         warmCstReportTemplateCache()
-        const { html, title } = await loadCstPreviewForRequest(requestId, age)
+        const { html, title } =
+          blank
+            ? await loadCstBlankPreviewForRequest(requestId, ages, machineId)
+            : singleAge != null
+              ? await loadCstPreviewForRequest(requestId, singleAge)
+              : (() => {
+                  throw new Error('พิมพ์รายงาน CST ที่มีข้อมูลได้ทีละอายุเท่านั้น')
+                })()
         if (cancelled) return
         document.title = title
         setPageTitle(title)
@@ -46,7 +68,7 @@ export function PrintCstPreviewPage() {
     return () => {
       cancelled = true
     }
-  }, [requestId, age, ageValid, authLoading, user])
+  }, [requestId, ages, paramsValid, blank, machineId, singleAge, authLoading, user])
 
   if (authLoading) {
     return (
@@ -60,7 +82,7 @@ export function PrintCstPreviewPage() {
     return <Navigate to="/login" replace />
   }
 
-  if (!requestId || !ageValid) {
+  if (!requestId || !paramsValid) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-slate-100 px-4 text-center text-sm text-slate-600">
         ไม่พบคำขอหรืออายุตัวอย่าง — ปิดแท็บแล้วกดพิมพ์จากฟอร์ม CST อีกครั้ง

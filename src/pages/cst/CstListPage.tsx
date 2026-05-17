@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { CST_AGE_COLUMN_LABELS, CstAgeColumnCell } from '@/components/cst/CstAgeColumnCell'
 import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
+import { CstBlankPrintButton } from '@/components/cst/CstBlankPrintButton'
 import { CstListSection } from '@/components/cst/CstListSection'
 import { cstAgesDueToday } from '@/lib/cstListDue'
 import { cstTestDateDisplay, cstTestDateDisplayShort } from '@/lib/cstForm'
@@ -239,7 +240,12 @@ function CstListContent({
 
               return (
                 <tr key={r.id} className="cursor-pointer" onClick={() => onInfoClick(r)}>
-                  <td className="whitespace-nowrap tabular-nums">{f.castingDate}</td>
+                  <td className="whitespace-nowrap tabular-nums">
+                    <div className="flex items-center gap-1.5">
+                      <CstBlankPrintButton request={r} />
+                      <span>{f.castingDate}</span>
+                    </div>
+                  </td>
                   <td>{f.concrete ?? '-'}</td>
                   <td>{f.structure ?? '-'}</td>
                   <td>{f.location ?? '-'}</td>

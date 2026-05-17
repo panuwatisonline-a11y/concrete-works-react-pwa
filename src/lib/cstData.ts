@@ -9,14 +9,28 @@ import {
 import type { CompressionMachine, CstRecord } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 
+const COMPRESSION_MACHINE_SELECT = 'id, machine, serial, k1, k2, cal_date, file, k, k_display'
+
 export async function fetchCompressionMachines(): Promise<CompressionMachine[]> {
   const { data, error } = await supabase
     .from('Compression Machine')
-    .select('id, machine, serial, k1, k2, cal_date, file, k, k_display')
+    .select(COMPRESSION_MACHINE_SELECT)
     .order('machine')
 
   if (error) throw error
   return (data ?? []) as CompressionMachine[]
+}
+
+export async function fetchCompressionMachineById(id: number): Promise<CompressionMachine> {
+  const { data, error } = await supabase
+    .from('Compression Machine')
+    .select(COMPRESSION_MACHINE_SELECT)
+    .eq('id', id)
+    .single()
+
+  if (error) throw error
+  if (!data) throw new Error('ไม่พบเครื่องอัดที่เลือก')
+  return data as CompressionMachine
 }
 
 const CST_REF_CHUNK = 180
