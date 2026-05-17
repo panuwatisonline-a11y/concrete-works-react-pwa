@@ -167,6 +167,8 @@ export interface Request {
   reason_postpone: string | null
   reason_reject: string | null
   reason_cancel: string | null
+  /** สรุปการจอง: true=สำเร็จ, false=ไม่สำเร็จ, null/undefined=ยังไม่เช็ค */
+  booking_ok?: boolean | null
 }
 
 export interface RequestLog {

@@ -17,7 +17,7 @@ export const CST_LIST_REQUEST_SELECT = `
   mixcode:"Mixed Code"(id, mixcode, supplier, strength, slump, strength_type, sample_type),
   abc_code:"ABC Code"(id, full_abc),
   wbs_code:"WBS Code"(id, full_wbs),
-  booked_by_profile:profiles!booked_by(fname, lname, employee_id)
+  booked_by_profile:profiles!booked_by(fname, lname, employee_id, phone)
 `
 
 export interface FetchCstListPageOpts {

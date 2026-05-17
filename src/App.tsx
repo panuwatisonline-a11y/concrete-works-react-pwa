@@ -14,6 +14,7 @@ import { RequestListPage } from '@/pages/requests/RequestListPage'
 import { RequestNewPage } from '@/pages/requests/RequestNewPage'
 import { RequestDetailPage } from '@/pages/requests/RequestDetailPage'
 import { RequestEditPage } from '@/pages/requests/RequestEditPage'
+import { BookingSummaryPage } from '@/pages/requests/BookingSummaryPage'
 import { APP_HOME } from '@/lib/appHome'
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
@@ -61,6 +62,7 @@ function AppInner() {
         <Route path="/" element={<Navigate to={APP_HOME} replace />} />
         <Route path="/requests" element={<RequestListPage />} />
         <Route path="/requests/new" element={<RequestNewPage />} />
+        <Route path="/requests/booking-summary" element={<BookingSummaryPage />} />
         <Route path="/requests/:id" element={<RequestDetailPage />} />
         <Route path="/requests/:id/edit" element={<RequestEditPage />} />
         <Route path="/cst" element={<CstListPage />} />

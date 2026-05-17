@@ -320,6 +320,7 @@ export interface Database {
           reason_postpone: string | null
           reason_reject: string | null
           reason_cancel: string | null
+          booking_ok: boolean | null
         }
         Insert: {
           id?: string
@@ -391,6 +392,7 @@ export interface Database {
           reason_postpone?: string | null
           reason_reject?: string | null
           reason_cancel?: string | null
+          booking_ok?: boolean | null
         }
       }
       Request_Log: {

@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Menu, X, LogOut, PlusCircle, User, LayoutDashboard, Users,
   Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase, Gauge,
-  Search, Star, Activity, Files,
+  Search, Star, Activity, Files, ClipboardList,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -29,6 +29,7 @@ interface NavItem {
 const mainLinks: NavItem[] = [
   { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
   { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
+  { to: '/requests/booking-summary', label: 'สรุปรายการจอง', icon: ClipboardList },
   { to: '/preview/forms', label: 'ตัวอย่างแบบฟอร์ม', icon: Files },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]

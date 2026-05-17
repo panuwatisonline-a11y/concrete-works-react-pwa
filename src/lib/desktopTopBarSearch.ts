@@ -20,6 +20,11 @@ export const CST_LIST_SEARCH_PLACEHOLDER =
 
 export const CST_LIST_SEARCH_ARIA = 'ค้นหาในหน้า CST'
 
+export const BOOKING_SUMMARY_SEARCH_PLACEHOLDER =
+  'ค้นหาในตารางสรุป — งานคอนกรีต, โครงสร้าง, ผู้จอง, เบอร์โทร, Mix…'
+
+export const BOOKING_SUMMARY_SEARCH_ARIA = 'ค้นหาในหน้าสรุปรายการจอง'
+
 export interface DesktopSearchBarConfig {
   bindFilter: boolean
   showRequestFilterButton: boolean
@@ -87,6 +92,15 @@ export function getDesktopSearchBarConfig(pathname: string): DesktopSearchBarCon
       showRequestFilterButton: true,
       placeholder: CST_LIST_SEARCH_PLACEHOLDER,
       ariaLabel: CST_LIST_SEARCH_ARIA,
+      inputDisabled: false,
+    }
+  }
+  if (pathname.startsWith('/requests/booking-summary')) {
+    return {
+      bindFilter: true,
+      showRequestFilterButton: false,
+      placeholder: BOOKING_SUMMARY_SEARCH_PLACEHOLDER,
+      ariaLabel: BOOKING_SUMMARY_SEARCH_ARIA,
       inputDisabled: false,
     }
   }
