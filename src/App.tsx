@@ -30,6 +30,7 @@ import { CstMachinePage } from '@/pages/admin/CstMachinePage'
 import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
 import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
 import { PrintCstPreviewPage } from '@/pages/print/PrintCstPreviewPage'
+import { PrintCstFilterPreviewPage } from '@/pages/print/PrintCstFilterPreviewPage'
 import { CstListPage } from '@/pages/cst/CstListPage'
 
 function AppInner() {
@@ -54,6 +55,7 @@ function AppInner() {
 
       <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
       <Route path="/print/cst" element={<PrintCstPreviewPage />} />
+      <Route path="/print/cst-filter" element={<PrintCstFilterPreviewPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<Navigate to={APP_HOME} replace />} />

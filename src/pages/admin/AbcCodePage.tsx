@@ -2,6 +2,7 @@
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
+import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -128,31 +129,15 @@ export function AbcCodePage() {
   })
 
   const tabs = [
-    { key: 'segments' as const, label: 'Segments (Code 1-4)' },
-    { key: 'combos' as const, label: 'Combinations' },
+    { id: 'segments' as const, label: 'Segments (Code 1-4)' },
+    { id: 'combos' as const, label: 'Combinations' },
   ]
 
   return (
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>ABC Code</h1>
 
-      <div className="flex gap-1 overflow-x-auto rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] p-1 shadow-sm ring-1 ring-[color:var(--pour-surface-border)]">
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => setTab(key)}
-            className={cn(
-              'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors pour-desktop:px-4 pour-desktop:text-sm',
-              tab === key
-                ? 'bg-[var(--pour-accent-muted)] text-[color:var(--pour-accent-hover)] shadow-sm'
-                : 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+      <PourUnderlineTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel="มุมมอง ABC Code" />
 
       {tab === 'segments' && (
         <AdminSegmentAccordion

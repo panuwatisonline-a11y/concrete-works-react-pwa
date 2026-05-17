@@ -11,14 +11,20 @@ import { StatusBadge } from '@/components/shared/StatusBadge'
 import { CST_AGE_COLUMN_LABELS, CstAgeColumnCell } from '@/components/cst/CstAgeColumnCell'
 import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
 import { CstBlankPrintButton } from '@/components/cst/CstBlankPrintButton'
+import { CstFilterByDatePanel } from '@/components/cst/CstFilterByDatePanel'
 import { CstListSection } from '@/components/cst/CstListSection'
-import { cstAgesDueToday } from '@/lib/cstListDue'
+import { cstAgesDueToday, todayIsoLocal } from '@/lib/cstListDue'
 import { cstTestDateDisplay, cstTestDateDisplayShort } from '@/lib/cstForm'
 import { CST_TEST_AGES } from '@/types/app.types'
 import { CstFormDialog } from '@/components/requests/CstFormDialog'
 import { CstRequestInfoDialog } from '@/components/requests/CstRequestInfoDialog'
 import { APP_HOME } from '@/lib/appHome'
-import { fetchCstDueTodayList, fetchCstListPage, mergeCstAgeMaps } from '@/lib/cstListData'
+import {
+  fetchAllCstListRequests,
+  fetchCstDueTodayList,
+  fetchCstListPage,
+  mergeCstAgeMaps,
+} from '@/lib/cstListData'
 import { warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { activeCastingDateIso } from '@/lib/activeCastingDate'
 import {
@@ -31,6 +37,13 @@ import { isSupabaseConfigured } from '@/lib/supabase'
 import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
 
 const PAGE_SIZE = 20
+
+type CstPageTab = 'list' | 'filter'
+
+const CST_PAGE_TABS: { key: CstPageTab; label: string }[] = [
+  { key: 'list', label: 'รายการ CST' },
+  { key: 'filter', label: 'Filter For CST' },
+]
 
 const cstTableCompact = {
   table: cn(tableCompact.table, 'min-w-[58rem]'),
@@ -282,6 +295,12 @@ export function CstListPage() {
   const { filter, setFilter } = useFilterStore()
   const canEdit = role === 'admin' || role === 'manager'
 
+  const [tab, setTab] = useState<CstPageTab>('list')
+  const [filterTestDateIso, setFilterTestDateIso] = useState(() => todayIsoLocal())
+  const [filterRequests, setFilterRequests] = useState<RequestWithRelations[]>([])
+  const [filterLoading, setFilterLoading] = useState(false)
+  const [filterError, setFilterError] = useState<string | null>(null)
+
   const [requests, setRequests] = useState<RequestWithRelations[]>([])
   const [dueTodayRequests, setDueTodayRequests] = useState<RequestWithRelations[]>([])
   const [cstAgesByRequestId, setCstAgesByRequestId] = useState<Map<string, number[]>>(new Map())
@@ -370,11 +389,46 @@ export function CstListPage() {
     [page, debouncedSearch, filter.casting_date_from, filter.casting_date_to],
   )
 
+  const loadFilterData = useCallback(
+    async (opts?: { background?: boolean }) => {
+      if (!opts?.background) setFilterLoading(true)
+      setFilterError(null)
+      try {
+        if (!isSupabaseConfigured) {
+          setFilterRequests([])
+          return
+        }
+        const all = await fetchAllCstListRequests({
+          search: debouncedSearch,
+          castingDateFrom: filter.casting_date_from,
+          castingDateTo: filter.casting_date_to,
+        })
+        setFilterRequests(all)
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'โหลดรายการ Filter CST ไม่สำเร็จ'
+        setFilterError(msg)
+        toast.error(msg)
+        setFilterRequests([])
+      } finally {
+        setFilterLoading(false)
+      }
+    },
+    [debouncedSearch, filter.casting_date_from, filter.casting_date_to],
+  )
+
   useEffect(() => {
     void loadData()
   }, [loadData])
 
-  usePullToRefreshRegistration(() => loadData({ background: true }))
+  useEffect(() => {
+    if (tab !== 'filter') return
+    void loadFilterData()
+  }, [tab, loadFilterData])
+
+  usePullToRefreshRegistration(() => {
+    if (tab === 'filter') return loadFilterData({ background: true })
+    return loadData({ background: true })
+  })
 
   const savedAgesFor = useCallback(
     (id: string) => cstAgesByRequestId.get(id) ?? [],
@@ -404,30 +458,82 @@ export function CstListPage() {
   }
 
   return (
-    <div className={rq.page}>
+    <div className={cn(rq.page, 'flex flex-col')}>
       <header className="space-y-1">
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
           <FlaskConical className={cn(icon.md, 'text-[color:var(--pour-accent)]')} strokeWidth={ICON_STROKE} />
           CST — กำลังอัดคอนกรีต
         </h1>
         <p className={rq.sub}>
-          กลุ่ม “ต้องบันทึกวันนี้” ดึงจากทั้งระบบ · “รายการทั้งหมด” ตามตัวกรองและแบ่งหน้า
+          {tab === 'list'
+            ? 'กลุ่ม “ต้องบันทึกวันนี้” ดึงจากทั้งระบบ · “รายการทั้งหมด” ตามตัวกรองและแบ่งหน้า'
+            : 'เลือกวันทดสอบ — แยกกลุ่ม 1, 3, 7, 14, 28 วัน · ตัวกรองวันเทและค้นหาใช้ร่วมกับแท็บรายการ'}
         </p>
       </header>
 
-      {loading && requests.length === 0 && dueTodayRequests.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20">
+      <div className="mt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--pour-line)] pb-3">
+          <nav aria-label="มุมมอง CST" className="flex min-w-0 flex-wrap items-center gap-1" role="tablist">
+            {CST_PAGE_TABS.map(({ key, label }) => {
+              const isActive = tab === key
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setTab(key)}
+                  className={cn(
+                    'pour-interactive rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
+                      : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
+                  )}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </nav>
+        </div>
+      </div>
+
+      {tab === 'filter' ? (
+        <div className="mt-6">
+        {filterLoading && filterRequests.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className={rq.spinner} />
+            <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
+          </div>
+        ) : filterError && filterRequests.length === 0 ? (
+          <p className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800">
+            {filterError}
+          </p>
+        ) : (
+          <CstFilterByDatePanel
+            requests={filterRequests}
+            testDateIso={filterTestDateIso}
+            search={debouncedSearch}
+            onTestDateChange={setFilterTestDateIso}
+            onRowClick={setInfoRequest}
+          />
+        )}
+        </div>
+      ) : null}
+
+      {tab === 'list' && loading && requests.length === 0 && dueTodayRequests.length === 0 ? (
+        <div className="mt-6 flex flex-col items-center justify-center py-20">
           <div className={rq.spinner} />
           <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
         </div>
-      ) : error && requests.length === 0 ? (
-        <p className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800">
+      ) : tab === 'list' && error && requests.length === 0 ? (
+        <p className="mt-6 rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800">
           {error}
         </p>
-      ) : requests.length === 0 && dueTodayRequests.length === 0 ? (
-        <p className={rq.dataRowEmpty}>ไม่พบรายการ Complete ที่ตรงกับตัวกรอง</p>
-      ) : (
-        <>
+      ) : tab === 'list' && requests.length === 0 && dueTodayRequests.length === 0 ? (
+        <p className={cn('mt-6', rq.dataRowEmpty)}>ไม่พบรายการ Complete ที่ตรงกับตัวกรอง</p>
+      ) : tab === 'list' ? (
+        <div className="mt-6 space-y-3">
           <p className={type.caption}>
             ต้องบันทึกวันนี้ {dueTodayRequests.length} รายการ (ทั้งระบบ)
             {requests.length > 0 || total > 0 ? (
@@ -480,8 +586,8 @@ export function CstListPage() {
               </Button>
             </div>
           ) : null}
-        </>
-      )}
+        </div>
+      ) : null}
 
       <CstRequestInfoDialog
         request={infoRequest}

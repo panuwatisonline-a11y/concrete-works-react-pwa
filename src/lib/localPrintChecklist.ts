@@ -57,6 +57,34 @@ export function injectChecklistDocumentStyles(html: string): string {
   return injectChecklistPrintStyles(injectPreviewScreenStyles(html))
 }
 
+const CST_FILTER_PRINT_STYLES = `<style id="cw-cst-filter-print-fix">
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .a4-page[data-print-doc="cst-filter"] {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .schedule-table thead {
+    display: table-header-group;
+  }
+  .schedule-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+</style>`
+
+export function injectCstFilterDocumentStyles(html: string): string {
+  const withScreen = injectPreviewScreenStyles(html)
+  if (/<\/head>/i.test(withScreen)) {
+    return withScreen.replace(/<\/head>/i, `${CST_FILTER_PRINT_STYLES}</head>`)
+  }
+  return CST_FILTER_PRINT_STYLES + withScreen
+}
+
 export function isChecklistPrintDocument(doc: Document): boolean {
   if (doc.querySelector('[data-print-doc="checklist"]')) return true
   if (doc.querySelector('[data-print-doc="cst"]')) return false

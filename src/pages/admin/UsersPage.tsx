@@ -186,27 +186,36 @@ export function UsersPage() {
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>จัดการผู้ใช้งาน ({filteredUsers.length}{userSearch.trim() || statusFilter !== 'all' ? ` / ${users.length}` : ''})</h1>
 
-      {/* Status filter tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1">
-        {([['all', 'ทั้งหมด'], ['pending', 'รออนุมัติ'], ['approved', 'อนุมัติแล้ว'], ['rejected', 'ปฏิเสธแล้ว']] as const).map(([val, label]) => (
-          <button
-            key={val}
-            onClick={() => setStatusFilter(val)}
-            className={cn(
-              'flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-              statusFilter === val
-                ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white'
-                : 'border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-1)] hover:border-[color:var(--pour-accent-ring)]',
-            )}
-          >
-            {label}
-            {val === 'pending' && pendingCount > 0 && (
-              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none', statusFilter === 'pending' ? 'bg-[color:var(--glass-bg-muted)] text-white' : 'bg-amber-100 text-amber-700')}>
-                {pendingCount}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[color:var(--pour-line)] pb-3">
+        <nav aria-label="กรองสถานะผู้ใช้" className="flex min-w-0 flex-wrap items-center gap-1" role="tablist">
+          {([['all', 'ทั้งหมด'], ['pending', 'รออนุมัติ'], ['approved', 'อนุมัติแล้ว'], ['rejected', 'ปฏิเสธแล้ว']] as const).map(([val, label]) => (
+            <button
+              key={val}
+              type="button"
+              onClick={() => setStatusFilter(val)}
+              role="tab"
+              aria-selected={statusFilter === val}
+              className={cn(
+                'pour-interactive inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                statusFilter === val
+                  ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
+                  : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
+              )}
+            >
+              {label}
+              {val === 'pending' && pendingCount > 0 && (
+                <span
+                  className={cn(
+                    'rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums',
+                    statusFilter === 'pending' ? 'bg-amber-200 text-amber-900' : 'bg-amber-100 text-amber-700',
+                  )}
+                >
+                  {pendingCount}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
       <div className={app.mobileCardStackCompact}>
