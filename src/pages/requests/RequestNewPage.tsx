@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from 'react'
+﻿import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -60,6 +60,75 @@ function requestTimeToInputValue(t: string | null | undefined): string {
 }
 
 const STEPS = ['ข้อมูลงาน', 'ข้อมูลการเท', 'รูปภาพ & ยืนยัน']
+
+const STEP_BAR_SHELL = cn(
+  'pour-contain w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-3 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-inset ring-white/70',
+)
+
+function RequestStepCircle({ index, step }: { index: number; step: number }) {
+  return (
+    <div
+      className={cn(
+        'flex h-7 w-7 shrink-0 items-center justify-center justify-self-center rounded-full text-xs font-bold',
+        index <= step ? rq.stepActive : rq.stepIdle,
+      )}
+    >
+      {index + 1}
+    </div>
+  )
+}
+
+function RequestStepConnector({ done, className }: { done: boolean; className?: string }) {
+  return (
+    <div
+      className={cn(
+        'h-0.5 min-h-0 min-w-0 self-center rounded-full',
+        done ? rq.stepLineDone : rq.stepLineTodo,
+        className,
+      )}
+      aria-hidden
+    />
+  )
+}
+
+/** มือถือ/iOS: grid ตัวเลข+เส้น · เดสก์ท็อป+เมาส์: แถบพร้อมชื่อขั้นตอน */
+function RequestNewStepBar({ step }: { step: number }) {
+  return (
+    <>
+      <div
+        className={cn(STEP_BAR_SHELL, 'grid items-center gap-x-2 pour-pointer-fine:hidden')}
+        style={{ gridTemplateColumns: '1.75rem minmax(0,1fr) 1.75rem minmax(0,1fr) 1.75rem' }}
+        aria-label="ขั้นตอน"
+      >
+        {STEPS.map((label, i) => (
+          <Fragment key={label}>
+            <RequestStepCircle index={i} step={step} />
+            {i < STEPS.length - 1 ? <RequestStepConnector done={i < step} className="w-full" /> : null}
+          </Fragment>
+        ))}
+      </div>
+
+      <div className={cn(STEP_BAR_SHELL, 'hidden gap-0 pour-pointer-fine:flex')} aria-label="ขั้นตอน">
+        {STEPS.map((label, i) => (
+          <div key={label} className="flex min-w-0 flex-1 basis-0 items-center overflow-hidden">
+            <RequestStepCircle index={i} step={step} />
+            <span
+              className={cn(
+                'ml-2 min-w-0 flex-1 basis-0 truncate text-xs leading-tight',
+                i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
+              )}
+            >
+              {label}
+            </span>
+            {i < STEPS.length - 1 ? (
+              <RequestStepConnector done={i < step} className="mx-2 min-w-4 flex-1" />
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
 
 export function RequestNewPage() {
   const navigate = useNavigate()
@@ -448,37 +517,7 @@ export function RequestNewPage() {
         onBack={() => navigate(-1)}
       />
 
-      <div className="pour-contain flex w-full min-w-0 max-w-full gap-0 overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-2 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-white/70 pour-desktop:px-3">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex min-w-0 flex-1 basis-0 items-center overflow-hidden">
-            <div
-              className={cn(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold pour-desktop:h-7 pour-desktop:w-7 pour-desktop:text-xs',
-                i <= step ? rq.stepActive : rq.stepIdle,
-              )}
-            >
-              {i + 1}
-            </div>
-            <span
-              className={cn(
-                'ml-1 hidden min-w-0 max-w-[42%] shrink truncate text-[10px] leading-tight sm:ml-1.5 sm:inline sm:max-w-none sm:text-xs',
-                i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
-              )}
-            >
-              {label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <div
-                className={cn(
-                  'mx-1 h-0.5 min-w-3 flex-1 self-center rounded-full pour-desktop:mx-2',
-                  i < step ? rq.stepLineDone : rq.stepLineTodo,
-                )}
-                aria-hidden
-              />
-            )}
-          </div>
-        ))}
-      </div>
+      <RequestNewStepBar step={step} />
 
       <Card className={rq.card}>
         <CardContent className={rq.cardContent}>
