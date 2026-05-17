@@ -311,10 +311,7 @@
     max-width: 100%;
   }
 
-  /**
-   * iOS Safari temporal inputs — ห้ามใช้ display:block (ทำให้สูงผิดปกติ)
-   * @see https://gomakethings.com/fixing-temporal-input-styling-in-safari/
-   */
+  /** Native date/time — desktop/Android WebKit normalization */
   .pour-date-input-shell {
     width: 100%;
     min-width: 0;
@@ -347,6 +344,20 @@
 
   .pour-date-input::-webkit-inner-spin-button {
     height: auto;
+  }
+
+  /** iOS facade — native picker อยู่นอก viewport ไม่ล้น modal */
+  .pour-date-input-native-offscreen {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    pointer-events: none;
+    border: 0;
   }
 
   .pour-scroll-x {

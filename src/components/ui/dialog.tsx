@@ -41,7 +41,7 @@ const DialogContent = React.forwardRef<
         'top-[max(0.75rem,env(safe-area-inset-top,0px))] translate-y-0',
         'max-h-[calc(100dvh-1.5rem-env(safe-area-inset-top,0px)-env(safe-area-inset-bottom,0px))]',
         'sm:top-[50%] sm:max-h-[min(90dvh,calc(100dvh-2rem))] sm:-translate-y-1/2',
-        'overflow-y-auto overscroll-y-contain',
+        'overflow-x-hidden overflow-y-auto overscroll-y-contain',
         'pb-[max(1rem,env(safe-area-inset-bottom,0px))]',
         className
       )}
