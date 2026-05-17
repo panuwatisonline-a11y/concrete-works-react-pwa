@@ -241,7 +241,7 @@ export function BookingSummaryPage() {
       : castingDateIso
 
   return (
-    <div className={cn(rq.page, 'flex flex-col')}>
+    <div className={rq.page}>
       <header className="space-y-1">
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
           <ClipboardList className={cn(icon.md, 'text-[color:var(--pour-accent)]')} strokeWidth={ICON_STROKE} />
@@ -285,7 +285,7 @@ export function BookingSummaryPage() {
         </div>
       </div>
 
-      <div className="mt-6 min-h-0 flex-1">
+      <div className="mt-6">
         {loading && requests.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className={rq.spinner} />

@@ -417,6 +417,14 @@
     border-radius: 12px;
   }
 
+  /** เมื่อรวมกับ pour-scroll-x — ให้เลื่อนแนวนอนได้ ไม่ clip แนวตั้ง (เลื่อนตาม main) */
+  .pour-table-shell.pour-scroll-x {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
   @media (min-width: 768px) and (orientation: landscape) {
     .pour-table-shell {
       border-radius: 14px;
