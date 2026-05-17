@@ -1,9 +1,16 @@
 import { useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { fetchCompressionMachines } from '@/lib/cstData'
-import { CST_DECIMAL_PLACES, cstFormatNumber, cstRoundNumber, formatCstNumericInput } from '@/lib/cstForm'
+import {
+  CST_MACHINE_DECIMAL_PLACES,
+  cstFormatNumber,
+  cstRoundNumber,
+  formatCstNumericInput,
+} from '@/lib/cstForm'
 
-const CST_NUM_STEP = (10 ** -CST_DECIMAL_PLACES).toFixed(CST_DECIMAL_PLACES)
+const CST_MACHINE_NUM_STEP = (10 ** -CST_MACHINE_DECIMAL_PLACES).toFixed(
+  CST_MACHINE_DECIMAL_PLACES,
+)
 import { reloadMasterData } from '@/lib/reloadMasterData'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
@@ -34,17 +41,17 @@ function parseOptionalNumber(value: unknown): number | null {
   const s = String(value ?? '').trim()
   if (!s) return null
   const n = Number(s)
-  return Number.isFinite(n) ? cstRoundNumber(n) : null
+  return Number.isFinite(n) ? cstRoundNumber(n, CST_MACHINE_DECIMAL_PLACES) : null
 }
 
 function factorPreview(k1: number | null, k2: number | null): string {
   if (k1 == null && k2 == null) return '—'
-  const a = k1 != null ? cstFormatNumber(k1) : ''
+  const a = k1 != null ? cstFormatNumber(k1, CST_MACHINE_DECIMAL_PLACES) : ''
   const b =
     k2 != null
       ? k2 >= 0
-        ? `+${cstFormatNumber(k2)}`
-        : cstFormatNumber(k2)
+        ? `+${cstFormatNumber(k2, CST_MACHINE_DECIMAL_PLACES)}`
+        : cstFormatNumber(k2, CST_MACHINE_DECIMAL_PLACES)
       : ''
   return `x${a}${b}`
 }
@@ -147,13 +154,16 @@ export function CstMachinePage() {
                   <Label>k1</Label>
                   <Input
                     type="number"
-                    step={CST_NUM_STEP}
+                    step={CST_MACHINE_NUM_STEP}
                     inputMode="decimal"
                     className="tabular-nums"
                     value={formData.k1 != null ? String(formData.k1) : ''}
                     onChange={(e) => onChange('k1', e.target.value === '' ? null : e.target.value)}
                     onBlur={(e) => {
-                      const formatted = formatCstNumericInput(e.target.value)
+                      const formatted = formatCstNumericInput(
+                        e.target.value,
+                        CST_MACHINE_DECIMAL_PLACES,
+                      )
                       if (formatted !== e.target.value) {
                         onChange('k1', formatted === '' ? null : formatted)
                       }
@@ -164,13 +174,16 @@ export function CstMachinePage() {
                   <Label>k2</Label>
                   <Input
                     type="number"
-                    step={CST_NUM_STEP}
+                    step={CST_MACHINE_NUM_STEP}
                     inputMode="decimal"
                     className="tabular-nums"
                     value={formData.k2 != null ? String(formData.k2) : ''}
                     onChange={(e) => onChange('k2', e.target.value === '' ? null : e.target.value)}
                     onBlur={(e) => {
-                      const formatted = formatCstNumericInput(e.target.value)
+                      const formatted = formatCstNumericInput(
+                        e.target.value,
+                        CST_MACHINE_DECIMAL_PLACES,
+                      )
                       if (formatted !== e.target.value) {
                         onChange('k2', formatted === '' ? null : formatted)
                       }

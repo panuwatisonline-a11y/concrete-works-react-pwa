@@ -37,6 +37,7 @@ import {
   removeCstSampleGroup,
   defaultCstFormValues,
   needsCylinderDimensions,
+  validateCstVisibleGroupSamples,
   type CstFormValues,
 } from '@/lib/cstForm'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
@@ -244,6 +245,11 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
     }
     if (!values.test_date.trim()) {
       toast.error('กรุณาระบุวันทดสอบ')
+      return
+    }
+    const sampleErr = validateCstVisibleGroupSamples(values, visibleGroups)
+    if (sampleErr) {
+      toast.error(sampleErr)
       return
     }
 

@@ -8,6 +8,13 @@ type BookerProfileWithJob = Profile & {
 /** Path under `public/` — served as static file by Vite */
 export const CHECKLIST_BEFORE_POUR_TEMPLATE_PATH = '/templates/checklist-before-concrete-placement.html'
 
+/** ค่าท้ายฟอร์มคงที่ — ไม่เปลี่ยนตามคำขอ (ตาม ST-F-QC-01) */
+export const CHECKLIST_TEMPLATE_STATIC_DEFAULTS = {
+  documentNo: 'ST-F-QC-01',
+  issueNo: 'Issue No.1',
+  issueDate: '26/02/2018',
+} as const
+
 export interface ChecklistBeforePourTemplateData {
   pageCurrent: string
   pageTotal: string
@@ -20,6 +27,11 @@ export interface ChecklistBeforePourTemplateData {
   remarks: string
   inspectorName: string
   witnessName: string
+  contractorName: string
+  consultantName: string
+  documentNo: string
+  issueNo: string
+  issueDate: string
 }
 
 function escapeHtml(s: string): string {
@@ -55,11 +67,18 @@ function bookerProjectName(req: RequestWithRelations): string {
   return p?.job?.job_name?.trim() ?? ''
 }
 
-/** วันที่ตรวจสอบ — เลื่อนวันก่อน แล้ว request_date / casting_date */
+/** วันที่แสดงบนฟอร์ม checklist — รูปแบบ dd/MM/yyyy */
+export function formatChecklistDisplayDate(
+  date: string | Date | null | undefined,
+): string {
+  return formatDate(date)
+}
+
+/** วันที่ตรวจสอบ — postpone_date แล้ว request_date / casting_date */
 export function formatChecklistInspectionDate(req: RequestWithRelations): string {
   const raw =
     req.postpone_date?.trim() || req.request_date?.trim() || req.casting_date?.trim() || ''
-  return raw ? formatDate(raw) : ''
+  return raw ? formatChecklistDisplayDate(raw) : ''
 }
 
 function profileDisplayName(p: Profile | undefined): string {
@@ -93,6 +112,11 @@ export function fillChecklistBeforePourTemplate(
     remarks: escapeHtml(data.remarks),
     inspectorName: escapeHtml(data.inspectorName),
     witnessName: escapeHtml(data.witnessName),
+    contractorName: escapeHtml(data.contractorName),
+    consultantName: escapeHtml(data.consultantName),
+    documentNo: escapeHtml(data.documentNo),
+    issueNo: escapeHtml(data.issueNo),
+    issueDate: escapeHtml(data.issueDate),
   }
   let out = html
   for (const [key, val] of Object.entries(map)) {
@@ -134,6 +158,11 @@ export function checklistTemplateDataFromRequest(
     concreteGrade: formatConcreteGrade(req),
     remarks: req.remarks?.trim() ?? '',
     inspectorName,
-    witnessName: '',
+    witnessName: options?.witnessName?.trim() ?? '',
+    contractorName: '',
+    consultantName: '',
+    documentNo: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.documentNo,
+    issueNo: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.issueNo,
+    issueDate: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.issueDate,
   }
 }

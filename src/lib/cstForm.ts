@@ -26,23 +26,29 @@ export const CST_MAX_SAMPLES = CST_SAMPLE_GROUPS * CST_SAMPLES_PER_GROUP
 /** ทศนิยมมาตรฐานของระบบ CST */
 export const CST_DECIMAL_PLACES = 2
 
-export function cstRoundNumber(n: number): number {
-  const factor = 10 ** CST_DECIMAL_PLACES
+/** ทศนิยม k1/k2 ของเครื่องอัด */
+export const CST_MACHINE_DECIMAL_PLACES = 5
+
+export function cstRoundNumber(n: number, places = CST_DECIMAL_PLACES): number {
+  const factor = 10 ** places
   return Math.round(n * factor) / factor
 }
 
-export function cstFormatNumber(n: number | null | undefined): string {
+export function cstFormatNumber(
+  n: number | null | undefined,
+  places = CST_DECIMAL_PLACES,
+): string {
   if (n == null || Number.isNaN(n)) return ''
-  return cstRoundNumber(n).toFixed(CST_DECIMAL_PLACES)
+  return cstRoundNumber(n, places).toFixed(places)
 }
 
 /** จัดรูปแบบค่าในช่องตัวเลข CST เมื่อ blur */
-export function formatCstNumericInput(value: string): string {
+export function formatCstNumericInput(value: string, places = CST_DECIMAL_PLACES): string {
   const t = value.trim()
   if (!t) return ''
   const n = Number(t)
   if (!Number.isFinite(n)) return value
-  return cstFormatNumber(n)
+  return cstFormatNumber(n, places)
 }
 
 /** ป้ายตัวอย่างมาตรฐานในฟอร์ม CST: A1, A2, … */
@@ -75,6 +81,43 @@ export function cstGroupCount(sampleCount: number = CST_MAX_SAMPLES): number {
 /** มีข้อมูลที่ผู้ใช้กรอกจริง (ไม่นับ sampleNo เริ่มต้น A1–A15) */
 export function cstSampleHasData(s: CstSampleInput): boolean {
   return Boolean(s.wt.trim() || s.kn.trim() || s.height.trim() || s.diameter.trim())
+}
+
+/** ชื่อช่องที่ยังไม่ครบในตัวอย่าง CST */
+export function cstSampleMissingFieldLabels(
+  s: CstSampleInput,
+  requireDims: boolean,
+): string[] {
+  const missing: string[] = []
+  if (!s.sampleNo.trim()) missing.push('Sample No.')
+  if (parseOptionalNum(s.wt) == null) missing.push('น้ำหนัก (kg)')
+  if (parseOptionalNum(s.kn) == null) missing.push('แรงอัด (kN)')
+  if (requireDims) {
+    if (parseOptionalNum(s.height) == null) missing.push('สูง (cm)')
+    if (parseOptionalNum(s.diameter) == null) missing.push('เส้นผ่าน (cm)')
+  }
+  return missing
+}
+
+/** ตรวจชุดตัวอย่างที่แสดงในฟอร์ม — คืนข้อความ error หรือ null ถ้าผ่าน */
+export function validateCstVisibleGroupSamples(
+  values: CstFormValues,
+  visibleGroups: number,
+): string | null {
+  const requireDims = needsCylinderDimensions(values.sample_type)
+  const groups = Math.max(1, visibleGroups)
+  for (let g = 0; g < groups; g++) {
+    const start = g * CST_SAMPLES_PER_GROUP
+    const chunk = values.samples.slice(start, start + CST_SAMPLES_PER_GROUP)
+    for (let ri = 0; ri < chunk.length; ri++) {
+      const missing = cstSampleMissingFieldLabels(chunk[ri], requireDims)
+      if (missing.length > 0) {
+        const sampleIdx = start + ri + 1
+        return `กรุณากรอกตัวอย่างที่ ${sampleIdx} (ชุดที่ ${g + 1}) ให้ครบ: ${missing.join(', ')}`
+      }
+    }
+  }
+  return null
 }
 
 /** จำนวนชุดที่ควรเปิดในฟอร์มเมื่อโหลดข้อมูลเดิม (อย่างน้อย 1) */

@@ -87,5 +87,5 @@ export function PrintChecklistPreviewPage() {
     )
   }
 
-  return <PrintChecklistDocument srcDoc={srcDoc} title={pageTitle} />
+  return <PrintChecklistDocument srcDoc={srcDoc} title={pageTitle} fitSinglePage />
 }

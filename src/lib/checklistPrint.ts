@@ -6,7 +6,7 @@ import {
 import { supabase } from '@/lib/supabase'
 import { shortId } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
-import { injectPreviewScreenStyles } from '@/lib/localPrintChecklist'
+import { injectChecklistDocumentStyles } from '@/lib/localPrintChecklist'
 
 export const CHECKLIST_PREVIEW_PATH = '/print/checklist'
 
@@ -60,7 +60,7 @@ export async function buildChecklistPreviewDoc(
   templateCache = raw
   const filled = fillChecklistBeforePourTemplate(raw, checklistTemplateDataFromRequest(req))
   return {
-    html: injectPreviewScreenStyles(filled),
+    html: injectChecklistDocumentStyles(filled),
     title: `Checklist · ${shortId(req.id)}`,
   }
 }

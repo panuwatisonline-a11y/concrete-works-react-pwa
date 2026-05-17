@@ -92,5 +92,5 @@ export function PrintCstPreviewPage() {
     )
   }
 
-  return <PrintChecklistDocument srcDoc={srcDoc} title={pageTitle} />
+  return <PrintChecklistDocument srcDoc={srcDoc} title={pageTitle} fitSinglePage={false} />
 }

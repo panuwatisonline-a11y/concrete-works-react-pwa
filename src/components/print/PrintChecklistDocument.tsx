@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { A4_PRINT_HEIGHT_PX, printIframeDocument } from '@/lib/localPrintChecklist'
 
 const A4_WIDTH_PX = Math.round((210 * 96) / 25.4)
-const A4_HEIGHT_PX = Math.round((297 * 96) / 25.4)
+const A4_HEIGHT_PX = A4_PRINT_HEIGHT_PX
 
 type PrintChecklistDocumentProps = {
   srcDoc: string
   title: string
+  /** checklist: ย่อทั้งหน้าให้พอดี 1 แผ่น — CST: คง layout flex + footer ล่าง */
+  fitSinglePage?: boolean
 }
 
-export function PrintChecklistDocument({ srcDoc, title }: PrintChecklistDocumentProps) {
+export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintChecklistDocumentProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [docHeight, setDocHeight] = useState(A4_HEIGHT_PX)
@@ -58,7 +61,10 @@ export function PrintChecklistDocument({ srcDoc, title }: PrintChecklistDocument
         <button
           type="button"
           className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 active:bg-blue-800"
-          onClick={() => iframeRef.current?.contentWindow?.print()}
+          onClick={() => {
+            const iframe = iframeRef.current
+            if (iframe) printIframeDocument(iframe, { fitSinglePage })
+          }}
         >
           พิมพ์
         </button>

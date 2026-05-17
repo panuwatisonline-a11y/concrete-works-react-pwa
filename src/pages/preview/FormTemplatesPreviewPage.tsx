@@ -2,6 +2,7 @@
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { ChevronDown } from 'lucide-react'
 import {
+  CHECKLIST_TEMPLATE_STATIC_DEFAULTS,
   fillChecklistBeforePourTemplate,
   loadChecklistBeforePourTemplate,
   type ChecklistBeforePourTemplateData,
@@ -21,15 +22,19 @@ import { cn } from '@/lib/utils'
 const CHECKLIST_SAMPLE: ChecklistBeforePourTemplateData = {
   pageCurrent: '1',
   pageTotal: '1',
-  clientName: 'หจก. ตัวอย่างยิงคอนกรีต',
-  locationText: 'โครงการถนนสายบางนา–ตราด กม. 12+500',
+  clientName:
+    'บริษัท สยามไทยคอนกรีต จำกัด — โครงการก่อสร้างทางหลวงหมายเลข 7 สายบางนา–ตราด ช่วงกม. 12+500 ถึง 15+200',
+  locationText: 'บริเวณเสาสะพาน P12–P15 ฝั่งขาออก ใกล้ทางแยกบางบ่อ',
   structureNo: 'C-12',
-  requestDate: '15 พ.ค. 2569',
+  requestDate: '15/05/2026',
   structureName: 'Deck ชั้น 2',
   concreteGrade: '350 ksc',
   remarks: 'ตัวอย่างหมายเหตุการตรวจก่อนเท',
   inspectorName: 'สมชาย ใจดี',
   witnessName: '',
+  contractorName: 'SINO-THAI',
+  consultantName: 'CSCS',
+  ...CHECKLIST_TEMPLATE_STATIC_DEFAULTS,
 }
 
 /** ข้อมูลตัวอย่าง CST — สอดคล้อง layout รายงานจริง (หัวรายงาน + ตารางผล) */
