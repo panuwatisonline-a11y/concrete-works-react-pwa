@@ -32,7 +32,9 @@ import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPa
 import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
 import { PrintCstPreviewPage } from '@/pages/print/PrintCstPreviewPage'
 import { PrintCstFilterPreviewPage } from '@/pages/print/PrintCstFilterPreviewPage'
+import { PrintConcreteSummaryPreviewPage } from '@/pages/print/PrintConcreteSummaryPreviewPage'
 import { CstListPage } from '@/pages/cst/CstListPage'
+import { ConcreteSummaryPage } from '@/pages/cst/ConcreteSummaryPage'
 
 function AppInner() {
   useAuthInit()
@@ -57,6 +59,7 @@ function AppInner() {
       <Route path="/print/checklist" element={<PrintChecklistPreviewPage />} />
       <Route path="/print/cst" element={<PrintCstPreviewPage />} />
       <Route path="/print/cst-filter" element={<PrintCstFilterPreviewPage />} />
+      <Route path="/print/concrete-summary" element={<PrintConcreteSummaryPreviewPage />} />
 
       <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
         <Route path="/" element={<Navigate to={APP_HOME} replace />} />
@@ -65,6 +68,7 @@ function AppInner() {
         <Route path="/requests/booking-summary" element={<BookingSummaryPage />} />
         <Route path="/requests/:id" element={<RequestDetailPage />} />
         <Route path="/requests/:id/edit" element={<RequestEditPage />} />
+        <Route path="/cst/concrete-summary" element={<ConcreteSummaryPage />} />
         <Route path="/cst" element={<CstListPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/preview/forms" element={<FormTemplatesPreviewPage />} />

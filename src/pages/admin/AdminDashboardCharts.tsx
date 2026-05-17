@@ -278,12 +278,16 @@ export function HorizontalVolumeBarChart({
   const maxV = Math.max(...slices.map((s) => s.volume), 1)
 
   return (
-    <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
-      <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
+    <div className="flex h-full w-full min-w-0 flex-col overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
+      <div className="flex min-h-[4.25rem] shrink-0 flex-col justify-center border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:min-h-[4.5rem] pour-desktop:px-4 pour-desktop:py-2.5">
         <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">{title}</p>
-        {subtitle ? <p className="mt-0.5 text-[11px] text-pour-muted pour-desktop:text-xs">{subtitle}</p> : null}
+        {subtitle ? (
+          <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-pour-muted pour-desktop:text-xs">
+            {subtitle}
+          </p>
+        ) : null}
       </div>
-      <div className="space-y-3 p-3 pour-desktop:p-4">
+      <div className="flex flex-1 flex-col justify-center space-y-3 p-3 pour-desktop:p-4">
         {slices.map((s) => {
           const wPct = (s.volume / maxV) * 100
           return (
@@ -310,7 +314,7 @@ export function HorizontalVolumeBarChart({
           )
         })}
       </div>
-      <div className="border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-[10px] text-pour-muted pour-desktop:px-4">
+      <div className="shrink-0 border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-[10px] text-pour-muted pour-desktop:px-4">
         รวม confirmed volume ทั้งหมดในกราฟนี้:{' '}
         <span className="font-semibold text-[color:var(--pour-ink-0)]">
           {fmtVolSummary(slices.reduce((a, b) => a + b.volume, 0))} m³

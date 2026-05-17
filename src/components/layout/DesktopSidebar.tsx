@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   LogOut, PlusCircle, User, LayoutDashboard, Users,
   Building2, MapPin, HardHat, Layers, FlaskConical, TestTube2, Code2, GitBranch, Briefcase, Gauge,
-  ChevronLeft, ChevronRight, Activity, Star, Files, ClipboardList, Pin, PinOff,
+  ChevronLeft, ChevronRight, Activity, Star, Files, ClipboardList, Pin, PinOff, BarChart3,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -36,7 +36,10 @@ const REQUESTS_MINE = '/requests?view=latest&scope=mine' as const
 
 const [homeMainLink, ...restMainLinks] = mainLinks
 
-const cstConsoleLink: NavItem = { to: '/cst', label: 'CST', icon: FlaskConical }
+const cstConsoleLinks: NavItem[] = [
+  { to: '/cst', label: 'CST', icon: FlaskConical },
+  { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
+]
 
 const adminMenuLinks: NavItem[] = [
   { to: '/admin/users', label: 'Users Settings', icon: Users },
@@ -52,8 +55,8 @@ const adminMenuLinks: NavItem[] = [
 ]
 
 function adminConsoleLinks(role: string | null | undefined): NavItem[] {
-  if (role === 'admin') return [cstConsoleLink, ...adminMenuLinks]
-  if (role === 'manager') return [cstConsoleLink]
+  if (role === 'admin') return [...cstConsoleLinks, ...adminMenuLinks]
+  if (role === 'manager') return [...cstConsoleLinks]
   return []
 }
 
@@ -109,7 +112,8 @@ function collapsedNavClass(active: boolean) {
 }
 
 function isAdminLinkActive(to: string, location: ReturnType<typeof useLocation>) {
-  if (to === '/cst') return location.pathname.startsWith('/cst')
+  if (to === '/cst') return location.pathname === '/cst'
+  if (to === '/cst/concrete-summary') return location.pathname.startsWith('/cst/concrete-summary')
   return isNavToActive(to, location)
 }
 

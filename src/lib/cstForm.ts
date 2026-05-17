@@ -399,6 +399,11 @@ export function cstGroupStrengthPercent(avg: number, designStrength: number): st
   return cstFormatNumber((avg / designStrength) * 100)
 }
 
+/** ค่าเฉลี่ย ksc ชุดแรก (3 ตัวอย่าง) — ใช้ในตารางสรุปความแข็งตามอายุทดสอบ */
+export function cstPrimaryAverageKsc(view: CstViewRow): number | null {
+  return cstGroupKscAverageNumber(view, 1)
+}
+
 /** ค่าเฉลี่ย ksc ต่อชุด (3 ตัวอย่าง) จาก CST_View */
 export function cstGroupAveragesFromView(
   view: CstViewRow,

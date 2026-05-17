@@ -324,7 +324,7 @@ export function AdminDashboard() {
 
       <section
         aria-label="กราฟแยกตามโครงสร้างและความแข็งแรง"
-        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:gap-5')}
+        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:items-stretch pour-desktop:gap-5')}
       >
         <HorizontalVolumeBarChart
           title="Complete volume ตามโครงสร้าง"
@@ -344,7 +344,7 @@ export function AdminDashboard() {
 
       <section
         aria-label="กราฟตามผู้จองและซัพพลายเออร์"
-        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:gap-5')}
+        className={cn(app.pageAdminSection, 'grid gap-4 pour-desktop:grid-cols-2 pour-desktop:items-stretch pour-desktop:gap-5')}
       >
         <HorizontalVolumeBarChart
           title="Confirm volume ตามผู้จอง (Request by)"

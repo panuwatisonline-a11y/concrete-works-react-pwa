@@ -1,20 +1,34 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { A4_PRINT_HEIGHT_PX, printIframeDocument } from '@/lib/localPrintChecklist'
+import {
+  A4_LANDSCAPE_HEIGHT_PX,
+  A4_LANDSCAPE_WIDTH_PX,
+  A4_PRINT_HEIGHT_PX,
+  printIframeDocument,
+} from '@/lib/localPrintChecklist'
 
-const A4_WIDTH_PX = Math.round((210 * 96) / 25.4)
-const A4_HEIGHT_PX = A4_PRINT_HEIGHT_PX
+const A4_PORTRAIT_WIDTH_PX = Math.round((210 * 96) / 25.4)
+const A4_PORTRAIT_HEIGHT_PX = A4_PRINT_HEIGHT_PX
 
 type PrintChecklistDocumentProps = {
   srcDoc: string
   title: string
   /** checklist: ย่อทั้งหน้าให้พอดี 1 แผ่น — CST: คง layout flex + footer ล่าง */
   fitSinglePage?: boolean
+  /** ค่าเริ่มต้น portrait A4 */
+  paperWidthPx?: number
+  paperHeightPx?: number
 }
 
-export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintChecklistDocumentProps) {
+export function PrintChecklistDocument({
+  srcDoc,
+  title,
+  fitSinglePage,
+  paperWidthPx = A4_PORTRAIT_WIDTH_PX,
+  paperHeightPx = A4_PORTRAIT_HEIGHT_PX,
+}: PrintChecklistDocumentProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const [docHeight, setDocHeight] = useState(A4_HEIGHT_PX)
+  const [docHeight, setDocHeight] = useState(paperHeightPx)
   const [scale, setScale] = useState(1)
 
   const syncLayout = useCallback(() => {
@@ -38,13 +52,13 @@ export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintCh
         }, 0)
     }
     const bodyH = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
-    const h = Math.max(paperH, bodyH, A4_HEIGHT_PX)
+    const h = Math.max(paperH, bodyH, paperHeightPx)
     setDocHeight(Math.ceil(h) + 8)
 
     const pad = 24
     const avail = Math.max(200, scroll.clientWidth - pad)
-    setScale(Math.min(1, avail / A4_WIDTH_PX))
-  }, [])
+    setScale(Math.min(1, avail / paperWidthPx))
+  }, [paperWidthPx, paperHeightPx])
 
   useEffect(() => {
     const run = () => syncLayout()
@@ -58,11 +72,11 @@ export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintCh
   }, [syncLayout])
 
   useEffect(() => {
-    setDocHeight(A4_HEIGHT_PX)
+    setDocHeight(paperHeightPx)
     setScale(1)
-  }, [srcDoc])
+  }, [srcDoc, paperHeightPx])
 
-  const scaledW = Math.ceil(A4_WIDTH_PX * scale)
+  const scaledW = Math.ceil(paperWidthPx * scale)
   const scaledH = Math.ceil(docHeight * scale)
 
   return (
@@ -97,7 +111,7 @@ export function PrintChecklistDocument({ srcDoc, title, fitSinglePage }: PrintCh
             }}
             className="m-0 block border-0 bg-white"
             style={{
-              width: A4_WIDTH_PX,
+              width: paperWidthPx,
               height: docHeight,
               transform: `scale(${scale})`,
               transformOrigin: 'top left',

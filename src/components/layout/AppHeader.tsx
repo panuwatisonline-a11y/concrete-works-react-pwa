@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Menu, X, LogOut, PlusCircle, User, LayoutDashboard, Users,
   Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase, Gauge,
-  Search, Star, Activity, Files, ClipboardList,
+  Search, Star, Activity, Files, ClipboardList, BarChart3,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -34,7 +34,10 @@ const mainLinks: NavItem[] = [
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
 
-const cstConsoleLink: NavItem = { to: '/cst', label: 'CST', icon: FlaskConical }
+const cstConsoleLinks: NavItem[] = [
+  { to: '/cst', label: 'CST', icon: FlaskConical },
+  { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
+]
 
 /** เมนูตั้งค่าใน drawer Admin (ไม่รวม Dashboard — แสดงแถบบนมือถือ + หมวดหลักใน drawer) */
 const adminMenuLinks: NavItem[] = [
@@ -51,8 +54,8 @@ const adminMenuLinks: NavItem[] = [
 ]
 
 function adminConsoleLinks(role: string | null | undefined): NavItem[] {
-  if (role === 'admin') return [cstConsoleLink, ...adminMenuLinks]
-  if (role === 'manager') return [cstConsoleLink]
+  if (role === 'admin') return [...cstConsoleLinks, ...adminMenuLinks]
+  if (role === 'manager') return [...cstConsoleLinks]
   return []
 }
 
@@ -285,8 +288,10 @@ export function AppHeader() {
                         cn(
                           theme.navLink,
                           (to === '/cst'
-                            ? location.pathname.startsWith('/cst')
-                            : isNavToActive(to, location))
+                            ? location.pathname === '/cst'
+                            : to === '/cst/concrete-summary'
+                              ? location.pathname.startsWith('/cst/concrete-summary')
+                              : isNavToActive(to, location))
                             ? 'bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
                             : 'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-accent-muted)]',
                         )

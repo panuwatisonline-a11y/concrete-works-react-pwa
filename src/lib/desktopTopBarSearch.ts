@@ -25,6 +25,11 @@ export const BOOKING_SUMMARY_SEARCH_PLACEHOLDER =
 
 export const BOOKING_SUMMARY_SEARCH_ARIA = 'ค้นหาในหน้าสรุปรายการจอง'
 
+export const CONCRETE_SUMMARY_SEARCH_PLACEHOLDER =
+  'ค้นหา Concrete Summary — โครงสร้าง, Location, Mix, Supplier…'
+
+export const CONCRETE_SUMMARY_SEARCH_ARIA = 'ค้นหาในหน้า Concrete Summary'
+
 export interface DesktopSearchBarConfig {
   bindFilter: boolean
   showRequestFilterButton: boolean
@@ -84,6 +89,15 @@ export function getDesktopSearchBarConfig(pathname: string): DesktopSearchBarCon
       placeholder: 'หน้าโปรไฟล์ — การค้นหารายการคำขอใช้ที่เมนูสถานะ',
       ariaLabel: 'การค้นหาคำขอไม่ใช้ในหน้าโปรไฟล์',
       inputDisabled: true,
+    }
+  }
+  if (pathname.startsWith('/cst/concrete-summary')) {
+    return {
+      bindFilter: true,
+      showRequestFilterButton: false,
+      placeholder: CONCRETE_SUMMARY_SEARCH_PLACEHOLDER,
+      ariaLabel: CONCRETE_SUMMARY_SEARCH_ARIA,
+      inputDisabled: false,
     }
   }
   if (pathname.startsWith('/cst')) {

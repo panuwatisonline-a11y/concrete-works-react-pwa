@@ -25,6 +25,8 @@ export default defineConfig({
         'templates/checksheet-logo.png',
         'templates/checklist-before-concrete-placement.html',
         'templates/cst-strength-report.html',
+        'templates/cst-filter-schedule.html',
+        'templates/concrete-summary.html',
         'templates/cst-report-logo-1.png',
         'templates/cst-report-logo-2.png',
         'templates/cst-report-logo-3.png',
