@@ -16,10 +16,14 @@ function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {
   else if (ref) ref.current = node
 }
 
-function mergeRefs<T>(...refs: Array<React.ForwardedRef<T> | React.MutableRefObject<T | null>>) {
-  return (node: T | null) => {
-    for (const ref of refs) assignRef(ref, node)
-  }
+/** RHF ใส่ค่า default ผ่าน ref หลัง mount — อ่านซ้ำหลายเฟรมให้ facade บน iOS ทัน */
+function scheduleFacadeSync(sync: (el: HTMLInputElement) => void, el: HTMLInputElement) {
+  sync(el)
+  queueMicrotask(() => sync(el))
+  requestAnimationFrame(() => {
+    sync(el)
+    requestAnimationFrame(() => sync(el))
+  })
 }
 
 const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -48,13 +52,30 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
 
     React.useEffect(() => {
       if (value !== undefined) setFacadeRaw(String(value))
-    }, [value])
+      else if (defaultValue !== undefined) setFacadeRaw(String(defaultValue))
+    }, [value, defaultValue])
 
     const syncFacadeFromNative = React.useCallback((el: HTMLInputElement | null) => {
       if (!el) return
       const next = el.value
       setFacadeRaw((prev) => (prev === next ? prev : next))
     }, [])
+
+    const setNativeRef = React.useCallback(
+      (node: HTMLInputElement | null) => {
+        nativeRef.current = node
+        assignRef(ref, node)
+        if (node) scheduleFacadeSync(syncFacadeFromNative, node)
+      },
+      [ref, syncFacadeFromNative],
+    )
+
+    React.useLayoutEffect(() => {
+      if (!useIosFacade) return
+      const el = nativeRef.current
+      if (!el) return
+      scheduleFacadeSync(syncFacadeFromNative, el)
+    }, [useIosFacade, syncFacadeFromNative, defaultValue])
 
     React.useEffect(() => {
       if (!useIosFacade) return
@@ -118,7 +139,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
           <input
             type={type}
             id={id}
-            ref={mergeRefs(ref, nativeRef)}
+            ref={setNativeRef}
             className="pour-date-input-overlay"
             onClick={onClick}
             {...(isControlled ? { value } : { defaultValue })}
