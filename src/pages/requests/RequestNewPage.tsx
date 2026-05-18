@@ -22,6 +22,14 @@ import { parseStructureListTokens, structureListsIntersect, structureHasCompatib
 import { layout, rq } from '@/lib/requestUi'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
+import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
+import {
+  mixcodeStrengthLabelForOptionValue,
+  mixcodeStrengthOptionValueForStoredStrength,
+  parseMixcodeStrengthOptionValue,
+  DWG_STRENGTH_FIELD_LABEL,
+  DWG_STRENGTH_REQUIRED_MESSAGE,
+} from '@/lib/mixcodeStrengthOptions'
 
 const schema = z.object({
   client_id: z.string().min(1, 'กรุณาเลือก Client'),
@@ -35,6 +43,7 @@ const schema = z.object({
   request_time: z.string().min(1, 'กรุณาระบุเวลา'),
   mixcode_id: z.string().min(1, 'กรุณาเลือก Mixcode'),
   volume_request: z.string().min(1, 'Please enter Request Volume (cu.m)'),
+  strength: z.string().min(1, DWG_STRENGTH_REQUIRED_MESSAGE),
   volume_dwg: z.string().optional(),
   sample_qty: z.string().optional(),
   remarks: z.string().optional(),
@@ -142,7 +151,7 @@ export function RequestNewPage() {
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [beforeImageUploading, setBeforeImageUploading] = useState(false)
 
-  const { control, register, handleSubmit, watch, setValue, getValues, reset, formState: { errors } } = useForm<FormData>({
+  const { control, register, handleSubmit, watch, setValue, getValues, reset, trigger, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       client_id: profile?.client_id ? String(profile.client_id) : '',
@@ -156,6 +165,7 @@ export function RequestNewPage() {
       request_time: '09:00',
       mixcode_id: '',
       volume_request: '',
+      strength: '',
       volume_dwg: '',
       sample_qty: '',
       remarks: '',
@@ -225,6 +235,7 @@ export function RequestNewPage() {
           request_time,
           mixcode_id,
           volume_request,
+          strength,
           volume_dwg,
           sample_qty,
           remarks,
@@ -262,6 +273,7 @@ export function RequestNewPage() {
         request_time: requestTimeToInputValue(data.request_time),
         mixcode_id: data.mixcode_id != null ? String(data.mixcode_id) : '',
         volume_request: data.volume_request != null ? String(data.volume_request) : '',
+        strength: mixcodeStrengthOptionValueForStoredStrength(data.strength, mixcodes),
         volume_dwg: data.volume_dwg != null ? String(data.volume_dwg) : '',
         sample_qty: data.sample_qty != null ? String(data.sample_qty) : '',
         remarks: data.remarks ?? '',
@@ -274,7 +286,7 @@ export function RequestNewPage() {
     return () => {
       cancelled = true
     }
-  }, [location.state, user?.id, reset, navigate])
+  }, [location.state, user?.id, reset, navigate, mixcodes])
 
   async function onSubmit(data: FormData) {
     if (step !== 2 || !user || submitLockRef.current) return
@@ -297,6 +309,7 @@ export function RequestNewPage() {
         request_time: data.request_time,
         mixcode_id: parseInt(data.mixcode_id),
         volume_request: data.volume_request ? parseFloat(data.volume_request) : null,
+        strength: parseMixcodeStrengthOptionValue(data.strength),
         volume_dwg: data.volume_dwg ? parseFloat(data.volume_dwg) : null,
         sample_qty: data.sample_qty ? parseInt(data.sample_qty) : null,
         remarks: data.remarks || null,
@@ -324,12 +337,11 @@ export function RequestNewPage() {
   }
 
   const nextStep = async () => {
-    const vals = getValues()
     const step1Fields: Array<keyof FormData> = ['client_id', 'location_id', 'concrete_work_id', 'structure_id']
-    const step2Fields: Array<keyof FormData> = ['casting_date', 'request_time', 'mixcode_id', 'volume_request']
+    const step2Fields: Array<keyof FormData> = ['casting_date', 'request_time', 'strength', 'mixcode_id', 'volume_request']
     const fieldsToCheck = step === 0 ? step1Fields : step2Fields
-    const hasErrors = fieldsToCheck.some((f) => !vals[f])
-    if (!hasErrors) setStep(step + 1)
+    const ok = await trigger(fieldsToCheck)
+    if (ok) setStep(step + 1)
     else toast.error('กรุณากรอกข้อมูลให้ครบ')
   }
 
@@ -345,6 +357,26 @@ export function RequestNewPage() {
             </Select>
           )} />
           {errors.client_id && <p className="text-xs text-rose-600">{errors.client_id.message}</p>}
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>ABC Code</Label>
+          <Controller name="abc_code_id" control={control} render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue placeholder="เลือก ABC Code" /></SelectTrigger>
+              <SelectContent>{abcCodes.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.full_abc}</SelectItem>)}</SelectContent>
+            </Select>
+          )} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>WBS Code</Label>
+          <Controller name="wbs_code_id" control={control} render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue placeholder="เลือก WBS Code" /></SelectTrigger>
+              <SelectContent>{wbsCodes.map((w) => <SelectItem key={w.id} value={String(w.id)}>{w.full_wbs}</SelectItem>)}</SelectContent>
+            </Select>
+          )} />
         </div>
 
         <div className="space-y-1.5">
@@ -385,26 +417,6 @@ export function RequestNewPage() {
             <Input placeholder="C-001" {...register('structure_no')} />
           </div>
         </div>
-
-        <div className="space-y-1.5">
-          <Label>ABC Code</Label>
-          <Controller name="abc_code_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก ABC Code" /></SelectTrigger>
-              <SelectContent>{abcCodes.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.full_abc}</SelectItem>)}</SelectContent>
-            </Select>
-          )} />
-        </div>
-
-        <div className="space-y-1.5">
-          <Label>WBS Code</Label>
-          <Controller name="wbs_code_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก WBS Code" /></SelectTrigger>
-              <SelectContent>{wbsCodes.map((w) => <SelectItem key={w.id} value={String(w.id)}>{w.full_wbs}</SelectItem>)}</SelectContent>
-            </Select>
-          )} />
-        </div>
       </div>
     )
 
@@ -421,6 +433,18 @@ export function RequestNewPage() {
             <Input type="time" {...register('request_time')} />
             {errors.request_time && <p className="text-xs text-rose-600">{errors.request_time.message}</p>}
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>{DWG_STRENGTH_FIELD_LABEL} *</Label>
+          <Controller
+            name="strength"
+            control={control}
+            render={({ field }) => (
+              <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+            )}
+          />
+          {errors.strength && <p className="text-xs text-rose-600">{errors.strength.message}</p>}
         </div>
 
         <div className="space-y-1.5">
@@ -498,6 +522,7 @@ export function RequestNewPage() {
               ['วันเท', formatDate(vals.casting_date)],
               ['เวลา', vals.request_time],
               ['Mixcode', mixcode?.mixcode],
+              [DWG_STRENGTH_FIELD_LABEL, mixcodeStrengthLabelForOptionValue(vals.strength, mixcodes)],
               ['Request Volume (cu.m)', formatVolumeCuM(vals.volume_request)],
             ].map(([label, value]) => (
               <div key={label} className="flex gap-2">

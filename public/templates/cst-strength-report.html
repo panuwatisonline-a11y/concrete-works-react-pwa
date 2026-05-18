@@ -177,15 +177,9 @@
       border: 1px solid #111827;
       background: #fff;
     }
-    .results col.cw-item { width: 5.5%; }
-    .results col.cw-sample { width: 8%; }
-    .results col.cw-w { width: 9%; }
-    .results col.cw-d { width: 11%; }
-    .results col.cw-fr { width: 11%; }
-    .results col.cw-fa { width: 11%; }
-    .results col.cw-ksc { width: 10%; }
-    .results col.cw-avg { width: 10%; }
-    .results col.cw-rmk { width: 14.5%; }
+    /* Item แคบ — คอลัมน์อื่นกว้างเท่ากัน (8 คอลัมน์ × 11.875% = 95%) */
+    .results col.cw-item { width: 5%; }
+    .results col.cw-col { width: 11.875%; }
     .results th, .results td {
       border: 1px solid #111827;
       padding: 5px 4px;
@@ -212,16 +206,38 @@
     .results .res-num { font-variant-numeric: tabular-nums; }
     .results .res-avg {
       vertical-align: middle;
-      font-weight: 700;
-      font-size: 0.85rem;
-      text-align: center;
-    }
-    .results .res-rmk {
-      vertical-align: middle;
       text-align: center;
       padding: 5px 4px;
+      line-height: 1.3;
+    }
+    .results .res-avg-val {
+      display: block;
+      font-weight: 700;
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .results .res-avg-pct {
+      display: block;
+      margin-top: 4px;
+      padding-top: 4px;
+      border-top: 1px solid #111827;
+      font-weight: 600;
+      font-size: 0.75rem;
+      font-variant-numeric: tabular-nums;
+      color: #374151;
+    }
+    .results .res-avg-pct:empty {
+      display: none;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+    .results .res-conclusion {
+      vertical-align: middle;
+      font-weight: 700;
       font-size: 0.78rem;
-      line-height: 1.35;
+      text-align: center;
+      letter-spacing: 0.02em;
     }
     .sign3 {
       width: 100%;
@@ -299,15 +315,15 @@
             <div class="meta-slot-empty" aria-hidden="true"></div>
           </div>
           <div class="meta-row meta-row-dates">
+            <div class="meta-field"><span class="k">Required Strength:</span><span class="v">{{requireStrength}}</span></div>
             <div class="meta-field"><span class="k">Mix Code:</span><span class="v">{{mixcode}}</span></div>
             <div class="meta-field"><span class="k">Strength:</span><span class="v">{{strength}}</span></div>
-            <div class="meta-field"><span class="k">Slump:</span><span class="v">{{slump}}</span></div>
             <div class="meta-field"><span class="k">Volume:</span><span class="v">{{volume}} cu.m.</span></div>
           </div>
           <div class="meta-row meta-row-pair">
             <div class="meta-field"><span class="k">Supplier:</span><span class="v">{{supplier}}</span></div>
+            <div class="meta-field"><span class="k">Slump:</span><span class="v">{{slump}}</span></div>
             <div class="meta-field meta-field-sample-type"><span class="k">Sample Type:</span><span class="v">{{sampleType}}</span></div>
-            <div class="meta-slot-empty" aria-hidden="true"></div>
             <div class="meta-slot-empty" aria-hidden="true"></div>
           </div>
           <div class="meta-machine-line">
@@ -323,14 +339,7 @@
         <table class="results" aria-label="ผลการทดสอบ">
           <colgroup>
             <col class="cw-item" />
-            <col class="cw-sample" />
-            <col class="cw-w" />
-            <col class="cw-d" />
-            <col class="cw-fr" />
-            <col class="cw-fa" />
-            <col class="cw-ksc" />
-            <col class="cw-avg" />
-            <col class="cw-rmk" />
+            <col class="cw-col" span="8" />
           </colgroup>
           <thead>
             <tr>
@@ -342,7 +351,7 @@
               <th>Force<br />Adjust<br />(kN)</th>
               <th>Compressive<br />Strength<br />({{strengthUnit}})</th>
               <th>Compressive Strength<br />Average<br />({{strengthUnit}})</th>
-              <th>Remark</th>
+              <th>Conclusion<br />(Pass/Fail)</th>
             </tr>
           </thead>
           <tbody>
@@ -353,7 +362,7 @@
           <td class="res-num">{{d1}}</td>
           <td class="res-num">{{f1}}</td>
           <td class="res-num">{{adj1}}</td>
-          <td class="res-num">{{ksc1}}</td><td class="res-num res-avg" rowspan="3">{{avg1}}</td><td class="res-num res-rmk" rowspan="3">{{remark1}}</td>
+          <td class="res-num">{{ksc1}}</td><td class="res-num res-avg" rowspan="3"><span class="res-avg-val">{{avg1}}</span><span class="res-avg-pct">{{remark1}}</span></td><td class="res-num res-conclusion" rowspan="3">{{conclusion1}}</td>
         </tr>
         <tr>
           <td class="res-num">2</td>
@@ -380,7 +389,7 @@
           <td class="res-num">{{d4}}</td>
           <td class="res-num">{{f4}}</td>
           <td class="res-num">{{adj4}}</td>
-          <td class="res-num">{{ksc4}}</td><td class="res-num res-avg" rowspan="3">{{avg2}}</td><td class="res-num res-rmk" rowspan="3">{{remark2}}</td>
+          <td class="res-num">{{ksc4}}</td><td class="res-num res-avg" rowspan="3"><span class="res-avg-val">{{avg2}}</span><span class="res-avg-pct">{{remark2}}</span></td><td class="res-num res-conclusion" rowspan="3">{{conclusion2}}</td>
         </tr>
         <tr>
           <td class="res-num">5</td>
@@ -407,7 +416,7 @@
           <td class="res-num">{{d7}}</td>
           <td class="res-num">{{f7}}</td>
           <td class="res-num">{{adj7}}</td>
-          <td class="res-num">{{ksc7}}</td><td class="res-num res-avg" rowspan="3">{{avg3}}</td><td class="res-num res-rmk" rowspan="3">{{remark3}}</td>
+          <td class="res-num">{{ksc7}}</td><td class="res-num res-avg" rowspan="3"><span class="res-avg-val">{{avg3}}</span><span class="res-avg-pct">{{remark3}}</span></td><td class="res-num res-conclusion" rowspan="3">{{conclusion3}}</td>
         </tr>
         <tr>
           <td class="res-num">8</td>
@@ -434,7 +443,7 @@
           <td class="res-num">{{d10}}</td>
           <td class="res-num">{{f10}}</td>
           <td class="res-num">{{adj10}}</td>
-          <td class="res-num">{{ksc10}}</td><td class="res-num res-avg" rowspan="3">{{avg4}}</td><td class="res-num res-rmk" rowspan="3">{{remark4}}</td>
+          <td class="res-num">{{ksc10}}</td><td class="res-num res-avg" rowspan="3"><span class="res-avg-val">{{avg4}}</span><span class="res-avg-pct">{{remark4}}</span></td><td class="res-num res-conclusion" rowspan="3">{{conclusion4}}</td>
         </tr>
         <tr>
           <td class="res-num">11</td>
@@ -461,7 +470,7 @@
           <td class="res-num">{{d13}}</td>
           <td class="res-num">{{f13}}</td>
           <td class="res-num">{{adj13}}</td>
-          <td class="res-num">{{ksc13}}</td><td class="res-num res-avg" rowspan="3">{{avg5}}</td><td class="res-num res-rmk" rowspan="3">{{remark5}}</td>
+          <td class="res-num">{{ksc13}}</td><td class="res-num res-avg" rowspan="3"><span class="res-avg-val">{{avg5}}</span><span class="res-avg-pct">{{remark5}}</span></td><td class="res-num res-conclusion" rowspan="3">{{conclusion5}}</td>
         </tr>
         <tr>
           <td class="res-num">14</td>

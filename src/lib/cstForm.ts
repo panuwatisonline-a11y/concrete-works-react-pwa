@@ -368,18 +368,17 @@ export function cstComputedPreviewRows(
   return rows
 }
 
-/** ความแข็งแรงออกแบบ (ksc) จาก CST_View หรือ mix ของคำขอ */
+/** กำลังอัดอ้างอิงสำหรับ % และ Pass/Fail — Required Strength ก่อน แล้ว Strength จาก Mixcode */
 export function cstResolveDesignStrength(
-  view: CstViewRow,
+  _view: CstViewRow,
   request?: Pick<RequestWithRelations, 'mixcode' | 'strength'> | null,
 ): number | null {
-  if (view.design_strength != null && !Number.isNaN(view.design_strength) && view.design_strength > 0) {
-    return view.design_strength
-  }
-  const mix = request?.mixcode as { strength?: number | null } | null | undefined
-  if (mix?.strength != null && !Number.isNaN(mix.strength) && mix.strength > 0) return mix.strength
   if (request?.strength != null && !Number.isNaN(request.strength) && request.strength > 0) {
     return request.strength
+  }
+  const mix = request?.mixcode as { strength?: number | null } | null | undefined
+  if (mix?.strength != null && !Number.isNaN(mix.strength) && mix.strength > 0) {
+    return mix.strength
   }
   return null
 }
@@ -399,6 +398,11 @@ export function cstGroupStrengthPercent(avg: number, designStrength: number): st
   return cstFormatNumber((avg / designStrength) * 100)
 }
 
+/** Pass เมื่อค่าเฉลี่ย ksc ≥ Required Strength (หรือ Strength จาก Mixcode ถ้าไม่มี Required) */
+export function cstGroupConclusion(avg: number, designStrength: number): 'Pass' | 'Fail' {
+  return avg >= designStrength ? 'Pass' : 'Fail'
+}
+
 /** ค่าเฉลี่ย ksc ชุดแรก (3 ตัวอย่าง) — ใช้ในตารางสรุปความแข็งตามอายุทดสอบ */
 export function cstPrimaryAverageKsc(view: CstViewRow): number | null {
   return cstGroupKscAverageNumber(view, 1)
@@ -409,16 +413,18 @@ export function cstGroupAveragesFromView(
   view: CstViewRow,
   groupCount: number = CST_SAMPLE_GROUPS,
   options?: { designStrength?: number | null; request?: Pick<RequestWithRelations, 'mixcode' | 'strength'> | null },
-): { group: number; avg: string; pct: string | null }[] {
+): { group: number; avg: string; pct: string | null; conclusion: 'Pass' | 'Fail' | null }[] {
   const design = options?.designStrength ?? cstResolveDesignStrength(view, options?.request)
-  const out: { group: number; avg: string; pct: string | null }[] = []
+  const out: { group: number; avg: string; pct: string | null; conclusion: 'Pass' | 'Fail' | null }[] = []
   for (let g = 1; g <= groupCount; g++) {
     const avgNum = cstGroupKscAverageNumber(view, g)
     if (avgNum == null) continue
+    const hasDesign = design != null && design > 0
     out.push({
       group: g,
       avg: cstFormatNumber(avgNum),
-      pct: design != null && design > 0 ? cstGroupStrengthPercent(avgNum, design) : null,
+      pct: hasDesign ? cstGroupStrengthPercent(avgNum, design) : null,
+      conclusion: hasDesign ? cstGroupConclusion(avgNum, design) : null,
     })
   }
   return out
@@ -480,12 +486,16 @@ export function cstViewRowToReportData(
   for (let g = 1; g <= CST_SAMPLE_GROUPS; g++) {
     const avgKey = `avg${g}` as keyof CstStrengthReportTemplateData
     const rmkKey = `remark${g}` as keyof CstStrengthReportTemplateData
+    const conclusionKey = `conclusion${g}` as keyof CstStrengthReportTemplateData
     const avgNum = cstGroupKscAverageNumber(view, g)
     out[avgKey] = avgNum != null ? cstFormatNumber(avgNum) : ''
-    out[rmkKey] =
-      avgNum != null && designStrength != null && designStrength > 0
-        ? `${cstGroupStrengthPercent(avgNum, designStrength)}%`
-        : ''
+    if (avgNum != null && designStrength != null && designStrength > 0) {
+      out[rmkKey] = `${cstGroupStrengthPercent(avgNum, designStrength)}%`
+      out[conclusionKey] = cstGroupConclusion(avgNum, designStrength)
+    } else {
+      out[rmkKey] = ''
+      out[conclusionKey] = ''
+    }
   }
 
   return out

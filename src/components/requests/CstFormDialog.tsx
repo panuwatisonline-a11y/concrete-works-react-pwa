@@ -140,17 +140,24 @@ function ComputedPreview({
       </div>
       {groupAvgs.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-2 border-t border-[color:var(--glass-border-subtle)] pt-3">
-          {groupAvgs.map(({ group, avg, pct }) => (
+          {groupAvgs.map(({ group, avg, pct, conclusion }) => (
             <span
               key={group}
-              className="rounded-full border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]/70 px-2.5 py-0.5 text-xs tabular-nums text-[color:var(--pour-ink-1)]"
+              className="inline-flex min-w-[4.5rem] flex-col items-center rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]/70 px-2.5 py-1.5 text-center text-xs tabular-nums text-[color:var(--pour-ink-1)]"
             >
-              ชุด {group} เฉลี่ย <strong className="text-[color:var(--pour-accent)]">{avg}</strong> {unit}
+              <span className="text-[10px] font-medium text-pour-muted">ชุด {group}</span>
+              <strong className="text-sm text-[color:var(--pour-accent)]">
+                {avg} {unit}
+              </strong>
               {pct != null ? (
-                <>
-                  {' '}
-                  · <strong className="text-[color:var(--pour-ink-1)]">{pct}%</strong>
-                </>
+                <strong className="mt-1 w-full border-t border-[color:var(--glass-border-subtle)] pt-1 text-xs font-semibold text-[color:var(--pour-ink-1)]">
+                  {pct}%
+                </strong>
+              ) : null}
+              {conclusion != null ? (
+                <strong className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-[color:var(--pour-ink-0)]">
+                  {conclusion}
+                </strong>
               ) : null}
             </span>
           ))}

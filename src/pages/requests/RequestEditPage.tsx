@@ -25,6 +25,13 @@ import {
 } from '@/lib/desktopTopBarSearch'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
+import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
+import {
+  mixcodeStrengthOptionValueForStoredStrength,
+  parseMixcodeStrengthOptionValue,
+  DWG_STRENGTH_FIELD_LABEL,
+  DWG_STRENGTH_REQUIRED_MESSAGE,
+} from '@/lib/mixcodeStrengthOptions'
 import type { Request } from '@/types/app.types'
 
 const schema = z.object({
@@ -32,6 +39,7 @@ const schema = z.object({
   request_time: z.string().min(1),
   mixcode_id: z.string().min(1),
   volume_request: z.string().min(1, 'Please enter Request Volume (cu.m)'),
+  strength: z.string().min(1, DWG_STRENGTH_REQUIRED_MESSAGE),
   volume_dwg: z.string().optional(),
   sample_qty: z.string().optional(),
   remarks: z.string().optional(),
@@ -50,7 +58,7 @@ export function RequestEditPage() {
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const { register, control, handleSubmit, reset } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   useDesktopSearchRegistration({
     placeholder: REQUEST_DETAIL_SEARCH_PLACEHOLDER,
@@ -76,12 +84,13 @@ export function RequestEditPage() {
       request_time: r.request_time ?? '',
       mixcode_id: r.mixcode_id ? String(r.mixcode_id) : '',
       volume_request: r.volume_request ? String(r.volume_request) : '',
+      strength: mixcodeStrengthOptionValueForStoredStrength(r.strength, mixcodes),
       volume_dwg: r.volume_dwg ? String(r.volume_dwg) : '',
       sample_qty: r.sample_qty ? String(r.sample_qty) : '',
       remarks: r.remarks ?? '',
       structure_no: r.structure_no ?? '',
     })
-  }, [id, user?.id, reset, navigate])
+  }, [id, user?.id, reset, navigate, mixcodes])
 
   useEffect(() => {
     void loadRequest()
@@ -97,6 +106,7 @@ export function RequestEditPage() {
       request_time: data.request_time,
       mixcode_id: parseInt(data.mixcode_id),
       volume_request: parseFloat(data.volume_request),
+      strength: parseMixcodeStrengthOptionValue(data.strength),
       volume_dwg: data.volume_dwg ? parseFloat(data.volume_dwg) : null,
       sample_qty: data.sample_qty ? parseInt(data.sample_qty) : null,
       remarks: data.remarks || null,
@@ -144,6 +154,17 @@ export function RequestEditPage() {
                 <Label>เวลา *</Label>
                 <Input type="time" {...register('request_time')} />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label>{DWG_STRENGTH_FIELD_LABEL} *</Label>
+              <Controller
+                name="strength"
+                control={control}
+                render={({ field }) => (
+                  <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+                )}
+              />
+              {errors.strength && <p className="text-xs text-rose-600">{errors.strength.message}</p>}
             </div>
             <div className="space-y-1.5">
               <Label>Mixcode *</Label>

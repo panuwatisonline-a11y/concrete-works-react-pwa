@@ -4,6 +4,12 @@ import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
+import { useMasterDataStore } from '@/stores/masterDataStore'
+import {
+  mixcodeStrengthLabelForOptionValue,
+  mixcodeStrengthOptionValueForStoredStrength,
+  DWG_STRENGTH_FIELD_LABEL,
+} from '@/lib/mixcodeStrengthOptions'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -38,6 +44,7 @@ export function RequestDetailPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, role } = useAuthStore()
+  const { mixcodes } = useMasterDataStore()
   const { filter, setFilter } = useFilterStore()
   const [request, setRequest] = useState<RequestWithRelations | null>(null)
   const [logs, setLogs] = useState<RequestLogWithProfile[]>([])
@@ -296,6 +303,15 @@ export function RequestDetailPage() {
               ['เวลา', formatTime(request.request_time)],
               ['Mixcode', mx?.mixcode],
               ['กำลังอัด', mx ? `${mx.strength} ${mx.strength_type}` : '-'],
+              [
+                DWG_STRENGTH_FIELD_LABEL,
+                request.strength != null
+                  ? mixcodeStrengthLabelForOptionValue(
+                      mixcodeStrengthOptionValueForStoredStrength(request.strength, mixcodes),
+                      mixcodes,
+                    ) ?? String(request.strength)
+                  : '-',
+              ],
               ['Slump', mx?.slump],
               ['Request Volume (cu.m)', formatVolumeCuM(request.volume_request)],
               ['DWG volume (cu.m)', formatVolumeCuM(request.volume_dwg)],

@@ -12,6 +12,7 @@ export type CstShortcutCreateInput = {
   structure_id: number
   structure_no: string | null
   casting_date: string
+  strength: number | null
   mixcode_id: number
   volume_confirm: number
 }
@@ -39,6 +40,7 @@ export async function createCstShortcutRequest(
       structure_id: input.structure_id,
       structure_no: input.structure_no,
       casting_date: input.casting_date,
+      strength: input.strength,
       mixcode_id: input.mixcode_id,
       volume_confirm: input.volume_confirm,
       remarks: NON_SYSTEM_BOOKING_REMARK,

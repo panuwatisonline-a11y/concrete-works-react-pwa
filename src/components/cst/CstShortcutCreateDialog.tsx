@@ -24,6 +24,13 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
+import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
+import {
+  DWG_STRENGTH_FIELD_LABEL,
+  DWG_STRENGTH_REQUIRED_MESSAGE,
+  mixcodeStrengthLabelForOptionValue,
+  parseMixcodeStrengthOptionValue,
+} from '@/lib/mixcodeStrengthOptions'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { createCstShortcutRequest } from '@/lib/cstShortcutCreate'
@@ -44,6 +51,7 @@ const schema = z.object({
   structure_id: z.string().min(1, 'กรุณาเลือก Structure'),
   structure_no: z.string().optional(),
   casting_date: z.string().min(1, 'กรุณาเลือกวันเท'),
+  strength: z.string().min(1, DWG_STRENGTH_REQUIRED_MESSAGE),
   mixcode_id: z.string().min(1, 'กรุณาเลือก Mixcode'),
   volume_confirm: z.string().min(1, 'กรุณาระบุ Confirm Volume'),
 })
@@ -304,6 +312,7 @@ type Step1Props = {
     structure?: string
     structureNo?: string
     castingDate: string
+    strengthLabel?: string | null
     mixcode?: string
     volumeConfirm: string
   }
@@ -316,6 +325,18 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
         <Label>Casting date *</Label>
         <Input type="date" {...register('casting_date')} />
         {errors.casting_date ? <p className="text-xs text-rose-600">{errors.casting_date.message}</p> : null}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>{DWG_STRENGTH_FIELD_LABEL} *</Label>
+        <Controller
+          name="strength"
+          control={control}
+          render={({ field }) => (
+            <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+          )}
+        />
+        {errors.strength ? <p className="text-xs text-rose-600">{errors.strength.message}</p> : null}
       </div>
 
       <div className="space-y-1.5">
@@ -358,6 +379,7 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
             ['Location', summary.location],
             ['Structure', `${summary.structure ?? '-'}${summary.structureNo ? ` (${summary.structureNo})` : ''}`],
             ['Casting date', formatDate(summary.castingDate)],
+            [DWG_STRENGTH_FIELD_LABEL, summary.strengthLabel],
             ['Mixcode', summary.mixcode],
             ['Confirm Volume (cu.m)', formatVolumeCuM(summary.volumeConfirm)],
           ].map(([label, value]) => (
@@ -396,6 +418,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
       structure_id: '',
       structure_no: '',
       casting_date: dateInputYYYYMMDDLocal(0),
+      strength: '',
       mixcode_id: '',
       volume_confirm: '',
     },
@@ -413,6 +436,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
         structure_id: '',
         structure_no: '',
         casting_date: dateInputYYYYMMDDLocal(0),
+        strength: '',
         mixcode_id: '',
         volume_confirm: '',
       })
@@ -474,6 +498,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
           structure_id: parseInt(data.structure_id, 10),
           structure_no: data.structure_no?.trim() || null,
           casting_date: data.casting_date,
+          strength: parseMixcodeStrengthOptionValue(data.strength),
           mixcode_id: parseInt(data.mixcode_id, 10),
           volume_confirm: vol,
         },
@@ -557,6 +582,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
                   structure: structure?.structure_name,
                   structureNo: vals.structure_no,
                   castingDate: vals.casting_date,
+                  strengthLabel: mixcodeStrengthLabelForOptionValue(vals.strength, mixcodes),
                   mixcode: mixcode?.mixcode,
                   volumeConfirm: vals.volume_confirm,
                 }}

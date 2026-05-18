@@ -11,7 +11,7 @@ function cstTemplateKeys() {
   }
   const grp: string[] = []
   for (let g = 1; g <= 5; g++) {
-    grp.push(`avg${g}`, `remark${g}`)
+    grp.push(`avg${g}`, `remark${g}`, `conclusion${g}`)
   }
   return [
     'castingDate',
@@ -26,6 +26,7 @@ function cstTemplateKeys() {
     'structureNo',
     'mixcode',
     'strength',
+    'requireStrength',
     'slump',
     'volume',
     'supplier',
@@ -102,14 +103,18 @@ export function cstStrengthUnitLabel(strengthType: string | null | undefined): s
   return raw.replace(/\.+$/, '')
 }
 
-function formatStrength(req: RequestWithRelations): string {
+function formatMixcodeStrength(req: RequestWithRelations): string {
   const m = req.mixcode
-  if (m?.strength != null && !Number.isNaN(m.strength)) {
-    const t = m.strength_type?.trim()
-    return t ? `${m.strength} ${t}` : String(m.strength)
-  }
-  if (req.strength != null && !Number.isNaN(req.strength)) return String(req.strength)
-  return ''
+  if (m?.strength == null || Number.isNaN(m.strength)) return ''
+  const t = m.strength_type?.trim()
+  return t ? `${m.strength} ${t}` : String(m.strength)
+}
+
+/** DWG. Strength (ค่ากำลังอัดตามแบบ) จากคำขอ */
+function formatRequireStrength(req: RequestWithRelations): string {
+  if (req.strength == null || Number.isNaN(req.strength)) return ''
+  const t = req.mixcode?.strength_type?.trim()
+  return t ? `${req.strength} ${t}` : String(req.strength)
 }
 
 function formatVolume(req: RequestWithRelations): string {
@@ -246,7 +251,8 @@ export function cstStrengthReportDataFromRequest(
     locationText: formatLocation(req),
     structureNo: req.structure_no?.trim() ?? '',
     mixcode: mix?.mixcode?.trim() ?? '',
-    strength: formatStrength(req),
+    strength: formatMixcodeStrength(req),
+    requireStrength: formatRequireStrength(req),
     slump: mix?.slump?.trim() ?? '',
     volume: o.volumeText?.trim() ?? formatVolume(req),
     supplier: mix?.supplier?.trim() ?? '',
