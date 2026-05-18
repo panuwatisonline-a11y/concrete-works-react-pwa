@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{documentTitle}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @page { size: 297mm 210mm; margin: 0; }
+    * { box-sizing: border-box; }
+    html { font-size: 7pt; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: Sarabun, "Segoe UI", system-ui, sans-serif;
+      color: #111827;
+      background: #fff;
+    }
+    @media screen {
+      body { background: #e2e8f0; padding: 10px; }
+    }
+    .a4-page {
+      width: 297mm;
+      min-height: 210mm;
+      margin: 0 auto;
+      padding: 8mm 10mm;
+      background: #fff;
+    }
+    .sheet-header {
+      margin-bottom: 6px;
+      border-bottom: 2px solid #1e293b;
+      padding-bottom: 5px;
+    }
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: fit-content;
+      margin: 0 auto 4px;
+    }
+    .logos {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .logos img { display: block; height: 28px; width: auto; }
+    .org-line {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin: 4px 0 0;
+      text-align: center;
+      width: 100%;
+    }
+    .report-title-th {
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-align: center;
+      margin: 0 0 3px;
+      line-height: 1.35;
+    }
+    .doc-title {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      font-size: 0.95rem;
+    }
+    .meta strong { font-weight: 600; }
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.9rem;
+    }
+    .summary-table th,
+    .summary-table td {
+      border: 1px solid #94a3b8;
+      padding: 2px 3px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.2;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+    .summary-table th {
+      background: #e2e8f0;
+      font-weight: 700;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .summary-table .col-item { width: 2.5%; }
+    .summary-table .col-time { width: 4%; }
+    .summary-table .col-booker { width: 7%; }
+    .summary-table .col-phone { width: 5.5%; }
+    .summary-table .col-work { width: 6%; }
+    .summary-table .col-location { width: 11%; }
+    .summary-table .col-structure { width: 6%; }
+    .summary-table .col-no { width: 6%; }
+    .summary-table .col-mix { width: 5%; }
+    .summary-table .col-strength { width: 5%; }
+    .summary-table .col-slump { width: 4%; }
+    .summary-table .col-volume { width: 4.5%; }
+    .summary-table .col-supplier { width: 5%; }
+    .summary-table .col-remark { width: 10%; }
+    .summary-table .col-ok { width: 4%; }
+    .summary-table tbody td.col-item,
+    .summary-table tbody td.col-time,
+    .summary-table tbody td.col-phone,
+    .summary-table tbody td.col-volume,
+    .summary-table tbody td.col-strength,
+    .summary-table tbody td.col-slump,
+    .summary-table tbody td.col-ok {
+      text-align: center;
+    }
+    .summary-table tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+    .empty-row td {
+      text-align: center;
+      color: #64748b;
+      font-style: italic;
+      padding: 10px;
+    }
+    .page-footer {
+      margin-top: 6px;
+      font-size: 0.85rem;
+      color: #64748b;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="a4-page" data-print-doc="booking-summary">
+    <header class="sheet-header">
+      <div class="header-brand">
+        <div class="logos">
+          <img src="/templates/cst-report-logo-2.png" alt="" />
+          <img src="/templates/cst-report-logo-1.png" alt="" />
+          <img src="/templates/cst-report-logo-3.png" alt="" />
+        </div>
+        <p class="org-line">{{cstOrgLine}}</p>
+      </div>
+      <p class="report-title-th">{{cstProjectTitle}}</p>
+      <h1 class="doc-title">สรุปรายการจองคอนกรีต</h1>
+      <div class="meta">
+        <span><strong>วันเท:</strong> {{castingDateDisplay}}</span>
+        <span><strong>Supplier:</strong> {{supplierDisplay}}</span>
+        <span><strong>รวม:</strong> {{totalCount}} รายการ</span>
+        <span><strong>พิมพ์เมื่อ:</strong> {{printedAt}}</span>
+      </div>
+    </header>
+    <div class="sheet-body">
+      {{tableHtml}}
+    </div>
+    <footer class="page-footer">{{pageLabel}}</footer>
+  </div>
+</body>
+</html>

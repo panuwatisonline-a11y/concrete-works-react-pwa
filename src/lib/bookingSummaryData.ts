@@ -1,10 +1,13 @@
 import { supabase } from '@/lib/supabase'
-import { bookingSummaryMatchesCastingDate } from '@/lib/bookingSummaryRow'
+import {
+  bookingSummaryMatchesCastingDate,
+  sortBookingSummaryRequests,
+} from '@/lib/bookingSummaryRow'
 import { CST_LIST_REQUEST_SELECT } from '@/lib/cstListData'
 import type { RequestWithRelations } from '@/types/app.types'
 
-/** ไม่แสดง Reject / Cancel ในรายการสรุปการจอง */
-export const BOOKING_SUMMARY_EXCLUDED_STATUS_IDS = [6, 7] as const
+/** แสดงเฉพาะ รอตรวจสอบ / รออนุมัติ ในรายการสรุปการจอง */
+export const BOOKING_SUMMARY_STATUS_IDS = [1, 2] as const
 
 const FETCH_CHUNK = 500
 
@@ -24,7 +27,7 @@ export async function fetchBookingSummaryForDate(
     .from('Request')
     .select(CST_LIST_REQUEST_SELECT)
     .or(`and(casting_date.eq.${date},postpone_date.is.null),postpone_date.eq.${date}`)
-    .not('status_id', 'in', `(${BOOKING_SUMMARY_EXCLUDED_STATUS_IDS.join(',')})`)
+    .in('status_id', [...BOOKING_SUMMARY_STATUS_IDS])
 
   if (clientId != null) query = query.eq('client_id', clientId)
 
@@ -44,5 +47,6 @@ export async function fetchBookingSummaryForDate(
     from += FETCH_CHUNK
   }
 
-  return all.filter((r) => bookingSummaryMatchesCastingDate(r, date))
+  const matched = all.filter((r) => bookingSummaryMatchesCastingDate(r, date))
+  return sortBookingSummaryRequests(matched)
 }

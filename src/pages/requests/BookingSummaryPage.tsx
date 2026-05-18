@@ -1,10 +1,11 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
-import { CalendarDays, ClipboardList } from 'lucide-react'
+import { CalendarDays, ClipboardList, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { BookingSummaryOkToggle } from '@/components/requests/BookingSummaryOkToggle'
@@ -14,12 +15,16 @@ import { fetchBookingSummaryForDate } from '@/lib/bookingSummaryData'
 import {
   BOOKING_SUMMARY_COLUMNS,
   BOOKING_SUMMARY_SUPPLIER_NONE,
+  bookingSummaryMatchesSearch,
   bookingSummaryMatchesSupplierFilter,
-  bookingSummarySearchBlob,
   collectBookingSummarySuppliers,
   getBookingSummaryRowFields,
   type BookingSummaryRowFields,
 } from '@/lib/bookingSummaryRow'
+import {
+  localPrintBookingSummary,
+  warmBookingSummaryTemplateCache,
+} from '@/lib/bookingSummaryPrint'
 import { todayIsoLocal } from '@/lib/cstListDue'
 import {
   BOOKING_SUMMARY_SEARCH_ARIA,
@@ -46,13 +51,6 @@ function mobileShowValue(f: BookingSummaryRowFields, key: keyof BookingSummaryRo
   const v = cellDisplay(f, key)
   if (v === '-') return null
   return v
-}
-
-function rowMatchesSearch(r: RequestWithRelations, q: string): boolean {
-  if (!q) return true
-  const f = getBookingSummaryRowFields(r)
-  const client = (r.client as { client_name?: string } | null)?.client_name
-  return bookingSummarySearchBlob(f, client).includes(q)
 }
 
 function BookingSummaryMobileCard({
@@ -169,6 +167,10 @@ export function BookingSummaryPage() {
   }, [loadData])
 
   useEffect(() => {
+    warmBookingSummaryTemplateCache()
+  }, [])
+
+  useEffect(() => {
     setSupplierFilter('')
   }, [castingDateIso])
 
@@ -209,7 +211,8 @@ export function BookingSummaryPage() {
     () =>
       requests.filter(
         (r) =>
-          rowMatchesSearch(r, searchQ) && bookingSummaryMatchesSupplierFilter(r, supplierFilter),
+          bookingSummaryMatchesSearch(r, searchQ) &&
+          bookingSummaryMatchesSupplierFilter(r, supplierFilter),
       ),
     [requests, searchQ, supplierFilter],
   )
@@ -251,7 +254,7 @@ export function BookingSummaryPage() {
       </header>
 
       <div className="mt-5 space-y-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg-2)]/40 px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="booking-summary-date" className="flex items-center gap-1.5 text-sm">
               <CalendarDays className="h-4 w-4 text-[color:var(--pour-accent)]" aria-hidden />
@@ -266,11 +269,31 @@ export function BookingSummaryPage() {
               className="w-[10.5rem] max-w-full"
             />
           </div>
-          <p className={cn(type.caption, 'pb-2 sm:pb-0.5')}>
-            วันเท {dateDisplay}
-            {supplierFilterLabel ? ` · ${supplierFilterLabel}` : ''} · {countSummaryText}
-          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 shrink-0 gap-1.5"
+            disabled={loading || filtered.length === 0}
+            onClick={() => {
+              try {
+                localPrintBookingSummary({
+                  castingDateIso,
+                  supplier: supplierFilter,
+                  search: debouncedSearch,
+                })
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : 'เปิดหน้าพิมพ์ไม่สำเร็จ')
+              }
+            }}
+          >
+            <Printer className="h-4 w-4" strokeWidth={ICON_STROKE} aria-hidden />
+            พิมพ์
+          </Button>
         </div>
+        <p className={cn(type.caption, 'pb-0.5')}>
+          วันเท {dateDisplay}
+          {supplierFilterLabel ? ` · ${supplierFilterLabel}` : ''} · {countSummaryText}
+        </p>
         <div className="min-w-0 space-y-1.5">
           <p className="text-sm text-pour-muted">
             Supplier <span className="font-normal">(วันเท {dateDisplay})</span>

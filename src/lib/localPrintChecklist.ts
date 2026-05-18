@@ -113,6 +113,34 @@ export function injectConcreteSummaryDocumentStyles(html: string): string {
   return CONCRETE_SUMMARY_PRINT_STYLES + withScreen
 }
 
+const BOOKING_SUMMARY_PRINT_STYLES = `<style id="cw-booking-summary-print-fix">
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  .a4-page[data-print-doc="booking-summary"] {
+    min-height: 0 !important;
+    height: auto !important;
+  }
+  .summary-table thead {
+    display: table-header-group;
+  }
+  .summary-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+</style>`
+
+export function injectBookingSummaryDocumentStyles(html: string): string {
+  const withScreen = injectPreviewScreenStyles(html)
+  if (/<\/head>/i.test(withScreen)) {
+    return withScreen.replace(/<\/head>/i, `${BOOKING_SUMMARY_PRINT_STYLES}</head>`)
+  }
+  return BOOKING_SUMMARY_PRINT_STYLES + withScreen
+}
+
 /** A4 แนวนอน @ 96dpi */
 export const A4_LANDSCAPE_WIDTH_PX = Math.round((297 * 96) / 25.4)
 export const A4_LANDSCAPE_HEIGHT_PX = Math.round((210 * 96) / 25.4)

@@ -90,6 +90,73 @@ export function bookingSummarySearchBlob(
     .toLowerCase()
 }
 
+export function bookingSummaryMatchesSearch(r: RequestWithRelations, q: string): boolean {
+  const search = q.trim().toLowerCase()
+  if (!search) return true
+  const f = getBookingSummaryRowFields(r)
+  const client = (r.client as { client_name?: string } | null)?.client_name
+  return bookingSummarySearchBlob(f, client).includes(search)
+}
+
+export function bookingSummarySupplierFilterLabel(supplierFilter: string): string {
+  if (!supplierFilter.trim()) return 'ทุก Supplier'
+  if (supplierFilter === BOOKING_SUMMARY_SUPPLIER_NONE) return '(ไม่ระบุ)'
+  return supplierFilter.trim()
+}
+
+export type BookingSummaryPrintRow = {
+  item: number
+  time: string
+  booker: string
+  bookerPhone: string
+  concrete: string
+  location: string
+  structure: string
+  structureNo: string
+  mixcode: string
+  strength: string
+  slump: string
+  volume: string
+  supplier: string
+  remark: string
+  acceptNo: string
+}
+
+function printCell(v: string | null | undefined): string {
+  if (v == null || v === '' || v === '-') return '-'
+  return v
+}
+
+export function formatBookingOkForPrint(value: boolean | null | undefined): string {
+  if (value === true) return 'Accept'
+  if (value === false) return 'No'
+  return '-'
+}
+
+export function toBookingSummaryPrintRow(
+  item: number,
+  r: RequestWithRelations,
+): BookingSummaryPrintRow {
+  const f = getBookingSummaryRowFields(r)
+  return {
+    item,
+    time: printCell(f.time),
+    booker: printCell(f.booker),
+    bookerPhone: printCell(f.bookerPhone),
+    concrete: printCell(f.concrete),
+    location: printCell(f.location),
+    structure: printCell(f.structure),
+    structureNo: printCell(f.structureNo),
+    mixcode: printCell(f.mixcode),
+    strength: printCell(f.strength),
+    slump: printCell(f.slump),
+    volume: printCell(f.volume),
+    supplier: printCell(f.supplier),
+    remark: printCell(f.remark),
+    acceptNo: formatBookingOkForPrint(r.booking_ok),
+  }
+}
+
 function bookerName(r: RequestWithRelations): string | null {
   const p = r.booked_by_profile as { fname?: string | null; lname?: string | null } | null | undefined
   if (!p) return null
@@ -104,8 +171,6 @@ function bookerPhone(r: RequestWithRelations): string | null {
 
 function bookingVolume(r: RequestWithRelations): string {
   if (r.volume_request != null) return formatVolumeNumber(r.volume_request)
-  if (r.volume_confirm != null) return formatVolumeNumber(r.volume_confirm)
-  if (r.volume_actual != null) return formatVolumeNumber(r.volume_actual)
   return '-'
 }
 
@@ -152,4 +217,30 @@ export function bookingSummaryMatchesCastingDate(
   castingDateIso: string,
 ): boolean {
   return activeCastingDateIso(r) === castingDateIso
+}
+
+function bookingSummaryRequestTimeKey(t: string | null | undefined): string {
+  const raw = t?.trim()
+  if (!raw) return '\uffff'
+  return raw.length > 8 ? raw.slice(0, 8) : raw
+}
+
+/** เรียงตาม Request time ก่อน ถ้าเท่ากันเรียงตาม booked_at (จองก่อนขึ้นก่อน) */
+export function compareBookingSummaryRequests(
+  a: RequestWithRelations,
+  b: RequestWithRelations,
+): number {
+  const byTime = bookingSummaryRequestTimeKey(a.request_time).localeCompare(
+    bookingSummaryRequestTimeKey(b.request_time),
+  )
+  if (byTime !== 0) return byTime
+  const byBooked = (a.booked_at ?? '').localeCompare(b.booked_at ?? '')
+  if (byBooked !== 0) return byBooked
+  return a.id.localeCompare(b.id)
+}
+
+export function sortBookingSummaryRequests(
+  rows: RequestWithRelations[],
+): RequestWithRelations[] {
+  return [...rows].sort(compareBookingSummaryRequests)
 }
