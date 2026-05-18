@@ -12,6 +12,7 @@ export interface Profile {
   client_id: number | null
   client_name: string | null
   job_id: number | null
+  avatar_url?: string | null
   created_at: string
 }
 

@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/shared/UserAvatar'
+import { readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import { formatDate } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Profile } from '@/types/app.types'
@@ -128,7 +129,15 @@ export function ProfilePage() {
           <div className="flex items-center gap-5">
             <div className="shrink-0 rounded-full bg-gradient-to-tr from-blue-400 via-blue-500 to-indigo-600 p-[3px] shadow-sm">
               <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[2px]">
-                <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="lg" className="h-[4.5rem] w-[4.5rem] border-0" />
+                <UserAvatar
+                  profile={profile}
+                  avatarUrl={resolveProfileAvatarUrl(profile!, {
+                    currentUserId: user?.id,
+                    sessionAvatarUrl: readAuthAvatarUrl(user?.user_metadata),
+                  })}
+                  size="lg"
+                  className="h-[4.5rem] w-[4.5rem] border-0"
+                />
               </div>
             </div>
             <div className="min-w-0 flex-1 space-y-1">

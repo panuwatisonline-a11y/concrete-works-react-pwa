@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useMemo } from 'react'
+﻿import { useCallback, useEffect, useState, useMemo } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -13,6 +13,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
+import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
+import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
@@ -20,6 +22,7 @@ import type { Profile, UserRole } from '@/types/app.types'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import type { UserStatus } from '@/types/app.types'
 
 const ROLES: UserRole[] = ['user', 'manager', 'admin']
@@ -45,10 +48,48 @@ function canModifyAdminTarget(actorEmail: string | undefined | null, target: Pro
   return normalizeEmail(actorEmail) === normalizeEmail(PROFILE_SUPER_ADMIN_EMAIL)
 }
 
+function userDisplayName(u: Profile) {
+  return [u.fname, u.lname].filter(Boolean).join(' ') || '-'
+}
+
+function displayPhone(u: Profile) {
+  const p = u.phone?.trim()
+  return p || '-'
+}
+
+function UserProfileAvatar({
+  profile,
+  className,
+  size = 'sm',
+  sessionAvatarUrl,
+  currentUserId,
+  onPreview,
+}: {
+  profile: Profile
+  className?: string
+  size?: 'sm' | 'md' | 'lg'
+  sessionAvatarUrl?: string | null
+  currentUserId?: string | null
+  onPreview?: (profile: Profile, avatarUrl: string) => void
+}) {
+  const avatarUrl = resolveProfileAvatarUrl(profile, { currentUserId, sessionAvatarUrl })
+  return (
+    <UserAvatar
+      profile={profile}
+      avatarUrl={avatarUrl}
+      size={size}
+      className={cn('shrink-0 ring-1 ring-[color:var(--glass-border-subtle)]', className)}
+      onImageClick={avatarUrl && onPreview ? () => onPreview(profile, avatarUrl) : undefined}
+    />
+  )
+}
+
 export function UsersPage() {
   const { clients, jobs } = useMasterDataStore()
   const currentProfileId = useAuthStore((s) => s.profile?.id)
-  const actorEmail = useAuthStore((s) => s.user?.email)
+  const authUser = useAuthStore((s) => s.user)
+  const actorEmail = authUser?.email
+  const sessionAvatarUrl = readAuthAvatarUrl(authUser?.user_metadata)
   const [users, setUsers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
   const [editUser, setEditUser] = useState<Profile | null>(null)
@@ -60,9 +101,18 @@ export function UsersPage() {
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
   const [userSearch, setUserSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all')
+  const [avatarPreview, setAvatarPreview] = useState<{ src: string; title: string } | null>(null)
+
+  const openAvatarPreview = useCallback((profile: Profile, avatarUrl: string) => {
+    const name = userDisplayName(profile)
+    setAvatarPreview({
+      src: profileAvatarPreviewUrl(avatarUrl),
+      title: name !== '-' ? name : 'รูปโปรไฟล์',
+    })
+  }, [])
 
   useDesktopSearchRegistration({
-    placeholder: 'ค้นหา รหัสพนักงาน ชื่อ นามสกุล Role Client โครงการ…',
+    placeholder: 'ค้นหา รหัสพนักงาน ชื่อ เบอร์โทร Role Client โครงการ…',
     ariaLabel: 'ค้นหาในตารางผู้ใช้',
     showRequestFilterButton: false,
     search: userSearch,
@@ -123,7 +173,7 @@ export function UsersPage() {
       if (!t) return true
       const c = clientLabel(u)
       const j = jobLabel(u)
-      const blob = [u.employee_id, u.fname, u.lname, u.role, c, j].join(' ').toLowerCase()
+      const blob = [u.employee_id, u.fname, u.lname, u.phone, u.role, c, j].join(' ').toLowerCase()
       return blob.includes(t)
     })
   }, [users, userSearch, statusFilter, clients, jobs])
@@ -232,29 +282,28 @@ export function UsersPage() {
             <div key={u.id} className={adminDataRow.card}>
               <dl className={adminDataRow.fields}>
                 <div>
-                  <dt className={adminDataRow.label}>ชื่อ-นามสกุล</dt>
-                  <dd className={cn(adminDataRow.value, 'font-semibold')}>
-                    {[u.fname, u.lname].filter(Boolean).join(' ') || '-'}
+                  <dt className={adminDataRow.label}>ชื่อ</dt>
+                  <dd className={cn(adminDataRow.value, 'flex min-w-0 items-center gap-2.5 font-semibold')}>
+                    <UserProfileAvatar
+                      profile={u}
+                      currentUserId={currentProfileId}
+                      sessionAvatarUrl={sessionAvatarUrl}
+                      onPreview={openAvatarPreview}
+                    />
+                    <span className="min-w-0 break-words">{userDisplayName(u)}</span>
                   </dd>
+                </div>
+                <div>
+                  <dt className={adminDataRow.label}>Client</dt>
+                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>รหัสพนักงาน</dt>
                   <dd className="font-pour-mono text-xs text-[color:var(--pour-ink-1)]">{u.employee_id ?? '-'}</dd>
                 </div>
                 <div>
-                  <dt className={cn(adminDataRow.label, 'mb-0.5')}>Role / สถานะ</dt>
-                  <dd className="flex flex-wrap gap-1.5">
-                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
-                      {ROLE_LABELS[u.role]}
-                    </Badge>
-                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
-                      {STATUS_BADGE[u.status].label}
-                    </span>
-                  </dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>Client</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
+                  <dt className={adminDataRow.label}>เบอร์โทร</dt>
+                  <dd className="font-pour-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">{displayPhone(u)}</dd>
                 </div>
                 <div>
                   <dt className={adminDataRow.label}>โครงการ</dt>
@@ -263,6 +312,22 @@ export function UsersPage() {
                 <div>
                   <dt className={adminDataRow.label}>วันที่สมัคร</dt>
                   <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{formatDate(u.created_at)}</dd>
+                </div>
+                <div>
+                  <dt className={adminDataRow.label}>Role</dt>
+                  <dd>
+                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
+                      {ROLE_LABELS[u.role]}
+                    </Badge>
+                  </dd>
+                </div>
+                <div>
+                  <dt className={adminDataRow.label}>สถานะ</dt>
+                  <dd>
+                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
+                      {STATUS_BADGE[u.status].label}
+                    </span>
+                  </dd>
                 </div>
               </dl>
               <div className={adminDataRow.actions}>
@@ -307,7 +372,7 @@ export function UsersPage() {
         <table className={tableCompact.table}>
           <thead className={tableCompact.head}>
             <tr>
-              {['รหัสพนักงาน', 'ชื่อ-นามสกุล', 'Role', 'สถานะ', 'Client', 'โครงการ', 'วันที่สมัคร', 'การจัดการ'].map((h) => (
+              {['ชื่อ', 'Client', 'รหัสพนักงาน', 'เบอร์โทร', 'โครงการ', 'วันที่สมัคร', 'Role', 'สถานะ', 'การจัดการ'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -315,13 +380,13 @@ export function UsersPage() {
           <tbody className={tableCompact.body}>
             {loading ? (
               <tr>
-                <td colSpan={8} className={tableCompact.emptyCell}>
+                <td colSpan={9} className={tableCompact.emptyCell}>
                   กำลังโหลด…
                 </td>
               </tr>
             ) : filteredUsers.length === 0 ? (
               <tr>
-                <td colSpan={8} className={tableCompact.emptyCell}>
+                <td colSpan={9} className={tableCompact.emptyCell}>
                   {users.length === 0 ? 'ไม่มีผู้ใช้' : 'ไม่พบผู้ใช้ที่ตรงกับคำค้น'}
                 </td>
               </tr>
@@ -330,8 +395,28 @@ export function UsersPage() {
                 const allowManage = canModifyAdminTarget(actorEmail, u)
                 return (
                 <tr key={u.id}>
+                  <td className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <UserProfileAvatar
+                        profile={u}
+                        currentUserId={currentProfileId}
+                        sessionAvatarUrl={sessionAvatarUrl}
+                        onPreview={openAvatarPreview}
+                      />
+                      <span className="min-w-0 break-words">{userDisplayName(u)}</span>
+                    </div>
+                  </td>
+                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
+                    {clientLabel(u)}
+                  </td>
                   <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
-                  <td className="min-w-0 break-words">{[u.fname, u.lname].filter(Boolean).join(' ') || '-'}</td>
+                  <td className="min-w-0 whitespace-nowrap font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">
+                    {displayPhone(u)}
+                  </td>
+                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
+                    {jobLabel(u)}
+                  </td>
+                  <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
                   <td className="min-w-0">
                     <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                       {ROLE_LABELS[u.role]}
@@ -342,13 +427,6 @@ export function UsersPage() {
                       {STATUS_BADGE[u.status].label}
                     </span>
                   </td>
-                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
-                    {clientLabel(u)}
-                  </td>
-                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
-                    {jobLabel(u)}
-                  </td>
-                  <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
                   <td className="shrink-0 whitespace-nowrap">
                     <div className="flex gap-0.5">
                       {allowManage && u.status === 'pending' && (
@@ -403,9 +481,18 @@ export function UsersPage() {
           </DialogHeader>
           {editUser && (
             <div className="min-w-0 space-y-4">
-              <p className="break-words text-sm leading-snug text-pour-muted">
-                {[editUser.fname, editUser.lname].filter(Boolean).join(' ') || editUser.employee_id || editUser.id}
-              </p>
+              <div className="flex min-w-0 items-center gap-3">
+                <UserProfileAvatar
+                  profile={editUser}
+                  size="lg"
+                  currentUserId={currentProfileId}
+                  sessionAvatarUrl={sessionAvatarUrl}
+                  onPreview={openAvatarPreview}
+                />
+                <p className="min-w-0 break-words text-sm leading-snug text-pour-muted">
+                  {userDisplayName(editUser) !== '-' ? userDisplayName(editUser) : editUser.employee_id || editUser.id}
+                </p>
+              </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>สถานะการอนุมัติ</p>
                 <Select value={draftStatus} onValueChange={(v) => setDraftStatus(v as UserStatus)}>
@@ -502,6 +589,15 @@ export function UsersPage() {
         description="จะลบเฉพาะข้อมูลโปรไฟล์ในระบบนี้ บัญชีล็อกอินอาจยังอยู่ที่ผู้ให้บริการ — ข้อมูลที่เชื่อมโยงอาจทำให้ลบไม่ได้"
         confirmLabel="ลบ"
         confirmVariant="destructive"
+      />
+
+      <ImageLightboxDialog
+        open={avatarPreview !== null}
+        onOpenChange={(open) => {
+          if (!open) setAvatarPreview(null)
+        }}
+        src={avatarPreview?.src}
+        title={avatarPreview?.title ?? 'รูปโปรไฟล์'}
       />
     </div>
   )

@@ -1,9 +1,8 @@
 import { type ElementType, type FocusEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
-  LogOut, PlusCircle, User, LayoutDashboard, Users,
-  Building2, MapPin, HardHat, Layers, FlaskConical, TestTube2, Code2, GitBranch, Briefcase, Gauge,
-  ChevronLeft, ChevronRight, Activity, Star, Files, ClipboardList, Pin, PinOff, BarChart3,
+  LogOut, PlusCircle, User, LayoutDashboard,
+  ChevronLeft, ChevronRight, Activity, Star, Files, ClipboardList, Pin, PinOff,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -14,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
+import { adminConsoleLinks } from '@/lib/adminNav'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 
@@ -35,30 +35,6 @@ const mainLinks: NavItem[] = [
 const REQUESTS_MINE = '/requests?view=latest&scope=mine' as const
 
 const [homeMainLink, ...restMainLinks] = mainLinks
-
-const cstConsoleLinks: NavItem[] = [
-  { to: '/cst', label: 'CST', icon: FlaskConical },
-  { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
-]
-
-const adminMenuLinks: NavItem[] = [
-  { to: '/admin/users', label: 'Users Settings', icon: Users },
-  { to: '/admin/client', label: 'Client', icon: Building2 },
-  { to: '/admin/location', label: 'Location', icon: MapPin },
-  { to: '/admin/concrete-works', label: 'Works', icon: HardHat },
-  { to: '/admin/structure', label: 'Structure', icon: Layers },
-  { to: '/admin/mixcode', label: 'Mixed Code', icon: TestTube2 },
-  { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
-  { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
-  { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/admin/cst-machine', label: 'CST Machine', icon: Gauge },
-]
-
-function adminConsoleLinks(role: string | null | undefined): NavItem[] {
-  if (role === 'admin') return [...cstConsoleLinks, ...adminMenuLinks]
-  if (role === 'manager') return [...cstConsoleLinks]
-  return []
-}
 
 const SIDEBAR_COLLAPSED_KEY = 'cw-desktop-sidebar-collapsed'
 const SIDEBAR_AUTOHIDE_KEY = 'cw-desktop-sidebar-autohide'

@@ -1,9 +1,8 @@
 import { useLayoutEffect, useRef, useState, type ElementType } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
-  Menu, X, LogOut, PlusCircle, User, LayoutDashboard, Users,
-  Building2, MapPin, HardHat, Layers, FlaskConical, Code2, GitBranch, Briefcase, Gauge,
-  Search, Star, Activity, Files, ClipboardList, BarChart3,
+  Menu, X, LogOut, PlusCircle, User, LayoutDashboard,
+  Search, Star, Activity, Files, ClipboardList,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -14,6 +13,7 @@ import { APP_HOME } from '@/lib/appHome'
 import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
+import { adminConsoleLinks } from '@/lib/adminNav'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { UserAvatar } from '@/components/shared/UserAvatar'
@@ -33,31 +33,6 @@ const mainLinks: NavItem[] = [
   { to: '/preview/forms', label: 'ตัวอย่างแบบฟอร์ม', icon: Files },
   { to: '/profile', label: 'โปรไฟล์', icon: User },
 ]
-
-const cstConsoleLinks: NavItem[] = [
-  { to: '/cst', label: 'CST', icon: FlaskConical },
-  { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
-]
-
-/** เมนูตั้งค่าใน drawer Admin (ไม่รวม Dashboard — แสดงแถบบนมือถือ + หมวดหลักใน drawer) */
-const adminMenuLinks: NavItem[] = [
-  { to: '/admin/users', label: 'Users Settings', icon: Users },
-  { to: '/admin/client', label: 'Client', icon: Building2 },
-  { to: '/admin/location', label: 'Location', icon: MapPin },
-  { to: '/admin/concrete-works', label: 'Works', icon: HardHat },
-  { to: '/admin/structure', label: 'Structure', icon: Layers },
-  { to: '/admin/mixcode', label: 'Mixed Code', icon: FlaskConical },
-  { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
-  { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
-  { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/admin/cst-machine', label: 'CST Machine', icon: Gauge },
-]
-
-function adminConsoleLinks(role: string | null | undefined): NavItem[] {
-  if (role === 'admin') return [...cstConsoleLinks, ...adminMenuLinks]
-  if (role === 'manager') return [...cstConsoleLinks]
-  return []
-}
 
 /** แถบหน้าหลักบนมือถือ — แทน bottom tab */
 function MobilePrimaryNav() {

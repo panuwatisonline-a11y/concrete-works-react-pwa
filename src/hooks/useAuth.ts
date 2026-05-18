@@ -1,12 +1,13 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
+import { readAuthAvatarUrl } from '@/lib/profileAvatar'
 import type { Profile } from '@/types/app.types'
 
 const AUTH_INIT_FAILSAFE_MS = 8_000
 const PROFILE_FETCH_TIMEOUT_MS = 14_000
 
-export async function loadProfile(userId: string) {
+export async function loadProfile(userId: string, authAvatarUrl?: string | null) {
   const { setProfile } = useAuthStore.getState()
   const query = supabase.from('profiles').select('*').eq('id', userId).single()
   const timeout = new Promise<{ data: null; error: { message: string } }>((resolve) => {
@@ -19,7 +20,17 @@ export async function loadProfile(userId: string) {
       setProfile(null)
       return
     }
-    setProfile((data ?? null) as Profile | null)
+    const row = (data ?? null) as Profile | null
+    if (!row) {
+      setProfile(null)
+      return
+    }
+    const avatarUrl = authAvatarUrl ?? row.avatar_url ?? null
+    const merged: Profile = avatarUrl ? { ...row, avatar_url: avatarUrl } : row
+    if (avatarUrl && row.avatar_url !== avatarUrl) {
+      void supabase.from('profiles').update({ avatar_url: avatarUrl }).eq('id', userId)
+    }
+    setProfile(merged)
   } catch (e) {
     console.error('profiles load:', e)
     setProfile(null)
@@ -48,7 +59,7 @@ export function useAuthInit() {
         }
         if (session?.user) {
           setUser(session.user)
-          void loadProfile(session.user.id)
+          void loadProfile(session.user.id, readAuthAvatarUrl(session.user.user_metadata))
         } else {
           setUser(null)
         }
@@ -68,7 +79,7 @@ export function useAuthInit() {
       try {
         if (session.user) {
           setUser(session.user)
-          void loadProfile(session.user.id)
+          void loadProfile(session.user.id, readAuthAvatarUrl(session.user.user_metadata))
         }
       } catch (e) {
         console.error('Auth state handler:', e)
