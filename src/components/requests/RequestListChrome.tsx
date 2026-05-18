@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { LayoutGrid, List, Plus } from 'lucide-react'
 import { useFilterStore } from '@/stores/filterStore'
@@ -109,12 +108,10 @@ export function RequestListPageHeader({
   title,
   subtitle,
   showCreate = true,
-  extraActions,
 }: {
   title: string
   subtitle?: string
   showCreate?: boolean
-  extraActions?: ReactNode
 }) {
   return (
     <header className={cn('flex min-w-0 flex-wrap items-end justify-between gap-4', anim.fadeIn)}>
@@ -122,24 +119,19 @@ export function RequestListPageHeader({
         <h1 className={type.hero}>{title}</h1>
         {subtitle ? <p className={cn('mt-1', type.caption)}>{subtitle}</p> : null}
       </div>
-      {(extraActions || showCreate) ? (
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {extraActions}
-          {showCreate ? (
-            <Link
-              to="/requests/new"
-              className={cn(
-                'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5',
-                'bg-[color:var(--pour-accent)] text-white shadow-sm',
-                'hover:bg-[color:var(--pour-accent-hover)]',
-                type.bodyStrong,
-              )}
-            >
-              <Plus className={icon.md} strokeWidth={ICON_STROKE} />
-              เพิ่มรายการจอง
-            </Link>
-          ) : null}
-        </div>
+      {showCreate ? (
+        <Link
+          to="/requests/new"
+          className={cn(
+            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5',
+            'bg-[color:var(--pour-accent)] text-white shadow-sm',
+            'hover:bg-[color:var(--pour-accent-hover)]',
+            type.bodyStrong,
+          )}
+        >
+          <Plus className={icon.md} strokeWidth={ICON_STROKE} />
+          เพิ่มรายการจอง
+        </Link>
       ) : null}
     </header>
   )

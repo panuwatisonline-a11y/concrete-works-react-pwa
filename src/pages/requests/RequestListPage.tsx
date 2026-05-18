@@ -40,7 +40,6 @@ import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
-import { CstShortcutCreateDialog } from '@/components/cst/CstShortcutCreateDialog'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
 import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
 import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
@@ -527,9 +526,7 @@ function RequestFeedCard({
 }
 
 export function RequestListPage() {
-  const { user, profile, role } = useAuthStore()
-  const canCstShortcut = role === 'admin' || role === 'manager'
-  const [shortcutOpen, setShortcutOpen] = useState(false)
+  const { user, profile } = useAuthStore()
   const location = useLocation()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
@@ -781,18 +778,6 @@ export function RequestListPage() {
               : `รายการทั้งหมด ${grandTotal} รายการ`
             : listSubtitle
         }
-        extraActions={
-          canCstShortcut ? (
-            <Button
-              type="button"
-              variant="outline"
-              className="shrink-0 rounded-lg border-[color:var(--pour-surface-border)]"
-              onClick={() => setShortcutOpen(true)}
-            >
-              บันทึกนอกระบบ (Complete)
-            </Button>
-          ) : undefined
-        }
       />
 
       <div className="mt-5">
@@ -831,14 +816,6 @@ export function RequestListPage() {
           {pagination}
         </div>
       )}
-
-      {canCstShortcut ? (
-        <CstShortcutCreateDialog
-          open={shortcutOpen}
-          onOpenChange={setShortcutOpen}
-          onCreated={() => void refreshPage()}
-        />
-      ) : null}
     </div>
   )
 }
