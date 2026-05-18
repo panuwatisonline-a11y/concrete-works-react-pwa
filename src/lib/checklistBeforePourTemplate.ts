@@ -22,9 +22,9 @@ export interface ChecklistBeforePourTemplateData {
   pageTotal: string
   /** ชื่อโครงการ (หัวฟอร์ม) */
   clientName: string
-  /** ชื่องาน */
+  /** ชื่องาน — Concrete work */
   workName: string
-  /** ชนิดโครงสร้าง */
+  /** ชนิดโครงสร้าง — Structure */
   structureType: string
   locationText: string
   structureNo: string
@@ -33,7 +33,9 @@ export interface ChecklistBeforePourTemplateData {
   /** ชั้นที่ */
   floorLevel: string
   requestDate: string
-  /** @deprecated ใช้ workName แทน — คงไว้เพื่อ backward compat */
+  /** วันที่ลายเซ็น — ใช้วันที่ตรวจสอบจากคำขอ */
+  signDate: string
+  /** @deprecated คงไว้เพื่อ backward compat — ชื่อ Structure */
   structureName: string
   concreteGrade: string
   remarks: string
@@ -63,6 +65,11 @@ function escapeHtml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
+}
+
+/** ชื่อโครงการบนหัวฟอร์ม — รวมเป็นบรรทัดเดียว */
+export function formatChecklistProjectNameDisplay(name: string): string {
+  return name.replace(/\s*\n+\s*/g, ' ').replace(/\s+/g, ' ').trim()
 }
 
 function formatLocation(req: RequestWithRelations): string {
@@ -125,14 +132,15 @@ export function fillChecklistBeforePourTemplate(
   const map: Record<string, string> = {
     pageCurrent: escapeHtml(data.pageCurrent),
     pageTotal: escapeHtml(data.pageTotal),
-    clientName: escapeHtml(data.clientName),
-    workName: escapeHtml(data.workName || data.structureName),
+    clientName: escapeHtml(formatChecklistProjectNameDisplay(data.clientName)),
+    workName: escapeHtml(data.workName),
     structureType: escapeHtml(data.structureType),
     locationText: escapeHtml(data.locationText),
     structureNo: escapeHtml(data.structureNo),
     pourSequence: escapeHtml(data.pourSequence),
     floorLevel: escapeHtml(data.floorLevel),
     requestDate: escapeHtml(data.requestDate),
+    signDate: escapeHtml(data.signDate),
     structureName: escapeHtml(data.structureName),
     concreteGrade: escapeHtml(data.concreteGrade),
     concreteGradeDisplay: escapeHtml(formatChecklistConcreteGradeDisplay(data.concreteGrade)),
@@ -172,20 +180,23 @@ export function checklistTemplateDataFromRequest(
   req: RequestWithRelations,
   options?: ChecklistFromRequestOptions,
 ): ChecklistBeforePourTemplateData {
+  const concreteWorkName = req.concrete_work?.concrete_work?.trim() ?? ''
   const structureName = req.structure?.structure_name?.trim() ?? ''
   const structureNo = req.structure_no?.trim() ?? ''
+  const inspectionDate =
+    options?.requestDateFormatted?.trim() || formatChecklistInspectionDate(req)
   return {
     pageCurrent: options?.pageCurrent ?? '1',
     pageTotal: options?.pageTotal ?? '1',
     clientName: bookerProjectName(req),
-    workName: structureName,
-    structureType: '',
+    workName: concreteWorkName,
+    structureType: structureName,
     locationText: formatLocation(req),
     structureNo,
     pourSequence: '',
     floorLevel: '',
-    requestDate:
-      options?.requestDateFormatted?.trim() || formatChecklistInspectionDate(req),
+    requestDate: inspectionDate,
+    signDate: inspectionDate,
     structureName,
     concreteGrade: formatConcreteGrade(req),
     remarks: req.remarks?.trim() ?? '',

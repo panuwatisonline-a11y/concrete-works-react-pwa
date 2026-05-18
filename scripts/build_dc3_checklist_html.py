@@ -144,18 +144,22 @@ def side_cell(letter: str, desc: str) -> str:
     )
 
 
-def sign_pane(party: str, role_title: str, unit_key: str, *, pane_end: bool = False) -> str:
+def sign_pane(
+    party: str,
+    role_title: str,
+    unit_key: str,
+    date_key: str,
+    *,
+    pane_end: bool = False,
+) -> str:
     pane_cls = " sig-pane--left" if pane_end else ""
     return f"""          <div class="sig-pane{pane_cls}" aria-label="{esc(party)}">
-            <div class="sig-header">
-              <span class="sig-party">{esc(party)} :</span>
-            </div>
-            <div class="sig-stage" aria-hidden="true">
-              <div class="sig-line"></div>
-            </div>
-            <div class="sig-footer">
-              <p class="sig-title">{esc(role_title)}</p>
+            <p class="sig-party">{esc(party)}</p>
+            <div class="sig-body">
+              <div class="sig-pad" aria-hidden="true"></div>
+              <p class="sig-role">{esc(role_title)}</p>
               <p class="sig-unit">{unit_key}</p>
+              <p class="sig-date"><span class="sig-date-lbl">วันที่ :</span> <span class="sig-date-val">{date_key}</span></p>
             </div>
           </div>"""
 
@@ -231,25 +235,23 @@ CSS = """
       border-bottom: var(--chk-border);
       padding-bottom: 5px;
     }
-    .header-top {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px 12px;
-      align-items: center;
-      margin-bottom: 4px;
-    }
     .project-name {
-      margin: 0;
+      margin: 0 auto 4px;
+      max-width: 100%;
       font-size: 0.95rem;
       font-weight: 700;
       line-height: 1.35;
-      white-space: pre-line;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .header-brand {
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-width: 0;
+      width: fit-content;
+      margin: 0 auto 4px;
     }
     .logos {
       display: flex;
@@ -359,12 +361,6 @@ CSS = """
     table.meta-table td.pane-end {
       border-right: none;
     }
-    table.meta-table tr + tr td {
-      border-top: none;
-    }
-    table.meta-table tbody tr td {
-      border-bottom: var(--chk-border);
-    }
     table.form {
       margin-bottom: 0;
     }
@@ -416,26 +412,30 @@ CSS = """
     col.cw-c { width: 7%; }
     col.cw-nc { width: 7%; }
     col.cw-dept { width: 17%; }
-    .meta-label {
-      font-weight: 700;
-      white-space: nowrap;
+    .meta-field {
       font-size: 0.86rem;
-      line-height: 1.2;
-      color: #111827;
-      background: #fff;
-      padding: 4px 6px;
-      width: 25%;
-    }
-    .meta-val {
-      font-size: 0.88rem;
       line-height: 1.3;
-      padding: 3px 6px 4px;
+      padding: 4px 6px;
       min-height: 1.35em;
       vertical-align: bottom;
       background: #fff;
-      border-bottom: 1px dotted #334155;
+      color: #111827;
     }
-    .meta-date { white-space: nowrap; }
+    .meta-field .meta-lbl {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .meta-field .meta-val {
+      font-weight: 400;
+    }
+    .meta-field.meta-date { white-space: nowrap; }
+    .meta-field.meta-spacer {
+      padding: 0;
+      min-height: 0;
+    }
+    table.meta-table tr + tr td {
+      border-top: none;
+    }
     .thead-label {
       text-align: left;
       font-size: 0.86rem;
@@ -577,55 +577,68 @@ CSS = """
     .sig-pane {
       display: flex;
       flex-direction: column;
-      min-height: 24mm;
+      min-height: 26mm;
       padding: 0;
+      text-align: center;
     }
     .sig-pane--left {
       border-right: var(--chk-border);
     }
-    .sig-header {
-      padding: 4px 10px 3px;
-      font-size: 0.86rem;
+    .sig-party {
+      margin: 0;
+      padding: 4px 8px;
+      font-size: 0.84rem;
+      font-weight: 700;
       line-height: 1.2;
-      background: #fff;
+      color: var(--chk-head-color);
+      background: var(--chk-head-bg);
       border-bottom: var(--chk-border);
     }
-    .sig-party {
-      font-weight: 600;
-      color: #334155;
-    }
-    .sig-stage {
+    .sig-body {
       flex: 1 1 auto;
       display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      min-height: 11mm;
-      padding: 4px 10px 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      width: 100%;
+      padding: 6px 12px 8px;
+      min-height: 0;
     }
-    .sig-line {
-      width: 82%;
-      max-width: 62mm;
-      height: 0;
+    .sig-pad {
+      flex: 1 1 auto;
+      width: 72%;
+      max-width: 58mm;
+      min-height: 12mm;
+      margin: 2px auto 8px;
       border-bottom: var(--chk-border);
     }
-    .sig-footer {
-      text-align: center;
-      padding: 3px 10px 5px;
-    }
-    .sig-title {
+    .sig-role {
       margin: 0 0 2px;
       font-size: 0.86rem;
       font-weight: 700;
-      line-height: 1.25;
+      line-height: 1.3;
       color: #111827;
     }
     .sig-unit {
-      margin: 0;
-      font-size: 0.76rem;
+      margin: 0 0 4px;
+      font-size: 0.78rem;
       font-weight: 600;
-      line-height: 1.2;
-      color: #64748b;
+      line-height: 1.25;
+      color: #475569;
       letter-spacing: 0.01em;
+    }
+    .sig-date {
+      margin: 0;
+      width: 100%;
+      font-size: 0.78rem;
+      line-height: 1.25;
+      color: #111827;
+    }
+    .sig-date-lbl {
+      font-weight: 700;
+    }
+    .sig-date-val {
+      font-weight: 400;
     }
     .doc-foot {
       display: grid;
@@ -681,17 +694,15 @@ HTML = f"""<!DOCTYPE html>
   <div class="a4-page" data-print-doc="checklist">
     <div class="sheet" aria-label="F-INS-ST-DC3-01">
       <header class="sheet-header">
-        <div class="header-top">
-          <p class="project-name">{{{{clientName}}}}</p>
-          <div class="header-brand">
-            <div class="logos">
-              <img src="/templates/cst-report-logo-2.png" alt="" />
-              <img src="/templates/cst-report-logo-1.png" alt="" />
-              <img src="/templates/cst-report-logo-3.png" alt="" />
-            </div>
-            <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
+        <div class="header-brand">
+          <div class="logos">
+            <img src="/templates/cst-report-logo-2.png" alt="" />
+            <img src="/templates/cst-report-logo-1.png" alt="" />
+            <img src="/templates/cst-report-logo-3.png" alt="" />
           </div>
+          <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
         </div>
+        <p class="project-name">{{{{clientName}}}}</p>
         <h1 class="doc-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</h1>
         <p class="doc-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</p>
       </header>
@@ -703,24 +714,18 @@ HTML = f"""<!DOCTYPE html>
         </colgroup>
         <tbody>
           <tr>
-            <td colspan="2" class="meta-label">ชื่องาน :</td>
-            <td colspan="6" class="meta-val">{{{{workName}}}}</td>
-            <td colspan="2" class="meta-label">ชนิดโครงสร้าง :</td>
-            <td colspan="6" class="meta-val">{{{{structureType}}}}</td>
+            <td colspan="8" class="meta-field"><span class="meta-lbl">ชื่องาน :</span> <span class="meta-val">{{{{workName}}}}</span></td>
+            <td colspan="5" class="meta-field"><span class="meta-lbl">ชนิดโครงสร้าง :</span> <span class="meta-val">{{{{structureType}}}}</span></td>
+            <td colspan="3" class="meta-field meta-date"><span class="meta-lbl">วันที่ :</span> <span class="meta-val">{{{{requestDate}}}}</span></td>
           </tr>
           <tr>
-            <td colspan="2" class="meta-label">หมายเลขโครงสร้าง :</td>
-            <td colspan="6" class="meta-val">{{{{structureNo}}}}</td>
-            <td colspan="2" class="meta-label">สถานที่/ กม. :</td>
-            <td colspan="6" class="meta-val">{{{{locationText}}}}</td>
+            <td colspan="8" class="meta-field"><span class="meta-lbl">หมายเลขโครงสร้าง :</span> <span class="meta-val">{{{{structureNo}}}}</span></td>
+            <td colspan="8" class="meta-field"><span class="meta-lbl">สถานที่/ กม. :</span> <span class="meta-val">{{{{locationText}}}}</span></td>
           </tr>
           <tr>
-            <td colspan="2" class="meta-label">เทคอนกรีตครั้งที่ :</td>
-            <td colspan="6" class="meta-val">{{{{pourSequence}}}}</td>
-            <td colspan="2" class="meta-label">ชั้นที่ :</td>
-            <td colspan="2" class="meta-val">{{{{floorLevel}}}}</td>
-            <td class="meta-label">วันที่ :</td>
-            <td colspan="3" class="meta-val meta-date">{{{{requestDate}}}}</td>
+            <td colspan="8" class="meta-field"><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> <span class="meta-val">{{{{pourSequence}}}}</span></td>
+            <td colspan="4" class="meta-field"><span class="meta-lbl">ชั้นที่ :</span> <span class="meta-val">{{{{floorLevel}}}}</span></td>
+            <td colspan="4" class="meta-field meta-spacer" aria-hidden="true"></td>
           </tr>
         </tbody>
       </table>
@@ -764,8 +769,8 @@ HTML = f"""<!DOCTYPE html>
         </div>
 
         <div class="sign-block" aria-label="ลายเซ็น">
-{sign_pane("ผู้รับจ้าง", "วิศวกรควบคุมงาน", "{{{{contractorUnit}}}}", pane_end=True)}
-{sign_pane("ที่ปรึกษา", "ผู้ควบคุมงาน", "{{{{consultantUnit}}}}")}
+{sign_pane("ผู้รับจ้าง", "วิศวกรควบคุมงาน", "{{{{contractorUnit}}}}", "{{{{signDate}}}}", pane_end=True)}
+{sign_pane("ที่ปรึกษา", "ผู้ควบคุมงาน", "{{{{consultantUnit}}}}", "{{{{signDate}}}}")}
         </div>
       </div>
 
