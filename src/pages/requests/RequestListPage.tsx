@@ -40,6 +40,9 @@ import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
+import { CstShortcutCreateDialog } from '@/components/cst/CstShortcutCreateDialog'
+import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
+import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
 import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 
 const LIST_LAYOUT_KEY = 'cw-request-list-layout'
@@ -283,6 +286,7 @@ function RequestFeedCard({
   const bookerEmp = booker?.employee_id?.trim() || null
   const bookerDisplay = [bookerName || null, bookerEmp].filter(Boolean).join(' · ') || 'ไม่ระบุ'
   const isMyBooking = Boolean(user?.id && r.booked_by === user.id)
+  const nonSystemBooking = isNonSystemBookingRequest(r)
 
   const volumeFeed =
     r.volume_confirm != null
@@ -316,8 +320,9 @@ function RequestFeedCard({
               ) : (
                 <span className="text-4xl font-bold text-white/85">{initial}</span>
               )}
-              <div className="absolute right-2.5 top-2.5">
+              <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">
                 <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0 shadow-sm" />
+                {nonSystemBooking ? <NonSystemBookingBadge /> : null}
               </div>
             </div>
             <div className="pour-file-card-footer px-3.5 py-3">
@@ -328,6 +333,11 @@ function RequestFeedCard({
                 ) : null}
               </p>
               <p className={cn('mt-1 truncate', type.caption)}>{metaLine}</p>
+              {nonSystemBooking ? (
+                <p className="mt-1.5">
+                  <NonSystemBookingBadge />
+                </p>
+              ) : null}
               <p className={cn('mt-1.5 text-[color:var(--pour-ink-3)]', type.caption)}>แก้ไขล่าสุด · {editedLine}</p>
             </div>
           </Link>
@@ -423,8 +433,9 @@ function RequestFeedCard({
                     <p className={cn('mt-0.5 pour-desktop:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
                   ) : null}
                   <p className={cn('mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
-                    <span className={cn('shrink-0', type.caption)}>จองโดย</span>
+                    <span className={cn('shrink-0', type.caption)}>{nonSystemBooking ? 'บันทึกโดย' : 'จองโดย'}</span>
                     <span className={cn('min-w-0', type.bodyStrong)}>{bookerDisplay}</span>
+                    {nonSystemBooking ? <NonSystemBookingBadge /> : null}
                     {isMyBooking ? (
                       <span className="shrink-0 rounded-md bg-[var(--pour-accent-muted)] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--pour-accent-hover)]">
                         คุณ
@@ -516,7 +527,9 @@ function RequestFeedCard({
 }
 
 export function RequestListPage() {
-  const { user, profile } = useAuthStore()
+  const { user, profile, role } = useAuthStore()
+  const canCstShortcut = role === 'admin' || role === 'manager'
+  const [shortcutOpen, setShortcutOpen] = useState(false)
   const location = useLocation()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
@@ -768,6 +781,18 @@ export function RequestListPage() {
               : `รายการทั้งหมด ${grandTotal} รายการ`
             : listSubtitle
         }
+        extraActions={
+          canCstShortcut ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="shrink-0 rounded-lg border-[color:var(--pour-surface-border)]"
+              onClick={() => setShortcutOpen(true)}
+            >
+              บันทึกนอกระบบ (Complete)
+            </Button>
+          ) : undefined
+        }
       />
 
       <div className="mt-5">
@@ -806,6 +831,14 @@ export function RequestListPage() {
           {pagination}
         </div>
       )}
+
+      {canCstShortcut ? (
+        <CstShortcutCreateDialog
+          open={shortcutOpen}
+          onOpenChange={setShortcutOpen}
+          onCreated={() => void refreshPage()}
+        />
+      ) : null}
     </div>
   )
 }

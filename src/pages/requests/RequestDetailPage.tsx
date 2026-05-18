@@ -30,6 +30,8 @@ import type { CstTestAge, RequestWithRelations, RequestLogWithProfile } from '@/
 import { fetchCstByRequestId } from '@/lib/cstData'
 import { CstFormDialog } from '@/components/requests/CstFormDialog'
 import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
+import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
+import { isNonSystemBookingRequest, remarksForDisplay } from '@/lib/nonSystemBooking'
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -177,6 +179,8 @@ export function RequestDetailPage() {
   const sid = request.status_id
   const isOwner = request.booked_by === user?.id
   const canAct = role === 'admin' || role === 'manager'
+  const nonSystemBooking = isNonSystemBookingRequest(request)
+  const remarksDisplay = remarksForDisplay(request.remarks)
 
   const mx = request.mixcode as { mixcode: string; strength: number | null; slump: string | null; strength_type: string | null } | null
 
@@ -188,6 +192,7 @@ export function RequestDetailPage() {
           <span className="flex flex-wrap items-center gap-2">
             <span className="font-pour-mono text-base font-bold tracking-tight text-[color:var(--pour-ink-1)] pour-desktop:text-lg">{shortId(request.id)}</span>
             <StatusBadge statusId={sid} size="lg" />
+            {nonSystemBooking ? <NonSystemBookingBadge /> : null}
           </span>
         }
         subtitle={<>วันเท {formatDate(request.casting_date)} · {formatTime(request.request_time)}</>}
@@ -406,16 +411,24 @@ export function RequestDetailPage() {
         </Card>
       )}
 
-      {request.remarks && (
+      {nonSystemBooking ? (
+        <Card className={cn(rq.card, 'border-amber-200/60 bg-amber-50/40')}>
+          <CardContent className={cn(rq.cardContent, 'text-sm text-amber-950')}>
+            รายการนี้<strong className="font-semibold">ไม่ได้จองผ่านระบบ</strong> — บันทึกตรงเป็นสถานะ Complete (เช่น จาก CST shortcut)
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {remarksDisplay ? (
         <Card className={rq.card}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
             <CardTitle className={rq.cardTitle}>หมายเหตุ</CardTitle>
           </CardHeader>
           <CardContent className={rq.cardContent}>
-            <p className="whitespace-pre-wrap rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--pour-ink-1)] ring-1 ring-[color:var(--pour-surface-border)]/80">{request.remarks}</p>
+            <p className="whitespace-pre-wrap rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--pour-ink-1)] ring-1 ring-[color:var(--pour-surface-border)]/80">{remarksDisplay}</p>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
       {/* History */}
       <Card className={rq.card}>

@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { FlaskConical, ExternalLink } from 'lucide-react'
+import { FlaskConical, ExternalLink, Plus } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
@@ -13,6 +13,9 @@ import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
 import { CstBlankPrintButton } from '@/components/cst/CstBlankPrintButton'
 import { CstFilterByDatePanel } from '@/components/cst/CstFilterByDatePanel'
 import { CstListSection } from '@/components/cst/CstListSection'
+import { CstShortcutCreateDialog } from '@/components/cst/CstShortcutCreateDialog'
+import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
+import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
 import { cstAgesDueToday, todayIsoLocal } from '@/lib/cstListDue'
 import { cstTestDateDisplay, cstTestDateDisplayShort } from '@/lib/cstForm'
 import { CST_TEST_AGES } from '@/types/app.types'
@@ -138,6 +141,7 @@ function CstMobileCard({
   emphasizeAges?: CstTestAge[]
 }) {
   const f = getCstRowFields(r)
+  const nonSystemBooking = isNonSystemBookingRequest(r)
   const rows: [string, string | null | undefined][] = [
     ['Concrete Work', f.concrete],
     ['Structure', f.structure],
@@ -159,7 +163,10 @@ function CstMobileCard({
             <p className="text-sm font-semibold leading-tight">{f.structure ?? f.location ?? '—'}</p>
             <p className="mt-px text-[10px] text-pour-muted">{f.castingDate}</p>
           </div>
-          <StatusBadge statusId={r.status_id} size="sm" compact />
+          <div className="flex shrink-0 flex-col items-end gap-1">
+            <StatusBadge statusId={r.status_id} size="sm" compact />
+            {nonSystemBooking ? <NonSystemBookingBadge /> : null}
+          </div>
         </div>
         <div className="grid grid-cols-[minmax(5.25rem,auto)_1fr] gap-x-2 gap-y-0.5 px-3 py-2">
           {rows.map(([label, value]) =>
@@ -312,6 +319,7 @@ export function CstListPage() {
   const [dialogRequest, setDialogRequest] = useState<RequestWithRelations | null>(null)
   const [cstAge, setCstAge] = useState<CstTestAge | null>(null)
   const [infoRequest, setInfoRequest] = useState<RequestWithRelations | null>(null)
+  const [shortcutOpen, setShortcutOpen] = useState(false)
 
   const filterKey = JSON.stringify({
     search: filter.search,
@@ -495,6 +503,15 @@ export function CstListPage() {
               )
             })}
           </nav>
+          <Button
+            type="button"
+            size="sm"
+            className="shrink-0 rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
+            onClick={() => setShortcutOpen(true)}
+          >
+            <Plus className={cn(icon.sm, 'mr-1.5')} strokeWidth={ICON_STROKE} aria-hidden />
+            เพิ่มรายการ (Complete)
+          </Button>
         </div>
       </div>
 
@@ -611,6 +628,15 @@ export function CstListPage() {
           onSaved={handleCstSaved}
         />
       )}
+
+      <CstShortcutCreateDialog
+        open={shortcutOpen}
+        onOpenChange={setShortcutOpen}
+        onCreated={() => {
+          void loadData({ background: true })
+          if (tab === 'filter') void loadFilterData({ background: true })
+        }}
+      />
     </div>
   )
 }
