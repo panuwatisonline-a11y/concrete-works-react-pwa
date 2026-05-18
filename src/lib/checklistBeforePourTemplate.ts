@@ -8,26 +8,48 @@ type BookerProfileWithJob = Profile & {
 /** Path under `public/` — served as static file by Vite */
 export const CHECKLIST_BEFORE_POUR_TEMPLATE_PATH = '/templates/checklist-before-concrete-placement.html'
 
-/** ค่าท้ายฟอร์มคงที่ — ไม่เปลี่ยนตามคำขอ (ตาม ST-F-QC-01) */
+/** ค่าท้ายฟอร์มคงที่ — F-INS-ST-DC3-01 */
 export const CHECKLIST_TEMPLATE_STATIC_DEFAULTS = {
-  documentNo: 'ST-F-QC-01',
+  documentNo: 'F-INS-ST-DC3-01',
   issueNo: 'Issue No.1',
-  issueDate: '26/02/2018',
+  issueDate: '25 Feb. 2022',
+  contractorUnit: 'JV CKST-DC3',
+  consultantUnit: 'CSC C3',
 } as const
 
 export interface ChecklistBeforePourTemplateData {
   pageCurrent: string
   pageTotal: string
+  /** ชื่อโครงการ (หัวฟอร์ม) */
   clientName: string
+  /** ชื่องาน */
+  workName: string
+  /** ชนิดโครงสร้าง */
+  structureType: string
   locationText: string
   structureNo: string
+  /** เทคอนกรีตครั้งที่ */
+  pourSequence: string
+  /** ชั้นที่ */
+  floorLevel: string
   requestDate: string
+  /** @deprecated ใช้ workName แทน — คงไว้เพื่อ backward compat */
   structureName: string
   concreteGrade: string
   remarks: string
+  /** @deprecated ยังไม่ใช้ — ชื่อผู้ตรวจฝั่งผู้รับจ้าง */
   inspectorName: string
+  /** @deprecated ยังไม่ใช้ */
+  inspectorTitle: string
+  /** @deprecated ยังไม่ใช้ — ชื่อผู้ตรวจฝั่งที่ปรึกษา */
   witnessName: string
+  /** @deprecated ยังไม่ใช้ */
+  witnessTitle: string
+  contractorUnit: string
+  consultantUnit: string
+  /** @deprecated ไม่แสดงบนแบบ F-INS-ST-DC3-01 */
   contractorName: string
+  /** @deprecated ไม่แสดงบนแบบ F-INS-ST-DC3-01 */
   consultantName: string
   documentNo: string
   issueNo: string
@@ -49,6 +71,14 @@ function formatLocation(req: RequestWithRelations): string {
   const full = loc.full_location?.trim()
   if (full) return full
   return [loc.location1, loc.location2, loc.location3].filter(Boolean).join(' ')
+}
+
+/** แสดงบนฟอร์มเป็น "300 ksc." ตามแบบ F-INS-ST-DC3-01 */
+export function formatChecklistConcreteGradeDisplay(grade: string): string {
+  const g = grade.trim()
+  if (!g) return ''
+  if (/\bksc\.?/i.test(g)) return g.endsWith('.') ? g : `${g}.`
+  return `${g} ksc.`
 }
 
 function formatConcreteGrade(req: RequestWithRelations): string {
@@ -81,14 +111,6 @@ export function formatChecklistInspectionDate(req: RequestWithRelations): string
   return raw ? formatChecklistDisplayDate(raw) : ''
 }
 
-function profileDisplayName(p: Profile | undefined): string {
-  if (!p) return ''
-  const a = p.fname?.trim() ?? ''
-  const b = p.lname?.trim() ?? ''
-  const name = [a, b].filter(Boolean).join(' ')
-  return name || p.employee_id?.trim() || ''
-}
-
 export async function loadChecklistBeforePourTemplate(): Promise<string> {
   const res = await fetch(CHECKLIST_BEFORE_POUR_TEMPLATE_PATH)
   if (!res.ok) throw new Error(`Failed to load checklist template: ${res.status}`)
@@ -104,14 +126,23 @@ export function fillChecklistBeforePourTemplate(
     pageCurrent: escapeHtml(data.pageCurrent),
     pageTotal: escapeHtml(data.pageTotal),
     clientName: escapeHtml(data.clientName),
+    workName: escapeHtml(data.workName || data.structureName),
+    structureType: escapeHtml(data.structureType),
     locationText: escapeHtml(data.locationText),
     structureNo: escapeHtml(data.structureNo),
+    pourSequence: escapeHtml(data.pourSequence),
+    floorLevel: escapeHtml(data.floorLevel),
     requestDate: escapeHtml(data.requestDate),
     structureName: escapeHtml(data.structureName),
     concreteGrade: escapeHtml(data.concreteGrade),
+    concreteGradeDisplay: escapeHtml(formatChecklistConcreteGradeDisplay(data.concreteGrade)),
     remarks: escapeHtml(data.remarks),
     inspectorName: escapeHtml(data.inspectorName),
+    inspectorTitle: escapeHtml(data.inspectorTitle),
     witnessName: escapeHtml(data.witnessName),
+    witnessTitle: escapeHtml(data.witnessTitle),
+    contractorUnit: escapeHtml(data.contractorUnit),
+    consultantUnit: escapeHtml(data.consultantUnit),
     contractorName: escapeHtml(data.contractorName),
     consultantName: escapeHtml(data.consultantName),
     documentNo: escapeHtml(data.documentNo),
@@ -128,7 +159,9 @@ export function fillChecklistBeforePourTemplate(
 export interface ChecklistFromRequestOptions {
   /** วันที่แสดงในฟอร์ม (เช่น format ไทยแล้ว) — ถ้าไม่ส่ง ใช้ `request_date` ดิบ */
   requestDateFormatted?: string
+  /** @deprecated ยังไม่ใช้ */
   witnessName?: string
+  /** @deprecated ยังไม่ใช้ */
   inspectorNameOverride?: string
   pageCurrent?: string
   pageTotal?: string
@@ -141,24 +174,27 @@ export function checklistTemplateDataFromRequest(
 ): ChecklistBeforePourTemplateData {
   const structureName = req.structure?.structure_name?.trim() ?? ''
   const structureNo = req.structure_no?.trim() ?? ''
-  const inspectorName =
-    options?.inspectorNameOverride?.trim() ||
-    profileDisplayName(req.inspected_by_profile) ||
-    profileDisplayName(req.booked_by_profile)
-
   return {
     pageCurrent: options?.pageCurrent ?? '1',
     pageTotal: options?.pageTotal ?? '1',
     clientName: bookerProjectName(req),
+    workName: structureName,
+    structureType: '',
     locationText: formatLocation(req),
     structureNo,
+    pourSequence: '',
+    floorLevel: '',
     requestDate:
       options?.requestDateFormatted?.trim() || formatChecklistInspectionDate(req),
     structureName,
     concreteGrade: formatConcreteGrade(req),
     remarks: req.remarks?.trim() ?? '',
-    inspectorName,
-    witnessName: options?.witnessName?.trim() ?? '',
+    inspectorName: '',
+    inspectorTitle: '',
+    witnessName: '',
+    witnessTitle: '',
+    contractorUnit: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.contractorUnit,
+    consultantUnit: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.consultantUnit,
     contractorName: '',
     consultantName: '',
     documentNo: CHECKLIST_TEMPLATE_STATIC_DEFAULTS.documentNo,

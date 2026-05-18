@@ -15,7 +15,7 @@ import {
   CST_REPORT_TEMPLATE_STATIC_DEFAULTS,
 } from '@/lib/cstStrengthReportTemplate'
 import { Button } from '@/components/ui/button'
-import { injectPreviewScreenStyles } from '@/lib/localPrintChecklist'
+import { injectChecklistDocumentStyles, injectPreviewScreenStyles } from '@/lib/localPrintChecklist'
 import { theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -23,17 +23,23 @@ const CHECKLIST_SAMPLE: ChecklistBeforePourTemplateData = {
   pageCurrent: '1',
   pageTotal: '1',
   clientName:
-    'บริษัท สยามไทยคอนกรีต จำกัด — โครงการก่อสร้างทางหลวงหมายเลข 7 สายบางนา–ตราด ช่วงกม. 12+500 ถึง 15+200',
-  locationText: 'บริเวณเสาสะพาน P12–P15 ฝั่งขาออก ใกล้ทางแยกบางบ่อ',
-  structureNo: 'C-12',
+    'โครงการก่อสร้างทางรถไฟ สายเด่นชัย-เชียงราย-เชียงของ\nสัญญาที่ 3 ช่วงเชียงราย - เชียงของ',
+  workName: 'เสาตอม่อ S12 ช่วงกม. 245+500',
+  structureType: 'เสาตอม่อ',
+  locationText: 'กม. 245+500',
+  structureNo: 'P12',
+  pourSequence: '1',
+  floorLevel: 'Foundation',
   requestDate: '15/05/2026',
-  structureName: 'Deck ชั้น 2',
-  concreteGrade: '350 ksc',
-  remarks: 'ตัวอย่างหมายเหตุการตรวจก่อนเท',
-  inspectorName: 'สมชาย ใจดี',
+  structureName: 'เสาตอม่อ S12 ช่วงกม. 245+500',
+  concreteGrade: '300',
+  remarks: '',
+  inspectorName: '',
+  inspectorTitle: '',
   witnessName: '',
-  contractorName: 'SINO-THAI',
-  consultantName: 'CSCS',
+  witnessTitle: '',
+  contractorName: '',
+  consultantName: '',
   ...CHECKLIST_TEMPLATE_STATIC_DEFAULTS,
 }
 
@@ -422,7 +428,9 @@ export function FormTemplatesPreviewPage() {
     setChecklistError(null)
     try {
       const raw = await loadChecklistBeforePourTemplate()
-      setChecklistHtml(fillChecklistBeforePourTemplate(raw, CHECKLIST_SAMPLE))
+      setChecklistHtml(
+        injectChecklistDocumentStyles(fillChecklistBeforePourTemplate(raw, CHECKLIST_SAMPLE)),
+      )
     } catch (e) {
       setChecklistError(e instanceof Error ? e.message : String(e))
       setChecklistHtml(null)

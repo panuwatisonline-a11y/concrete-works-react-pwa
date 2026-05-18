@@ -6,791 +6,315 @@
   <title>Check List Before Concrete Placement</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    /* พิมพ์เต็มแผ่น — margin ควบคุมด้วย padding ใน .a4-page ให้ตรงกับหน้าจอ */
-    @page {
-      size: 210mm 297mm;
-      margin: 0;
-    }
+    @page { size: 210mm 297mm; margin: 0; }
     * { box-sizing: border-box; }
     html {
-      font-size: 9.5pt;
+      font-size: 11pt;
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
     body {
       margin: 0;
-      font-family: Sarabun, "Segoe UI", system-ui, sans-serif;
+      font-family: "TH Sarabun New", Sarabun, "Segoe UI", sans-serif;
       font-size: 1rem;
-      line-height: 1.35;
-      color: #111827;
+      line-height: 1.22;
+      color: #000;
       background: #fff;
     }
-    /* บนหน้าจอ: พื้นหลังรอบกระดาษ — พิมพ์เป็นขาว */
-    @media screen {
-      html,
-      body {
-        overflow-x: hidden;
-        overflow-y: hidden;
-      }
-      body {
-        background: #e2e8f0;
-        padding: 10px;
-      }
-      .a4-page {
-        box-shadow: none;
-      }
-    }
+    @media screen { body { background: #e2e8f0; padding: 10px; } }
     .a4-page {
-      box-sizing: border-box;
       width: 210mm;
       min-height: 297mm;
       margin: 0 auto;
-      padding: 10mm;
-      border: none;
+      padding: 5mm 6mm 6mm;
       background: #fff;
       box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
-      display: flex;
-      flex-direction: column;
-    }
-    .sheet {
-      width: 100%;
-      max-width: 190mm;
-      margin: 0 auto;
-      padding: 6mm 8mm 8mm;
-      overflow: visible;
-    }
-    .a4-page .sheet {
-      max-width: none;
-      margin: 0;
-      padding: 0;
-      flex: 1 1 auto;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    .sheet-body {
-      flex: 1 1 auto;
-      min-width: 0;
-      min-height: 0;
     }
     @media print {
-      @page {
-        size: 210mm 297mm;
-        margin: 0;
-      }
-      html,
-      body {
-        width: 210mm;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-      }
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .a4-page {
-        width: 210mm;
-        min-height: 0;
-        margin: 0 auto;
-        padding: 10mm;
-        box-shadow: none;
-      }
-      .sheet {
-        max-width: none;
-        width: 100%;
-        padding: 0;
-        margin: 0;
-      }
+      html, body { margin: 0; padding: 0; background: #fff; }
+      .a4-page { box-shadow: none; padding: 5mm 6mm 6mm; }
+      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
-    .sheet-head {
-      margin-bottom: 16px;
-    }
-    .header {
-      display: grid;
-      grid-template-columns: 72px 1fr 72px;
-      align-items: center;
-      min-height: 48px;
-      margin-bottom: 0;
-      padding: 0 4px 12px;
-      border: none;
-      border-bottom: 1px solid #1f2937;
-    }
-    .header-logo {
-      grid-column: 1;
-      grid-row: 1;
-      z-index: 1;
-    }
-    .header-logo img {
-      display: block;
-      width: 64px;
-      height: auto;
-    }
-    .header-title {
-      grid-column: 1 / -1;
-      grid-row: 1;
-      margin: 0;
-      padding: 2px 72px 0;
-      text-align: center;
-      font-size: 1rem;
-      font-weight: 700;
-      font-style: normal;
-      letter-spacing: 0.01em;
-      line-height: 1.4;
-      overflow-wrap: break-word;
-      word-break: normal;
-    }
-    .meta {
-      margin: 0;
-      padding: 12px 0 0;
-      font-size: 0.8rem;
-      line-height: 1.45;
-    }
-    .meta-line {
-      display: grid;
-      grid-template-columns: 10.75rem minmax(0, 1fr);
-      column-gap: 10px;
-      align-items: start;
-      margin: 0;
-    }
-    .meta-line + .meta-line,
-    .meta-pair {
-      margin-top: 9px;
-    }
-    .meta-pair {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      column-gap: 22px;
-    }
-    .meta-pair .meta-line + .meta-line {
-      margin-top: 0;
-    }
-    .meta-line dt {
-      margin: 0;
-      font-weight: 700;
-      text-align: left;
-    }
-    .meta-line dd {
-      margin: 0;
-      min-width: 0;
-      overflow-wrap: anywhere;
-      word-break: normal;
-    }
-    .meta-line dt .meta-en {
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .chk {
+    table.form {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 0;
       table-layout: fixed;
-      font-size: 0.76rem;
-      line-height: 1.25;
-      border: 1px solid #1f2937;
     }
-    /* เส้นเดียวทั้งตาราง — ไม่สลับความหนา (เลี่ยง border-collapse รวมเส้นไม่เท่ากัน) */
-    .chk th,
-    .chk td {
-      border: 1px solid #1f2937;
-      padding: 3px 5px;
+    table.form td, table.form th {
+      border: 1px solid #000;
+      padding: 1px 2px;
       vertical-align: middle;
-      overflow-wrap: break-word;
-      word-break: normal;
-    }
-    .chk thead th {
-      background: #e5e7eb;
-      font-weight: 700;
-      text-align: center;
-      font-size: 0.74rem;
-      line-height: 1.2;
-      padding: 4px 5px;
-      vertical-align: middle;
-    }
-    .chk thead .chk-head-desc {
-      font-size: 0.76rem;
-    }
-    .chk thead .chk-head-insp {
-      font-size: 0.7rem;
-      padding: 3px 2px;
-    }
-    .chk thead tr:last-child th {
-      font-size: 0.68rem;
-      padding: 3px 2px;
-    }
-    .chk .chk-letter {
-      width: 5%;
-      max-width: 24px;
-      text-align: center;
-      font-weight: 700;
-      padding-left: 2px;
-      padding-right: 2px;
-    }
-    .chk .chk-desc {
-      text-align: left;
-      width: auto;
-    }
-    .chk .chk-desc-section {
-      font-weight: 700;
-      background: #f9fafb;
-    }
-    .chk tbody tr:has(.chk-desc-section) > .chk-letter {
-      background: #f9fafb;
-    }
-    .chk .chk-desc-sub {
-      padding-left: 8px;
       font-weight: 400;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
-    .chk .chk-box {
-      width: 9%;
-      max-width: 34px;
-      min-width: 26px;
-      text-align: center;
-      padding: 3px 2px;
-      min-height: 1.4em;
-    }
-    .chk tfoot td {
-      font-size: 0.76rem;
-      padding: 4px 6px;
-      vertical-align: middle;
-    }
-    .chk .chk-foot-label {
+    /* สัดส่วนจาก Excel 647pt ต่อครึ่ง */
+    col.c1 { width: 3.6%; }
+    col.c2 { width: 22.4%; }
+    col.c3 { width: 17.8%; }
+    col.c4 { width: 11.4%; }
+    col.c5 { width: 10.4%; }
+    col.c6 { width: 6.2%; }
+    col.c7 { width: 6.2%; }
+    col.c8 { width: 6.2%; }
+    col.c9 { width: 15.8%; }
+    .h-project {
       font-weight: 700;
+      font-size: 0.95rem;
+      line-height: 1.3;
+      vertical-align: middle;
+      text-align: left;
+      padding: 6px 8px;
+      white-space: pre-line;
+    }
+    .h-logo-wrap {
+      text-align: center;
+      vertical-align: middle;
+      padding: 4px 6px 3px;
+    }
+    .h-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .h-logos img {
+      display: block;
+      height: 34px;
+      width: auto;
+      max-width: 30%;
+      object-fit: contain;
+    }
+    .h-jv {
+      font-size: 0.68rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-top: 3px;
+      text-align: center;
+    }
+    .h-title-en,
+    .h-title-th {
+      font-weight: 700;
+      text-align: center;
+      vertical-align: middle;
+      padding: 4px 6px;
+    }
+    .h-title-en { font-size: 1rem; line-height: 1.2; }
+    .h-title-th { font-size: 0.95rem; line-height: 1.2; }
+    .meta-label { font-weight: 700; white-space: nowrap; padding: 2px 5px; }
+    .meta-val,
+    .remarks-area,
+    .grade-val {
+      padding: 1px 5px 3px;
+      min-height: 1.15em;
+      vertical-align: bottom;
+      border-bottom: 1px dotted #000;
+    }
+    .meta-date { white-space: nowrap; }
+    .thead-label { font-weight: 700; text-align: left; padding: 2px 4px; }
+    .thead-h { font-weight: 700; text-align: center; font-size: 0.92rem; }
+    .thead-h.th-dept { font-size: 0.7rem; line-height: 1.05; padding: 2px 1px; }
+    .c-letter { text-align: center; font-weight: 700; font-size: 0.95rem; }
+    .c-desc { text-align: left; padding: 0 3px; font-size: 0.9rem; line-height: 1.12; }
+    .c-desc.sec { font-weight: 700; font-size: 0.95rem; }
+    .c-desc.sub { padding-left: 6px; }
+    .c-box { text-align: center; vertical-align: middle; padding: 0; }
+    .c-dept {
+      text-align: center;
+      font-size: 0.62rem;
+      line-height: 1.05;
+      padding: 0 1px;
       white-space: nowrap;
     }
-    .chk .chk-foot-remarks td {
-      vertical-align: middle;
-      padding: 4px 6px 5px;
+    .c-dept .chk-sq {
+      width: 9px;
+      height: 9px;
+      margin-right: 1px;
     }
-    .chk tr.chk-foot-remarks + tr td {
-      border-top: 3px double #1f2937;
-    }
-    .chk .chk-foot-text {
-      white-space: pre-wrap;
-      min-height: 1.5em;
-    }
-    .chk .chk-foot-party td {
-      padding: 4px 8px 5px;
-      font-size: 0.78rem;
-      vertical-align: middle;
-    }
-    .chk .chk-foot-party .chk-foot-label {
-      margin-right: 4px;
-    }
-    .chk .chk-foot-party .chk-foot-val {
-      font-weight: 400;
-    }
-    .chk .chk-foot-sign {
-      vertical-align: top;
-      padding: 5px 12px 10px;
-      min-height: 24mm;
-    }
-    .chk .chk-foot-sign-h {
-      font-weight: 700;
-      margin: 0 0 4px;
-      font-size: 0.76rem;
-    }
-    .chk .chk-foot-line {
-      border-bottom: 1px solid #1f2937;
-      width: 70%;
-      max-width: 48mm;
-      margin: 12px auto 6px;
-      height: 0;
-    }
-    .chk .chk-foot-name {
-      text-align: center;
-      margin: 0 0 1px;
-      font-size: 0.74rem;
-    }
-    .chk .chk-foot-sign-consultant .chk-foot-name-slot {
+    .chk-sq {
       display: inline-block;
-      min-width: 15em;
-      text-align: center;
+      width: 9px;
+      height: 9px;
+      border: 1px solid #000;
+      vertical-align: middle;
+      margin: 0 1px;
+      background: #fff;
     }
-    .chk .chk-foot-sig {
-      text-align: center;
-      font-size: 0.68rem;
-      color: #374151;
-      margin-top: 2px;
+    .foot-legend { font-size: 0.78rem; line-height: 1.3; padding: 3px 4px; }
+    .foot-label { font-weight: 700; white-space: nowrap; }
+    .foot-remarks td { vertical-align: middle; padding: 3px 4px; }
+    .foot-remarks .remarks-area { min-height: 1.4em; }
+    .foot-unit { white-space: nowrap; }
+    .sign-cell { padding: 4px 8px 6px; vertical-align: top; font-size: 1rem; }
+    table.sign-inner { width: 100%; border-collapse: collapse; }
+    table.sign-inner td { border: none; padding: 2px 0; vertical-align: bottom; }
+    .sign-role { font-weight: 700; }
+    .sign-line-row { padding: 4px 0 2px; }
+    .sign-line-row .u {
+      display: inline-block;
+      min-width: 10em;
+      border-bottom: 1px dotted #000;
+      height: 1em;
+      vertical-align: bottom;
+      margin: 0 0.25em;
     }
-    .chk .chk-foot-date {
-      text-align: center;
-      font-size: 0.74rem;
-      margin-top: 3px;
+    .sign-line-row .u-unit { float: right; white-space: nowrap; }
+    .sign-par { text-align: center; padding: 8px 0 4px; }
+    .sign-par .u-wide {
+      display: inline-block;
+      min-width: 14em;
+      border-bottom: 1px dotted #000;
+      height: 1em;
+      vertical-align: bottom;
     }
-    .chk tfoot .chk-foot-doc-h {
-      background: #e5e7eb;
+    .sign-pos { text-align: center; padding-top: 2px; }
+    .foot-doc-h {
+      background: #d9d9d9;
       font-weight: 700;
       text-align: center;
-      font-size: 0.7rem;
-      padding: 3px 5px;
+      font-size: 0.9rem;
+      padding: 3px;
     }
-    .chk tfoot .chk-foot-doc-d {
-      text-align: center;
-      font-size: 0.72rem;
-      padding: 4px 6px;
-    }
-  </style>
+    .foot-doc-d { text-align: center; font-size: 0.9rem; padding: 3px; }
+</style>
 </head>
 <body>
   <div class="a4-page" data-print-doc="checklist">
-    <div class="sheet">
-    <div class="sheet-body">
-    <div class="sheet-head">
-    <header class="header">
-      <div class="header-logo">
-        <img src="/templates/checksheet-logo.png" alt="" width="68" />
-      </div>
-      <h1 class="header-title">(Check List Before Concrete Placement)</h1>
-    </header>
-
-    <dl class="meta" aria-label="ข้อมูลทั่วไป">
-      <div class="meta-line">
-        <dt>โครงการ <span class="meta-en">(Project)</span></dt>
-        <dd>{{clientName}}</dd>
-      </div>
-      <div class="meta-line">
-        <dt>สถานที่ <span class="meta-en">(Location)</span></dt>
-        <dd>{{locationText}}</dd>
-      </div>
-      <div class="meta-pair">
-        <div class="meta-line">
-          <dt>โครงสร้าง <span class="meta-en">(Structure)</span></dt>
-          <dd>{{structureName}}</dd>
-        </div>
-        <div class="meta-line">
-          <dt>วันที่ตรวจสอบ <span class="meta-en">(Date)</span></dt>
-          <dd>{{requestDate}}</dd>
-        </div>
-      </div>
-      <div class="meta-pair">
-        <div class="meta-line">
-          <dt>เลขที่โครงสร้าง <span class="meta-en">(Structure No.)</span></dt>
-          <dd>{{structureNo}}</dd>
-        </div>
-        <div class="meta-line">
-          <dt>เกรดคอนกรีต <span class="meta-en">(Concrete Grade)</span></dt>
-          <dd>{{concreteGrade}}</dd>
-        </div>
-      </div>
-    </dl>
-    </div>
-
-    <table class="chk" aria-label="รายการตรวจสอบ">
+    <table class="form" aria-label="F-INS-ST-DC3-01">
       <colgroup>
-        <col class="chk-letter" />
-        <col />
-        <col class="chk-box" />
-        <col class="chk-box" />
-        <col class="chk-letter" />
-        <col />
-        <col class="chk-box" />
-        <col class="chk-box" />
+        <col class="c1" /><col class="c2" /><col class="c3" /><col class="c4" />
+        <col class="c5" /><col class="c6" /><col class="c7" /><col class="c8" /><col class="c9" />
+        <col class="c1" /><col class="c2" /><col class="c3" /><col class="c4" />
+        <col class="c5" /><col class="c6" /><col class="c7" /><col class="c8" /><col class="c9" />
       </colgroup>
-      <thead>
-        <tr>
-          <th colspan="2" rowspan="2" class="chk-head-desc">Description</th>
-          <th colspan="2" class="chk-head-insp">Inspection</th>
-          <th colspan="2" rowspan="2" class="chk-head-desc">Description</th>
-          <th colspan="2" class="chk-head-insp">Inspection</th>
-        </tr>
-        <tr>
-          <th class="chk-box chk-head-insp">Comply</th>
-          <th class="chk-box chk-head-insp">Not Comply</th>
-          <th class="chk-box chk-head-insp">Comply</th>
-          <th class="chk-box chk-head-insp">Not Comply</th>
-        </tr>
-      </thead>
       <tbody>
         <tr>
-          <td class="chk-letter">A.</td>
-          <td class="chk-desc chk-desc-section">Survey Check</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">G.</td>
-          <td class="chk-desc chk-desc-section">Post - Tensioning</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="9" rowspan="3" class="h-project">{{clientName}}</td>
+          <td colspan="9" class="h-logo-wrap">
+            <div class="h-logos">
+              <img src="/templates/cst-report-logo-2.png" alt="" />
+              <img src="/templates/cst-report-logo-1.png" alt="" />
+              <img src="/templates/cst-report-logo-3.png" alt="" />
+            </div>
+            <div class="h-jv">กิจการร่วมค้า ซีเคเอสที ดีซี3</div>
+          </td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">- Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size ducts / strands</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="9" class="h-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">- Elevation</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="9" class="h-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">- Dimension</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Adequate Support</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="2" class="meta-label">ชื่องาน :</td>
+          <td colspan="7" class="meta-val">{{workName}}</td>
+          <td colspan="2" class="meta-label">ชนิดโครงสร้าง :</td>
+          <td colspan="7" class="meta-val">{{structureType}}</td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">- Direction</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Additional reinforcement for Post-Tensioning</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="2" class="meta-label">หมายเลขโครงสร้าง :</td>
+          <td colspan="7" class="meta-val">{{structureNo}}</td>
+          <td colspan="2" class="meta-label">สถานที่/ กม. :</td>
+          <td colspan="7" class="meta-val">{{locationText}}</td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">- Vertical line system.</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc"></td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="2" class="meta-label">เทคอนกรีตครั้งที่ :</td>
+          <td colspan="7" class="meta-val">{{pourSequence}}</td>
+          <td colspan="2" class="meta-label">ชั้นที่ :</td>
+          <td colspan="2" class="meta-val">{{floorLevel}}</td>
+          <td class="meta-label">วันที่ :</td>
+          <td colspan="4" class="meta-val meta-date">{{requestDate}}</td>
         </tr>
         <tr>
-          <td class="chk-letter">B.</td>
-          <td class="chk-desc chk-desc-section">Surface Preparation</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Clear of Obstruction</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="2" class="thead-label">รายการตรวจสอบ</td>
+          <td colspan="3"></td>
+          <td class="thead-h">NA</td>
+          <td class="thead-h">C</td>
+          <td class="thead-h">NC</td>
+          <td class="thead-h th-dept">ส่วนงาน</td>
+          <td colspan="2" class="thead-label">รายการตรวจสอบ</td>
+          <td colspan="3"></td>
+          <td class="thead-h">NA</td>
+          <td class="thead-h">C</td>
+          <td class="thead-h">NC</td>
+          <td class="thead-h th-dept">ส่วนงาน</td>
+        </tr>
+<tr><td class="c-letter">ก.</td><td class="c-desc sec" colspan="8">สำรวจ (Survey)</td><td class="c-letter">ช.</td><td class="c-desc sec" colspan="8">คอนกรีตอัดแรงกำลังสูง (Post - Tensioning)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ตำแหน่ง/ พิกัด (Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาดลวดอัดแรง (Size strands)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ระดับ (Elevation)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ตำแหน่ง จำนวนและแนวการจัดวางลวด Strand</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การติดตั้งอุปกรณ์ต่างๆ ในระบบ Post - Tensioning</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ทิศทาง (Direction)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- เหล็กเสริมกันระเบิดของหัวสมอยึด (Anchorage)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ดิ่ง (Vertical line)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การจัดแนวท่อชีท (Corrugated Galvanized Sheath)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter">ข.</td><td class="c-desc sec" colspan="4">การเตรียมผิวหรือรอยต่อ (Surface Preparation)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การติดตั้ง Spiral บริเวณหัว Anchorage</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter">ค.</td><td class="c-desc sec" colspan="8">งานไม้แบบ (Formwork)</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ไม่มีสิ่งกีดขวาง (Clear of Obstruction)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ซ.</td><td class="c-desc sec" colspan="8">การต่อลงดินของระบบไฟฟ้า (Earthing and Bonding System)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของไม้แบบ (Stability)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- หลักดินในเสาเข็มเจาะ (earthing bar of bored pile)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของโครงสร้างรับแบบ (Falsework)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การติดตั้งและให้เครื่องหมาย (installed &amp; marked)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ความสะอาดของไม้แบบ (Formwork Surfaces)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- หลักดินในฐานราก (earthing bar of footing)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การจัด Blockout ( incl. Bearing and exp.Joints )</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- หลักดินในตอม่อ (earthing bar of pier)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การป้องกันฝน (Rain Protection)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การเชื่อมหลักดินเป็นไปตามแบบกำหนด (welding)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การทาน้ำยาทาแบบ (Formwork Oil)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขั้วต่อกราวด์ (Earthing Terminal)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การติดตั้งบัวลบมุม (Chamfer Strips)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ณ.</td><td class="c-desc sec" colspan="8">กล่องและแผงไฟ (Electrical Boxes &amp; Panels)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ความสะอาดครั้งสุดท้ายก่อนเท (Cleanliness)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter">ง.</td><td class="c-desc sec" colspan="8">งานเหล็กเสริม (Reinforcement)</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- จุดรองรับเพียงพอ (Adequate Support)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การยาแนวกับคอนกรีต (Sealed against Concrete)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ระยะห่าง (Spacing)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ญ.</td><td class="c-desc sec" colspan="8">วัสดุกันซึม (Water Stop)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ระยะทาบ (Laps)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การมัดลวด (Tie Wires)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ฎ.</td><td class="c-desc sec" colspan="8">ท่อระบายน้ำ (Drainage Pipes)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- กำหนดระยะคอนกรีตหุ้มเหล็ก (Chairs and Spacers)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การงอเหล็ก (Hooks)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ฏ.</td><td class="c-desc sec" colspan="8">ชุดขยายข้อต่อ (Expansion Joints)</td></tr>
+<tr><td class="c-letter">จ.</td><td class="c-desc sec" colspan="8">วัสดุที่ฝังอยู่ในคอนกรีต (Permanent Embedments)</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- สมอสลักเกลียว (Anchor Bolts)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ฐ.</td><td class="c-desc sec" colspan="8">แผ่นยางรองคอสะพาน (Bearing Pad)</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- เหล็กฝัง (Embedded Steel)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- เหล็กฝังเพื่อติดตั้งไม้แบบ (Embedded for Formwork)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter">ฑ.</td><td class="c-desc sec" colspan="8">อื่นๆ (Other Features (list))</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">- สมอยึดลวด (Anchorage Block)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การบดอัดทราย (Compacted Sand)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter">ฉ.</td><td class="c-desc sec" colspan="8">แผ่นเหล็กพืดชั่วคราวในงานขุด (Temporary Sheet Pile for Excavation)</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- การเทลีน (Lean Concrete)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">ใช้</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- เหล็กเดือย (Dowel Bar)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc sub" colspan="4">ไม่ใช้</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- สภาพหัวเสาเข็ม (Pile Head Condition)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+<tr><td class="c-letter"></td><td class="c-desc" colspan="4"></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td><td class="c-letter"></td><td class="c-desc sub" colspan="4">- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)</td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td><td class="c-dept"><span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC</td></tr>
+        <tr>
+          <td colspan="18" class="foot-legend">NA : Not Applicable &nbsp;&nbsp;&nbsp;&nbsp; C : Conformed &nbsp;&nbsp;&nbsp;&nbsp; NC : Non Conformed &nbsp;&nbsp;&nbsp;&nbsp; RB : Railway Bridge &nbsp;&nbsp;&nbsp;&nbsp; OP : Overpass Bridge &nbsp;&nbsp;&nbsp;&nbsp; BU : Building Works &nbsp;&nbsp;&nbsp;&nbsp; QC : Quality Control</td>
+        </tr>
+        <tr class="foot-remarks">
+          <td colspan="2" class="foot-label">Remarks :</td>
+          <td colspan="2" class="foot-label">Concrete Grade :</td>
+          <td colspan="3" class="meta-val grade-val">{{concreteGradeDisplay}}</td>
+          <td colspan="2" class="foot-unit">(Ksc. Cylinder)</td>
+          <td colspan="9" class="meta-val remarks-area">{{remarks}}</td>
         </tr>
         <tr>
-          <td class="chk-letter">C.</td>
-          <td class="chk-desc chk-desc-section">Formwork</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Concrete Tight</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="9" class="sign-cell">
+            <table class="sign-inner">
+              <tr><td class="sign-role">ผู้รับจ้าง :</td></tr>
+              <tr><td class="sign-line-row">ผู้ตรวจ :<span class="u"></span><span class="u-unit">{{contractorUnit}}</span></td></tr>
+              <tr><td class="sign-par">( <span class="u-wide"></span> )</td></tr>
+              <tr><td class="sign-pos">วิศวกรควบคุมงาน</td></tr>
+            </table>
+          </td>
+          <td colspan="9" class="sign-cell">
+            <table class="sign-inner">
+              <tr><td class="sign-role">ที่ปรึกษา :</td></tr>
+              <tr><td class="sign-line-row">ผู้ตรวจ :<span class="u"></span><span class="u-unit">{{consultantUnit}}</span></td></tr>
+              <tr><td class="sign-par">( <span class="u-wide"></span> )</td></tr>
+              <tr><td class="sign-pos">ผู้ควบคุมงาน</td></tr>
+            </table>
+          </td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Dimension</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">H.</td>
-          <td class="chk-desc chk-desc-section">Earthing and Bonding System</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="4" class="foot-doc-h">Document No.</td>
+          <td colspan="8" class="foot-doc-h">Release/Amendment</td>
+          <td colspan="6" class="foot-doc-h">Page No.</td>
         </tr>
         <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Stability</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Piece(s) of earthing bar of bored pile</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Formwork Surfaces</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">installed &amp; marked</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Special Blockouts( incl. Bearing and exp.Joints )</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Piece(s) of earthing bar of footing installed</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Safety or Work Area (runways, scaffolds &amp; ladders)</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Piece(s) of earthing bar of pier installed &amp; marked</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Rain Protection</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Piece(s) of welded connection meets the drawing</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Formwork Oil</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Earthing Terminal</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Chamfer Strips</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">I.</td>
-          <td class="chk-desc chk-desc-section">Electrical Boxes &amp; Panels</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Cleanliness</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter">D.</td>
-          <td class="chk-desc chk-desc-section">Reinforcement</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Adequately Supported</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Sealed against Concrete</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Spacing</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">J.</td>
-          <td class="chk-desc chk-desc-section">Water Stop</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Laps</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size / Type / Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Tie Wires</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">K.</td>
-          <td class="chk-desc chk-desc-section">Drainage Pipes</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Chairs and Spacers (Concrete Cover)</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size / Type / Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Lifting Hooks</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">L.</td>
-          <td class="chk-desc chk-desc-section">Expansion Joints</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter">E.</td>
-          <td class="chk-desc chk-desc-section">Permanent Embedments</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size / Type / Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Anchor Bolts</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">M.</td>
-          <td class="chk-desc chk-desc-section">Bearing</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Embedded Steel</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Size / Type / Location</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Embedded Assessories for Formwork</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter">N</td>
-          <td class="chk-desc chk-desc-section">Other Features (list)</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Anchorage Block</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Compacted Sand</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter">F.</td>
-          <td class="chk-desc chk-desc-section">Temporary Sheet Pile for Excavation</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Lean Concrete</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">Use</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Dowel Bar</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">Not Use</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Pile Test (Sonic Logging)</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-        </tr>
-        <tr>
-          <td class="chk-letter"></td>
-          <td class="chk-desc"></td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
-          <td class="chk-letter"></td>
-          <td class="chk-desc chk-desc-sub">-Safety Issue</td>
-          <td class="chk-box"></td>
-          <td class="chk-box"></td>
+          <td colspan="4" class="foot-doc-d">{{documentNo}}</td>
+          <td colspan="8" class="foot-doc-d">{{issueNo}} &nbsp; Date : {{issueDate}}</td>
+          <td colspan="6" class="foot-doc-d">{{pageCurrent}} of {{pageTotal}}</td>
         </tr>
       </tbody>
-      <tfoot>
-        <tr class="chk-foot-remarks">
-          <td colspan="2" class="chk-foot-label">Remarks :</td>
-          <td colspan="6" class="chk-foot-text">{{remarks}}</td>
-        </tr>
-        <tr class="chk-foot-party">
-          <td colspan="4">
-            <span class="chk-foot-label">Contractor :</span>
-            <span class="chk-foot-val">{{contractorName}}</span>
-          </td>
-          <td colspan="4">
-            <span class="chk-foot-label">Consultant :</span>
-            <span class="chk-foot-val">{{consultantName}}</span>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="4" class="chk-foot-sign">
-            <div class="chk-foot-sign-h">Inspected by :</div>
-            <div class="chk-foot-line"></div>
-            <div class="chk-foot-name">( {{inspectorName}} )</div>
-            <div class="chk-foot-sig">Signature</div>
-            <div class="chk-foot-date">Date : {{requestDate}}</div>
-          </td>
-          <td colspan="4" class="chk-foot-sign chk-foot-sign-consultant">
-            <div class="chk-foot-sign-h">Inspected by :</div>
-            <div class="chk-foot-line"></div>
-            <div class="chk-foot-name">( <span class="chk-foot-name-slot">{{witnessName}}</span> )</div>
-            <div class="chk-foot-sig">Signature</div>
-            <div class="chk-foot-date">Date : {{requestDate}}</div>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="2" class="chk-foot-doc-h">Document No.</td>
-          <td colspan="4" class="chk-foot-doc-h">Release/Amendment</td>
-          <td colspan="2" class="chk-foot-doc-h">Page No.</td>
-        </tr>
-        <tr>
-          <td colspan="2" class="chk-foot-doc-d">{{documentNo}}</td>
-          <td colspan="4" class="chk-foot-doc-d">{{issueNo}} &nbsp; Date : {{issueDate}}</td>
-          <td colspan="2" class="chk-foot-doc-d">{{pageCurrent}} of {{pageTotal}}</td>
-        </tr>
-      </tfoot>
     </table>
-
-    </div>
-    </div>
   </div>
 </body>
 </html>

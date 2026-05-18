@@ -148,7 +148,7 @@ export const A4_LANDSCAPE_HEIGHT_PX = Math.round((210 * 96) / 25.4)
 export function isChecklistPrintDocument(doc: Document): boolean {
   if (doc.querySelector('[data-print-doc="checklist"]')) return true
   if (doc.querySelector('[data-print-doc="cst"]')) return false
-  return doc.querySelector('table.chk') != null
+  return doc.querySelector('table.chk, table.form') != null
 }
 
 /** ย่อทั้งหน้า checklist ให้พอดี 1 แผ่น A4 */
