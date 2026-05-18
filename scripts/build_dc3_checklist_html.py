@@ -104,48 +104,60 @@ def item_class(letter: str, desc: str) -> str:
     return "sub"
 
 
+BOX_CELL = '<td class="c-box"></td>'
+
+
+def section_title(letter: str, desc: str) -> str:
+    letter = letter.strip()
+    if letter:
+        return f"{letter} {desc}".strip()
+    return desc
+
+
 def dept_cell() -> str:
-    """คอลัมน์ส่วนงาน — ช่องสี่เหลี่ยม + RB/OP/BU/QC ตามต้นฉบับ"""
-    return (
-        '<td class="c-dept">'
-        '<span class="chk-sq" aria-hidden="true"></span> RB/OP/BU/QC'
-        "</td>"
-    )
+    """คอลัมน์ส่วนงาน"""
+    return '<td class="c-dept">RB/OP/BU/QC</td>'
 
 
 def side_cell(letter: str, desc: str) -> str:
     if not letter and not desc:
         return (
-            '<td class="c-letter"></td>'
             '<td class="c-desc" colspan="4"></td>'
-            '<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-            '<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-            '<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
+            f"{BOX_CELL}{BOX_CELL}{BOX_CELL}"
             + dept_cell()
         )
     cls = item_class(letter, desc)
     if letter in CHECKABLE_SECTIONS:
         return (
-            f'<td class="c-letter">{esc(letter)}</td>'
-            f'<td class="c-desc sec" colspan="4">{esc(desc)}</td>'
-            f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-            f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-            f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
+            f'<td class="c-desc sec sec-head" colspan="4">{esc(section_title(letter, desc))}</td>'
+            f"{BOX_CELL}{BOX_CELL}{BOX_CELL}"
             + dept_cell()
         )
     if cls == "sec":
         return (
-            f'<td class="c-letter">{esc(letter)}</td>'
-            f'<td class="c-desc sec" colspan="8">{esc(desc)}</td>'
+            f'<td class="c-desc sec sec-head" colspan="8">{esc(section_title(letter, desc))}</td>'
         )
     return (
-        f'<td class="c-letter">{esc(letter)}</td>'
         f'<td class="c-desc {cls}" colspan="4">{esc(desc)}</td>'
-        f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-        f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
-        f'<td class="c-box"><span class="chk-sq" aria-hidden="true"></span></td>'
+        f"{BOX_CELL}{BOX_CELL}{BOX_CELL}"
         + dept_cell()
     )
+
+
+def sign_pane(party: str, role_title: str, unit_key: str, *, pane_end: bool = False) -> str:
+    pane_cls = " sig-pane--left" if pane_end else ""
+    return f"""          <div class="sig-pane{pane_cls}" aria-label="{esc(party)}">
+            <div class="sig-header">
+              <span class="sig-party">{esc(party)} :</span>
+            </div>
+            <div class="sig-stage" aria-hidden="true">
+              <div class="sig-line"></div>
+            </div>
+            <div class="sig-footer">
+              <p class="sig-title">{esc(role_title)}</p>
+              <p class="sig-unit">{unit_key}</p>
+            </div>
+          </div>"""
 
 
 def body_rows() -> str:
@@ -154,181 +166,504 @@ def body_rows() -> str:
     for i in range(n):
         l = LEFT_ITEMS[i] if i < len(LEFT_ITEMS) else ("", "")
         r = RIGHT_ITEMS[i] if i < len(RIGHT_ITEMS) else ("", "")
-        lines.append(f"<tr>{side_cell(*l)}{side_cell(*r)}</tr>")
+        row_cls = ""
+        if item_class(*l) == "sub" or item_class(*r) == "sub":
+            row_cls = ' class="sub-row"'
+        lines.append(f"<tr{row_cls}>{side_cell(*l)}{side_cell(*r)}</tr>")
     return "\n".join(lines)
 
 
 CSS = """
-    @page { size: 210mm 297mm; margin: 0; }
+    @page { size: A4 portrait; margin: 0; }
     * { box-sizing: border-box; }
+    :root {
+      --chk-border: 1px solid #000;
+      --chk-head-bg: #e2e8f0;
+      --chk-head-color: #0f172a;
+      --chk-head-border: 1px solid #000;
+    }
     html {
-      font-size: 11pt;
+      font-size: 9pt;
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
     body {
       margin: 0;
-      font-family: "TH Sarabun New", Sarabun, "Segoe UI", sans-serif;
+      font-family: Sarabun, "TH Sarabun New", "Segoe UI", system-ui, sans-serif;
       font-size: 1rem;
-      line-height: 1.22;
-      color: #000;
+      line-height: 1.25;
+      color: #111827;
       background: #fff;
     }
     @media screen { body { background: #e2e8f0; padding: 10px; } }
     .a4-page {
+      box-sizing: border-box;
       width: 210mm;
       min-height: 297mm;
       margin: 0 auto;
-      padding: 5mm 6mm 6mm;
+      padding: 8mm 10mm 7mm;
       background: #fff;
       box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
+      display: flex;
+      flex-direction: column;
+    }
+    .sheet {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
     }
     @media print {
-      html, body { margin: 0; padding: 0; background: #fff; }
-      .a4-page { box-shadow: none; padding: 5mm 6mm 6mm; }
+      html, body { width: 210mm; margin: 0; padding: 0; background: #fff; }
+      .a4-page {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0;
+        padding: 8mm 10mm 7mm;
+        box-shadow: none;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
       body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
-    table.form {
+    .sheet-header {
+      margin-bottom: 6px;
+      border-bottom: var(--chk-border);
+      padding-bottom: 5px;
+    }
+    .header-top {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px 12px;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .project-name {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      line-height: 1.35;
+      white-space: pre-line;
+    }
+    .header-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+    .logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .logos img {
+      display: block;
+      height: 26px;
+      width: auto;
+      object-fit: contain;
+    }
+    .org-line {
+      margin: 3px 0 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.15;
+      text-align: center;
+    }
+    .doc-title-en {
+      margin: 0 0 2px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.02em;
+    }
+    .doc-title-th {
+      margin: 0;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    .meta-block {
+      border: none;
+      background: #fff;
+      overflow: hidden;
+    }
+    .meta-block table.bordered {
+      border: none;
+      margin: 0;
+    }
+    .checklist-block {
+      border: none;
+      background: #fff;
+      overflow: hidden;
+    }
+    .checklist-block table.bordered {
+      border: none;
+      margin: 0;
+    }
+    .checklist-block table.form {
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+    .checklist-block .foot-legend {
+      margin-top: -1px;
+      border: none;
+      border-top: var(--chk-border);
+      border-left: var(--chk-border);
+      border-right: var(--chk-border);
+    }
+    .checklist-block .foot-notes {
+      border: none;
+      border-top: var(--chk-border);
+      border-left: var(--chk-border);
+      border-right: var(--chk-border);
+    }
+    .checklist-block .sign-block {
+      border: none;
+      border-top: var(--chk-border);
+      border-left: var(--chk-border);
+      border-right: var(--chk-border);
+      border-bottom: var(--chk-border);
+    }
+    .doc-section.meta-block { margin-top: 0; }
+    .doc-section.meta-block + .doc-section.checklist-block { margin-top: 8px; }
+    .doc-section.checklist-block + .doc-section.sheet-footer { margin-top: 8px; }
+    table.bordered {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
+      border: none;
+      background: #fff;
     }
-    table.form td, table.form th {
-      border: 1px solid #000;
-      padding: 1px 2px;
+    table.bordered td,
+    table.bordered th {
+      border: var(--chk-border);
+      padding: 3px 5px;
       vertical-align: middle;
       font-weight: 400;
       overflow-wrap: break-word;
       word-break: break-word;
     }
-    /* สัดส่วนจาก Excel 647pt ต่อครึ่ง */
-    col.c1 { width: 3.6%; }
-    col.c2 { width: 22.4%; }
-    col.c3 { width: 17.8%; }
-    col.c4 { width: 11.4%; }
-    col.c5 { width: 10.4%; }
-    col.c6 { width: 6.2%; }
-    col.c7 { width: 6.2%; }
-    col.c8 { width: 6.2%; }
-    col.c9 { width: 15.8%; }
-    .h-project {
+    .doc-section { margin-bottom: 0; }
+    .doc-section + .doc-section { margin-top: 8px; }
+    table.meta-table {
+      margin-bottom: 0;
+    }
+    table.meta-table td {
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      border-bottom: none;
+    }
+    table.meta-table td.pane-end {
+      border-right: none;
+    }
+    table.meta-table tr + tr td {
+      border-top: none;
+    }
+    table.meta-table tbody tr td {
+      border-bottom: var(--chk-border);
+    }
+    table.form {
+      margin-bottom: 0;
+    }
+    table.form thead td {
+      padding: 4px 5px;
+      border-top: var(--chk-border);
+      border-bottom: var(--chk-border);
+      background: #fff;
+      color: #111827;
       font-weight: 700;
-      font-size: 0.95rem;
-      line-height: 1.3;
-      vertical-align: middle;
-      text-align: left;
-      padding: 6px 8px;
-      white-space: pre-line;
     }
-    .h-logo-wrap {
-      text-align: center;
-      vertical-align: middle;
-      padding: 4px 6px 3px;
+    table.form tbody tr.sub-row td.c-desc.sub {
+      background: #fff;
     }
-    .h-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    table.form tbody tr.sub-row td.c-box,
+    table.form tbody tr.sub-row td.c-dept {
+      background: #fff;
     }
-    .h-logos img {
-      display: block;
-      height: 34px;
-      width: auto;
-      max-width: 30%;
-      object-fit: contain;
-    }
-    .h-jv {
-      font-size: 0.68rem;
+    table.form td.sec-head {
       font-weight: 700;
-      line-height: 1.1;
-      margin-top: 3px;
-      text-align: center;
-    }
-    .h-title-en,
-    .h-title-th {
-      font-weight: 700;
-      text-align: center;
-      vertical-align: middle;
       padding: 4px 6px;
+      vertical-align: middle;
+      font-size: 0.86rem;
+      line-height: 1.25;
+      letter-spacing: 0.01em;
+      background: #fff;
+      color: #111827;
+      border-top: var(--chk-border);
+      border-bottom: var(--chk-border);
     }
-    .h-title-en { font-size: 1rem; line-height: 1.2; }
-    .h-title-th { font-size: 0.95rem; line-height: 1.2; }
-    .meta-label { font-weight: 700; white-space: nowrap; padding: 2px 5px; }
-    .meta-val,
-    .remarks-area,
-    .grade-val {
-      padding: 1px 5px 3px;
-      min-height: 1.15em;
+    table.form tbody tr:first-child td.sec-head {
+      border-top: none;
+    }
+    /* แบ่งครึ่งซ้าย–ขวา (คอลัมน์ที่ 8 ของแต่ละครึ่ง) */
+    .checklist-block td.pane-end,
+    table.form td:nth-child(8) {
+      border-right: var(--chk-border);
+    }
+    table.form td.c-box,
+    table.form td.c-dept {
+      padding: 2px;
+    }
+    /* 8 คอลัมน์ต่อครึ่ง — รายการ 62% | NA/C/NC 7% แต่ละช่อง | ส่วนงาน 17% */
+    col.cw-desc { width: 15.5%; }
+    col.cw-desc2 { width: 15.5%; }
+    col.cw-desc3 { width: 15.5%; }
+    col.cw-desc4 { width: 15.5%; }
+    col.cw-na { width: 7%; }
+    col.cw-c { width: 7%; }
+    col.cw-nc { width: 7%; }
+    col.cw-dept { width: 17%; }
+    .meta-label {
+      font-weight: 700;
+      white-space: nowrap;
+      font-size: 0.86rem;
+      line-height: 1.2;
+      color: #111827;
+      background: #fff;
+      padding: 4px 6px;
+      width: 25%;
+    }
+    .meta-val {
+      font-size: 0.88rem;
+      line-height: 1.3;
+      padding: 3px 6px 4px;
+      min-height: 1.35em;
       vertical-align: bottom;
-      border-bottom: 1px dotted #000;
+      background: #fff;
+      border-bottom: 1px dotted #334155;
     }
     .meta-date { white-space: nowrap; }
-    .thead-label { font-weight: 700; text-align: left; padding: 2px 4px; }
-    .thead-h { font-weight: 700; text-align: center; font-size: 0.92rem; }
-    .thead-h.th-dept { font-size: 0.7rem; line-height: 1.05; padding: 2px 1px; }
-    .c-letter { text-align: center; font-weight: 700; font-size: 0.95rem; }
-    .c-desc { text-align: left; padding: 0 3px; font-size: 0.9rem; line-height: 1.12; }
-    .c-desc.sec { font-weight: 700; font-size: 0.95rem; }
-    .c-desc.sub { padding-left: 6px; }
-    .c-box { text-align: center; vertical-align: middle; padding: 0; }
+    .thead-label {
+      text-align: left;
+      font-size: 0.86rem;
+      padding-left: 6px;
+    }
+    .thead-h {
+      text-align: center;
+      font-size: 0.8rem;
+      letter-spacing: 0.04em;
+    }
+    .thead-h.th-dept {
+      font-size: 0.7rem;
+      line-height: 1.15;
+      padding: 3px 2px;
+      letter-spacing: 0;
+    }
+    .c-desc {
+      text-align: left;
+      padding: 2px 5px;
+      font-size: 0.8rem;
+      line-height: 1.2;
+    }
+    .c-desc.sub {
+      padding-left: 10px;
+      color: #1e293b;
+    }
+    .c-box {
+      text-align: center;
+      vertical-align: middle;
+      padding: 1px;
+      min-width: 6mm;
+      min-height: 4.5mm;
+    }
     .c-dept {
       text-align: center;
       font-size: 0.62rem;
-      line-height: 1.05;
-      padding: 0 1px;
+      line-height: 1.1;
+      padding: 2px 1px;
+      color: #475569;
+      font-weight: 600;
       white-space: nowrap;
     }
-    .c-dept .chk-sq {
-      width: 9px;
-      height: 9px;
-      margin-right: 1px;
+    .sheet-footer {
+      flex-shrink: 0;
+      margin-top: auto;
     }
-    .chk-sq {
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      border: 1px solid #000;
-      vertical-align: middle;
-      margin: 0 1px;
+    .doc-section.sheet-footer { margin-top: 8px; }
+    .foot-legend {
+      padding: 5px 10px;
+      margin: 0;
       background: #fff;
     }
-    .foot-legend { font-size: 0.78rem; line-height: 1.3; padding: 3px 4px; }
-    .foot-label { font-weight: 700; white-space: nowrap; }
-    .foot-remarks td { vertical-align: middle; padding: 3px 4px; }
-    .foot-remarks .remarks-area { min-height: 1.4em; }
-    .foot-unit { white-space: nowrap; }
-    .sign-cell { padding: 4px 8px 6px; vertical-align: top; font-size: 1rem; }
-    table.sign-inner { width: 100%; border-collapse: collapse; }
-    table.sign-inner td { border: none; padding: 2px 0; vertical-align: bottom; }
-    .sign-role { font-weight: 700; }
-    .sign-line-row { padding: 4px 0 2px; }
-    .sign-line-row .u {
-      display: inline-block;
-      min-width: 10em;
-      border-bottom: 1px dotted #000;
-      height: 1em;
-      vertical-align: bottom;
-      margin: 0 0.25em;
+    .foot-legend-list {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 3px 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.68rem;
+      line-height: 1.35;
+      color: #334155;
     }
-    .sign-line-row .u-unit { float: right; white-space: nowrap; }
-    .sign-par { text-align: center; padding: 8px 0 4px; }
-    .sign-par .u-wide {
-      display: inline-block;
-      min-width: 14em;
-      border-bottom: 1px dotted #000;
-      height: 1em;
-      vertical-align: bottom;
-    }
-    .sign-pos { text-align: center; padding-top: 2px; }
-    .foot-doc-h {
-      background: #d9d9d9;
+    .foot-legend-list abbr {
       font-weight: 700;
-      text-align: center;
-      font-size: 0.9rem;
-      padding: 3px;
+      font-style: normal;
+      color: #0f172a;
+      text-decoration: none;
+      margin-right: 0.2em;
     }
-    .foot-doc-d { text-align: center; font-size: 0.9rem; padding: 3px; }
+    .foot-notes {
+      display: flex;
+      flex-direction: column;
+      border: none;
+      background: #fff;
+      overflow: hidden;
+      font-size: 0.88rem;
+      line-height: 1.3;
+    }
+    .foot-field {
+      display: grid;
+      grid-template-columns: 7.5em minmax(0, 1fr);
+      column-gap: 10px;
+      align-items: baseline;
+      padding: 7px 12px;
+    }
+    .foot-field--grade {
+      background: #fff;
+      border-bottom: var(--chk-border);
+      min-height: 2.4em;
+    }
+    .foot-field--remarks {
+      align-items: start;
+      padding: 8px 12px 10px;
+      min-height: 4.5em;
+    }
+    .foot-label {
+      grid-column: 1;
+      font-weight: 700;
+      font-size: 0.84rem;
+      color: #111827;
+      white-space: nowrap;
+    }
+    .foot-value {
+      grid-column: 2;
+      min-width: 0;
+    }
+    .foot-value--grade {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 8px;
+    }
+    .grade-val {
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: #0f172a;
+    }
+    .foot-field--remarks .foot-label {
+      padding-top: 2px;
+    }
+    .foot-remarks-body {
+      min-height: 3.2em;
+      line-height: 1.4;
+      font-size: 0.88rem;
+      color: #111827;
+      overflow-wrap: anywhere;
+      word-break: normal;
+      white-space: pre-wrap;
+    }
+    .sign-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: none;
+      background: #fff;
+      overflow: hidden;
+    }
+    .sig-pane {
+      display: flex;
+      flex-direction: column;
+      min-height: 24mm;
+      padding: 0;
+    }
+    .sig-pane--left {
+      border-right: var(--chk-border);
+    }
+    .sig-header {
+      padding: 4px 10px 3px;
+      font-size: 0.86rem;
+      line-height: 1.2;
+      background: #fff;
+      border-bottom: var(--chk-border);
+    }
+    .sig-party {
+      font-weight: 600;
+      color: #334155;
+    }
+    .sig-stage {
+      flex: 1 1 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      min-height: 11mm;
+      padding: 4px 10px 0;
+    }
+    .sig-line {
+      width: 82%;
+      max-width: 62mm;
+      height: 0;
+      border-bottom: var(--chk-border);
+    }
+    .sig-footer {
+      text-align: center;
+      padding: 3px 10px 5px;
+    }
+    .sig-title {
+      margin: 0 0 2px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #111827;
+    }
+    .sig-unit {
+      margin: 0;
+      font-size: 0.76rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #64748b;
+      letter-spacing: 0.01em;
+    }
+    .doc-foot {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+      align-items: baseline;
+      gap: 6px 10px;
+      padding: 5px 10px 6px;
+      border-top: var(--chk-border);
+      background: #fff;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .doc-foot span { overflow-wrap: break-word; }
+    .doc-foot-left { justify-self: start; font-weight: 600; }
+    .doc-foot-center { justify-self: center; text-align: center; }
+    .doc-foot-right { justify-self: end; text-align: right; font-weight: 600; }
+"""
+
+FOOTER_LEGEND = """
+        <nav class="foot-legend" aria-label="คำอธิบายตัวย่อ">
+          <ul class="foot-legend-list">
+            <li><abbr title="Not Applicable">NA</abbr> Not Applicable</li>
+            <li><abbr title="Conformed">C</abbr> Conformed</li>
+            <li><abbr title="Non Conformed">NC</abbr> Non Conformed</li>
+            <li><abbr title="Railway Bridge">RB</abbr> Railway Bridge</li>
+            <li><abbr title="Overpass Bridge">OP</abbr> Overpass Bridge</li>
+            <li><abbr title="Building Works">BU</abbr> Building Works</li>
+            <li><abbr title="Quality Control">QC</abbr> Quality Control</li>
+          </ul>
+        </nav>
+"""
+
+COLGROUP = """
+        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
+        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
+        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
+        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
 """
 
 HTML = f"""<!DOCTYPE html>
@@ -339,111 +674,109 @@ HTML = f"""<!DOCTYPE html>
   <title>Check List Before Concrete Placement</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>{CSS}</style>
 </head>
 <body>
   <div class="a4-page" data-print-doc="checklist">
-    <table class="form" aria-label="F-INS-ST-DC3-01">
-      <colgroup>
-        <col class="c1" /><col class="c2" /><col class="c3" /><col class="c4" />
-        <col class="c5" /><col class="c6" /><col class="c7" /><col class="c8" /><col class="c9" />
-        <col class="c1" /><col class="c2" /><col class="c3" /><col class="c4" />
-        <col class="c5" /><col class="c6" /><col class="c7" /><col class="c8" /><col class="c9" />
-      </colgroup>
-      <tbody>
-        <tr>
-          <td colspan="9" rowspan="3" class="h-project">{{{{clientName}}}}</td>
-          <td colspan="9" class="h-logo-wrap">
-            <div class="h-logos">
+    <div class="sheet" aria-label="F-INS-ST-DC3-01">
+      <header class="sheet-header">
+        <div class="header-top">
+          <p class="project-name">{{{{clientName}}}}</p>
+          <div class="header-brand">
+            <div class="logos">
               <img src="/templates/cst-report-logo-2.png" alt="" />
               <img src="/templates/cst-report-logo-1.png" alt="" />
               <img src="/templates/cst-report-logo-3.png" alt="" />
             </div>
-            <div class="h-jv">กิจการร่วมค้า ซีเคเอสที ดีซี3</div>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="9" class="h-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</td>
-        </tr>
-        <tr>
-          <td colspan="9" class="h-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</td>
-        </tr>
-        <tr>
-          <td colspan="2" class="meta-label">ชื่องาน :</td>
-          <td colspan="7" class="meta-val">{{{{workName}}}}</td>
-          <td colspan="2" class="meta-label">ชนิดโครงสร้าง :</td>
-          <td colspan="7" class="meta-val">{{{{structureType}}}}</td>
-        </tr>
-        <tr>
-          <td colspan="2" class="meta-label">หมายเลขโครงสร้าง :</td>
-          <td colspan="7" class="meta-val">{{{{structureNo}}}}</td>
-          <td colspan="2" class="meta-label">สถานที่/ กม. :</td>
-          <td colspan="7" class="meta-val">{{{{locationText}}}}</td>
-        </tr>
-        <tr>
-          <td colspan="2" class="meta-label">เทคอนกรีตครั้งที่ :</td>
-          <td colspan="7" class="meta-val">{{{{pourSequence}}}}</td>
-          <td colspan="2" class="meta-label">ชั้นที่ :</td>
-          <td colspan="2" class="meta-val">{{{{floorLevel}}}}</td>
-          <td class="meta-label">วันที่ :</td>
-          <td colspan="4" class="meta-val meta-date">{{{{requestDate}}}}</td>
-        </tr>
-        <tr>
-          <td colspan="2" class="thead-label">รายการตรวจสอบ</td>
-          <td colspan="3"></td>
-          <td class="thead-h">NA</td>
-          <td class="thead-h">C</td>
-          <td class="thead-h">NC</td>
-          <td class="thead-h th-dept">ส่วนงาน</td>
-          <td colspan="2" class="thead-label">รายการตรวจสอบ</td>
-          <td colspan="3"></td>
-          <td class="thead-h">NA</td>
-          <td class="thead-h">C</td>
-          <td class="thead-h">NC</td>
-          <td class="thead-h th-dept">ส่วนงาน</td>
-        </tr>
+            <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
+          </div>
+        </div>
+        <h1 class="doc-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</h1>
+        <p class="doc-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</p>
+      </header>
+
+      <div class="meta-block doc-section" aria-label="ข้อมูลงาน">
+      <table class="bordered meta-table" aria-label="ข้อมูลงาน">
+        <colgroup>
+{COLGROUP}
+        </colgroup>
+        <tbody>
+          <tr>
+            <td colspan="2" class="meta-label">ชื่องาน :</td>
+            <td colspan="6" class="meta-val">{{{{workName}}}}</td>
+            <td colspan="2" class="meta-label">ชนิดโครงสร้าง :</td>
+            <td colspan="6" class="meta-val">{{{{structureType}}}}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="meta-label">หมายเลขโครงสร้าง :</td>
+            <td colspan="6" class="meta-val">{{{{structureNo}}}}</td>
+            <td colspan="2" class="meta-label">สถานที่/ กม. :</td>
+            <td colspan="6" class="meta-val">{{{{locationText}}}}</td>
+          </tr>
+          <tr>
+            <td colspan="2" class="meta-label">เทคอนกรีตครั้งที่ :</td>
+            <td colspan="6" class="meta-val">{{{{pourSequence}}}}</td>
+            <td colspan="2" class="meta-label">ชั้นที่ :</td>
+            <td colspan="2" class="meta-val">{{{{floorLevel}}}}</td>
+            <td class="meta-label">วันที่ :</td>
+            <td colspan="3" class="meta-val meta-date">{{{{requestDate}}}}</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="checklist-block doc-section" aria-label="รายการตรวจสอบ">
+      <table class="bordered form" aria-label="รายการตรวจสอบ">
+        <colgroup>
+{COLGROUP}
+        </colgroup>
+        <thead>
+          <tr>
+            <td colspan="4" class="thead-label">รายการตรวจสอบ</td>
+            <td class="thead-h">NA</td>
+            <td class="thead-h">C</td>
+            <td class="thead-h">NC</td>
+            <td class="thead-h th-dept">ส่วนงาน</td>
+            <td colspan="4" class="thead-label">รายการตรวจสอบ</td>
+            <td class="thead-h">NA</td>
+            <td class="thead-h">C</td>
+            <td class="thead-h">NC</td>
+            <td class="thead-h th-dept">ส่วนงาน</td>
+          </tr>
+        </thead>
+        <tbody>
 {body_rows()}
-        <tr>
-          <td colspan="18" class="foot-legend">NA : Not Applicable &nbsp;&nbsp;&nbsp;&nbsp; C : Conformed &nbsp;&nbsp;&nbsp;&nbsp; NC : Non Conformed &nbsp;&nbsp;&nbsp;&nbsp; RB : Railway Bridge &nbsp;&nbsp;&nbsp;&nbsp; OP : Overpass Bridge &nbsp;&nbsp;&nbsp;&nbsp; BU : Building Works &nbsp;&nbsp;&nbsp;&nbsp; QC : Quality Control</td>
-        </tr>
-        <tr class="foot-remarks">
-          <td colspan="2" class="foot-label">Remarks :</td>
-          <td colspan="2" class="foot-label">Concrete Grade :</td>
-          <td colspan="3" class="meta-val grade-val">{{{{concreteGradeDisplay}}}}</td>
-          <td colspan="2" class="foot-unit">(Ksc. Cylinder)</td>
-          <td colspan="9" class="meta-val remarks-area">{{{{remarks}}}}</td>
-        </tr>
-        <tr>
-          <td colspan="9" class="sign-cell">
-            <table class="sign-inner">
-              <tr><td class="sign-role">ผู้รับจ้าง :</td></tr>
-              <tr><td class="sign-line-row">ผู้ตรวจ :<span class="u"></span><span class="u-unit">{{{{contractorUnit}}}}</span></td></tr>
-              <tr><td class="sign-par">( <span class="u-wide"></span> )</td></tr>
-              <tr><td class="sign-pos">วิศวกรควบคุมงาน</td></tr>
-            </table>
-          </td>
-          <td colspan="9" class="sign-cell">
-            <table class="sign-inner">
-              <tr><td class="sign-role">ที่ปรึกษา :</td></tr>
-              <tr><td class="sign-line-row">ผู้ตรวจ :<span class="u"></span><span class="u-unit">{{{{consultantUnit}}}}</span></td></tr>
-              <tr><td class="sign-par">( <span class="u-wide"></span> )</td></tr>
-              <tr><td class="sign-pos">ผู้ควบคุมงาน</td></tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td colspan="4" class="foot-doc-h">Document No.</td>
-          <td colspan="8" class="foot-doc-h">Release/Amendment</td>
-          <td colspan="6" class="foot-doc-h">Page No.</td>
-        </tr>
-        <tr>
-          <td colspan="4" class="foot-doc-d">{{{{documentNo}}}}</td>
-          <td colspan="8" class="foot-doc-d">{{{{issueNo}}}} &nbsp; Date : {{{{issueDate}}}}</td>
-          <td colspan="6" class="foot-doc-d">{{{{pageCurrent}}}} of {{{{pageTotal}}}}</td>
-        </tr>
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+{FOOTER_LEGEND}
+        <div class="foot-notes" aria-label="เกรดคอนกรีตและหมายเหตุ">
+          <div class="foot-field foot-field--grade">
+            <span class="foot-label">Concrete Grade :</span>
+            <div class="foot-value foot-value--grade">
+              <span class="grade-val">{{{{concreteGradeDisplay}}}}</span>
+            </div>
+          </div>
+          <div class="foot-field foot-field--remarks">
+            <span class="foot-label">Remarks :</span>
+            <div class="foot-remarks-body">{{{{remarks}}}}</div>
+          </div>
+        </div>
+
+        <div class="sign-block" aria-label="ลายเซ็น">
+{sign_pane("ผู้รับจ้าง", "วิศวกรควบคุมงาน", "{{{{contractorUnit}}}}", pane_end=True)}
+{sign_pane("ที่ปรึกษา", "ผู้ควบคุมงาน", "{{{{consultantUnit}}}}")}
+        </div>
+      </div>
+
+      <footer class="sheet-footer doc-section">
+        <div class="doc-foot" role="contentinfo" aria-label="ข้อมูลเอกสาร">
+          <span class="doc-foot-left">Document No. {{{{documentNo}}}}</span>
+          <span class="doc-foot-center">{{{{issueNo}}}} &nbsp;·&nbsp; Date : {{{{issueDate}}}}</span>
+          <span class="doc-foot-right">Page {{{{pageCurrent}}}} / {{{{pageTotal}}}}</span>
+        </div>
+      </footer>
+    </div>
   </div>
 </body>
 </html>
