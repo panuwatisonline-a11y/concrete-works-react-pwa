@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { AnimatedOutlet } from '@/components/motion/AnimatedOutlet'
 import { PullToRefreshMain } from '@/components/layout/PullToRefreshMain'
 import { AppHeader } from './AppHeader'
@@ -6,10 +7,13 @@ import { DesktopTopBar } from './DesktopTopBar'
 import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog'
 import { useMasterDataInit } from '@/hooks/useMasterData'
 import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
-import { theme } from '@/lib/requestUi'
+import { getContentMaxClass, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 export function AppLayout() {
+  const { pathname } = useLocation()
+  const contentMaxClass = getContentMaxClass(pathname)
+
   useMasterDataInit()
   usePullToRefreshHost()
 
@@ -46,7 +50,12 @@ export function AppLayout() {
             'pour-wide:px-10 pour-wide:pt-6 pour-wide:pb-10',
           )}
         >
-          <div className="flex min-w-0 flex-col pour-wide:mx-auto pour-wide:w-full pour-wide:max-w-328">
+          <div
+            className={cn(
+              'flex min-w-0 flex-col pour-wide:mx-auto pour-wide:w-full',
+              contentMaxClass,
+            )}
+          >
             <AnimatedOutlet />
           </div>
         </PullToRefreshMain>

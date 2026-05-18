@@ -136,7 +136,40 @@ export const theme = {
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
   /** เนื้อหารายการใน main */
   mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
+  /** จำกัดความกว้างเนื้อหาเมื่อ pour-wide (328 ≈ 82rem) */
+  contentMaxWide: 'pour-wide:max-w-328',
+  /** ตารางกว้าง — ~20% กว่า contentMaxWide (394 ≈ 98.5rem) */
+  contentMaxTable: 'pour-wide:max-w-394',
+  /** แคบ — 50% ของ contentMaxWide (164 ≈ 41rem) */
+  contentMaxNarrow: 'pour-wide:max-w-164',
+  /** โปรไฟล์ — 80% ของ contentMaxWide (262 ≈ 65.5rem) */
+  contentMaxProfile: 'pour-wide:max-w-262',
 } as const
+
+/** หน้าตารางกว้าง — ใช้ contentMaxTable แทน contentMaxWide เมื่อ pour-wide */
+export function isTableContentPath(pathname: string): boolean {
+  return (
+    pathname.startsWith('/cst') ||
+    pathname.startsWith('/requests/booking-summary') ||
+    pathname.startsWith('/admin/users')
+  )
+}
+
+/** หน้า CRUD แคบ — 50% ของ contentMaxWide (เช่น Structure, Client, Jobs) */
+export function isNarrowContentPath(pathname: string): boolean {
+  return (
+    pathname.startsWith('/admin/structure') ||
+    pathname.startsWith('/admin/client') ||
+    pathname.startsWith('/admin/jobs')
+  )
+}
+
+export function getContentMaxClass(pathname: string): string {
+  if (isNarrowContentPath(pathname)) return theme.contentMaxNarrow
+  if (isTableContentPath(pathname)) return theme.contentMaxTable
+  if (pathname.startsWith('/profile')) return theme.contentMaxProfile
+  return theme.contentMaxWide
+}
 
 /** App-wide layout chrome */
 export const app = {
