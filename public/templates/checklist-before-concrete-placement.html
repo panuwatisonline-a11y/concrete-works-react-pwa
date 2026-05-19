@@ -6,650 +6,361 @@
   <title>Check List Before Concrete Placement</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     @page { size: A4 portrait; margin: 0; }
-    * { box-sizing: border-box; }
-    :root {
-      --chk-border: 1px solid #000;
-      --chk-head-bg: #e2e8f0;
-      --chk-head-color: #0f172a;
-      --chk-head-border: 1px solid #000;
-    }
-    html {
-      font-size: 9pt;
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
-    }
-    body {
-      margin: 0;
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      margin: 0; padding: 0;
       font-family: Sarabun, "TH Sarabun New", "Segoe UI", system-ui, sans-serif;
-      font-size: 1rem;
-      line-height: 1.25;
-      color: #111827;
+      font-size: 8pt;
+      line-height: 1.2;
+      color: #000;
       background: #fff;
     }
-    @media screen { body { background: #e2e8f0; padding: 10px; } }
+    @media screen { body { background: #64748b; padding: 20px; } }
+    @media print  { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+
     .a4-page {
-      box-sizing: border-box;
       width: 210mm;
-      min-height: 297mm;
+      height: 297mm;
       margin: 0 auto;
-      padding: 8mm 10mm 7mm;
+      padding: 5mm 8mm;
       background: #fff;
-      box-shadow: 0 4px 24px rgba(15, 23, 42, 0.12);
       display: flex;
       flex-direction: column;
     }
-    .sheet {
-      flex: 1 1 auto;
+    @media screen {
+      .a4-page { height: auto; min-height: 297mm; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+    }
+
+    .doc-frame {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #000;
       min-height: 0;
-      display: flex;
-      flex-direction: column;
     }
-    @media print {
-      html, body { width: 210mm; margin: 0; padding: 0; background: #fff; }
-      .a4-page {
-        width: 210mm;
-        min-height: 297mm;
-        margin: 0;
-        padding: 8mm 10mm 7mm;
-        box-shadow: none;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-      body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    }
-    .sheet-header {
-      margin-bottom: 6px;
-      border-bottom: var(--chk-border);
-      padding-bottom: 5px;
-    }
-    .project-name {
-      margin: 0 auto 4px;
-      max-width: 100%;
-      font-size: 0.95rem;
-      font-weight: 700;
-      line-height: 1.35;
-      text-align: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .header-brand {
-      display: flex;
-      flex-direction: column;
+    .doc-frame > * + * { border-top: 1px solid #000; }
+
+    /* ── Header ── */
+    .doc-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
       align-items: center;
-      width: fit-content;
-      margin: 0 auto 4px;
+      padding: 4px 12px;
     }
-    .logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .logos img {
-      display: block;
-      height: 26px;
-      width: auto;
-      object-fit: contain;
-    }
-    .org-line {
-      margin: 3px 0 0;
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1.15;
+    .hd-text { display: flex; flex-direction: column; gap: 1px; }
+    .hd-title-en { margin: 0; font-size: 11.5pt; font-weight: 700; letter-spacing: 0.02em; }
+    .hd-title-th { margin: 0; font-size: 9pt; font-weight: 600; }
+    .hd-org      { margin-top: 3px; font-size: 7pt; font-weight: 700; }
+    .hd-logos    { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .hd-logos-row { display: flex; align-items: center; gap: 10px; }
+    .hd-logos img { display: block; height: 28px; width: auto; object-fit: contain; }
+
+    /* ── Project bar ── */
+    .project-bar {
+      padding: 3px 12px;
       text-align: center;
-    }
-    .doc-title-en {
-      margin: 0 0 2px;
-      font-size: 1.02rem;
+      font-size: 10pt;
       font-weight: 700;
-      text-align: center;
-      letter-spacing: 0.02em;
+      white-space: normal;
     }
-    .doc-title-th {
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-align: center;
-    }
-    .meta-block {
-      border: none;
-      background: #fff;
-      overflow: hidden;
-    }
-    .meta-block table.bordered {
-      border: none;
-      margin: 0;
-    }
-    .checklist-block {
-      border: none;
-      background: #fff;
-      overflow: hidden;
-    }
-    .checklist-block table.bordered {
-      border: none;
-      margin: 0;
-    }
-    .checklist-block table.form {
-      margin-bottom: 0;
-      border-bottom: none;
-    }
-    .checklist-block .foot-legend {
-      margin-top: -1px;
-      border: none;
-      border-top: var(--chk-border);
-      border-left: var(--chk-border);
-      border-right: var(--chk-border);
-    }
-    .checklist-block .foot-notes {
-      border: none;
-      border-top: var(--chk-border);
-      border-left: var(--chk-border);
-      border-right: var(--chk-border);
-    }
-    .checklist-block .sign-block {
-      border: none;
-      border-top: var(--chk-border);
-      border-left: var(--chk-border);
-      border-right: var(--chk-border);
-      border-bottom: var(--chk-border);
-    }
-    .doc-section.meta-block { margin-top: 0; }
-    .doc-section.meta-block + .doc-section.checklist-block { margin-top: 8px; }
-    .doc-section.checklist-block + .doc-section.sheet-footer { margin-top: 8px; }
-    table.bordered {
+
+    /* ── Meta table ── */
+    table.meta-tbl {
       width: 100%;
       border-collapse: collapse;
       table-layout: fixed;
-      border: none;
-      background: #fff;
+      flex-shrink: 0;
     }
-    table.bordered td,
-    table.bordered th {
-      border: var(--chk-border);
-      padding: 3px 5px;
+    col.mcw-1 { width: 50%; }
+    col.mcw-2 { width: 30%; }
+    col.mcw-3 { width: 20%; }
+    .meta-date { white-space: nowrap; }
+    table.meta-tbl td {
+      padding: 4px 12px;
+      font-size: 8pt;
       vertical-align: middle;
-      font-weight: 400;
+      border-bottom: 0.5px dashed #ccc;
+      line-height: 1.4;
+    }
+    table.meta-tbl tr:last-child td { border-bottom: none; }
+    .meta-lbl { font-weight: 700; margin-right: 4px; }
+
+    /* ── Checklist table ── */
+    table.chk-tbl {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      flex: 1 1 0;
+    }
+    /* 16 cols → 2 halves, each 50%: 4×7.25% + 3×3.5% + 10.5% = 50% */
+    col.cw-d   { width: 7.25%; }
+    col.cw-chk { width: 3.5%;  }
+    col.cw-dp  { width: 10.5%; }
+
+    table.chk-tbl td,
+    table.chk-tbl th {
+      border: 1px solid #000;
+      padding: 3px 4px;
+      vertical-align: middle;
       overflow-wrap: break-word;
       word-break: break-word;
-    }
-    .doc-section { margin-bottom: 0; }
-    .doc-section + .doc-section { margin-top: 8px; }
-    table.meta-table {
-      margin-bottom: 0;
-    }
-    table.meta-table td {
-      border-left: none;
-      border-right: none;
-      border-top: none;
-      border-bottom: none;
-    }
-    table.meta-table td.pane-end {
-      border-right: none;
-    }
-    table.form {
-      margin-bottom: 0;
-    }
-    table.form thead td {
-      padding: 4px 5px;
-      border-top: var(--chk-border);
-      border-bottom: var(--chk-border);
-      background: #fff;
-      color: #111827;
-      font-weight: 700;
-    }
-    table.form tbody tr.sub-row td.c-desc.sub {
-      background: #fff;
-    }
-    table.form tbody tr.sub-row td.c-box,
-    table.form tbody tr.sub-row td.c-dept {
-      background: #fff;
-    }
-    table.form td.sec-head {
-      font-weight: 700;
-      padding: 4px 6px;
-      vertical-align: middle;
-      font-size: 0.86rem;
-      line-height: 1.25;
-      letter-spacing: 0.01em;
-      background: #fff;
-      color: #111827;
-      border-top: var(--chk-border);
-      border-bottom: var(--chk-border);
-    }
-    table.form tbody tr:first-child td.sec-head {
-      border-top: none;
-    }
-    /* แบ่งครึ่งซ้าย–ขวา (คอลัมน์ที่ 8 ของแต่ละครึ่ง) */
-    .checklist-block td.pane-end,
-    table.form td:nth-child(8) {
-      border-right: var(--chk-border);
-    }
-    table.form td.c-box,
-    table.form td.c-dept {
-      padding: 2px;
-    }
-    /* 8 คอลัมน์ต่อครึ่ง — รายการ 62% | NA/C/NC 7% แต่ละช่อง | ส่วนงาน 17% */
-    col.cw-desc { width: 15.5%; }
-    col.cw-desc2 { width: 15.5%; }
-    col.cw-desc3 { width: 15.5%; }
-    col.cw-desc4 { width: 15.5%; }
-    col.cw-na { width: 7%; }
-    col.cw-c { width: 7%; }
-    col.cw-nc { width: 7%; }
-    col.cw-dept { width: 17%; }
-    .meta-field {
-      font-size: 0.86rem;
-      line-height: 1.3;
-      padding: 4px 6px;
-      min-height: 1.35em;
-      vertical-align: bottom;
-      background: #fff;
-      color: #111827;
-    }
-    .meta-field .meta-lbl {
-      font-weight: 700;
-      white-space: nowrap;
-    }
-    .meta-field .meta-val {
       font-weight: 400;
     }
-    .meta-field.meta-date { white-space: nowrap; }
-    .meta-field.meta-spacer {
-      padding: 0;
-      min-height: 0;
+    table.chk-tbl > * > tr > td:first-child,
+    table.chk-tbl > * > tr > th:first-child { border-left: none; }
+    table.chk-tbl > * > tr > td:last-child,
+    table.chk-tbl > * > tr > th:last-child  { border-right: none; }
+    table.chk-tbl > thead > tr:first-child > * { border-top: none; }
+    table.chk-tbl > tbody > tr:last-child > td { border-bottom: none; }
+
+    .th-label { font-size: 7.5pt; padding: 3px 6px; }
+    .th-chk   { text-align: center; font-size: 7pt; }
+    .th-dept  { text-align: center; font-size: 6pt; line-height: 1.1; padding: 2px 1px; }
+    table.chk-tbl .th-label,
+    table.chk-tbl .th-chk,
+    table.chk-tbl .th-dept { font-weight: 700; background: #ebebeb; }
+
+    .sec-head { font-weight: 700; font-size: 7pt; padding: 1px 4px; line-height: 1.3; }
+    table.chk-tbl .sec-head { border-top: 1px solid #000; border-bottom: 0.5px dashed #ccc; background: #f5f5f5; font-weight: 700; }
+
+    /* data rows: thin dashed horizontal lines only — vertical stays solid */
+    table.chk-tbl .c-desc,
+    table.chk-tbl .c-box,
+    table.chk-tbl .c-dept {
+      border-top: 0.5px dashed #ccc;
+      border-bottom: 0.5px dashed #ccc;
     }
-    table.meta-table tr + tr td {
-      border-top: none;
+
+    .c-desc     { font-size: 7pt; line-height: 1.2; padding: 0 3px; }
+    .c-desc.sub { padding-left: 9px; }
+    .c-box      { text-align: center; vertical-align: middle; padding: 0; }
+    .c-box::before {
+      content: "\25A1";
+      font-size: 15pt;
+      display: inline-block;
+      line-height: 0;
+      transform: translateY(-1px);
     }
-    .thead-label {
-      text-align: left;
-      font-size: 0.86rem;
-      padding-left: 6px;
-    }
-    .thead-h {
-      text-align: center;
-      font-size: 0.8rem;
-      letter-spacing: 0.04em;
-    }
-    .thead-h.th-dept {
-      font-size: 0.7rem;
-      line-height: 1.15;
-      padding: 3px 2px;
-      letter-spacing: 0;
-    }
-    .c-desc {
-      text-align: left;
-      padding: 2px 5px;
-      font-size: 0.8rem;
-      line-height: 1.2;
-    }
-    .c-desc.sub {
-      padding-left: 10px;
-      color: #1e293b;
-    }
-    .c-box {
-      text-align: center;
-      vertical-align: middle;
-      padding: 1px;
-      min-width: 6mm;
-      min-height: 4.5mm;
-    }
-    .c-dept {
-      text-align: center;
-      font-size: 0.62rem;
-      line-height: 1.1;
-      padding: 2px 1px;
-      color: #475569;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .sheet-footer {
-      flex-shrink: 0;
-      margin-top: auto;
-    }
-    .doc-section.sheet-footer { margin-top: 8px; }
-    .foot-legend {
-      padding: 5px 10px;
-      margin: 0;
-      background: #fff;
-    }
-    .foot-legend-list {
+    .c-dept { text-align: center; font-size: 6.5pt; line-height: 1.15; padding: 0 1px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+
+    /* ── Legend ── */
+    .legend-row {
       display: flex;
       flex-wrap: wrap;
-      align-items: center;
-      gap: 3px 12px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      font-size: 0.68rem;
-      line-height: 1.35;
-      color: #334155;
+      gap: 0 12px;
+      padding: 2px 8px;
+      font-size: 6.5pt;
+      line-height: 1.6;
     }
-    .foot-legend-list abbr {
-      font-weight: 700;
-      font-style: normal;
-      color: #0f172a;
-      text-decoration: none;
-      margin-right: 0.2em;
-    }
-    .foot-notes {
-      display: flex;
-      flex-direction: column;
-      border: none;
-      background: #fff;
-      overflow: hidden;
-      font-size: 0.88rem;
-      line-height: 1.3;
-    }
-    .foot-field {
-      display: grid;
-      grid-template-columns: 7.5em minmax(0, 1fr);
-      column-gap: 10px;
-      align-items: baseline;
-      padding: 7px 12px;
-    }
-    .foot-field--grade {
-      background: #fff;
-      border-bottom: var(--chk-border);
-      min-height: 2.4em;
-    }
-    .foot-field--remarks {
-      align-items: start;
-      padding: 8px 12px 10px;
-      min-height: 4.5em;
-    }
-    .foot-label {
-      grid-column: 1;
-      font-weight: 700;
-      font-size: 0.84rem;
-      color: #111827;
-      white-space: nowrap;
-    }
-    .foot-value {
-      grid-column: 2;
-      min-width: 0;
-    }
-    .foot-value--grade {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 4px 8px;
-    }
-    .grade-val {
-      font-weight: 600;
-      font-size: 0.92rem;
-      color: #0f172a;
-    }
-    .foot-field--remarks .foot-label {
-      padding-top: 2px;
-    }
-    .foot-remarks-body {
-      min-height: 3.2em;
-      line-height: 1.4;
-      font-size: 0.88rem;
-      color: #111827;
-      overflow-wrap: anywhere;
-      word-break: normal;
-      white-space: pre-wrap;
-    }
+    .legend-row abbr { font-weight: 700; text-decoration: none; margin-right: 2px; font-style: normal; }
+
+    /* ── Note rows ── */
+    .note-row { display: flex; gap: 6px; padding: 2px 8px; font-size: 8pt; }
+    .note-lbl { font-weight: 700; white-space: nowrap; }
+    .note-grade { align-items: baseline; }
+    .grade-val  { font-weight: 700; font-size: 9pt; }
+    .note-remarks { min-height: 2.4em; align-items: flex-start; padding-bottom: 4px; }
+    .remarks-body { flex: 1; min-height: 2em; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    /* ── Signatures ── */
     .sign-block {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      border: none;
-      background: #fff;
-      overflow: hidden;
+      min-height: 15mm;
+      flex-shrink: 0;
     }
-    .sig-pane {
-      display: flex;
-      flex-direction: column;
-      min-height: 26mm;
-      padding: 0;
-      text-align: center;
-    }
-    .sig-pane--left {
-      border-right: var(--chk-border);
-    }
-    .sig-party {
-      margin: 0;
-      padding: 4px 8px;
-      font-size: 0.84rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: var(--chk-head-color);
-      background: var(--chk-head-bg);
-      border-bottom: var(--chk-border);
-    }
-    .sig-body {
-      flex: 1 1 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      width: 100%;
-      padding: 6px 12px 8px;
-      min-height: 0;
-    }
-    .sig-pad {
-      flex: 1 1 auto;
-      width: 72%;
-      max-width: 58mm;
-      min-height: 12mm;
-      margin: 2px auto 8px;
-      border-bottom: var(--chk-border);
-    }
-    .sig-role {
-      margin: 0 0 2px;
-      font-size: 0.86rem;
-      font-weight: 700;
-      line-height: 1.3;
-      color: #111827;
-    }
-    .sig-unit {
-      margin: 0 0 4px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      line-height: 1.25;
-      color: #475569;
-      letter-spacing: 0.01em;
-    }
-    .sig-date {
-      margin: 0;
-      width: 100%;
-      font-size: 0.78rem;
-      line-height: 1.25;
-      color: #111827;
-    }
-    .sig-date-lbl {
-      font-weight: 700;
-    }
-    .sig-date-val {
-      font-weight: 400;
-    }
+    .sig-pane { display: flex; flex-direction: column; }
+    .sig-pane + .sig-pane { border-left: 1px solid #000; }
+    .sig-party { margin: 0; padding: 2px 8px; font-size: 8pt; font-weight: 700; text-align: center; border-bottom: 1px solid #000; line-height: 1.3; background: #ebebeb; }
+    .sig-body  { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 2px 14px 4px; }
+    .sig-pad   { width: 70%; max-width: 50mm; min-height: 7mm; margin-bottom: 2px; border-bottom: 1px solid #000; }
+    .sig-role  { margin: 0 0 1px; font-size: 8pt;   font-weight: 700; text-align: center; }
+    .sig-unit  { margin: 0 0 2px; font-size: 7.5pt; font-weight: 600; text-align: center; }
+    .sig-date  { margin: 0;       font-size: 7.5pt; text-align: center; }
+    .sig-date-lbl { font-weight: 700; }
+
+    /* ── Footer ── */
     .doc-foot {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
-      align-items: baseline;
-      gap: 6px 10px;
-      padding: 5px 10px 6px;
-      border-top: var(--chk-border);
-      background: #fff;
-      font-size: 0.72rem;
-      line-height: 1.35;
-      color: #1e293b;
+      grid-template-columns: 1fr 1fr 1fr;
+      font-size: 6.5pt;
+      flex-shrink: 0;
     }
-    .doc-foot span { overflow-wrap: break-word; }
-    .doc-foot-left { justify-self: start; font-weight: 600; }
-    .doc-foot-center { justify-self: center; text-align: center; }
-    .doc-foot-right { justify-self: end; text-align: right; font-weight: 600; }
-</style>
+    .doc-foot-cell {
+      padding: 2px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .doc-foot-cell + .doc-foot-cell { border-left: none; }
+    .doc-foot-cell.center { align-items: center; text-align: center; }
+    .doc-foot-cell.right  { align-items: flex-end; text-align: right; }
+    .doc-foot-lbl  { font-weight: 400; color: #555; }
+    .doc-foot-val  { font-weight: 400; }
+  </style>
 </head>
 <body>
   <div class="a4-page" data-print-doc="checklist">
-    <div class="sheet" aria-label="F-INS-ST-DC3-01">
-      <header class="sheet-header">
-        <div class="header-brand">
-          <div class="logos">
-            <img src="/templates/cst-report-logo-2.png" alt="" />
-            <img src="/templates/cst-report-logo-1.png" alt="" />
-            <img src="/templates/cst-report-logo-3.png" alt="" />
-          </div>
-          <p class="org-line">กิจการร่วมค้า ซีเคเอสที ดีซี3</p>
+    <div class="doc-frame" aria-label="F-INS-ST-DC3-01">
+
+      <header class="doc-header">
+        <div class="hd-text">
+          <h1 class="hd-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</h1>
+          <p class="hd-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</p>
         </div>
-        <p class="project-name">{{clientName}}</p>
-        <h1 class="doc-title-en">CHECK LIST BEFORE CONCRETE PLACEMENT</h1>
-        <p class="doc-title-th">แบบฟอร์มตรวจสอบก่อนเทคอนกรีต</p>
+        <div class="hd-logos">
+          <div class="hd-logos-row">
+            <img src="/templates/cst-report-logo-2.png" alt="" onerror="this.style.display='none'" />
+            <img src="/templates/cst-report-logo-1.png" alt="" onerror="this.style.display='none'" />
+            <img src="/templates/cst-report-logo-3.png" alt="" onerror="this.style.display='none'" />
+          </div>
+          <div class="hd-org">กิจการร่วมค้า ซีเคเอสที ดีซี3</div>
+        </div>
       </header>
 
-      <div class="meta-block doc-section" aria-label="ข้อมูลงาน">
-      <table class="bordered meta-table" aria-label="ข้อมูลงาน">
+      <div class="project-bar">{{clientName}}</div>
+
+      <table class="meta-tbl" aria-label="ข้อมูลงาน">
         <colgroup>
-
-        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
-        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
-        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
-        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
-
+          <col class="mcw-1" /><col class="mcw-2" /><col class="mcw-3" />
         </colgroup>
         <tbody>
           <tr>
-            <td colspan="8" class="meta-field"><span class="meta-lbl">ชื่องาน :</span> <span class="meta-val">{{workName}}</span></td>
-            <td colspan="5" class="meta-field"><span class="meta-lbl">ชนิดโครงสร้าง :</span> <span class="meta-val">{{structureType}}</span></td>
-            <td colspan="3" class="meta-field meta-date"><span class="meta-lbl">วันที่ :</span> <span class="meta-val">{{requestDate}}</span></td>
+            <td><span class="meta-lbl">ชื่องาน :</span> {{workName}}</td>
+            <td><span class="meta-lbl">ชนิดโครงสร้าง :</span> {{structureType}}</td>
+            <td class="meta-date"><span class="meta-lbl">วันที่ :</span> {{requestDate}}</td>
           </tr>
           <tr>
-            <td colspan="8" class="meta-field"><span class="meta-lbl">หมายเลขโครงสร้าง :</span> <span class="meta-val">{{structureNo}}</span></td>
-            <td colspan="8" class="meta-field"><span class="meta-lbl">สถานที่/ กม. :</span> <span class="meta-val">{{locationText}}</span></td>
+            <td><span class="meta-lbl">หมายเลขโครงสร้าง :</span> {{structureNo}}</td>
+            <td colspan="2"><span class="meta-lbl">สถานที่ / กม. :</span> {{locationText}}</td>
           </tr>
           <tr>
-            <td colspan="8" class="meta-field"><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> <span class="meta-val">{{pourSequence}}</span></td>
-            <td colspan="4" class="meta-field"><span class="meta-lbl">ชั้นที่ :</span> <span class="meta-val">{{floorLevel}}</span></td>
-            <td colspan="4" class="meta-field meta-spacer" aria-hidden="true"></td>
+            <td><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> {{pourSequence}}</td>
+            <td><span class="meta-lbl">ชั้นที่ :</span> {{floorLevel}}</td>
+            <td></td>
           </tr>
         </tbody>
       </table>
-      </div>
 
-      <div class="checklist-block doc-section" aria-label="รายการตรวจสอบ">
-      <table class="bordered form" aria-label="รายการตรวจสอบ">
+      <table class="chk-tbl" aria-label="รายการตรวจสอบ">
         <colgroup>
-
-        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
-        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
-        <col class="cw-desc" /><col class="cw-desc2" /><col class="cw-desc3" /><col class="cw-desc4" />
-        <col class="cw-na" /><col class="cw-c" /><col class="cw-nc" /><col class="cw-dept" />
-
+          <col class="cw-d"/><col class="cw-d"/><col class="cw-d"/><col class="cw-d"/>
+          <col class="cw-chk"/><col class="cw-chk"/><col class="cw-chk"/><col class="cw-dp"/>
+          <col class="cw-d"/><col class="cw-d"/><col class="cw-d"/><col class="cw-d"/>
+          <col class="cw-chk"/><col class="cw-chk"/><col class="cw-chk"/><col class="cw-dp"/>
         </colgroup>
         <thead>
           <tr>
-            <td colspan="4" class="thead-label">รายการตรวจสอบ</td>
-            <td class="thead-h">NA</td>
-            <td class="thead-h">C</td>
-            <td class="thead-h">NC</td>
-            <td class="thead-h th-dept">ส่วนงาน</td>
-            <td colspan="4" class="thead-label">รายการตรวจสอบ</td>
-            <td class="thead-h">NA</td>
-            <td class="thead-h">C</td>
-            <td class="thead-h">NC</td>
-            <td class="thead-h th-dept">ส่วนงาน</td>
+            <td colspan="4" class="th-label">รายการตรวจสอบ</td>
+            <td class="th-chk">NA</td>
+            <td class="th-chk">C</td>
+            <td class="th-chk">NC</td>
+            <td class="th-dept">ส่วนงาน</td>
+            <td colspan="4" class="th-label">รายการตรวจสอบ</td>
+            <td class="th-chk">NA</td>
+            <td class="th-chk">C</td>
+            <td class="th-chk">NC</td>
+            <td class="th-dept">ส่วนงาน</td>
           </tr>
         </thead>
         <tbody>
-<tr><td class="c-desc sec sec-head" colspan="8">ก. สำรวจ (Survey)</td><td class="c-desc sec sec-head" colspan="8">ช. คอนกรีตอัดแรงกำลังสูง (Post - Tensioning)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ตำแหน่ง/ พิกัด (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาดลวดอัดแรง (Size strands)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ระดับ (Elevation)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ตำแหน่ง จำนวนและแนวการจัดวางลวด Strand</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งอุปกรณ์ต่างๆ ในระบบ Post - Tensioning</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ทิศทาง (Direction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเสริมกันระเบิดของหัวสมอยึด (Anchorage)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ดิ่ง (Vertical line)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การจัดแนวท่อชีท (Corrugated Galvanized Sheath)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sec sec-head" colspan="4">ข. การเตรียมผิวหรือรอยต่อ (Surface Preparation)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้ง Spiral บริเวณหัว Anchorage</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sec sec-head" colspan="8">ค. งานไม้แบบ (Formwork)</td><td class="c-desc sub" colspan="4">- ไม่มีสิ่งกีดขวาง (Clear of Obstruction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ซ. การต่อลงดินของระบบไฟฟ้า (Earthing and Bonding System)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของไม้แบบ (Stability)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในเสาเข็มเจาะ (earthing bar of bored pile)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของโครงสร้างรับแบบ (Falsework)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งและให้เครื่องหมาย (installed &amp; marked)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ความสะอาดของไม้แบบ (Formwork Surfaces)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในฐานราก (earthing bar of footing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การจัด Blockout ( incl. Bearing and exp.Joints )</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในตอม่อ (earthing bar of pier)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การป้องกันฝน (Rain Protection)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การเชื่อมหลักดินเป็นไปตามแบบกำหนด (welding)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การทาน้ำยาทาแบบ (Formwork Oil)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขั้วต่อกราวด์ (Earthing Terminal)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การติดตั้งบัวลบมุม (Chamfer Strips)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ณ. กล่องและแผงไฟ (Electrical Boxes &amp; Panels)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ความสะอาดครั้งสุดท้ายก่อนเท (Cleanliness)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sec sec-head" colspan="8">ง. งานเหล็กเสริม (Reinforcement)</td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- จุดรองรับเพียงพอ (Adequate Support)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การยาแนวกับคอนกรีต (Sealed against Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ระยะห่าง (Spacing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ญ. วัสดุกันซึม (Water Stop)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- ระยะทาบ (Laps)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การมัดลวด (Tie Wires)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ฎ. ท่อระบายน้ำ (Drainage Pipes)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- กำหนดระยะคอนกรีตหุ้มเหล็ก (Chairs and Spacers)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- การงอเหล็ก (Hooks)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ฏ. ชุดขยายข้อต่อ (Expansion Joints)</td></tr>
-<tr class="sub-row"><td class="c-desc sec sec-head" colspan="8">จ. วัสดุที่ฝังอยู่ในคอนกรีต (Permanent Embedments)</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- สมอสลักเกลียว (Anchor Bolts)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ฐ. แผ่นยางรองคอสะพาน (Bearing Pad)</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- เหล็กฝัง (Embedded Steel)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- เหล็กฝังเพื่อติดตั้งไม้แบบ (Embedded for Formwork)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sec sec-head" colspan="8">ฑ. อื่นๆ (Other Features (list))</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">- สมอยึดลวด (Anchorage Block)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การบดอัดทราย (Compacted Sand)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sec sec-head" colspan="8">ฉ. แผ่นเหล็กพืดชั่วคราวในงานขุด (Temporary Sheet Pile for Excavation)</td><td class="c-desc sub" colspan="4">- การเทลีน (Lean Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเดือย (Dowel Bar)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc sub" colspan="4">ไม่ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- สภาพหัวเสาเข็ม (Pile Head Condition)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr class="sub-row"><td class="c-desc" colspan="4"></td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ก. สำรวจ (Survey)</td><td class="sec-head" colspan="8">ช. คอนกรีตอัดแรงกำลังสูง (Post - Tensioning)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ตำแหน่ง/ พิกัด (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาดลวดอัดแรง (Size strands)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ระดับ (Elevation)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ตำแหน่ง จำนวนและแนวการจัดวางลวด Strand</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งอุปกรณ์ต่างๆ ในระบบ Post - Tensioning</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ทิศทาง (Direction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเสริมกันระเบิดของหัวสมอยึด (Anchorage)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ดิ่ง (Vertical line)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การจัดแนวท่อชีท (Corrugated Galvanized Sheath)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ข. การเตรียมผิวหรือรอยต่อ (Surface Preparation)</td><td class="c-desc sub" colspan="4">- การติดตั้ง Spiral บริเวณหัว Anchorage</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ค. งานไม้แบบ (Formwork)</td><td class="c-desc sub" colspan="4">- ไม่มีสิ่งกีดขวาง (Clear of Obstruction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ซ. การต่อลงดินของระบบไฟฟ้า (Earthing and Bonding System)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของไม้แบบ (Stability)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในเสาเข็มเจาะ (earthing bar of bored pile)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของโครงสร้างรับแบบ (Falsework)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งและให้เครื่องหมาย (installed &amp; marked)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความสะอาดของไม้แบบ (Formwork Surfaces)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในฐานราก (earthing bar of footing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การจัด Blockout ( incl. Bearing and exp.Joints )</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในตอม่อ (earthing bar of pier)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การป้องกันฝน (Rain Protection)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การเชื่อมหลักดินเป็นไปตามแบบกำหนด (welding)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การทาน้ำยาทาแบบ (Formwork Oil)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขั้วต่อกราวด์ (Earthing Terminal)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การติดตั้งบัวลบมุม (Chamfer Strips)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ณ. กล่องและแผงไฟ (Electrical Boxes &amp; Panels)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความสะอาดครั้งสุดท้ายก่อนเท (Cleanliness)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ง. งานเหล็กเสริม (Reinforcement)</td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- จุดรองรับเพียงพอ (Adequate Support)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การยาแนวกับคอนกรีต (Sealed against Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ระยะห่าง (Spacing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ญ. วัสดุกันซึม (Water Stop)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ระยะทาบ (Laps)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การมัดลวด (Tie Wires)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฎ. ท่อระบายน้ำ (Drainage Pipes)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- กำหนดระยะคอนกรีตหุ้มเหล็ก (Chairs and Spacers)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การงอเหล็ก (Hooks)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฏ. ชุดขยายข้อต่อ (Expansion Joints)</td></tr>
+<tr><td class="sec-head" colspan="8">จ. วัสดุที่ฝังอยู่ในคอนกรีต (Permanent Embedments)</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- สมอสลักเกลียว (Anchor Bolts)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฐ. แผ่นยางรองคอสะพาน (Bearing Pad)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- เหล็กฝัง (Embedded Steel)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- เหล็กฝังเพื่อติดตั้งไม้แบบ (Embedded for Formwork)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฑ. อื่นๆ (Other Features (list))</td></tr>
+<tr><td class="c-desc sub" colspan="4">- สมอยึดลวด (Anchorage Block)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การบดอัดทราย (Compacted Sand)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ฉ. แผ่นเหล็กพืดชั่วคราวในงานขุด (Temporary Sheet Pile for Excavation)</td><td class="c-desc sub" colspan="4">- การเทลีน (Lean Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเดือย (Dowel Bar)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">ไม่ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- สภาพหัวเสาเข็ม (Pile Head Condition)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc" colspan="4"></td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
         </tbody>
       </table>
 
-        <nav class="foot-legend" aria-label="คำอธิบายตัวย่อ">
-          <ul class="foot-legend-list">
-            <li><abbr title="Not Applicable">NA</abbr> Not Applicable</li>
-            <li><abbr title="Conformed">C</abbr> Conformed</li>
-            <li><abbr title="Non Conformed">NC</abbr> Non Conformed</li>
-            <li><abbr title="Railway Bridge">RB</abbr> Railway Bridge</li>
-            <li><abbr title="Overpass Bridge">OP</abbr> Overpass Bridge</li>
-            <li><abbr title="Building Works">BU</abbr> Building Works</li>
-            <li><abbr title="Quality Control">QC</abbr> Quality Control</li>
-          </ul>
-        </nav>
+      <div class="legend-row" role="note">
+        <span><abbr title="Not Applicable">NA</abbr>Not Applicable</span>
+        <span><abbr title="Conformed">C</abbr>Conformed</span>
+        <span><abbr title="Non Conformed">NC</abbr>Non Conformed</span>
+        <span><abbr title="Railway Bridge">RB</abbr>Railway Bridge</span>
+        <span><abbr title="Overpass Bridge">OP</abbr>Overpass Bridge</span>
+        <span><abbr title="Building Works">BU</abbr>Building Works</span>
+        <span><abbr title="Quality Control">QC</abbr>Quality Control</span>
+      </div>
 
-        <div class="foot-notes" aria-label="เกรดคอนกรีตและหมายเหตุ">
-          <div class="foot-field foot-field--grade">
-            <span class="foot-label">Concrete Grade :</span>
-            <div class="foot-value foot-value--grade">
-              <span class="grade-val">{{concreteGradeDisplay}}</span>
-            </div>
-          </div>
-          <div class="foot-field foot-field--remarks">
-            <span class="foot-label">Remarks :</span>
-            <div class="foot-remarks-body">{{remarks}}</div>
+      <div class="note-row note-grade">
+        <span class="note-lbl">Concrete Grade :</span>
+        <span class="grade-val">{{concreteGrade}}</span>
+      </div>
+
+      <div class="note-row note-remarks">
+        <span class="note-lbl">Remarks :</span>
+        <div class="remarks-body">{{remarks}}</div>
+      </div>
+
+      <div class="sign-block" aria-label="ลายเซ็น">
+        <div class="sig-pane" aria-label="ผู้รับจ้าง">
+          <p class="sig-party">ผู้รับจ้าง</p>
+          <div class="sig-body">
+            <div class="sig-pad" aria-hidden="true"></div>
+            <p class="sig-role">วิศวกรควบคุมงาน</p>
+            <p class="sig-unit">{{contractorUnit}}</p>
+            <p class="sig-date"><span class="sig-date-lbl">วันที่ :</span> <span class="sig-date-val">{{signDate}}</span></p>
           </div>
         </div>
-
-        <div class="sign-block" aria-label="ลายเซ็น">
-          <div class="sig-pane sig-pane--left" aria-label="ผู้รับจ้าง">
-            <p class="sig-party">ผู้รับจ้าง</p>
-            <div class="sig-body">
-              <div class="sig-pad" aria-hidden="true"></div>
-              <p class="sig-role">วิศวกรควบคุมงาน</p>
-              <p class="sig-unit">{{contractorUnit}}</p>
-              <p class="sig-date"><span class="sig-date-lbl">วันที่ :</span> <span class="sig-date-val">{{signDate}}</span></p>
-            </div>
-          </div>
-          <div class="sig-pane" aria-label="ที่ปรึกษา">
-            <p class="sig-party">ที่ปรึกษา</p>
-            <div class="sig-body">
-              <div class="sig-pad" aria-hidden="true"></div>
-              <p class="sig-role">ผู้ควบคุมงาน</p>
-              <p class="sig-unit">{{consultantUnit}}</p>
-              <p class="sig-date"><span class="sig-date-lbl">วันที่ :</span> <span class="sig-date-val">{{signDate}}</span></p>
-            </div>
+        <div class="sig-pane" aria-label="ที่ปรึกษา">
+          <p class="sig-party">ที่ปรึกษา</p>
+          <div class="sig-body">
+            <div class="sig-pad" aria-hidden="true"></div>
+            <p class="sig-role">ผู้ควบคุมงาน</p>
+            <p class="sig-unit">{{consultantUnit}}</p>
+            <p class="sig-date"><span class="sig-date-lbl">วันที่ :</span> <span class="sig-date-val">{{signDate}}</span></p>
           </div>
         </div>
       </div>
 
-      <footer class="sheet-footer doc-section">
-        <div class="doc-foot" role="contentinfo" aria-label="ข้อมูลเอกสาร">
-          <span class="doc-foot-left">Document No. {{documentNo}}</span>
-          <span class="doc-foot-center">{{issueNo}} &nbsp;·&nbsp; Date : {{issueDate}}</span>
-          <span class="doc-foot-right">Page {{pageCurrent}} / {{pageTotal}}</span>
+      <div class="doc-foot" role="contentinfo">
+        <div class="doc-foot-cell">
+          <span class="doc-foot-lbl">Document No.</span>
+          <span class="doc-foot-val">{{documentNo}}</span>
         </div>
-      </footer>
+        <div class="doc-foot-cell center">
+          <span class="doc-foot-lbl">Release/Amendment</span>
+          <span class="doc-foot-val">{{issueNo}} &nbsp; Date : {{issueDate}}</span>
+        </div>
+        <div class="doc-foot-cell right">
+          <span class="doc-foot-lbl">Page No.</span>
+          <span class="doc-foot-val">{{pageCurrent}} of {{pageTotal}}</span>
+        </div>
+      </div>
+
     </div>
   </div>
 </body>

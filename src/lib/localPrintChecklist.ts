@@ -8,8 +8,6 @@ const CHECKLIST_PRINT_FIT_FIX = `<style id="cw-checklist-print-fit-fix">
     overflow: visible !important;
   }
   .a4-page[data-print-doc="checklist"] {
-    min-height: 0 !important;
-    height: auto !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
   }
