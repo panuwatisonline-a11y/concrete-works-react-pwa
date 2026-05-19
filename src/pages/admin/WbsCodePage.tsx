@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -117,6 +118,15 @@ export function WbsCodePage() {
   }
 
   useEffect(() => { void loadSegments(); void loadCombos() }, [])
+
+  useDataSyncOnTables(
+    ['WBS Code', 'WBS1', 'WBS2', 'WBS3', 'WBS4', 'WBS5', 'WBS6', 'WBS7', '*'],
+    () => {
+      void loadSegments()
+      void loadCombos()
+    },
+  )
+
   usePullToRefreshOnLoad(async () => {
     await loadSegments()
     await loadCombos()

@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -58,6 +59,8 @@ export function AdminDashboard() {
   useEffect(() => {
     void loadDashboard()
   }, [loadDashboard])
+
+  useDataSyncRefetch(['Request', '*'], loadDashboard)
 
   usePullToRefreshOnLoad(() => loadDashboard({ background: true }))
 

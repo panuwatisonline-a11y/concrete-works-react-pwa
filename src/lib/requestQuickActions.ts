@@ -26,6 +26,12 @@ export function canPrintChecklistBeforePour(statusId: number): boolean {
   return statusId >= 2 && statusId !== 6 && statusId !== 7
 }
 
+/** status 4 ต้องแนบ Bill Concrete ก่อน Confirm รายการ */
+export function canConfirmRequest(statusId: number, eslipUrl?: string | null | undefined): boolean {
+  if (statusId !== 4) return false
+  return Boolean(eslipUrl?.trim())
+}
+
 /** สอดคล้องกับปุ่มใน `RequestDetailPage` (Action Panel) */
 export function getRequestListQuickActions(opts: {
   requestId: string
@@ -67,13 +73,15 @@ export function getRequestListQuickActions(opts: {
       out.push({ key: 'confirmOrder', modal: 'confirmOrder', label: 'สั่งเท', variant: 'default' })
       out.push({ key: 'postpone', modal: 'postpone', label: 'เลื่อนวัน', variant: 'warning' })
     }
-    if (sid === 4 && canAct) {
+    if ((sid === 4 || sid === 8) && canAct) {
       out.push({
         key: 'uploadEslip',
         modal: 'uploadEslipOnly',
         label: hasEslip ? 'Bill Concrete (แนบแล้ว)' : 'อัปโหลด Bill Concrete',
-        variant: hasEslip ? 'success' : 'secondary',
+        variant: hasEslip ? 'success' : sid === 4 ? 'default' : 'secondary',
       })
+    }
+    if (canConfirmRequest(sid, eslipUrl) && canAct) {
       out.push({ key: 'complete', modal: 'complete', label: 'Confirm รายการ', variant: 'success' })
     }
     if (sid === 5 && canAct) {

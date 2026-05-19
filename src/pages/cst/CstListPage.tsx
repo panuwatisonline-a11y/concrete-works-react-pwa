@@ -5,6 +5,7 @@ import { FlaskConical, ExternalLink, Plus } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -432,6 +433,11 @@ export function CstListPage() {
     if (tab !== 'filter') return
     void loadFilterData()
   }, [tab, loadFilterData])
+
+  useDataSyncOnTables(['Request', 'CST', '*'], () => {
+    void loadData({ background: true })
+    if (tab === 'filter') void loadFilterData({ background: true })
+  })
 
   usePullToRefreshRegistration(() => {
     if (tab === 'filter') return loadFilterData({ background: true })

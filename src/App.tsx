@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { Toaster } from 'sonner'
 import { rq, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
+import { useAppRealtimeSync } from '@/hooks/useAppRealtimeSync'
 import { useAuthInit } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/authStore'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
@@ -39,6 +40,7 @@ import { ConcreteSummaryPage } from '@/pages/cst/ConcreteSummaryPage'
 
 function AppInner() {
   useAuthInit()
+  useAppRealtimeSync()
   const { isLoading } = useAuthStore()
   const { pathname } = useLocation()
   const isPrintRoute = pathname.startsWith('/print/')

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/shared/ImageUpload'
@@ -49,6 +50,7 @@ export function UploadBeforePourDialog({
       const { error } = await supabase.from('Request').update({ before_image: trimmed }).eq('id', requestId)
       if (error) throw error
       toast.success('บันทึกรูปก่อนเทแล้ว')
+      await notifyRequestListChanged()
       onOpenChange(false)
       onSuccess?.()
     } catch (e) {

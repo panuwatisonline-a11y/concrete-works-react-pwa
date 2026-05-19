@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { StructureListMultiSelect } from '@/components/shared/StructureListMultiSelect'
@@ -160,6 +161,9 @@ export function MixcodePage() {
   }
 
   useEffect(() => { void load() }, [])
+
+  useDataSyncRefetch(['Mixed Code', 'Structure', '*'], load)
+
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<MixedCode>) {

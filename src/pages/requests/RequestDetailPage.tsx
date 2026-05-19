@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
@@ -128,6 +129,13 @@ export function RequestDetailPage() {
   }, [id])
 
   useEffect(() => { void loadData() }, [loadData])
+
+  useDataSyncOnTables(['Request', 'Request_Log', 'CST', '*'], (detail) => {
+    if (!id) return
+    if (detail.table === '*' || detail.requestId == null || detail.requestId === id) {
+      void loadData({ background: true })
+    }
+  })
 
   usePullToRefreshOnLoad(() => loadData({ background: true }))
 

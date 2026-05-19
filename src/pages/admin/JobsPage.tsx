@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
@@ -51,6 +52,8 @@ export function JobsPage() {
   }
 
   useEffect(() => { void load() }, [])
+
+  useDataSyncRefetch(['Jobs', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   return (

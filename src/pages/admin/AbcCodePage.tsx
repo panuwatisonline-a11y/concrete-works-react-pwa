@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -123,6 +124,15 @@ export function AbcCodePage() {
   }
 
   useEffect(() => { void loadSegments(); void loadCombos() }, [])
+
+  useDataSyncOnTables(
+    ['ABC Code', 'ABC Code1', 'ABC Code2', 'ABC Code3', 'ABC Code4', '*'],
+    () => {
+      void loadSegments()
+      void loadCombos()
+    },
+  )
+
   usePullToRefreshOnLoad(async () => {
     await loadSegments()
     await loadCombos()

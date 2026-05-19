@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -129,6 +130,9 @@ export function UsersPage() {
   useEffect(() => {
     load()
   }, [])
+
+  useDataSyncRefetch(['profiles', '*'], load)
+
   usePullToRefreshOnLoad(load)
 
   useEffect(() => {

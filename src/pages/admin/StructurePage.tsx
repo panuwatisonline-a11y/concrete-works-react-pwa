@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
@@ -55,6 +56,8 @@ export function StructurePage() {
   }
 
   useEffect(() => { void load() }, [])
+
+  useDataSyncRefetch(['Structure', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<Structure>) {

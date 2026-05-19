@@ -1,5 +1,8 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { loadProfile } from '@/hooks/useAuth'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
+import { readAuthAvatarUrl } from '@/lib/profileAvatar'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
@@ -9,6 +12,12 @@ import { Clock } from 'lucide-react'
 export function PendingApprovalPage() {
   const navigate = useNavigate()
   const { user, profile, profileHydrated } = useAuthStore()
+
+  useDataSyncOnTables(['profiles'], (detail) => {
+    if (!user?.id) return
+    if (detail.recordId && detail.recordId !== user.id) return
+    void loadProfile(user.id, readAuthAvatarUrl(user.user_metadata))
+  })
 
   useEffect(() => {
     if (!user) { navigate('/login', { replace: true }); return }

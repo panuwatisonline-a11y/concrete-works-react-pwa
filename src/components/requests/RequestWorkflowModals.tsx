@@ -36,6 +36,7 @@ import {
 } from '@/lib/utils'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import type { RequestWithRelations } from '@/types/app.types'
+import { canConfirmRequest } from '@/lib/requestQuickActions'
 import { modal as uiModal } from '@/lib/requestUi'
 
 /** ชั้น overlay / เนื้อหา — สูงกว่า dialog ทั่วไป (z-50) */
@@ -80,6 +81,9 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
   const requestRef = useRef(request)
   requestRef.current = request
+
+  const missingEslipForComplete =
+    request.status_id === 4 && !canConfirmRequest(request.status_id, request.eslip_url)
 
   const mx = request.mixcode as {
     mixcode: string
@@ -210,6 +214,10 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
   async function handleAction(actionType: string, note?: string) {
     if (!id || actionLockRef.current) return
+    if (actionType === 'complete' && !canConfirmRequest(requestRef.current.status_id, requestRef.current.eslip_url)) {
+      toast.error('กรุณาอัปโหลด Bill Concrete ก่อน Confirm รายการ')
+      return
+    }
     if (
       actionType === 'complete'
       && (!completeData.after_image?.trim() || completeAfterUploading)
@@ -599,6 +607,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.lg, WF_CONTENT)}>
           <DialogHeader><DialogTitle>Confirm รายการ & ดำเนินการ</DialogTitle></DialogHeader>
           <div className="space-y-4">
+            {missingEslipForComplete ? (
+              <p className="rounded-lg border border-amber-200/80 bg-amber-50/90 px-3 py-2 text-sm text-amber-900">
+                กรุณาอัปโหลด Bill Concrete ก่อน Confirm รายการ
+              </p>
+            ) : null}
             <div className="space-y-1.5">
               <Label>Confirmed volume (cu.m) *</Label>
               <Input type="number" step="0.01" value={completeData.volume_confirm} onChange={(e) => setCompleteData((p) => ({ ...p, volume_confirm: e.target.value }))} />
@@ -625,6 +638,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
               size="modalAction"
               disabled={
                 actionBusy
+                || missingEslipForComplete
                 || completeAfterUploading
                 || !(completeData.after_image?.trim())
                 || !completeData.volume_confirm

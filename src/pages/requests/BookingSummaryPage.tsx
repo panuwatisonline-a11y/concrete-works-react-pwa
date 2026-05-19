@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -165,6 +166,8 @@ export function BookingSummaryPage() {
   useEffect(() => {
     void loadData()
   }, [loadData])
+
+  useDataSyncRefetch(['Request', '*'], loadData)
 
   useEffect(() => {
     warmBookingSummaryTemplateCache()

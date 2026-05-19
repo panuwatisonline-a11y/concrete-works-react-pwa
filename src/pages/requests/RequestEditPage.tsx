@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react'
+import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
@@ -95,6 +96,13 @@ export function RequestEditPage() {
   useEffect(() => {
     void loadRequest()
   }, [loadRequest])
+
+  useDataSyncOnTables(['Request', '*'], (detail) => {
+    if (!id) return
+    if (detail.table === '*' || detail.requestId == null || detail.requestId === id) {
+      void loadRequest()
+    }
+  })
 
   usePullToRefreshOnLoad(loadRequest)
 

@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { StructureListMultiSelect } from '@/components/shared/StructureListMultiSelect'
@@ -70,6 +71,8 @@ export function ConcreteWorksPage() {
   }
 
   useEffect(() => { void load() }, [])
+
+  useDataSyncRefetch(['Concrete Works', 'Structure', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   function sanitizeStructureListForSave(raw: string | null | undefined): string | null {

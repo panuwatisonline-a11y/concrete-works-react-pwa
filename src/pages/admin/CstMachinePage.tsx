@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
+import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { fetchCompressionMachines } from '@/lib/cstData'
 import {
@@ -102,6 +103,9 @@ export function CstMachinePage() {
   useEffect(() => {
     void load()
   }, [])
+
+  useDataSyncRefetch(['Compression Machine', '*'], load)
+
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   return (
