@@ -20,7 +20,14 @@ import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 import type { InspectorRow } from '@/lib/inspectorScope'
-import { canManageUsers, ASSIGNABLE_ROLES, ROLE_LABELS, isInspectorRole, roleDisplayLabel } from '@/lib/permissions'
+import {
+  canManageUsers,
+  ASSIGNABLE_ROLES,
+  ROLE_LABELS,
+  isInspectorRole,
+  normalizeRole,
+  roleDisplayLabel,
+} from '@/lib/permissions'
 import type { Profile, UserRole } from '@/types/app.types'
 import { Navigate } from 'react-router-dom'
 import { APP_HOME } from '@/lib/appHome'
@@ -54,7 +61,7 @@ function normalizeEmail(email: string | undefined | null): string {
 }
 
 function canModifyAdminTarget(actorEmail: string | undefined | null, target: Profile): boolean {
-  if (target.role !== 'admin') return true
+  if (normalizeRole(target.role) !== 'admin') return true
   return normalizeEmail(actorEmail) === normalizeEmail(PROFILE_SUPER_ADMIN_EMAIL)
 }
 
@@ -153,7 +160,7 @@ export function UsersPage() {
 
   useEffect(() => {
     if (!editUser) return
-    setDraftRole(editUser.role)
+    setDraftRole(normalizeRole(editUser.role) ?? 'user')
     setDraftStatus(editUser.status)
     setDraftClient(editUser.client_id != null ? String(editUser.client_id) : SELECT_NONE)
     setDraftJob(editUser.job_id != null ? String(editUser.job_id) : SELECT_NONE)
@@ -177,8 +184,20 @@ export function UsersPage() {
       toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
       return
     }
-    const { error } = await supabase.from('profiles').update({ status }).eq('id', userId)
-    if (error) { toast.error('บันทึกไม่สำเร็จ'); return }
+    const { data: updated, error } = await supabase
+      .from('profiles')
+      .update({ status })
+      .eq('id', userId)
+      .select('id')
+      .maybeSingle()
+    if (error) {
+      toast.error(error.message || 'บันทึกไม่สำเร็จ')
+      return
+    }
+    if (!updated) {
+      toast.error('อัปเดตสถานะไม่สำเร็จ — ตรวจสิทธิ์ Admin / RLS')
+      return
+    }
     setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, status } : u))
     toast.success(
       status === 'approved' ? 'อนุมัติแล้ว' : status === 'rejected' ? 'ปฏิเสธแล้ว' : 'ตั้งเป็นรออนุมัติ',
@@ -212,7 +231,7 @@ export function UsersPage() {
       : null
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
     setSaving(true)
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('profiles')
       .update({
         role: draftRole,
@@ -223,9 +242,20 @@ export function UsersPage() {
         inspector_id: iid,
       })
       .eq('id', editUser.id)
+      .select('id')
+      .maybeSingle()
     setSaving(false)
     if (error) {
-      toast.error(error.message || 'บันทึกไม่สำเร็จ')
+      const msg = error.message || 'บันทึกไม่สำเร็จ'
+      toast.error(
+        msg.includes('policy') || msg.includes('permission') || error.code === '42501'
+          ? 'ไม่มีสิทธิ์บันทึก — ตรวจว่า login เป็น Admin และ RLS บน profiles อนุญาตให้ admin แก้ไข'
+          : msg,
+      )
+      return
+    }
+    if (!updated) {
+      toast.error('บันทึกไม่สำเร็จ — ไม่มีแถวที่อัปเดต (อาจถูก RLS บล็อก)')
       return
     }
     setUsers((prev) =>
