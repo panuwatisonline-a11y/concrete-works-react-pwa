@@ -55,12 +55,13 @@ export async function adminUpdateProfile(
     .maybeSingle()
 
   if (error || !data) {
+    const msg = error?.message || rpc.error?.message || ''
+    const roleCheck = msg.includes('profiles_role_check')
     return {
       profile: null,
-      error:
-        error?.message
-        || rpc.error?.message
-        || 'บันทึกไม่สำเร็จ — รัน migration admin_profile_rpc บน Supabase',
+      error: roleCheck
+        ? 'Role นี้ยังไม่ถูกอนุญาตใน DB — รัน migration profiles_role_check บน Supabase'
+        : msg || 'บันทึกไม่สำเร็จ — รัน migration admin_profile_rpc บน Supabase',
     }
   }
   return { profile: data as Profile, error: null }
