@@ -17,8 +17,9 @@ import {
   REQUEST_LIST_SEARCH_ARIA,
   REQUEST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
-import { getRequestListQuickActions } from '@/lib/requestQuickActions'
+import { getRequestListQuickActions, type RequestListActionItem } from '@/lib/requestQuickActions'
 import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklistPrint'
+import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
@@ -234,6 +235,33 @@ function FeedDetailRow({
   )
 }
 
+function handleFeedQuickAction(
+  a: RequestListActionItem,
+  r: RequestWithRelations,
+  navigate: ReturnType<typeof useNavigate>,
+  setWorkflowModal: (modal: string | null) => void,
+) {
+  if ('cloneFromRequestId' in a) {
+    navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
+    return
+  }
+  if ('printChecklist' in a) {
+    try {
+      localPrintChecklist(r)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
+    }
+    return
+  }
+  if ('copyOrderLoad' in a) {
+    void copyRequestOrderLoadToClipboard(r)
+      .then(() => toast.success('คัดลอกรายการแล้ว'))
+      .catch((err) => toast.error(err instanceof Error ? err.message : 'คัดลอกไม่สำเร็จ'))
+    return
+  }
+  setWorkflowModal(a.modal)
+}
+
 function RequestFeedCard({
   r,
   variant = 'list',
@@ -346,19 +374,7 @@ function RequestFeedCard({
               items={quickActions}
               onItemClick={(a, e) => {
                 e.stopPropagation()
-                if ('cloneFromRequestId' in a) {
-                  navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
-                  return
-                }
-                if ('printChecklist' in a) {
-                  try {
-                    localPrintChecklist(r)
-                  } catch (err) {
-                    toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
-                  }
-                  return
-                }
-                setWorkflowModal(a.modal)
+                handleFeedQuickAction(a, r, navigate, setWorkflowModal)
               }}
             />
           ) : null}
@@ -486,19 +502,7 @@ function RequestFeedCard({
           items={quickActions}
           onItemClick={(a, e) => {
             e.stopPropagation()
-            if ('cloneFromRequestId' in a) {
-              navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
-              return
-            }
-            if ('printChecklist' in a) {
-              try {
-                localPrintChecklist(r)
-              } catch (err) {
-                toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
-              }
-              return
-            }
-            setWorkflowModal(a.modal)
+            handleFeedQuickAction(a, r, navigate, setWorkflowModal)
           }}
         />
       ) : null}
@@ -617,10 +621,10 @@ export function RequestListPage() {
         location:Location(id, full_location, location1),
         concrete_work:"Concrete Works"(id, concrete_work),
         structure:Structure(id, structure_name),
-        mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type),
+        mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type, supplier),
         abc_code:"ABC Code"(id, full_abc),
         wbs_code:"WBS Code"(id, full_wbs),
-        booked_by_profile:profiles!booked_by(fname, lname, employee_id)
+        booked_by_profile:profiles!booked_by(fname, lname, employee_id, phone)
       `, { count: 'exact' })
 
       if (scopeMine && user) query = query.eq('booked_by', user.id)

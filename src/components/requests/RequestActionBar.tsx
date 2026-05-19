@@ -1,7 +1,8 @@
 import type { ReactNode, MouseEvent } from 'react'
+import { Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { rq } from '@/lib/requestUi'
+import { ICON_STROKE, icon, rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import type { RequestListActionItem } from '@/lib/requestQuickActions'
 
@@ -20,19 +21,28 @@ function ActionButtons({
   return (
     <div className={rq.actions.buttonRow}>
       {items.map((a) => {
-        const needsStopPropagation = 'cloneFromRequestId' in a || 'printChecklist' in a
+        const isCopy = 'copyOrderLoad' in a
+        const needsStopPropagation =
+          'cloneFromRequestId' in a || 'printChecklist' in a || isCopy
         return (
           <Button
             key={a.key}
             type="button"
             size="action"
             variant={a.variant}
+            className={isCopy ? 'px-2.5' : undefined}
+            aria-label={isCopy ? a.label : undefined}
+            title={isCopy ? a.label : undefined}
             onClick={(e) => {
               if (needsStopPropagation) e.stopPropagation()
               onItemClick(a, e)
             }}
           >
-            {a.label}
+            {isCopy ? (
+              <Copy className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
+            ) : (
+              a.label
+            )}
           </Button>
         )
       })}

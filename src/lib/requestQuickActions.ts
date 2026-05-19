@@ -19,6 +19,7 @@ export type RequestListActionItem =
   | { key: string; modal: RequestActionModal; label: string; variant: BtnVariant }
   | { key: string; cloneFromRequestId: string; label: string; variant: BtnVariant }
   | { key: string; printChecklist: true; label: string; variant: BtnVariant }
+  | { key: string; copyOrderLoad: true; label: string; variant: BtnVariant }
 
 /** พิมพ์ checklist ได้ตั้งแต่รออนุมัติ — ยกเว้น reject/cancel */
 export function canPrintChecklistBeforePour(statusId: number): boolean {
@@ -98,6 +99,10 @@ export function getRequestListQuickActions(opts: {
       label: 'พิมพ์ Checklist',
       variant: 'outline',
     })
+  }
+
+  if (sid === 4 && canAct) {
+    out.push({ key: 'copyOrderLoad', copyOrderLoad: true, label: 'คัดลอก', variant: 'outline' })
   }
 
   return out

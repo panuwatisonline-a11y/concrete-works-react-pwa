@@ -21,6 +21,7 @@ import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { canPrintChecklistBeforePour, getRequestListQuickActions } from '@/lib/requestQuickActions'
 import { localPrintChecklist } from '@/lib/checklistPrint'
+import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
@@ -101,7 +102,8 @@ export function RequestDetailPage() {
           structure:Structure(id, structure_name),
           mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type, sample_type, supplier),
           abc_code:"ABC Code"(id, full_abc),
-          wbs_code:"WBS Code"(id, full_wbs)
+          wbs_code:"WBS Code"(id, full_wbs),
+          booked_by_profile:profiles!booked_by(fname, lname, phone)
         `).eq('id', id).single(),
         supabase.from('Request_Log').select(`
           *,
@@ -242,6 +244,14 @@ export function RequestDetailPage() {
               } catch (err) {
                 toast.error(err instanceof Error ? err.message : 'พิมพ์ Checklist ไม่สำเร็จ')
               }
+              return
+            }
+            if ('copyOrderLoad' in item) {
+              void copyRequestOrderLoadToClipboard(request)
+                .then(() => toast.success('คัดลอกรายการแล้ว'))
+                .catch((err) =>
+                  toast.error(err instanceof Error ? err.message : 'คัดลอกไม่สำเร็จ'),
+                )
               return
             }
             setModal(item.modal)
