@@ -16,6 +16,7 @@ LEFT_ITEMS: list[tuple[str, str]] = [
     ("", "- ทิศทาง (Direction)"),
     ("", "- ดิ่ง (Vertical line)"),
     ("ข.", "การเตรียมผิวหรือรอยต่อ (Surface Preparation)"),
+    ("", "- การเตรียมผิวหน้า/ การเตรียมรอยต่อ"),
     ("ค.", "งานไม้แบบ (Formwork)"),
     ("", "- ขนาด/ มิติ (Dimension)"),
     ("", "- ความมั่นคงแข็งแรงของไม้แบบ (Stability)"),
@@ -81,8 +82,8 @@ RIGHT_ITEMS: list[tuple[str, str]] = [
     ("", "- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)"),
 ]
 
-# หัวข้อที่มีตัวอักษรและช่องติ๊กในบรรทัดเดียว (ไม่ใช่ colspan ทั้งครึ่ง)
-CHECKABLE_SECTIONS = frozenset({"ข."})
+# หัวข้อ ข. = แถวหัวข้อเต็มครึ่งซ้าย (colspan 8) + แถวว่างมีช่องติ๊กแยก (ตามแบบฟอร์ม)
+CHECKABLE_SECTIONS: frozenset[str] = frozenset()
 
 
 def esc(s: str) -> str:
@@ -123,8 +124,10 @@ def side_cell(letter: str, desc: str) -> str:
     if not letter and not desc:
         return (
             '<td class="c-desc" colspan="4"></td>'
-            f"{BOX_CELL}{BOX_CELL}{BOX_CELL}"
-            + dept_cell()
+            '<td class="c-box c-box--pad"></td>'
+            '<td class="c-box c-box--pad"></td>'
+            '<td class="c-box c-box--pad"></td>'
+            '<td class="c-dept"></td>'
         )
     cls = item_class(letter, desc)
     if letter in CHECKABLE_SECTIONS:
@@ -135,10 +138,13 @@ def side_cell(letter: str, desc: str) -> str:
         )
     if cls == "sec":
         return (
-            f'<td class="c-desc sec sec-head" colspan="8">{esc(section_title(letter, desc))}</td>'
+            f'<td class="sec-head" colspan="8">{esc(section_title(letter, desc))}</td>'
         )
+    label = esc(desc)
+    if desc in ("ใช้", "ไม่ใช้"):
+        label = f'<span class="c-inline-box" aria-hidden="true"></span>{label}'
     return (
-        f'<td class="c-desc {cls}" colspan="4">{esc(desc)}</td>'
+        f'<td class="c-desc {cls}" colspan="4">{label}</td>'
         f"{BOX_CELL}{BOX_CELL}{BOX_CELL}"
         + dept_cell()
     )
@@ -164,16 +170,27 @@ def sign_pane(
           </div>"""
 
 
+def _row_html(l: tuple[str, str], r: tuple[str, str]) -> str:
+    row_cls = ""
+    if item_class(*l) == "sub" or item_class(*r) == "sub":
+        row_cls = ' class="sub-row"'
+    return f"<tr{row_cls}>{side_cell(*l)}{side_cell(*r)}</tr>"
+
+
+def body_pairs() -> list[tuple[tuple[str, str], tuple[str, str]]]:
+    """จับคู่ซ้าย–ขวา (34 แถว) ตาม ref-checksheet.html — zip ตรง index"""
+    if len(LEFT_ITEMS) != len(RIGHT_ITEMS):
+        raise ValueError(
+            f"LEFT_ITEMS ({len(LEFT_ITEMS)}) must equal RIGHT_ITEMS ({len(RIGHT_ITEMS)})"
+        )
+    return list(zip(LEFT_ITEMS, RIGHT_ITEMS, strict=True))
+
+
 def body_rows() -> str:
-    n = max(len(LEFT_ITEMS), len(RIGHT_ITEMS))
+    # 34 แถว tbody จาก body_pairs()
     lines: list[str] = []
-    for i in range(n):
-        l = LEFT_ITEMS[i] if i < len(LEFT_ITEMS) else ("", "")
-        r = RIGHT_ITEMS[i] if i < len(RIGHT_ITEMS) else ("", "")
-        row_cls = ""
-        if item_class(*l) == "sub" or item_class(*r) == "sub":
-            row_cls = ' class="sub-row"'
-        lines.append(f"<tr{row_cls}>{side_cell(*l)}{side_cell(*r)}</tr>")
+    for l, r in body_pairs():
+        lines.append(_row_html(l, r))
     return "\n".join(lines)
 
 

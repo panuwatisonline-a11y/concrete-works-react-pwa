@@ -14,7 +14,7 @@
     html, body {
       margin: 0; padding: 0;
       font-family: Sarabun, "TH Sarabun New", "Segoe UI", system-ui, sans-serif;
-      font-size: 8pt;
+      font-size: 7.5pt;
       line-height: 1.2;
       color: #000;
       background: #fff;
@@ -52,9 +52,9 @@
       padding: 4px 12px;
     }
     .hd-text { display: flex; flex-direction: column; gap: 1px; }
-    .hd-title-en { margin: 0; font-size: 11.5pt; font-weight: 700; letter-spacing: 0.02em; }
-    .hd-title-th { margin: 0; font-size: 9pt; font-weight: 600; }
-    .hd-org      { margin-top: 3px; font-size: 7pt; font-weight: 700; }
+    .hd-title-en { margin: 0; font-size: 11pt; font-weight: 700; letter-spacing: 0.02em; }
+    .hd-title-th { margin: 0; font-size: 8.5pt; font-weight: 600; }
+    .hd-org      { margin-top: 3px; font-size: 6.5pt; font-weight: 700; }
     .hd-logos    { display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .hd-logos-row { display: flex; align-items: center; gap: 10px; }
     .hd-logos img { display: block; height: 28px; width: auto; object-fit: contain; }
@@ -63,7 +63,7 @@
     .project-bar {
       padding: 3px 12px;
       text-align: center;
-      font-size: 10pt;
+      font-size: 9.5pt;
       font-weight: 700;
       white-space: normal;
     }
@@ -81,13 +81,41 @@
     .meta-date { white-space: nowrap; }
     table.meta-tbl td {
       padding: 4px 12px;
-      font-size: 8pt;
+      font-size: 7.5pt;
       vertical-align: middle;
       border-bottom: 0.5px dashed #ccc;
       line-height: 1.4;
     }
     table.meta-tbl tr:last-child td { border-bottom: none; }
     .meta-lbl { font-weight: 700; margin-right: 4px; }
+    table.meta-tbl tr.meta-row-options td {
+      white-space: nowrap;
+    }
+    .meta-pour-seq,
+    .meta-floor-seq {
+      white-space: nowrap;
+      display: inline;
+    }
+    .meta-pour-opt {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      margin-right: 8px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .meta-pour-opt:last-child { margin-right: 0; }
+    .meta-pour-seq .c-box.is-checked::before,
+    .meta-floor-seq .c-box.is-checked::before { content: "\2611"; }
+    .meta-floor-other {
+      display: inline-block;
+      min-width: 72px;
+      border-bottom: 0.5px solid #000;
+      margin-left: 2px;
+      padding: 0 4px 1px;
+      vertical-align: baseline;
+      white-space: nowrap;
+    }
 
     /* ── Checklist table ── */
     table.chk-tbl {
@@ -117,14 +145,14 @@
     table.chk-tbl > thead > tr:first-child > * { border-top: none; }
     table.chk-tbl > tbody > tr:last-child > td { border-bottom: none; }
 
-    .th-label { font-size: 7.5pt; padding: 3px 6px; }
-    .th-chk   { text-align: center; font-size: 7pt; }
-    .th-dept  { text-align: center; font-size: 6pt; line-height: 1.1; padding: 2px 1px; }
+    .th-label { font-size: 7pt; padding: 3px 6px; }
+    .th-chk   { text-align: center; font-size: 6.5pt; }
+    .th-dept  { text-align: center; font-size: 5.5pt; line-height: 1.1; padding: 2px 1px; }
     table.chk-tbl .th-label,
     table.chk-tbl .th-chk,
     table.chk-tbl .th-dept { font-weight: 700; background: #ebebeb; }
 
-    .sec-head { font-weight: 700; font-size: 7pt; padding: 1px 4px; line-height: 1.3; }
+    .sec-head { font-weight: 700; font-size: 6.5pt; padding: 1px 4px; line-height: 1.3; }
     table.chk-tbl .sec-head { border-top: 1px solid #000; border-bottom: 0.5px dashed #ccc; background: #f5f5f5; font-weight: 700; }
 
     /* data rows: thin dashed horizontal lines only — vertical stays solid */
@@ -135,17 +163,25 @@
       border-bottom: 0.5px dashed #ccc;
     }
 
-    .c-desc     { font-size: 7pt; line-height: 1.2; padding: 0 3px; }
+    .c-desc     { font-size: 6.5pt; line-height: 1.2; padding: 0 3px; }
     .c-desc.sub { padding-left: 9px; }
+    .c-inline-box::before {
+      content: "\25A1";
+      font-size: 10.5pt;
+      display: inline-block;
+      line-height: 0;
+      margin-right: 4px;
+      transform: translateY(-1px);
+    }
     .c-box      { text-align: center; vertical-align: middle; padding: 0; }
     .c-box::before {
       content: "\25A1";
-      font-size: 15pt;
+      font-size: 14.5pt;
       display: inline-block;
       line-height: 0;
       transform: translateY(-1px);
     }
-    .c-dept { text-align: center; font-size: 6.5pt; line-height: 1.15; padding: 0 1px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+    .c-dept { text-align: center; font-size: 6pt; line-height: 1.15; padding: 0 1px; font-weight: 600; white-space: nowrap; overflow: hidden; }
 
     /* ── Legend ── */
     .legend-row {
@@ -153,16 +189,16 @@
       flex-wrap: wrap;
       gap: 0 12px;
       padding: 2px 8px;
-      font-size: 6.5pt;
+      font-size: 6pt;
       line-height: 1.6;
     }
     .legend-row abbr { font-weight: 700; text-decoration: none; margin-right: 2px; font-style: normal; }
 
     /* ── Note rows ── */
-    .note-row { display: flex; gap: 6px; padding: 2px 8px; font-size: 8pt; }
+    .note-row { display: flex; gap: 6px; padding: 2px 8px; font-size: 7.5pt; }
     .note-lbl { font-weight: 700; white-space: nowrap; }
     .note-grade { align-items: baseline; }
-    .grade-val  { font-weight: 700; font-size: 9pt; }
+    .grade-val  { font-weight: 700; font-size: 8.5pt; }
     .note-remarks { min-height: 2.4em; align-items: flex-start; padding-bottom: 4px; }
     .remarks-body { flex: 1; min-height: 2em; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
 
@@ -175,19 +211,19 @@
     }
     .sig-pane { display: flex; flex-direction: column; }
     .sig-pane + .sig-pane { border-left: 1px solid #000; }
-    .sig-party { margin: 0; padding: 2px 8px; font-size: 8pt; font-weight: 700; text-align: center; border-bottom: 1px solid #000; line-height: 1.3; background: #ebebeb; }
+    .sig-party { margin: 0; padding: 2px 8px; font-size: 7.5pt; font-weight: 700; text-align: center; border-bottom: 1px solid #000; line-height: 1.3; background: #ebebeb; }
     .sig-body  { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 2px 14px 4px; }
     .sig-pad   { width: 70%; max-width: 50mm; min-height: 7mm; margin-bottom: 2px; border-bottom: 1px solid #000; }
-    .sig-role  { margin: 0 0 1px; font-size: 8pt;   font-weight: 700; text-align: center; }
-    .sig-unit  { margin: 0 0 2px; font-size: 7.5pt; font-weight: 600; text-align: center; }
-    .sig-date  { margin: 0;       font-size: 7.5pt; text-align: center; }
+    .sig-role  { margin: 0 0 1px; font-size: 7.5pt;   font-weight: 700; text-align: center; }
+    .sig-unit  { margin: 0 0 2px; font-size: 7pt; font-weight: 600; text-align: center; }
+    .sig-date  { margin: 0;       font-size: 7pt; text-align: center; }
     .sig-date-lbl { font-weight: 700; }
 
     /* ── Footer ── */
     .doc-foot {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      font-size: 6.5pt;
+      font-size: 6pt;
       flex-shrink: 0;
     }
     .doc-foot-cell {
@@ -238,10 +274,9 @@
             <td><span class="meta-lbl">หมายเลขโครงสร้าง :</span> {{structureNo}}</td>
             <td colspan="2"><span class="meta-lbl">สถานที่ / กม. :</span> {{locationText}}</td>
           </tr>
-          <tr>
-            <td><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> {{pourSequence}}</td>
-            <td><span class="meta-lbl">ชั้นที่ :</span> {{floorLevel}}</td>
-            <td></td>
+          <tr class="meta-row-options">
+            <td><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> <span class="meta-pour-seq">{{pourSequenceOptions}}</span></td>
+            <td colspan="2"><span class="meta-lbl">ชั้นที่ :</span> <span class="meta-floor-seq">{{floorLevelOptions}}</span></td>
           </tr>
         </tbody>
       </table>
@@ -275,33 +310,33 @@
 <tr><td class="c-desc sub" colspan="4">- ทิศทาง (Direction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเสริมกันระเบิดของหัวสมอยึด (Anchorage)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
 <tr><td class="c-desc sub" colspan="4">- ดิ่ง (Vertical line)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การจัดแนวท่อชีท (Corrugated Galvanized Sheath)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
 <tr><td class="sec-head" colspan="8">ข. การเตรียมผิวหรือรอยต่อ (Surface Preparation)</td><td class="c-desc sub" colspan="4">- การติดตั้ง Spiral บริเวณหัว Anchorage</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="sec-head" colspan="8">ค. งานไม้แบบ (Formwork)</td><td class="c-desc sub" colspan="4">- ไม่มีสิ่งกีดขวาง (Clear of Obstruction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ซ. การต่อลงดินของระบบไฟฟ้า (Earthing and Bonding System)</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของไม้แบบ (Stability)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในเสาเข็มเจาะ (earthing bar of bored pile)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของโครงสร้างรับแบบ (Falsework)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งและให้เครื่องหมาย (installed &amp; marked)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ความสะอาดของไม้แบบ (Formwork Surfaces)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในฐานราก (earthing bar of footing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การจัด Blockout ( incl. Bearing and exp.Joints )</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในตอม่อ (earthing bar of pier)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การป้องกันฝน (Rain Protection)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การเชื่อมหลักดินเป็นไปตามแบบกำหนด (welding)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การทาน้ำยาทาแบบ (Formwork Oil)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขั้วต่อกราวด์ (Earthing Terminal)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การติดตั้งบัวลบมุม (Chamfer Strips)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ณ. กล่องและแผงไฟ (Electrical Boxes &amp; Panels)</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ความสะอาดครั้งสุดท้ายก่อนเท (Cleanliness)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="sec-head" colspan="8">ง. งานเหล็กเสริม (Reinforcement)</td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- จุดรองรับเพียงพอ (Adequate Support)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การยาแนวกับคอนกรีต (Sealed against Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ระยะห่าง (Spacing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ญ. วัสดุกันซึม (Water Stop)</td></tr>
-<tr><td class="c-desc sub" colspan="4">- ระยะทาบ (Laps)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การมัดลวด (Tie Wires)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฎ. ท่อระบายน้ำ (Drainage Pipes)</td></tr>
-<tr><td class="c-desc sub" colspan="4">- กำหนดระยะคอนกรีตหุ้มเหล็ก (Chairs and Spacers)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- การงอเหล็ก (Hooks)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฏ. ชุดขยายข้อต่อ (Expansion Joints)</td></tr>
-<tr><td class="sec-head" colspan="8">จ. วัสดุที่ฝังอยู่ในคอนกรีต (Permanent Embedments)</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- สมอสลักเกลียว (Anchor Bolts)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฐ. แผ่นยางรองคอสะพาน (Bearing Pad)</td></tr>
-<tr><td class="c-desc sub" colspan="4">- เหล็กฝัง (Embedded Steel)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">- เหล็กฝังเพื่อติดตั้งไม้แบบ (Embedded for Formwork)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฑ. อื่นๆ (Other Features (list))</td></tr>
-<tr><td class="c-desc sub" colspan="4">- สมอยึดลวด (Anchorage Block)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การบดอัดทราย (Compacted Sand)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="sec-head" colspan="8">ฉ. แผ่นเหล็กพืดชั่วคราวในงานขุด (Temporary Sheet Pile for Excavation)</td><td class="c-desc sub" colspan="4">- การเทลีน (Lean Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- เหล็กเดือย (Dowel Bar)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc sub" colspan="4">ไม่ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- สภาพหัวเสาเข็ม (Pile Head Condition)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
-<tr><td class="c-desc" colspan="4"></td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การเตรียมผิวหน้า/ การเตรียมรอยต่อ</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ไม่มีสิ่งกีดขวาง (Clear of Obstruction)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ค. งานไม้แบบ (Formwork)</td><td class="sec-head" colspan="8">ซ. การต่อลงดินของระบบไฟฟ้า (Earthing and Bonding System)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ขนาด/ มิติ (Dimension)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในเสาเข็มเจาะ (earthing bar of bored pile)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของไม้แบบ (Stability)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การติดตั้งและให้เครื่องหมาย (installed &amp; marked)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความมั่นคงแข็งแรงของโครงสร้างรับแบบ (Falsework)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในฐานราก (earthing bar of footing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความสะอาดของไม้แบบ (Formwork Surfaces)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- หลักดินในตอม่อ (earthing bar of pier)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การจัด Blockout ( incl. Bearing and exp.Joints )</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การเชื่อมหลักดินเป็นไปตามแบบกำหนด (welding)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การป้องกันฝน (Rain Protection)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขั้วต่อกราวด์ (Earthing Terminal)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การทาน้ำยาทาแบบ (Formwork Oil)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ณ. กล่องและแผงไฟ (Electrical Boxes &amp; Panels)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การติดตั้งบัวลบมุม (Chamfer Strips)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ความสะอาดครั้งสุดท้ายก่อนเท (Cleanliness)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ง. งานเหล็กเสริม (Reinforcement)</td><td class="c-desc sub" colspan="4">- จุดรองรับเพียงพอ (Adequate Support)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ขนาด (Size)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การยาแนวกับคอนกรีต (Sealed against Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ตำแหน่ง (Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ญ. วัสดุกันซึม (Water Stop)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ระยะห่าง (Spacing)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- ระยะทาบ (Laps)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฎ. ท่อระบายน้ำ (Drainage Pipes)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การมัดลวด (Tie Wires)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- กำหนดระยะคอนกรีตหุ้มเหล็ก (Chairs and Spacers)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฏ. ชุดขยายข้อต่อ (Expansion Joints)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- การงอเหล็ก (Hooks)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">จ. วัสดุที่ฝังอยู่ในคอนกรีต (Permanent Embedments)</td><td class="sec-head" colspan="8">ฐ. แผ่นยางรองคอสะพาน (Bearing Pad)</td></tr>
+<tr><td class="c-desc sub" colspan="4">- สมอสลักเกลียว (Anchor Bolts)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ขนาด/ ชนิด/ ตำแหน่ง (Size / Type / Location)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- เหล็กฝัง (Embedded Steel)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="sec-head" colspan="8">ฑ. อื่นๆ (Other Features (list))</td></tr>
+<tr><td class="c-desc sub" colspan="4">- เหล็กฝังเพื่อติดตั้งไม้แบบ (Embedded for Formwork)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การบดอัดทราย (Compacted Sand)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4">- สมอยึดลวด (Anchorage Block)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- การเทลีน (Lean Concrete)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="sec-head" colspan="8">ฉ. แผ่นเหล็กพืดชั่วคราวในงานขุด (Temporary Sheet Pile for Excavation)</td><td class="c-desc sub" colspan="4">- เหล็กเดือย (Dowel Bar)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4"><span class="c-inline-box" aria-hidden="true"></span>ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- สภาพหัวเสาเข็ม (Pile Head Condition)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
+<tr><td class="c-desc sub" colspan="4"><span class="c-inline-box" aria-hidden="true"></span>ไม่ใช้</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td><td class="c-desc sub" colspan="4">- ประเด็นเรื่องความปลอดภัยต่างๆ (Safety Issue)</td><td class="c-box"></td><td class="c-box"></td><td class="c-box"></td><td class="c-dept">RB/OP/BU/QC</td></tr>
         </tbody>
       </table>
 

@@ -124,6 +124,38 @@ export async function loadChecklistBeforePourTemplate(): Promise<string> {
   return res.text()
 }
 
+function metaCbox(checked: boolean): string {
+  const cls = checked ? 'c-box is-checked' : 'c-box'
+  return `<span class="${cls}" aria-hidden="true"></span>`
+}
+
+/** เทคอนกรีตครั้งที่ 1–5 — ช่องสี่เหลี่ยม □ ขนาดเดียวกับคอลัมน์ NA/C/NC (.c-box) */
+export function renderPourSequenceCheckboxes(selected: string): string {
+  const sel = selected.trim()
+  return [1, 2, 3, 4, 5]
+    .map((n) => {
+      const id = String(n)
+      const on = sel === id
+      return `<span class="meta-pour-opt">${metaCbox(on)}${id}</span>`
+    })
+    .join('')
+}
+
+/** ชั้นที่ — □ 1 □ 2 □ อื่น ๆ + บรรทัดกรอก */
+export function renderFloorLevelOptions(selected: string): string {
+  const sel = selected.trim()
+  const is1 = sel === '1'
+  const is2 = sel === '2'
+  const isOther = sel !== '' && !is1 && !is2
+  const otherContent = isOther ? escapeHtml(sel) : '&#160;'
+  return [
+    `<span class="meta-pour-opt">${metaCbox(is1)}1</span>`,
+    `<span class="meta-pour-opt">${metaCbox(is2)}2</span>`,
+    `<span class="meta-pour-opt">${metaCbox(isOther)}อื่น ๆ</span>`,
+    `<span class="meta-floor-other">${otherContent}</span>`,
+  ].join('')
+}
+
 /** Replace `{{key}}` placeholders in the HTML string. */
 export function fillChecklistBeforePourTemplate(
   html: string,
@@ -138,7 +170,9 @@ export function fillChecklistBeforePourTemplate(
     locationText: escapeHtml(data.locationText),
     structureNo: escapeHtml(data.structureNo),
     pourSequence: escapeHtml(data.pourSequence),
+    pourSequenceOptions: renderPourSequenceCheckboxes(data.pourSequence),
     floorLevel: escapeHtml(data.floorLevel),
+    floorLevelOptions: renderFloorLevelOptions(data.floorLevel),
     requestDate: escapeHtml(data.requestDate),
     signDate: escapeHtml(data.signDate),
     structureName: escapeHtml(data.structureName),
