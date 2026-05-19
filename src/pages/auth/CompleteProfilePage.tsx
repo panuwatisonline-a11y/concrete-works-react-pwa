@@ -105,6 +105,7 @@ export function CompleteProfilePage() {
       client_name: clientName,
       job_id: jobId,
       role: 'user' as const,
+      status: 'pending' as const,
     }
 
     const { error: profileErr } = await supabase.from('profiles').upsert(profileRow, { onConflict: 'id' })

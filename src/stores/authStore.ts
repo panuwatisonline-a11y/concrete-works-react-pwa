@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import type { User } from '@supabase/supabase-js'
+import { normalizeRole } from '@/lib/permissions'
 import type { Profile, UserRole } from '@/types/app.types'
 
 interface AuthState {
@@ -34,7 +35,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
     set({ user, profile: null, role: null, profileHydrated: false })
   },
-  setProfile: (profile) => set({ profile, role: profile?.role ?? null, profileHydrated: true }),
+  setProfile: (profile) =>
+    set({
+      profile,
+      role: profile ? normalizeRole(profile.role) : null,
+      profileHydrated: true,
+    }),
   setLoading: (isLoading) => set({ isLoading }),
   reset: () => set({ user: null, profile: null, role: null, isLoading: false, profileHydrated: true }),
 }))

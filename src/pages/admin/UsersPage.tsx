@@ -20,7 +20,7 @@ import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 import type { InspectorRow } from '@/lib/inspectorScope'
-import { canManageUsers, ASSIGNABLE_ROLES, ROLE_LABELS } from '@/lib/permissions'
+import { canManageUsers, ASSIGNABLE_ROLES, ROLE_LABELS, isInspectorRole, roleDisplayLabel } from '@/lib/permissions'
 import type { Profile, UserRole } from '@/types/app.types'
 import { Navigate } from 'react-router-dom'
 import { APP_HOME } from '@/lib/appHome'
@@ -207,8 +207,9 @@ export function UsersPage() {
     }
     const cid = draftClient === SELECT_NONE ? null : Number.parseInt(draftClient, 10)
     const jid = draftJob === SELECT_NONE ? null : Number.parseInt(draftJob, 10)
-    const iid =
-      draftInspector !== SELECT_NONE ? Number.parseInt(draftInspector, 10) : null
+    const iid = isInspectorRole(draftRole)
+      ? (draftInspector !== SELECT_NONE ? Number.parseInt(draftInspector, 10) : null)
+      : null
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
     setSaving(true)
     const { error } = await supabase
@@ -353,7 +354,7 @@ export function UsersPage() {
                   <dt className={adminDataRow.label}>Role</dt>
                   <dd>
                     <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
-                      {ROLE_LABELS[u.role]}
+                      {roleDisplayLabel(u.role)}
                     </Badge>
                   </dd>
                 </div>
@@ -455,7 +456,7 @@ export function UsersPage() {
                   <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
                   <td className="min-w-0">
                     <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
-                      {ROLE_LABELS[u.role]}
+                      {roleDisplayLabel(u.role)}
                     </Badge>
                   </td>
                   <td className="min-w-0 whitespace-nowrap">
@@ -546,7 +547,14 @@ export function UsersPage() {
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Role</p>
-                <Select value={draftRole} onValueChange={(v) => setDraftRole(v as UserRole)}>
+                <Select
+                  value={draftRole}
+                  onValueChange={(v) => {
+                    const next = v as UserRole
+                    setDraftRole(next)
+                    if (!isInspectorRole(next)) setDraftInspector(SELECT_NONE)
+                  }}
+                >
                   <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
                     <SelectValue />
                   </SelectTrigger>
@@ -591,25 +599,27 @@ export function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Inspector (สายที่ดูแล)</p>
-                <Select value={draftInspector} onValueChange={setDraftInspector}>
-                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                    <SelectValue placeholder="เลือก Inspector" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                    <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
-                    {inspectors.map((ins) => (
-                      <SelectItem key={ins.id} value={String(ins.id)}>
-                        {ins.inspector_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="mt-1 text-xs text-pour-muted">
-                  ใช้ได้ทุก role — กำหนด list คนที่หน้า Admin → Inspector
-                </p>
-              </div>
+              {isInspectorRole(draftRole) ? (
+                <div>
+                  <p className={cn(rq.dataRowLabel, 'mb-1.5')}>สาย Inspector</p>
+                  <Select value={draftInspector} onValueChange={setDraftInspector}>
+                    <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
+                      <SelectValue placeholder="เลือกสาย" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
+                      <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
+                      {inspectors.map((ins) => (
+                        <SelectItem key={ins.id} value={String(ins.id)}>
+                          {ins.inspector_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-pour-muted">
+                    กำหนดสายอนุมัติ — รายชื่อสมาชิกตั้งที่ Admin → Inspector
+                  </p>
+                </div>
+              ) : null}
             </div>
           )}
           <DialogFooter>

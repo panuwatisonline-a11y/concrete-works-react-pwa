@@ -32,6 +32,8 @@ import {
   serializeProfileIdList,
   type InspectorWithMembers,
 } from '@/lib/inspectorScope'
+import { canEditMasterData } from '@/lib/permissions'
+import { useAuthStore } from '@/stores/authStore'
 import type { Profile } from '@/types/app.types'
 
 function inspectorNameKey(name: string) {
@@ -39,6 +41,8 @@ function inspectorNameKey(name: string) {
 }
 
 export function InspectorPage() {
+  const role = useAuthStore((s) => s.role)
+  const canEdit = canEditMasterData(role)
   const [rows, setRows] = useState<InspectorWithMembers[]>([])
   const [profileOptions, setProfileOptions] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
@@ -236,10 +240,12 @@ export function InspectorPage() {
     <div className={app.pageAdmin}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <h1 className={rq.heroTitle}>Inspector</h1>
-        <Button type="button" size="sm" onClick={openAdd}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          เพิ่ม Inspector
-        </Button>
+        {canEdit ? (
+          <Button type="button" size="sm" onClick={openAdd}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            เพิ่ม Inspector
+          </Button>
+        ) : null}
       </div>
 
       <p className="mb-4 text-sm text-pour-muted">
@@ -271,14 +277,18 @@ export function InspectorPage() {
                     <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{formatMemberList(row.members)}</td>
                     <td className="tabular-nums">{row.members.length}</td>
                     <td className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(row)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button type="button" variant="ghost" size="icon" onClick={() => setDeleteId(row.id)}>
-                          <Trash2 className="h-4 w-4 text-rose-600" />
-                        </Button>
-                      </div>
+                      {canEdit ? (
+                        <div className="flex justify-end gap-1">
+                          <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(row)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button type="button" variant="ghost" size="icon" onClick={() => setDeleteId(row.id)}>
+                            <Trash2 className="h-4 w-4 text-rose-600" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-pour-muted">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -295,14 +305,16 @@ export function InspectorPage() {
                 <p className="font-semibold text-[color:var(--pour-ink-0)]">{inspectorPrimaryLabel(row)}</p>
                 <p className="mt-1 text-sm text-pour-muted">{formatMemberList(row.members)}</p>
                 <p className="mt-0.5 text-xs text-pour-subtle">{row.members.length} คน</p>
-                <div className="mt-3 flex gap-2">
-                  <Button type="button" variant="outline" size="sm" onClick={() => openEdit(row)}>
-                    แก้ไข
-                  </Button>
-                  <Button type="button" variant="outline" size="sm" onClick={() => setDeleteId(row.id)}>
-                    ลบ
-                  </Button>
-                </div>
+                {canEdit ? (
+                  <div className="mt-3 flex gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => openEdit(row)}>
+                      แก้ไข
+                    </Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setDeleteId(row.id)}>
+                      ลบ
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -370,7 +382,7 @@ export function InspectorPage() {
         onClose={() => setDeleteId(null)}
         onConfirm={() => void confirmDelete()}
         title="ลบ Inspector?"
-        description="สมาชิกใน list จะถูกลบ และ manager ที่ผูกสายนี้จะไม่มี scope จนกว่าจะกำหนดใหม่"
+        description="สมาชิกใน list จะถูกลบ และ Inspector ที่ผูกสายนี้จะไม่มี scope จนกว่าจะกำหนดใหม่"
         confirmLabel="ลบ"
         confirmVariant="destructive"
       />

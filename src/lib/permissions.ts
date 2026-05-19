@@ -114,3 +114,10 @@ export function canUploadRequestAttachments(
 export function isInspectorRole(role: string | null | undefined): boolean {
   return normalizeRole(role) === 'inspector'
 }
+
+/** ป้าย role สำหรับ UI (รองรับ manager เก่าใน DB) */
+export function roleDisplayLabel(role: string | null | undefined): string {
+  if (!role) return '—'
+  const key = normalizeRole(role) ?? role
+  return ROLE_LABELS[key as UserRole] ?? ROLE_LABELS[role as keyof typeof ROLE_LABELS] ?? role
+}

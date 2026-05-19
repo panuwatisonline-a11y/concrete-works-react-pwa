@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { supabase } from '@/lib/supabase'
+import { roleDisplayLabel } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
@@ -100,8 +101,6 @@ export function ProfilePage() {
   const jobName =
     profile?.job_id != null ? jobs.find((j) => j.id === profile.job_id)?.job_name : undefined
 
-  const roleLabels: Record<string, string> = { admin: 'Admin', manager: 'Manager', user: 'User' }
-
   return (
     <div className={rq.pageNarrow}>
       <RequestScreenHeader
@@ -146,7 +145,7 @@ export function ProfilePage() {
               </p>
               <p className="text-sm text-pour-muted">{profile?.employee_id}</p>
               <Badge variant="secondary" className="border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] text-xs font-semibold text-[color:var(--pour-ink-1)]">
-                {roleLabels[profile?.role ?? ''] ?? profile?.role}
+                {roleDisplayLabel(profile?.role)}
               </Badge>
             </div>
           </div>
