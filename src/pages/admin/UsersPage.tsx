@@ -36,6 +36,7 @@ import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import type { UserStatus } from '@/types/app.types'
+import { adminDeleteProfile, adminUpdateProfile, fetchProfilesForAdmin } from '@/lib/adminProfileRpc'
 
 const ROLES: UserRole[] = ASSIGNABLE_ROLES
 const ROLE_COLORS: Record<string, string> = {
@@ -141,11 +142,12 @@ export function UsersPage() {
 
   async function load() {
     setLoading(true)
-    const [{ data }, { data: insp }] = await Promise.all([
-      supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+    const [{ profiles, error: profileErr }, { data: insp }] = await Promise.all([
+      fetchProfilesForAdmin(),
       supabase.from('Inspector').select('id, inspector_name').order('inspector_name'),
     ])
-    setUsers((data ?? []) as Profile[])
+    if (profileErr) toast.error(profileErr)
+    setUsers(profiles)
     setInspectors((insp ?? []) as InspectorRow[])
     setLoading(false)
   }
@@ -180,25 +182,25 @@ export function UsersPage() {
 
   async function setStatus(userId: string, status: UserStatus) {
     const target = users.find((u) => u.id === userId)
-    if (target && !canModifyAdminTarget(actorEmail, target)) {
+    if (!target) return
+    if (!canModifyAdminTarget(actorEmail, target)) {
       toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
       return
     }
-    const { data: updated, error } = await supabase
-      .from('profiles')
-      .update({ status })
-      .eq('id', userId)
-      .select('id')
-      .maybeSingle()
-    if (error) {
-      toast.error(error.message || 'บันทึกไม่สำเร็จ')
+    const { profile: updated, error } = await adminUpdateProfile({
+      target_id: userId,
+      new_role: target.role,
+      new_status: status,
+      new_client_id: target.client_id,
+      new_client_name: target.client_name,
+      new_job_id: target.job_id,
+      new_inspector_id: target.inspector_id,
+    })
+    if (error || !updated) {
+      toast.error(error || 'อัปเดตสถานะไม่สำเร็จ')
       return
     }
-    if (!updated) {
-      toast.error('อัปเดตสถานะไม่สำเร็จ — ตรวจสิทธิ์ Admin / RLS')
-      return
-    }
-    setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, status } : u))
+    setUsers((prev) => prev.map((u) => (u.id === userId ? (updated as Profile) : u)))
     toast.success(
       status === 'approved' ? 'อนุมัติแล้ว' : status === 'rejected' ? 'ปฏิเสธแล้ว' : 'ตั้งเป็นรออนุมัติ',
     )
@@ -231,48 +233,21 @@ export function UsersPage() {
       : null
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
     setSaving(true)
-    const { data: updated, error } = await supabase
-      .from('profiles')
-      .update({
-        role: draftRole,
-        status: draftStatus,
-        client_id: cid,
-        client_name: client?.client_name ?? null,
-        job_id: jid,
-        inspector_id: iid,
-      })
-      .eq('id', editUser.id)
-      .select('id')
-      .maybeSingle()
+    const { profile: updated, error } = await adminUpdateProfile({
+      target_id: editUser.id,
+      new_role: draftRole,
+      new_status: draftStatus,
+      new_client_id: cid,
+      new_client_name: client?.client_name ?? null,
+      new_job_id: jid,
+      new_inspector_id: iid,
+    })
     setSaving(false)
-    if (error) {
-      const msg = error.message || 'บันทึกไม่สำเร็จ'
-      toast.error(
-        msg.includes('policy') || msg.includes('permission') || error.code === '42501'
-          ? 'ไม่มีสิทธิ์บันทึก — ตรวจว่า login เป็น Admin และ RLS บน profiles อนุญาตให้ admin แก้ไข'
-          : msg,
-      )
+    if (error || !updated) {
+      toast.error(error || 'บันทึกไม่สำเร็จ')
       return
     }
-    if (!updated) {
-      toast.error('บันทึกไม่สำเร็จ — ไม่มีแถวที่อัปเดต (อาจถูก RLS บล็อก)')
-      return
-    }
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === editUser.id
-          ? {
-              ...u,
-              role: draftRole,
-              status: draftStatus,
-              client_id: cid,
-              client_name: client?.client_name ?? null,
-              job_id: jid,
-              inspector_id: iid,
-            }
-          : u,
-      ),
-    )
+    setUsers((prev) => prev.map((u) => (u.id === editUser.id ? (updated as Profile) : u)))
     toast.success('บันทึกการแก้ไขเรียบร้อย')
     setEditUser(null)
   }
@@ -285,9 +260,9 @@ export function UsersPage() {
       setDeleteUserId(null)
       return
     }
-    const { error } = await supabase.from('profiles').delete().eq('id', deleteUserId)
+    const { error } = await adminDeleteProfile(deleteUserId)
     if (error) {
-      toast.error(error.message || 'ลบไม่สำเร็จ (อาจมีข้อมูลเชื่อมโยงหรือสิทธิ์ไม่เพียงพอ)')
+      toast.error(error)
       return
     }
     setUsers((prev) => prev.filter((u) => u.id !== deleteUserId))
