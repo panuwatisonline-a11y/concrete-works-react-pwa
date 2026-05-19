@@ -249,7 +249,7 @@ export function InspectorPage() {
       </div>
 
       <p className="mb-4 text-sm text-pour-muted">
-        ช่องแรกเลือกหัวสาย (คนเดียว) ช่องสองเลือกคนใน list (หลายคน) — เลือกตัวเองซ้ำใน list ได้ถ้าทำงานแทนหรือควบพื้นที่
+        ช่องแรกเลือกหัวสาย (role Inspector — อนุมัติคำขอของสายนี้) ช่องสองเลือกคนจองใน list (หลายคน) — เลือกหัวสายซ้ำใน list ได้ถ้าทำงานแทนหรือควบพื้นที่
       </p>
 
       {loading ? (
@@ -382,7 +382,7 @@ export function InspectorPage() {
         onClose={() => setDeleteId(null)}
         onConfirm={() => void confirmDelete()}
         title="ลบ Inspector?"
-        description="สมาชิกใน list จะถูกลบ และ Inspector ที่ผูกสายนี้จะไม่มี scope จนกว่าจะกำหนดใหม่"
+        description="สมาชิกใน list จะถูกลบ — หัวสายและคนใน list ต้องกำหนดใหม่ถ้าสร้างสายใหม่"
         confirmLabel="ลบ"
         confirmVariant="destructive"
       />

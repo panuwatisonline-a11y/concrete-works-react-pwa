@@ -1,6 +1,5 @@
 ﻿import { useCallback, useEffect, useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
@@ -19,12 +18,10 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
-import type { InspectorRow } from '@/lib/inspectorScope'
 import {
   canManageUsers,
   ASSIGNABLE_ROLES,
   ROLE_LABELS,
-  isInspectorRole,
   normalizeRole,
   roleDisplayLabel,
 } from '@/lib/permissions'
@@ -116,8 +113,6 @@ export function UsersPage() {
   const [draftStatus, setDraftStatus] = useState<UserStatus>('pending')
   const [draftClient, setDraftClient] = useState(SELECT_NONE)
   const [draftJob, setDraftJob] = useState(SELECT_NONE)
-  const [draftInspector, setDraftInspector] = useState(SELECT_NONE)
-  const [inspectors, setInspectors] = useState<InspectorRow[]>([])
   const [saving, setSaving] = useState(false)
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
   const [userSearch, setUserSearch] = useState('')
@@ -142,13 +137,9 @@ export function UsersPage() {
 
   async function load() {
     setLoading(true)
-    const [{ profiles, error: profileErr }, { data: insp }] = await Promise.all([
-      fetchProfilesForAdmin(),
-      supabase.from('Inspector').select('id, inspector_name').order('inspector_name'),
-    ])
+    const { profiles, error: profileErr } = await fetchProfilesForAdmin()
     if (profileErr) toast.error(profileErr)
     setUsers(profiles)
-    setInspectors((insp ?? []) as InspectorRow[])
     setLoading(false)
   }
 
@@ -156,7 +147,7 @@ export function UsersPage() {
     load()
   }, [])
 
-  useDataSyncRefetch(['profiles', 'Inspector', '*'], load)
+  useDataSyncRefetch(['profiles', '*'], load)
 
   usePullToRefreshOnLoad(load)
 
@@ -166,7 +157,6 @@ export function UsersPage() {
     setDraftStatus(editUser.status)
     setDraftClient(editUser.client_id != null ? String(editUser.client_id) : SELECT_NONE)
     setDraftJob(editUser.job_id != null ? String(editUser.job_id) : SELECT_NONE)
-    setDraftInspector(editUser.inspector_id != null ? String(editUser.inspector_id) : SELECT_NONE)
   }, [editUser])
 
   function clientLabel(u: Profile) {
@@ -228,9 +218,6 @@ export function UsersPage() {
     }
     const cid = draftClient === SELECT_NONE ? null : Number.parseInt(draftClient, 10)
     const jid = draftJob === SELECT_NONE ? null : Number.parseInt(draftJob, 10)
-    const iid = isInspectorRole(draftRole)
-      ? (draftInspector !== SELECT_NONE ? Number.parseInt(draftInspector, 10) : null)
-      : null
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
     setSaving(true)
     const { profile: updated, error } = await adminUpdateProfile({
@@ -240,7 +227,7 @@ export function UsersPage() {
       new_client_id: cid,
       new_client_name: client?.client_name ?? null,
       new_job_id: jid,
-      new_inspector_id: iid,
+      new_inspector_id: editUser.inspector_id,
     })
     setSaving(false)
     if (error || !updated) {
@@ -552,14 +539,7 @@ export function UsersPage() {
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Role</p>
-                <Select
-                  value={draftRole}
-                  onValueChange={(v) => {
-                    const next = v as UserRole
-                    setDraftRole(next)
-                    if (!isInspectorRole(next)) setDraftInspector(SELECT_NONE)
-                  }}
-                >
+                <Select value={draftRole} onValueChange={(v) => setDraftRole(v as UserRole)}>
                   <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
                     <SelectValue />
                   </SelectTrigger>
@@ -604,27 +584,6 @@ export function UsersPage() {
                   </SelectContent>
                 </Select>
               </div>
-              {isInspectorRole(draftRole) ? (
-                <div>
-                  <p className={cn(rq.dataRowLabel, 'mb-1.5')}>สาย Inspector</p>
-                  <Select value={draftInspector} onValueChange={setDraftInspector}>
-                    <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                      <SelectValue placeholder="เลือกสาย" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                      <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
-                      {inspectors.map((ins) => (
-                        <SelectItem key={ins.id} value={String(ins.id)}>
-                          {ins.inspector_name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1 text-xs text-pour-muted">
-                    กำหนดสายอนุมัติ — รายชื่อสมาชิกตั้งที่ Admin → Inspector
-                  </p>
-                </div>
-              ) : null}
             </div>
           )}
           <DialogFooter>

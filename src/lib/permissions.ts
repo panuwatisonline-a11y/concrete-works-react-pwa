@@ -56,7 +56,7 @@ export function canEditCst(role: string | null | undefined): boolean {
   return r === 'admin' || r === 'document' || r === 'engineer'
 }
 
-/** Master data + สาย Inspector (ยกเว้น User Settings) */
+/** Master data + ตั้งสาย Inspector (หัวสาย / สมาชิก) */
 export function canEditMasterData(role: string | null | undefined): boolean {
   const r = normalizeRole(role)
   return r === 'admin' || r === 'document' || r === 'engineer'

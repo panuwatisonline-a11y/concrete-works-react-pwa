@@ -85,6 +85,16 @@ export function memberIdsIncludingPrimary(
 /** null = admin (no scope limit); Set = allowed booked_by profile ids */
 export type InspectorBookerScope = Set<string> | null
 
+/** สายที่ profile นี้เป็นหัวสาย (primary) */
+export async function fetchInspectorLineIdsForPrimary(profileId: string): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('Inspector')
+    .select('id')
+    .eq('primary_profile_id', profileId)
+  if (error) throw error
+  return (data ?? []).map((r) => r.id)
+}
+
 export async function fetchBookerIdsForInspector(inspectorId: number): Promise<Set<string>> {
   const [membersRes, inspRes] = await Promise.all([
     supabase.from('Inspector_Member').select('profile_id').eq('inspector_id', inspectorId),
@@ -102,8 +112,22 @@ export async function fetchBookerIdsForInspector(inspectorId: number): Promise<S
 export async function fetchBookerScopeForProfile(profile: Profile | null): Promise<InspectorBookerScope> {
   if (!profile) return new Set()
   if (normalizeRole(profile.role) === 'admin') return null
-  if (!isInspectorRole(profile.role) || profile.inspector_id == null) return new Set()
-  const scope = await fetchBookerIdsForInspector(profile.inspector_id)
+  if (!isInspectorRole(profile.role)) return new Set()
+
+  const lineIds = await fetchInspectorLineIdsForPrimary(profile.id)
+  if (lineIds.length === 0) {
+    // legacy: profiles.inspector_id (ไม่ใช้ใน UI แล้ว)
+    if (profile.inspector_id == null) return new Set()
+    const scope = await fetchBookerIdsForInspector(profile.inspector_id)
+    scope.add(profile.id)
+    return scope
+  }
+
+  const scope = new Set<string>()
+  for (const lineId of lineIds) {
+    const ids = await fetchBookerIdsForInspector(lineId)
+    ids.forEach((id) => scope.add(id))
+  }
   scope.add(profile.id)
   return scope
 }

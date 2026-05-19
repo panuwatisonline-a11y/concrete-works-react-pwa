@@ -45,7 +45,7 @@ export function useInspectorBookerScope(): {
     return () => {
       cancelled = true
     }
-  }, [profile?.id, profile?.inspector_id, role])
+  }, [profile?.id, role])
 
   return { bookerScope, scopeLoading }
 }
