@@ -62,7 +62,7 @@ export const CST_REPORT_TEMPLATE_STATIC_DEFAULTS = {
   testedByName: 'นางสาวบุญเจริญ บุญเลิศ',
   testedByRole: 'Technician Lab Concrete',
   reviewedByUnit: 'CKST-DC3',
-  reviewedByName: 'นางสาวไปรดา ลิขิตหัถศิลป',
+  reviewedByName: 'นางสาวไปรดา ลิขิตหัตถศิลป',
   reviewedByRole: 'QC Lab Engineer',
   approvedByUnit: 'CSC3',
   approvedByName: 'นายธนวัฒน์ ดาศักดิ์',
