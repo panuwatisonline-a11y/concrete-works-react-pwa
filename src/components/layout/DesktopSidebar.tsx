@@ -14,6 +14,8 @@ import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
+import { mainNavLinks } from '@/lib/mainNav'
+import { canManageUsers } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 
@@ -24,17 +26,7 @@ interface NavItem {
   end?: boolean
 }
 
-const mainLinks: NavItem[] = [
-  { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
-  { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
-  { to: '/requests/booking-summary', label: 'สรุปรายการจอง', icon: ClipboardList },
-  { to: '/preview/forms', label: 'ตัวอย่างแบบฟอร์ม', icon: Files },
-  { to: '/profile', label: 'โปรไฟล์', icon: User },
-]
-
 const REQUESTS_MINE = '/requests?view=latest&scope=mine' as const
-
-const [homeMainLink, ...restMainLinks] = mainLinks
 
 const SIDEBAR_COLLAPSED_KEY = 'cw-desktop-sidebar-collapsed'
 const SIDEBAR_AUTOHIDE_KEY = 'cw-desktop-sidebar-autohide'
@@ -179,6 +171,9 @@ export function DesktopSidebar() {
 
   const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
   const subtitle = user?.email ?? profile?.role ?? '—'
+  const mainLinks = mainNavLinks(role)
+  const homeMainLink = mainLinks[0]!
+  const restMainLinks = mainLinks.slice(1)
   const adminLinks = adminConsoleLinks(role)
   const HomeNavIcon = homeMainLink.icon
   const adminSectionActive =
@@ -293,7 +288,7 @@ export function DesktopSidebar() {
         active: isNavToActive(REQUESTS_MINE, location),
         onClick: () => resetFilter(),
       },
-      ...(role === 'admin'
+      ...(canManageUsers(role)
         ? [{
             to: '/admin',
             label: 'Dashboard',
@@ -458,7 +453,7 @@ export function DesktopSidebar() {
               />
               รายการของฉัน
             </NavLink>
-            {role === 'admin' ? (
+            {canManageUsers(role) ? (
               <NavLink to="/admin" end className={({ isActive }) => expandedNavClass(isActive)}>
                 <LayoutDashboard className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
                 Dashboard

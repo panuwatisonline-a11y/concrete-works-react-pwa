@@ -1,5 +1,5 @@
 ﻿import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -18,6 +18,7 @@ import { formatDate, cn, formatVolumeCuM } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { APP_HOME } from '@/lib/appHome'
+import { canBookConcrete } from '@/lib/permissions'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { layout, rq } from '@/lib/requestUi'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
@@ -143,7 +144,7 @@ function RequestNewStepBar({ step }: { step: number }) {
 export function RequestNewPage() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { user, profile } = useAuthStore()
+  const { user, profile, role } = useAuthStore()
   const { clients, locations, concreteWorks, structures, mixcodes, abcCodes, wbsCodes } = useMasterDataStore()
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
@@ -534,6 +535,10 @@ export function RequestNewPage() {
         </Card>
       </div>
     )
+  }
+
+  if (!canBookConcrete(role)) {
+    return <Navigate to={APP_HOME} replace />
   }
 
   return (

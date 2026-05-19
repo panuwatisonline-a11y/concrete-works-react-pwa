@@ -29,6 +29,7 @@ import { AbcCodePage } from '@/pages/admin/AbcCodePage'
 import { WbsCodePage } from '@/pages/admin/WbsCodePage'
 import { JobsPage } from '@/pages/admin/JobsPage'
 import { CstMachinePage } from '@/pages/admin/CstMachinePage'
+import { InspectorPage } from '@/pages/admin/InspectorPage'
 import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
 import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
 import { PrintCstPreviewPage } from '@/pages/print/PrintCstPreviewPage'
@@ -79,8 +80,9 @@ function AppInner() {
         <Route path="/preview/checklist-before-concrete" element={<Navigate to="/preview/forms" replace />} />
         <Route path="/preview/cst-strength-report" element={<Navigate to="/preview/forms" replace />} />
 
-        <Route path="/admin" element={<ProtectedRoute requiredRole="admin"><AdminLayout /></ProtectedRoute>}>
+        <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="inspector" element={<InspectorPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="client" element={<ClientPage />} />
           <Route path="location" element={<LocationPage />} />

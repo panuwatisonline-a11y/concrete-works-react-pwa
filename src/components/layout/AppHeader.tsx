@@ -14,6 +14,8 @@ import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
 import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
+import { mainNavLinks } from '@/lib/mainNav'
+import { canManageUsers } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { UserAvatar } from '@/components/shared/UserAvatar'
@@ -25,14 +27,6 @@ interface NavItem {
   icon: ElementType
   end?: boolean
 }
-
-const mainLinks: NavItem[] = [
-  { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
-  { to: '/requests/new', label: 'จองคอนกรีต', icon: PlusCircle },
-  { to: '/requests/booking-summary', label: 'สรุปรายการจอง', icon: ClipboardList },
-  { to: '/preview/forms', label: 'ตัวอย่างแบบฟอร์ม', icon: Files },
-  { to: '/profile', label: 'โปรไฟล์', icon: User },
-]
 
 /** แถบหน้าหลักบนมือถือ — แทน bottom tab */
 function MobilePrimaryNav() {
@@ -67,7 +61,7 @@ function MobilePrimaryNav() {
           <Star className={cn(icon.sm, 'text-amber-500')} strokeWidth={ICON_STROKE} fill="currentColor" aria-hidden />
           รายการของฉัน
         </Link>
-        {role === 'admin' ? (
+        {canManageUsers(role) ? (
           <Link
             to="/admin"
             className={pill(isAdminArea)}
@@ -94,6 +88,7 @@ export function AppHeader() {
   const profileSubtitle = user?.email ?? profile?.role ?? '—'
   const adminSectionActive =
     location.pathname.startsWith('/admin') || location.pathname.startsWith('/cst')
+  const drawerMainLinks = mainNavLinks(role)
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -212,7 +207,7 @@ export function AppHeader() {
 
           <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
             <CollapsibleNavSection title="MENU" defaultOpen={!adminSectionActive} panelClassName="space-y-1 pb-1">
-              {mainLinks.map(({ to, label, icon: Icon, end }) => (
+              {drawerMainLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -231,7 +226,7 @@ export function AppHeader() {
                   {label}
                 </NavLink>
               ))}
-              {role === 'admin' ? (
+              {canManageUsers(role) ? (
                 <NavLink
                   to="/admin"
                   end

@@ -1,6 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { format, startOfMonth } from 'date-fns'
-import { Navigate } from 'react-router-dom'
 import { BarChart3, CalendarDays, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
@@ -18,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { APP_HOME } from '@/lib/appHome'
 import {
   fetchConcreteSummaryRequests,
   fetchCstViewsByRequestIds,
@@ -152,8 +150,6 @@ export function ConcreteSummaryPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const canAccess = role === 'admin' || role === 'manager'
-
   const [debouncedSearch, setDebouncedSearch] = useState(() => filter.search)
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedSearch(filter.search), 280)
@@ -262,10 +258,6 @@ export function ConcreteSummaryPage() {
     if (n === base) return `${n} รายการ`
     return `${n} รายการ (จาก ${base} รายการ)`
   }, [sorted.length, searchQ, byStructure.length, structureId, requests.length])
-
-  if (!canAccess) {
-    return <Navigate to={APP_HOME} replace />
-  }
 
   return (
     <div className={rq.page}>

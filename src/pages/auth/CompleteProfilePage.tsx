@@ -134,6 +134,7 @@ export function CompleteProfilePage() {
             client_id: profileRow.client_id,
             client_name: profileRow.client_name,
             job_id: profileRow.job_id,
+            inspector_id: null,
             created_at: new Date().toISOString(),
           },
     )

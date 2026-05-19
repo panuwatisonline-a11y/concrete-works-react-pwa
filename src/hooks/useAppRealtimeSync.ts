@@ -36,6 +36,8 @@ const REALTIME_TABLES = [
   'WBS7',
   'Jobs',
   'Compression Machine',
+  'Inspector',
+  'Inspector_Member',
 ] as const
 
 const CHANNEL_NAME = 'pour-app-realtime'

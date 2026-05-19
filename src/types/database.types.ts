@@ -20,10 +20,11 @@ export interface Database {
           fname: string | null
           lname: string | null
           phone: string | null
-          role: 'admin' | 'manager' | 'user'
+          role: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
           client_id: number | null
           client_name: string | null
           job_id: number | null
+          inspector_id: number | null
           avatar_url: string | null
           created_at: string
           updated_at: string | null
@@ -34,10 +35,11 @@ export interface Database {
           fname?: string | null
           lname?: string | null
           phone?: string | null
-          role?: 'admin' | 'manager' | 'user'
+          role?: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
           client_id?: number | null
           client_name?: string | null
           job_id?: number | null
+          inspector_id?: number | null
           avatar_url?: string | null
           created_at?: string
           updated_at?: string | null
@@ -48,13 +50,24 @@ export interface Database {
           fname?: string | null
           lname?: string | null
           phone?: string | null
-          role?: 'admin' | 'manager' | 'user'
+          role?: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
           client_id?: number | null
           client_name?: string | null
           job_id?: number | null
+          inspector_id?: number | null
           avatar_url?: string | null
           updated_at?: string | null
         }
+      }
+      Inspector: {
+        Row: { id: number; inspector_name: string; primary_profile_id: string | null; created_at: string }
+        Insert: { id?: number; inspector_name: string; primary_profile_id?: string | null; created_at?: string }
+        Update: { id?: number; inspector_name?: string; primary_profile_id?: string | null; created_at?: string }
+      }
+      Inspector_Member: {
+        Row: { id: number; inspector_id: number; profile_id: string; created_at: string }
+        Insert: { id?: number; inspector_id: number; profile_id: string; created_at?: string }
+        Update: { id?: number; inspector_id?: number; profile_id?: string; created_at?: string }
       }
       Status: {
         Row: {
@@ -432,7 +445,7 @@ export interface Database {
     }
     Functions: Record<string, never>
     Enums: {
-      user_role: 'admin' | 'manager' | 'user'
+      user_role: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
     }
   }
 }

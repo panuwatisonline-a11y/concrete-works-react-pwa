@@ -1,5 +1,12 @@
 import type { VariantProps } from 'class-variance-authority'
 import { buttonVariants } from '@/components/ui/button'
+import type { InspectorBookerScope } from '@/lib/inspectorScope'
+import {
+  canBookConcrete,
+  canOwnerActOnRequest,
+  canUploadRequestAttachments,
+  canWorkflowActOnRequest,
+} from '@/lib/permissions'
 
 type BtnVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>
 
@@ -41,18 +48,29 @@ export function getRequestListQuickActions(opts: {
   bookedBy: string | null
   beforeImage: string | null | undefined
   eslipUrl?: string | null | undefined
+  bookerScope?: InspectorBookerScope
 }): RequestListActionItem[] {
-  const { requestId, statusId: sid, role, userId, bookedBy, beforeImage, eslipUrl } = opts
+  const { requestId, statusId: sid, role, userId, bookedBy, beforeImage, eslipUrl, bookerScope } = opts
   const isOwner = Boolean(userId && bookedBy === userId)
-  const canAct = role === 'admin' || role === 'manager'
+  const canAct = canWorkflowActOnRequest({
+    role,
+    bookerScope: bookerScope ?? null,
+    bookedBy,
+    actorProfileId: userId,
+  })
+  const ownerAct = canOwnerActOnRequest(role, isOwner)
+  const canAttach = canUploadRequestAttachments(role, isOwner)
   const showPanel =
-    canAct || (sid === 1 && isOwner) || (sid <= 3 && isOwner) || ((sid === 6 || sid === 7) && isOwner)
+    canAct
+    || ownerAct
+    || canAttach
+    || ((sid === 6 || sid === 7) && isOwner)
   const missingBeforeImage = !beforeImage?.trim()
   const hasEslip = Boolean(eslipUrl?.trim())
 
   const out: RequestListActionItem[] = []
 
-  if (showPanel && sid === 1 && missingBeforeImage && (canAct || isOwner)) {
+  if (showPanel && sid === 1 && missingBeforeImage && (canAct || ownerAct || canAttach)) {
     out.push({
       key: 'uploadBefore',
       modal: 'uploadBeforeOnly',
@@ -71,9 +89,11 @@ export function getRequestListQuickActions(opts: {
     }
     if (sid === 3 && canAct) {
       out.push({ key: 'confirmOrder', modal: 'confirmOrder', label: 'สั่งเท', variant: 'default' })
+    }
+    if (sid === 3 && (canAct || ownerAct)) {
       out.push({ key: 'postpone', modal: 'postpone', label: 'เลื่อนวัน', variant: 'warning' })
     }
-    if ((sid === 4 || sid === 8) && canAct) {
+    if ((sid === 4 || sid === 8) && (canAct || canAttach)) {
       out.push({
         key: 'uploadEslip',
         modal: 'uploadEslipOnly',
@@ -81,16 +101,16 @@ export function getRequestListQuickActions(opts: {
         variant: hasEslip ? 'success' : sid === 4 ? 'default' : 'secondary',
       })
     }
-    if (canConfirmRequest(sid, eslipUrl) && canAct) {
+    if (canConfirmRequest(sid, eslipUrl) && (canAct || ownerAct)) {
       out.push({ key: 'complete', modal: 'complete', label: 'Confirm รายการ', variant: 'success' })
     }
     if (sid === 5 && canAct) {
       out.push({ key: 'reApprove', modal: 'reApprove', label: 'สั่งเทใหม่', variant: 'default' })
     }
-    if ([1, 2, 3].includes(sid) && (canAct || isOwner)) {
+    if ([1, 2, 3].includes(sid) && (canAct || ownerAct)) {
       out.push({ key: 'cancel', modal: 'cancel', label: 'ยกเลิก', variant: 'outline' })
     }
-    if ((sid === 6 || sid === 7) && isOwner) {
+    if ((sid === 6 || sid === 7) && isOwner && canBookConcrete(role)) {
       out.push({
         key: 'cloneFrom',
         cloneFromRequestId: requestId,

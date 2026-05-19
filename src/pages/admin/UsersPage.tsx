@@ -19,16 +19,25 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
+import type { InspectorRow } from '@/lib/inspectorScope'
+import { canManageUsers, ASSIGNABLE_ROLES, ROLE_LABELS } from '@/lib/permissions'
 import type { Profile, UserRole } from '@/types/app.types'
+import { Navigate } from 'react-router-dom'
+import { APP_HOME } from '@/lib/appHome'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import type { UserStatus } from '@/types/app.types'
 
-const ROLES: UserRole[] = ['user', 'manager', 'admin']
-const ROLE_LABELS: Record<string, string> = { user: 'User', manager: 'Manager', admin: 'Admin' }
-const ROLE_COLORS: Record<string, string> = { user: 'secondary', manager: 'default', admin: 'destructive' }
+const ROLES: UserRole[] = ASSIGNABLE_ROLES
+const ROLE_COLORS: Record<string, string> = {
+  user: 'secondary',
+  inspector: 'default',
+  document: 'outline',
+  engineer: 'default',
+  admin: 'destructive',
+}
 const STATUS_BADGE: Record<UserStatus, { label: string; className: string }> = {
   pending:  { label: 'รออนุมัติ', className: 'border-amber-200 bg-amber-50 text-amber-700' },
   approved: { label: 'อนุมัติแล้ว', className: 'border-emerald-200 bg-emerald-50 text-emerald-700' },
@@ -86,6 +95,7 @@ function UserProfileAvatar({
 }
 
 export function UsersPage() {
+  const role = useAuthStore((s) => s.role)
   const { clients, jobs } = useMasterDataStore()
   const currentProfileId = useAuthStore((s) => s.profile?.id)
   const authUser = useAuthStore((s) => s.user)
@@ -98,6 +108,8 @@ export function UsersPage() {
   const [draftStatus, setDraftStatus] = useState<UserStatus>('pending')
   const [draftClient, setDraftClient] = useState(SELECT_NONE)
   const [draftJob, setDraftJob] = useState(SELECT_NONE)
+  const [draftInspector, setDraftInspector] = useState(SELECT_NONE)
+  const [inspectors, setInspectors] = useState<InspectorRow[]>([])
   const [saving, setSaving] = useState(false)
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null)
   const [userSearch, setUserSearch] = useState('')
@@ -122,8 +134,12 @@ export function UsersPage() {
 
   async function load() {
     setLoading(true)
-    const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false })
+    const [{ data }, { data: insp }] = await Promise.all([
+      supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+      supabase.from('Inspector').select('id, inspector_name').order('inspector_name'),
+    ])
     setUsers((data ?? []) as Profile[])
+    setInspectors((insp ?? []) as InspectorRow[])
     setLoading(false)
   }
 
@@ -131,7 +147,7 @@ export function UsersPage() {
     load()
   }, [])
 
-  useDataSyncRefetch(['profiles', '*'], load)
+  useDataSyncRefetch(['profiles', 'Inspector', '*'], load)
 
   usePullToRefreshOnLoad(load)
 
@@ -141,6 +157,7 @@ export function UsersPage() {
     setDraftStatus(editUser.status)
     setDraftClient(editUser.client_id != null ? String(editUser.client_id) : SELECT_NONE)
     setDraftJob(editUser.job_id != null ? String(editUser.job_id) : SELECT_NONE)
+    setDraftInspector(editUser.inspector_id != null ? String(editUser.inspector_id) : SELECT_NONE)
   }, [editUser])
 
   function clientLabel(u: Profile) {
@@ -190,6 +207,8 @@ export function UsersPage() {
     }
     const cid = draftClient === SELECT_NONE ? null : Number.parseInt(draftClient, 10)
     const jid = draftJob === SELECT_NONE ? null : Number.parseInt(draftJob, 10)
+    const iid =
+      draftInspector !== SELECT_NONE ? Number.parseInt(draftInspector, 10) : null
     const client = cid != null ? clients.find((c) => c.id === cid) : undefined
     setSaving(true)
     const { error } = await supabase
@@ -200,6 +219,7 @@ export function UsersPage() {
         client_id: cid,
         client_name: client?.client_name ?? null,
         job_id: jid,
+        inspector_id: iid,
       })
       .eq('id', editUser.id)
     setSaving(false)
@@ -210,7 +230,15 @@ export function UsersPage() {
     setUsers((prev) =>
       prev.map((u) =>
         u.id === editUser.id
-          ? { ...u, role: draftRole, status: draftStatus, client_id: cid, client_name: client?.client_name ?? null, job_id: jid }
+          ? {
+              ...u,
+              role: draftRole,
+              status: draftStatus,
+              client_id: cid,
+              client_name: client?.client_name ?? null,
+              job_id: jid,
+              inspector_id: iid,
+            }
           : u,
       ),
     )
@@ -234,6 +262,10 @@ export function UsersPage() {
     setUsers((prev) => prev.filter((u) => u.id !== deleteUserId))
     toast.success('ลบผู้ใช้งานแล้ว')
     setDeleteUserId(null)
+  }
+
+  if (!canManageUsers(role)) {
+    return <Navigate to={APP_HOME} replace />
   }
 
   return (
@@ -558,6 +590,25 @@ export function UsersPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+              <div>
+                <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Inspector (สายที่ดูแล)</p>
+                <Select value={draftInspector} onValueChange={setDraftInspector}>
+                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
+                    <SelectValue placeholder="เลือก Inspector" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
+                    <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
+                    {inspectors.map((ins) => (
+                      <SelectItem key={ins.id} value={String(ins.id)}>
+                        {ins.inspector_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="mt-1 text-xs text-pour-muted">
+                  ใช้ได้ทุก role — กำหนด list คนที่หน้า Admin → Inspector
+                </p>
               </div>
             </div>
           )}

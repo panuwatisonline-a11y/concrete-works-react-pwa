@@ -1,4 +1,6 @@
-export type UserRole = 'admin' | 'manager' | 'user'
+export type UserRole = 'admin' | 'user' | 'inspector' | 'document' | 'engineer'
+/** @deprecated migrated to inspector — still accepted from DB during transition */
+export type LegacyUserRole = UserRole | 'manager'
 export type UserStatus = 'pending' | 'approved' | 'rejected'
 
 export interface Profile {
@@ -12,6 +14,7 @@ export interface Profile {
   client_id: number | null
   client_name: string | null
   job_id: number | null
+  inspector_id: number | null
   avatar_url?: string | null
   created_at: string
 }

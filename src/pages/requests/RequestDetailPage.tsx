@@ -20,6 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDate, formatDateTime, formatTime, shortId, cn, formatVolumeCuM, formatPercentNumber } from '@/lib/utils'
 import { dedupeRequestLogsForDisplay } from '@/lib/requestLogDisplay'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
+import { canWorkflowActOnRequest } from '@/lib/permissions'
+import { useInspectorBookerScope } from '@/hooks/useInspectorBookerScope'
 import { canPrintChecklistBeforePour, getRequestListQuickActions } from '@/lib/requestQuickActions'
 import { localPrintChecklist } from '@/lib/checklistPrint'
 import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
@@ -46,6 +48,7 @@ export function RequestDetailPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, role } = useAuthStore()
+  const { bookerScope } = useInspectorBookerScope()
   const { mixcodes } = useMasterDataStore()
   const { filter, setFilter } = useFilterStore()
   const [request, setRequest] = useState<RequestWithRelations | null>(null)
@@ -195,7 +198,12 @@ export function RequestDetailPage() {
 
   const sid = request.status_id
   const isOwner = request.booked_by === user?.id
-  const canAct = role === 'admin' || role === 'manager'
+  const canAct = canWorkflowActOnRequest({
+    role,
+    bookerScope,
+    bookedBy: request.booked_by,
+    actorProfileId: user?.id,
+  })
   const nonSystemBooking = isNonSystemBookingRequest(request)
   const remarksDisplay = remarksForDisplay(request.remarks)
 
@@ -239,6 +247,7 @@ export function RequestDetailPage() {
             bookedBy: request.booked_by,
             beforeImage: request.before_image,
             eslipUrl: request.eslip_url,
+            bookerScope,
           })}
           onItemClick={(item, e) => {
             e.stopPropagation()

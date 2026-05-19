@@ -1,4 +1,6 @@
 ﻿import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { canEditMasterData } from '@/lib/permissions'
+import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
@@ -59,6 +61,8 @@ export function CrudTable<T extends { id: number }>({
   groupBy,
   sortWithinGroup,
 }: CrudTableProps<T>) {
+  const role = useAuthStore((s) => s.role)
+  const readOnly = !canEditMasterData(role)
   const [modalOpen, setModalOpen] = useState(false)
   const [editItem, setEditItem] = useState<T | null>(null)
   const [formData, setFormData] = useState<Partial<T>>({})
@@ -143,18 +147,22 @@ export function CrudTable<T extends { id: number }>({
     <div className={cn('min-w-0 space-y-4', embedded && 'space-y-3')}>
       {embedded ? (
         <div className="flex justify-end">
-          <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
-            <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
-            เพิ่ม
-          </Button>
+          {!readOnly ? (
+            <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
+              <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
+              เพิ่ม
+            </Button>
+          ) : null}
         </div>
       ) : (
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-medium text-[color:var(--pour-ink-0)]">{title}</h2>
-          <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
-            <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
-            เพิ่ม
-          </Button>
+          {!readOnly ? (
+            <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
+              <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
+              เพิ่ม
+            </Button>
+          ) : null}
         </div>
       )}
 
@@ -189,14 +197,18 @@ export function CrudTable<T extends { id: number }>({
                     ))}
                   </dl>
                   <div className={adminDataRow.actions}>
-                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
-                      <Edit className="h-3.5 w-3.5" />
-                    </Button>
-                    {(!canDelete || canDelete(row)) && (
-                      <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
-                      </Button>
-                    )}
+                    {!readOnly ? (
+                      <>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        {(!canDelete || canDelete(row)) && (
+                          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                            <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                          </Button>
+                        )}
+                      </>
+                    ) : null}
                   </div>
                 </div>
               </Fragment>
@@ -257,16 +269,20 @@ export function CrudTable<T extends { id: number }>({
                         </td>
                       ))}
                       <td>
-                        <div className="flex gap-0.5">
-                          <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => openEdit(row)}>
-                            <Edit className="h-3.5 w-3.5" />
-                          </Button>
-                          {(!canDelete || canDelete(row)) && (
-                            <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => setDeleteId(row.id)}>
-                              <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                        {!readOnly ? (
+                          <div className="flex gap-0.5">
+                            <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => openEdit(row)}>
+                              <Edit className="h-3.5 w-3.5" />
                             </Button>
-                          )}
-                        </div>
+                            {(!canDelete || canDelete(row)) && (
+                              <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => setDeleteId(row.id)}>
+                                <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                              </Button>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-[color:var(--pour-ink-3)]">—</span>
+                        )}
                       </td>
                     </tr>
                   </Fragment>

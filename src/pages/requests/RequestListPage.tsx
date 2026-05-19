@@ -17,6 +17,9 @@ import {
   REQUEST_LIST_SEARCH_ARIA,
   REQUEST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
+import type { InspectorBookerScope } from '@/lib/inspectorScope'
+import { useInspectorBookerScope } from '@/hooks/useInspectorBookerScope'
+import { canBookConcrete } from '@/lib/permissions'
 import { getRequestListQuickActions, type RequestListActionItem } from '@/lib/requestQuickActions'
 import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklistPrint'
 import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
@@ -113,10 +116,12 @@ function RequestGroupedFeedBody({
   sections,
   onRequestUpdated,
   layoutMode = 'list',
+  bookerScope,
 }: {
   sections: RequestFeedSection[]
   onRequestUpdated?: () => void
   layoutMode?: 'grid' | 'list'
+  bookerScope: InspectorBookerScope
 }) {
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
 
@@ -201,6 +206,7 @@ function RequestGroupedFeedBody({
                         r={r}
                         variant={layoutMode}
                         onRequestUpdated={onRequestUpdated}
+                        bookerScope={bookerScope}
                       />
                     </StaggerItem>
                   ))}
@@ -266,10 +272,12 @@ function RequestFeedCard({
   r,
   variant = 'list',
   onRequestUpdated,
+  bookerScope,
 }: {
   r: RequestWithRelations
   variant?: 'grid' | 'list'
   onRequestUpdated?: () => void
+  bookerScope: InspectorBookerScope
 }) {
   const [thumbFailed, setThumbFailed] = useState(false)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
@@ -289,6 +297,7 @@ function RequestFeedCard({
     bookedBy: r.booked_by ?? null,
     beforeImage: r.before_image,
     eslipUrl: r.eslip_url,
+    bookerScope,
   })
 
   const structureNameRaw = (r.structure as { structure_name: string } | null)?.structure_name?.trim() ?? ''
@@ -530,7 +539,8 @@ function RequestFeedCard({
 }
 
 export function RequestListPage() {
-  const { user, profile } = useAuthStore()
+  const { user, profile, role } = useAuthStore()
+  const { bookerScope } = useInspectorBookerScope()
   const location = useLocation()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
@@ -768,6 +778,7 @@ export function RequestListPage() {
       sections={feedSections}
       layoutMode={listLayout}
       onRequestUpdated={() => void refreshPage()}
+      bookerScope={bookerScope}
     />
   )
 
@@ -782,6 +793,7 @@ export function RequestListPage() {
               : `รายการทั้งหมด ${grandTotal} รายการ`
             : listSubtitle
         }
+        showCreate={canBookConcrete(role)}
       />
 
       <div className="mt-5">

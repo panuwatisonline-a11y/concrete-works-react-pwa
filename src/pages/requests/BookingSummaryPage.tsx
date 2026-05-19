@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { CalendarDays, ClipboardList, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
+import { canEditBookingSummary } from '@/lib/permissions'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
@@ -121,7 +122,7 @@ export function BookingSummaryPage() {
   const [error, setError] = useState<string | null>(null)
   const [savingBookingOkId, setSavingBookingOkId] = useState<string | null>(null)
 
-  const canEditBookingOk = role === 'admin' || role === 'manager'
+  const canEditBookingOk = canEditBookingSummary(role)
 
   const [debouncedSearch, setDebouncedSearch] = useState(() => filter.search)
   useEffect(() => {

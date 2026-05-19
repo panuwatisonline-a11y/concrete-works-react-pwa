@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { FlaskConical, ExternalLink, Plus } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
@@ -22,7 +22,7 @@ import { cstTestDateDisplay, cstTestDateDisplayShort } from '@/lib/cstForm'
 import { CST_TEST_AGES } from '@/types/app.types'
 import { CstFormDialog } from '@/components/requests/CstFormDialog'
 import { CstRequestInfoDialog } from '@/components/requests/CstRequestInfoDialog'
-import { APP_HOME } from '@/lib/appHome'
+import { canEditCst, canUseCstShortcut } from '@/lib/permissions'
 import {
   fetchAllCstListRequests,
   fetchCstDueTodayList,
@@ -301,7 +301,8 @@ function CstListContent({
 export function CstListPage() {
   const { role } = useAuthStore()
   const { filter, setFilter } = useFilterStore()
-  const canEdit = role === 'admin' || role === 'manager'
+  const canEdit = canEditCst(role)
+  const canShortcut = canUseCstShortcut(role)
 
   const [tab, setTab] = useState<CstPageTab>('list')
   const [filterTestDateIso, setFilterTestDateIso] = useState(() => todayIsoLocal())
@@ -467,10 +468,6 @@ export function CstListPage() {
     onInfoClick: setInfoRequest,
   }
 
-  if (!canEdit) {
-    return <Navigate to={APP_HOME} replace />
-  }
-
   return (
     <div className={cn(rq.page, 'flex flex-col')}>
       <header className="space-y-1">
@@ -509,15 +506,17 @@ export function CstListPage() {
               )
             })}
           </nav>
-          <Button
-            type="button"
-            size="sm"
-            className="shrink-0 rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
-            onClick={() => setShortcutOpen(true)}
-          >
-            <Plus className={cn(icon.sm, 'mr-1.5')} strokeWidth={ICON_STROKE} aria-hidden />
-            เพิ่มรายการ (Complete)
-          </Button>
+          {canShortcut ? (
+            <Button
+              type="button"
+              size="sm"
+              className="shrink-0 rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
+              onClick={() => setShortcutOpen(true)}
+            >
+              <Plus className={cn(icon.sm, 'mr-1.5')} strokeWidth={ICON_STROKE} aria-hidden />
+              เพิ่มรายการ (Complete)
+            </Button>
+          ) : null}
         </div>
       </div>
 

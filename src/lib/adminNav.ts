@@ -12,7 +12,9 @@ import {
   Briefcase,
   Gauge,
   BarChart3,
+  ShieldCheck,
 } from 'lucide-react'
+import { canManageUsers } from '@/lib/permissions'
 
 export type AdminNavItem = {
   to: string
@@ -21,7 +23,7 @@ export type AdminNavItem = {
   end?: boolean
 }
 
-/** ลำดับเมนูผู้ดูแล — sidebar / drawer Admin */
+/** ลำดับเมนูตั้งค่า — sidebar / drawer (ทุก role เห็น; สิทธิ์แก้ไขแยกตาม permissions) */
 export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/cst', label: 'CST', icon: FlaskConical },
   { to: '/admin/cst-machine', label: 'CST Machine', icon: Gauge },
@@ -34,16 +36,12 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
   { to: '/admin/client', label: 'Client', icon: Building2 },
+  { to: '/admin/inspector', label: 'Inspector', icon: ShieldCheck },
   { to: '/admin/users', label: 'User Settings', icon: Users },
 ]
 
-const managerConsoleNavLinks: AdminNavItem[] = [
-  { to: '/cst', label: 'CST', icon: FlaskConical },
-  { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
-]
-
 export function adminConsoleLinks(role: string | null | undefined): AdminNavItem[] {
-  if (role === 'admin') return adminConsoleNavLinks
-  if (role === 'manager') return managerConsoleNavLinks
-  return []
+  if (!role) return []
+  if (canManageUsers(role)) return adminConsoleNavLinks
+  return adminConsoleNavLinks.filter((l) => l.to !== '/admin/users')
 }
