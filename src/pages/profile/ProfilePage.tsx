@@ -23,6 +23,7 @@ import type { Profile } from '@/types/app.types'
 import { layout, rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
+import { PushNotificationSettings } from '@/components/profile/PushNotificationSettings'
 import { Pencil } from 'lucide-react'
 
 const profileSchema = z.object({
@@ -242,6 +243,7 @@ export function ProfilePage() {
         </CardContent>
       </Card>
 
+      <PushNotificationSettings />
     </div>
   )
 }

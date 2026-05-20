@@ -21,6 +21,11 @@ dev-dist
 google-service-account.json
 .deploy-upload-fn.json
 .tmp-edge-secrets.env
+.tmp-push-secrets.env
+scripts/.deploy-*.json
+supabase/.temp/
+scripts/.notify-index-only.txt
+scripts/deploy-notify-request-change.mcp.json
 .deploy-upload-fn.json
 .mcp-deploy-args.txt
 .mcp-invoke.json

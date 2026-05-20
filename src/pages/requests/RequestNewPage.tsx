@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { formatDate, cn, formatVolumeCuM } from '@/lib/utils'
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
+import { triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { APP_HOME } from '@/lib/appHome'
 import { canBookConcrete } from '@/lib/permissions'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
@@ -330,6 +331,7 @@ export function RequestNewPage() {
 
       toast.success('ส่งคำขอเรียบร้อย')
       await notifyRequestListChanged()
+      triggerRequestPushNotify({ requestId: req.id, eventType: 'INSERT', actorUserId: user.id })
       navigate(`/requests/${req.id}`)
     } finally {
       submitLockRef.current = false

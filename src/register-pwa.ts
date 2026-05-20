@@ -1,5 +1,12 @@
 import { registerSW } from 'virtual:pwa-register'
 
+/** registration จาก vite-plugin-pwa (ใช้ร่วมกับ push) */
+let pwaRegistration: ServiceWorkerRegistration | undefined
+
+export function getPwaServiceWorkerRegistration(): ServiceWorkerRegistration | undefined {
+  return pwaRegistration
+}
+
 function scheduleServiceWorkerUpdateChecks(registration: ServiceWorkerRegistration) {
   const probe = () => {
     void registration.update().catch(() => {})
@@ -29,7 +36,10 @@ export function setupPwaUpdates(): void {
       void reloadSW(true)
     },
     onRegisteredSW(_swUrl, registration) {
-      if (registration) scheduleServiceWorkerUpdateChecks(registration)
+      if (registration) {
+        pwaRegistration = registration
+        scheduleServiceWorkerUpdateChecks(registration)
+      }
     },
   })
 }

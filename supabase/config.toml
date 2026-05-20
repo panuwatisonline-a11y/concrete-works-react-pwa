@@ -2,3 +2,9 @@
 
 [functions.upload-drive-image]
 verify_jwt = true
+
+[functions.send-push]
+verify_jwt = true
+
+[functions.notify-request-change]
+verify_jwt = true

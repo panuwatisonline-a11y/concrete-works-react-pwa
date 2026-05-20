@@ -1,10 +1,12 @@
 import { supabase } from '@/lib/supabase'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
+import { triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 
-async function afterRequestMutation(): Promise<void> {
+async function afterRequestMutation(requestId: string, actorUserId?: string | null): Promise<void> {
   await notifyRequestListChanged()
+  triggerRequestPushNotify({ requestId, eventType: 'UPDATE', actorUserId })
 }
 
 export function useActionRequest() {
@@ -57,7 +59,7 @@ export function useActionRequest() {
     const { error } = await supabase.from('Request').update(payload).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 2, 'inspected', note)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('ตรวจสอบเรียบร้อย')
     return true
   }
@@ -69,7 +71,7 @@ export function useActionRequest() {
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 3, 'approved', note)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('อนุมัติเรียบร้อย')
     return true
   }
@@ -81,7 +83,7 @@ export function useActionRequest() {
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 6, 'rejected', reason)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.warning('Reject เรียบร้อย')
     return true
   }
@@ -103,7 +105,7 @@ export function useActionRequest() {
       postpone_date: data.date,
       postpone_time: data.time,
     })
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('เลื่อนวันเรียบร้อย')
     return true
   }
@@ -120,7 +122,7 @@ export function useActionRequest() {
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 4, 'order_confirmed', note)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('สั่งเทคอนกรีตแล้ว')
     return true
   }
@@ -152,7 +154,7 @@ export function useActionRequest() {
     const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 8, 'completed', data.note)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('Confirm เรียบร้อย — ดำเนินการสำเร็จ')
     return true
   }
@@ -164,7 +166,7 @@ export function useActionRequest() {
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 7, 'cancelled', reason)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.warning('ยกเลิกเรียบร้อย')
     return true
   }
@@ -176,7 +178,7 @@ export function useActionRequest() {
       .eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 3, 're_approved', note)
-    await afterRequestMutation()
+    await afterRequestMutation(requestId, user?.id)
     toast.success('อนุมัติสั่งเทใหม่เรียบร้อย')
     return true
   }

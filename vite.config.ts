@@ -10,6 +10,9 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
       /**
        * Script registration lets us probe for new SWs on focus/visibility so deploys apply without
        * requiring users to close the tab. See `src/register-pwa.ts`.
@@ -31,9 +34,11 @@ export default defineConfig({
         'templates/cst-report-logo-2.png',
         'templates/cst-report-logo-3.png',
       ],
-      /** เธเธดเธ” SW เนเธ dev โ€” เธเธฑเธ CSS/JS เธเนเธฒเธเธซเธฅเธฑเธ HMR เธเธฑเธ */
+      /** เปิด SW ใน dev — จำเป็นสำหรับ Web Push (ปิดแล้ว push จะ error "push service not available") */
       devOptions: {
-        enabled: false,
+        enabled: true,
+        type: 'module',
+        navigateFallback: 'index.html',
       },
       manifest: {
         name: 'Concrete Works',
@@ -51,25 +56,8 @@ export default defineConfig({
           { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
-      workbox: {
-        skipWaiting: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          {
-            urlPattern:
-              /^https:\/\/.*\.supabase\.co\/rest\/v1\/(Status|Client|Location|Concrete%20Works|Structure|Mixed%20Code|ABC%20Code|WBS%20Code|Jobs)/,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'master-data-cache',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 },
-            },
-          },
-          /** คำขอเปลี่ยนสถานะบ่อย — ไม่ cache เพื่อไม่ให้รายการ/ตัวนับสถานะค้างหลังกลับจากหน้ารายละเอียด */
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/v1\/Request/,
-            handler: 'NetworkOnly',
-          },
-        ],
+      injectManifest: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
       },
     }),
   ],
