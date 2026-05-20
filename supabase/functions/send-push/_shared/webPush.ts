@@ -97,12 +97,18 @@ export async function sendPushToUsers(
   message: PushMessage,
 ): Promise<{ sent: number; failed: number; removed: number; targets: number }> {
   const unique = [...new Set([...userIds].filter(Boolean))]
+  if (unique.length === 0) {
+    return { sent: 0, failed: 0, removed: 0, targets: 0 }
+  }
+
+  const results = await Promise.all(
+    unique.map((userId) => sendPushToUser(supabaseAdmin, userId, message)),
+  )
+
   let sent = 0
   let failed = 0
   let removed = 0
-
-  for (const userId of unique) {
-    const result = await sendPushToUser(supabaseAdmin, userId, message)
+  for (const result of results) {
     sent += result.sent
     failed += result.failed
     removed += result.removed

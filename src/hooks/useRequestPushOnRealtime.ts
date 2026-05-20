@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { DATA_SYNC_EVENT, type DataSyncDetail } from '@/lib/dataSyncEvents'
 import { useAuthStore } from '@/stores/authStore'
-import { notifyRequestPushChange, wasLocalRequestMutation } from '@/lib/requestPushNotify'
+import { notifyRequestPushChange } from '@/lib/requestPushNotify'
 
 /**
- * เมื่อได้รับ Realtime เปลี่ยนแปลง Request จากผู้ใช้อื่น — เรียก notify-request-change
- * (dedup 15 วินาที ที่ server กันยิงซ้ำจากหลาย client)
+ * เมื่อได้รับ Realtime เปลี่ยนแปลง Request — เรียก notify-request-change
+ * (ส่งถึงทุกคนที่เปิด Push ไว้ — server dedup ต่อคำขอ+สถานะ 15 วินาที)
  */
 export function useRequestPushOnRealtime(): void {
   const userId = useAuthStore((s) => s.user?.id)
@@ -18,7 +18,6 @@ export function useRequestPushOnRealtime(): void {
       if (detail.table !== 'Request') return
       if (detail.eventType !== 'INSERT' && detail.eventType !== 'UPDATE') return
       if (!detail.requestId) return
-      if (wasLocalRequestMutation(detail.requestId)) return
 
       void notifyRequestPushChange({
         requestId: detail.requestId,

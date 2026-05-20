@@ -29,7 +29,11 @@ export function PushNotificationSettings() {
       return
     }
     const ok = await subscribe()
-    if (ok) toast.success('เปิดการแจ้งเตือนแล้ว')
+    if (ok) {
+      toast.success('เปิดการแจ้งเตือนแล้ว', {
+        description: 'จะได้รับทุกครั้งที่มีคำขอเปลี่ยนสถานะ — ไม่ต้องการให้กดปิด',
+      })
+    }
   }
 
   if (unavailable) {
@@ -68,8 +72,8 @@ export function PushNotificationSettings() {
           <p className="font-semibold text-[color:var(--pour-ink-0)]">การแจ้งเตือน Push</p>
           <p className="text-sm text-pour-muted">
             {isSubscribed
-              ? 'เปิดอยู่ — จะได้รับแจ้งเตือนแม้ไม่ได้เปิดแอป'
-              : 'ปิดอยู่ — เปิดเพื่อรับแจ้งเตือนบนอุปกรณ์นี้'}
+              ? 'เปิดอยู่ — รับแจ้งทุกครั้งที่คำขอเปลี่ยนสถานะ (ทุกคนที่เปิดไว้)'
+              : 'ปิดอยู่ — เปิดเพื่อรับแจ้งเตือนคำขอทุกรายการบนอุปกรณ์นี้'}
           </p>
           {hint ? <p className="text-xs text-pour-muted">{hint}</p> : null}
           {error ? <p className="text-xs text-rose-600">{error}</p> : null}

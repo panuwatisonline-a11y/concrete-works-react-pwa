@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
-import { triggerRequestPushNotify } from '@/lib/requestPushNotify'
+import { markLocalRequestMutation, triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 
@@ -56,6 +56,7 @@ export function useActionRequest() {
       payload.volume_request = corrections.volume_request
       payload.before_image = corrections.before_image
     }
+    markLocalRequestMutation(requestId)
     const { error } = await supabase.from('Request').update(payload).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 2, 'inspected', note)
@@ -65,6 +66,7 @@ export function useActionRequest() {
   }
 
   async function approve(requestId: string, note?: string) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({ status_id: 3, approved_by: user?.id, approved_at: new Date().toISOString() })
@@ -77,6 +79,7 @@ export function useActionRequest() {
   }
 
   async function reject(requestId: string, reason: string) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({ status_id: 6, rejected_by: user?.id, rejected_at: new Date().toISOString(), reason_reject: reason })
@@ -89,6 +92,7 @@ export function useActionRequest() {
   }
 
   async function postpone(requestId: string, data: { date: string; time: string; reason: string }) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({
@@ -111,6 +115,7 @@ export function useActionRequest() {
   }
 
   async function confirmOrder(requestId: string, note?: string, volumeActual?: number) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({
@@ -151,6 +156,7 @@ export function useActionRequest() {
     if (data.eslip_url !== undefined) patch.eslip_url = data.eslip_url
     if (data.checksheet_url !== undefined) patch.checksheet_url = data.checksheet_url
 
+    markLocalRequestMutation(requestId)
     const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
     if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
     await logAction(requestId, 8, 'completed', data.note)
@@ -160,6 +166,7 @@ export function useActionRequest() {
   }
 
   async function cancel(requestId: string, reason: string) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({ status_id: 7, cancelled_by: user?.id, cancelled_at: new Date().toISOString(), reason_cancel: reason })
@@ -172,6 +179,7 @@ export function useActionRequest() {
   }
 
   async function reApprove(requestId: string, note?: string) {
+    markLocalRequestMutation(requestId)
     const { error } = await supabase
       .from('Request')
       .update({ status_id: 3, approved_by: user?.id, approved_at: new Date().toISOString() })

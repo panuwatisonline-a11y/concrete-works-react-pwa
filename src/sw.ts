@@ -36,7 +36,7 @@ interface PushPayload {
 
 self.addEventListener('push', (event: PushEvent) => {
   const fallback: Required<PushPayload> = {
-    title: 'Concrete Works',
+    title: 'ระบบแจ้งเตือนอัตโนมัติ',
     body: 'มีการแจ้งเตือนใหม่',
     url: '/',
   }

@@ -8,10 +8,26 @@ interface NotifyRequestBody {
   actor_user_id?: string | null
 }
 
+interface ProfileMini {
+  fname: string | null
+  lname: string | null
+  employee_id: string | null
+}
+
+interface MixedCodeRow {
+  id?: number
+  mixcode: string
+  supplier: string | null
+  strength: number | null
+  slump: string | null
+  strength_type: string | null
+}
+
 interface RequestRow {
   id: string
   status_id: number
   structure_no: string | null
+  mixcode_id: number | null
   booked_by: string | null
   inspected_by: string | null
   approved_by: string | null
@@ -19,6 +35,26 @@ interface RequestRow {
   postponed_by: string | null
   cancelled_by: string | null
   confirmed_by: string | null
+  casting_date: string | null
+  request_time: string | null
+  strength: number | null
+  volume_request: number | null
+  volume_actual: number | null
+  volume_confirm: number | null
+  sample_qty: number | null
+  postpone_date: string | null
+  reason_postpone: string | null
+  reason_reject: string | null
+  reason_cancel: string | null
+  status?: { status_name: string } | { status_name: string }[] | null
+  client?: { client_name: string } | { client_name: string }[] | null
+  location?: { full_location: string | null; location1: string } | {
+    full_location: string | null
+    location1: string
+  }[] | null
+  structure?: { structure_name: string } | { structure_name: string }[] | null
+  concrete_work?: { concrete_work: string } | { concrete_work: string }[] | null
+  booked_by_profile?: ProfileMini | ProfileMini[] | null
 }
 
 const corsHeaders: Record<string, string> = {
@@ -30,40 +66,29 @@ const corsHeaders: Record<string, string> = {
 
 const DEDUP_WINDOW_SEC = 15
 
-const STATUS_PUSH: Record<number, { title: string; body: (structureNo: string | null) => string }> = {
-  1: {
-    title: "คำขอใหม่",
-    body: (no) => `คำขอ ${no ?? "—"} รอตรวจสอบ`,
-  },
-  2: {
-    title: "ตรวจสอบแล้ว",
-    body: (no) => `คำขอ ${no ?? "—"} ผ่านการตรวจสอบ`,
-  },
-  3: {
-    title: "อนุมัติแล้ว",
-    body: (no) => `คำขอ ${no ?? "—"} ได้รับอนุมัติ`,
-  },
-  4: {
-    title: "สั่งเทแล้ว",
-    body: (no) => `คำขอ ${no ?? "—"} ยืนยันการสั่งเทคอนกรีต`,
-  },
-  5: {
-    title: "เลื่อนวันเท",
-    body: (no) => `คำขอ ${no ?? "—"} ถูกเลื่อนวันเท`,
-  },
-  6: {
-    title: "ถูก Reject",
-    body: (no) => `คำขอ ${no ?? "—"} ถูกปฏิเสธ`,
-  },
-  7: {
-    title: "ยกเลิกแล้ว",
-    body: (no) => `คำขอ ${no ?? "—"} ถูกยกเลิก`,
-  },
-  8: {
-    title: "เสร็จสิ้น",
-    body: (no) => `คำขอ ${no ?? "—"} ดำเนินการเสร็จสิ้น`,
-  },
+const STATUS_HEADLINE: Record<number, string> = {
+  1: "คำขอใหม่",
+  2: "ตรวจสอบแล้ว",
+  3: "อนุมัติแล้ว",
+  4: "สั่งเทแล้ว",
+  5: "เลื่อนวันเท",
+  6: "ถูก Reject",
+  7: "ยกเลิกแล้ว",
+  8: "เสร็จสิ้น",
 }
+
+const REQUEST_SELECT = `
+  id, status_id, structure_no, mixcode_id, booked_by,
+  inspected_by, approved_by, rejected_by, postponed_by, cancelled_by, confirmed_by,
+  casting_date, request_time, strength, sample_qty, volume_request, volume_actual, volume_confirm,
+  postpone_date, reason_postpone, reason_reject, reason_cancel,
+  status:Status(status_name),
+  client:Client(client_name),
+  location:Location(full_location, location1),
+  structure:Structure(structure_name),
+  concrete_work:"Concrete Works"(concrete_work),
+  booked_by_profile:profiles!booked_by(fname, lname, employee_id)
+`
 
 function jsonResponse(body: Record<string, unknown>, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -72,105 +97,215 @@ function jsonResponse(body: Record<string, unknown>, status: number): Response {
   })
 }
 
-function inferActor(row: RequestRow): string | null {
-  switch (row.status_id) {
-    case 1:
-      return row.booked_by
-    case 2:
-      return row.inspected_by
-    case 3:
-      return row.approved_by
-    case 4:
-      return row.confirmed_by
-    case 5:
-      return row.postponed_by
-    case 6:
-      return row.rejected_by
-    case 7:
-      return row.cancelled_by
-    case 8:
-      return row.confirmed_by
-    default:
-      return null
+function relOne<T>(v: T | T[] | null | undefined): T | null {
+  if (v == null) return null
+  return Array.isArray(v) ? v[0] ?? null : v
+}
+
+function truncate(text: string, max: number): string {
+  if (text.length <= max) return text
+  return `${text.slice(0, Math.max(0, max - 1))}…`
+}
+
+function shortRequestId(id: string): string {
+  return id.slice(0, 8).toUpperCase()
+}
+
+function formatDateTh(iso: string | null | undefined): string | null {
+  if (!iso?.trim()) return null
+  try {
+    const d = new Date(iso.includes("T") ? iso : `${iso.trim()}T12:00:00`)
+    if (Number.isNaN(d.getTime())) return iso.trim()
+    const dd = String(d.getDate()).padStart(2, "0")
+    const mm = String(d.getMonth() + 1).padStart(2, "0")
+    const yyyy = d.getFullYear()
+    return `${dd}/${mm}/${yyyy}`
+  } catch {
+    return iso.trim()
   }
 }
 
-async function findInspectorPrimariesForBooker(
+function formatTimeHm(time: string | null | undefined): string | null {
+  if (!time?.trim()) return null
+  return time.trim().slice(0, 5)
+}
+
+function formatVolume(vol: number | null | undefined): string | null {
+  if (vol == null || Number.isNaN(vol)) return null
+  return `${vol.toFixed(2)} cu.m`
+}
+
+function formatProfileName(p: ProfileMini | null): string | null {
+  if (!p) return null
+  const name = [p.fname, p.lname].filter(Boolean).join(" ").trim()
+  const emp = p.employee_id?.trim()
+  if (name && emp) return `${name} (${emp})`
+  return name || emp || null
+}
+
+function dash(value: string | null | undefined): string {
+  const v = value?.trim()
+  return v ? v : "—"
+}
+
+async function loadMixedCodeRow(
   supabaseAdmin: ReturnType<typeof createClient>,
-  bookedBy: string,
+  row: RequestRow,
+): Promise<MixedCodeRow | null> {
+  const mixcodeId = row.mixcode_id
+  if (mixcodeId == null) return null
+
+  const { data, error } = await supabaseAdmin
+    .from("Mixed Code")
+    .select("id, mixcode, supplier, strength, slump, strength_type")
+    .eq("id", mixcodeId)
+    .maybeSingle()
+
+  if (error) throw error
+  return (data as MixedCodeRow | null) ?? null
+}
+
+function formatStrengthPart(
+  mix: MixedCodeRow | null,
+  requestStrength: number | null,
+): string | null {
+  if (mix?.strength != null) {
+    const type = mix.strength_type?.trim()
+    return type ? `${mix.strength} ${type}` : String(mix.strength)
+  }
+  if (requestStrength != null && !Number.isNaN(requestStrength)) {
+    return String(requestStrength)
+  }
+  return null
+}
+
+/** mixcode + strength + supplier ในบรรทัดเดียว */
+function formatMixCodeLine(
+  mix: MixedCodeRow | null,
+  requestStrength: number | null,
+): string | null {
+  const parts = [
+    mix?.mixcode?.trim(),
+    formatStrengthPart(mix, requestStrength),
+    mix?.supplier?.trim(),
+  ].filter(Boolean)
+  return parts.length > 0 ? parts.join(" ") : null
+}
+
+function formatSampleQty(qty: number | null | undefined): string | null {
+  if (qty == null || Number.isNaN(qty)) return null
+  return `${qty} ก้อน`
+}
+
+function pushLabelLine(label: string, value: string | null | undefined): string {
+  return `${label}: ${dash(value)}`
+}
+
+function formatCastingDateTime(
+  castingDate: string | null | undefined,
+  requestTime: string | null | undefined,
+): string | null {
+  const date = formatDateTh(castingDate)
+  const time = formatTimeHm(requestTime)
+  if (date && time) return `${date} ${time}`
+  return date || time || null
+}
+
+function buildRequestPushMessage(
+  row: RequestRow,
+  mix: MixedCodeRow | null,
+): { title: string; body: string } {
+  const headline = STATUS_HEADLINE[row.status_id] ?? "Request"
+  const statusName = relOne(row.status)?.status_name?.trim() || headline
+  const loc = relOne(row.location)
+  const locationLine = loc?.full_location?.trim() || loc?.location1?.trim() || null
+  const structureName = relOne(row.structure)?.structure_name?.trim()
+  const structureNo = row.structure_no?.trim()
+
+  const title = "ระบบแจ้งเตือนอัตโนมัติ"
+
+  const lines = [
+    pushLabelLine("Status", statusName),
+    pushLabelLine("Date / Time", formatCastingDateTime(row.casting_date, row.request_time)),
+    pushLabelLine("Concrete Work", relOne(row.concrete_work)?.concrete_work?.trim()),
+    pushLabelLine("Location", locationLine),
+    pushLabelLine("Structure", structureName),
+    pushLabelLine("Structure No.", structureNo),
+    pushLabelLine("Mix code", formatMixCodeLine(mix, row.strength)),
+    pushLabelLine(
+      "Volume",
+      formatVolume(row.volume_confirm ?? row.volume_actual ?? row.volume_request),
+    ),
+    pushLabelLine("เก็บตัวอย่าง", formatSampleQty(row.sample_qty)),
+    pushLabelLine("Request by", formatProfileName(relOne(row.booked_by_profile))),
+  ]
+
+  if (row.status_id === 5) {
+    const pd = formatDateTh(row.postpone_date)
+    const reason = row.reason_postpone?.trim()
+    if (pd || reason) {
+      lines.push(pushLabelLine("Postpone to", pd))
+      if (reason) lines.push(pushLabelLine("Reason", truncate(reason, 80)))
+    }
+  }
+  if (row.status_id === 6 && row.reason_reject?.trim()) {
+    lines.push(pushLabelLine("Reason", truncate(row.reason_reject.trim(), 80)))
+  }
+  if (row.status_id === 7 && row.reason_cancel?.trim()) {
+    lines.push(pushLabelLine("Reason", truncate(row.reason_cancel.trim(), 80)))
+  }
+
+  return { title, body: truncate(lines.join("\n"), 420) }
+}
+
+/** ผู้รับ = ทุก user ที่เปิด Push ไว้ (มีแถวใน user_push_subscriptions) */
+async function resolveAllPushSubscribers(
+  supabaseAdmin: ReturnType<typeof createClient>,
 ): Promise<string[]> {
-  const { data: members, error } = await supabaseAdmin
-    .from("Inspector_Member")
-    .select("inspector_id")
-    .eq("profile_id", bookedBy)
+  const { data, error } = await supabaseAdmin
+    .from("user_push_subscriptions")
+    .select("user_id")
 
   if (error) throw error
 
-  const inspectorIds = [...new Set((members ?? []).map((m) => m.inspector_id as number))]
-  if (inspectorIds.length === 0) return []
-
-  const { data: inspectors, error: inspErr } = await supabaseAdmin
-    .from("Inspector")
-    .select("primary_profile_id")
-    .in("id", inspectorIds)
-
-  if (inspErr) throw inspErr
-
   const ids = new Set<string>()
-  for (const row of inspectors ?? []) {
-    const primary = row.primary_profile_id as string | null
-    if (primary) ids.add(primary)
+  for (const row of data ?? []) {
+    const userId = row.user_id as string | null
+    if (userId) ids.add(userId)
   }
   return [...ids]
 }
 
-async function resolveRecipients(
-  supabaseAdmin: ReturnType<typeof createClient>,
-  row: RequestRow,
-  eventType: "INSERT" | "UPDATE",
-): Promise<string[]> {
-  const recipients = new Set<string>()
-  const bookedBy = row.booked_by
-
-  if ((eventType === "INSERT" || row.status_id === 1) && bookedBy) {
-    const primaries = await findInspectorPrimariesForBooker(supabaseAdmin, bookedBy)
-    for (const id of primaries) recipients.add(id)
-  }
-
-  if (row.status_id !== 1 && bookedBy) {
-    recipients.add(bookedBy)
-  }
-
-  return [...recipients]
-}
-
-async function shouldSkipDedup(
+/** กันยิงซ้ำแบบ atomic (ต้องมี migration claim_push_notify_event) */
+async function claimPushNotifyEvent(
   supabaseAdmin: ReturnType<typeof createClient>,
   requestId: string,
   statusId: number,
 ): Promise<boolean> {
-  const since = new Date(Date.now() - DEDUP_WINDOW_SEC * 1000).toISOString()
-  const { data, error } = await supabaseAdmin
-    .from("push_notify_events")
-    .select("id")
-    .eq("request_id", requestId)
-    .eq("status_id", statusId)
-    .gte("created_at", since)
-    .limit(1)
+  const { data, error } = await supabaseAdmin.rpc("claim_push_notify_event", {
+    p_request_id: requestId,
+    p_status_id: statusId,
+    p_window_seconds: DEDUP_WINDOW_SEC,
+  })
 
   if (error) throw error
-  return (data?.length ?? 0) > 0
+  return data === true
 }
 
-async function recordNotifyEvent(
+/** คืนสิทธิ์ส่งซ้ำถ้า push ล้มเหลว (กัน dedup ค้าง) */
+async function releasePushNotifyClaim(
   supabaseAdmin: ReturnType<typeof createClient>,
   requestId: string,
   statusId: number,
 ): Promise<void> {
-  const { error } = await supabaseAdmin.from("push_notify_events").insert({
-    request_id: requestId,
-    status_id: statusId,
-  })
+  const since = new Date(Date.now() - (DEDUP_WINDOW_SEC + 5) * 1000).toISOString()
+  const { error } = await supabaseAdmin
+    .from("push_notify_events")
+    .delete()
+    .eq("request_id", requestId)
+    .eq("status_id", statusId)
+    .gte("created_at", since)
+
   if (error) throw error
 }
 
@@ -205,7 +340,6 @@ Deno.serve(async (req) => {
   try {
     const body = (await req.json()) as NotifyRequestBody
     const requestId = body.request_id?.trim()
-    const eventType = body.event_type ?? "UPDATE"
 
     if (!requestId) {
       return jsonResponse({ error: "request_id is required" }, 400)
@@ -213,9 +347,7 @@ Deno.serve(async (req) => {
 
     const { data: request, error: reqErr } = await supabaseAdmin
       .from("Request")
-      .select(
-        "id, status_id, structure_no, booked_by, inspected_by, approved_by, rejected_by, postponed_by, cancelled_by, confirmed_by",
-      )
+      .select(REQUEST_SELECT)
       .eq("id", requestId)
       .maybeSingle()
 
@@ -225,33 +357,47 @@ Deno.serve(async (req) => {
     }
 
     const row = request as RequestRow
-    const statusCopy = STATUS_PUSH[row.status_id]
-    if (!statusCopy) {
+    if (!STATUS_HEADLINE[row.status_id]) {
       return jsonResponse({ skipped: true, reason: "unsupported_status" }, 200)
     }
 
-    if (await shouldSkipDedup(supabaseAdmin, row.id, row.status_id)) {
+    const recipients = await resolveAllPushSubscribers(supabaseAdmin)
+
+    if (recipients.length === 0) {
+      return jsonResponse({ skipped: true, reason: "no_push_subscribers" }, 200)
+    }
+
+    const claimed = await claimPushNotifyEvent(supabaseAdmin, row.id, row.status_id)
+    if (!claimed) {
       return jsonResponse({ skipped: true, reason: "dedup" }, 200)
     }
 
-    const actor = body.actor_user_id?.trim() || inferActor(row)
-    const recipients = (await resolveRecipients(supabaseAdmin, row, eventType))
-      .filter((id) => id !== actor)
+    try {
+      readVapidConfig()
 
-    if (recipients.length === 0) {
-      return jsonResponse({ skipped: true, reason: "no_recipients" }, 200)
+      const mix = await loadMixedCodeRow(supabaseAdmin, row)
+      const message = buildRequestPushMessage(row, mix)
+      const result = await sendPushToUsers(supabaseAdmin, recipients, {
+        title: message.title,
+        body: message.body,
+        url: `/requests/${row.id}`,
+      })
+
+      if ((result.sent ?? 0) === 0) {
+        await releasePushNotifyClaim(supabaseAdmin, row.id, row.status_id)
+        return jsonResponse({
+          ...result,
+          recipients: recipients.length,
+          skipped: true,
+          reason: "push_delivery_failed",
+        }, 200)
+      }
+
+      return jsonResponse({ ...result, recipients: recipients.length }, 200)
+    } catch (e) {
+      await releasePushNotifyClaim(supabaseAdmin, row.id, row.status_id).catch(() => {})
+      throw e
     }
-
-    readVapidConfig()
-    await recordNotifyEvent(supabaseAdmin, row.id, row.status_id)
-
-    const result = await sendPushToUsers(supabaseAdmin, recipients, {
-      title: statusCopy.title,
-      body: statusCopy.body(row.structure_no),
-      url: `/requests/${row.id}`,
-    })
-
-    return jsonResponse({ ...result, recipients: recipients.length }, 200)
   } catch (e) {
     console.error(e)
     const msg = e instanceof Error ? e.message : String(e)

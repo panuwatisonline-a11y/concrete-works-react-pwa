@@ -125,6 +125,14 @@ export async function savePushSubscription(userId: string, subscription: PushSub
     auth_key: arrayBufferToBase64(auth),
   }
 
+  const { error: pruneErr } = await supabase
+    .from('user_push_subscriptions')
+    .delete()
+    .eq('user_id', userId)
+    .neq('endpoint', subscription.endpoint)
+
+  if (pruneErr) throw pruneErr
+
   const { error } = await supabase.from('user_push_subscriptions').upsert(row, { onConflict: 'endpoint' })
   if (error) throw error
 }
@@ -214,5 +222,11 @@ export interface SendPushPayload {
 export async function sendPushNotification(payload: SendPushPayload) {
   const { data, error } = await supabase.functions.invoke('send-push', { body: payload })
   if (error) throw error
-  return data as { sent?: number; failed?: number; removed?: number; error?: string }
+  return data as {
+    sent?: number
+    failed?: number
+    removed?: number
+    error?: string
+    message?: string
+  }
 }
