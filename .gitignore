@@ -25,6 +25,9 @@ google-service-account.json
 .mcp-deploy-args.txt
 .mcp-invoke.json
 .mcp-files-only.json
+.mcp-deploy-upload-drive.json
+__pycache__/
+_pdf_ref.png
 
 # Local tooling
 .claude/
