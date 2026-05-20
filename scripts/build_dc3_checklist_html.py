@@ -117,7 +117,7 @@ def section_title(letter: str, desc: str) -> str:
 
 def dept_cell() -> str:
     """คอลัมน์ส่วนงาน"""
-    return '<td class="c-dept">RB/OP/BU/QC</td>'
+    return '<td class="c-dept">ST/BU/DR/SG</td>'
 
 
 def side_cell(letter: str, desc: str) -> str:
@@ -681,9 +681,10 @@ FOOTER_LEGEND = """
             <li><abbr title="Not Applicable">NA</abbr> Not Applicable</li>
             <li><abbr title="Conformed">C</abbr> Conformed</li>
             <li><abbr title="Non Conformed">NC</abbr> Non Conformed</li>
-            <li><abbr title="Railway Bridge">RB</abbr> Railway Bridge</li>
-            <li><abbr title="Overpass Bridge">OP</abbr> Overpass Bridge</li>
+            <li><abbr title="Structure Works">ST</abbr> Structure Works</li>
             <li><abbr title="Building Works">BU</abbr> Building Works</li>
+            <li><abbr title="Drainage">DR</abbr> Drainage</li>
+            <li><abbr title="Signalling Works">SG</abbr> Signalling Works</li>
             <li><abbr title="Quality Control">QC</abbr> Quality Control</li>
           </ul>
         </nav>
@@ -740,9 +741,7 @@ HTML = f"""<!DOCTYPE html>
             <td colspan="8" class="meta-field"><span class="meta-lbl">สถานที่/ กม. :</span> <span class="meta-val">{{{{locationText}}}}</span></td>
           </tr>
           <tr>
-            <td colspan="8" class="meta-field"><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> <span class="meta-val">{{{{pourSequence}}}}</span></td>
-            <td colspan="4" class="meta-field"><span class="meta-lbl">ชั้นที่ :</span> <span class="meta-val">{{{{floorLevel}}}}</span></td>
-            <td colspan="4" class="meta-field meta-spacer" aria-hidden="true"></td>
+            <td colspan="16" class="meta-field"><span class="meta-lbl">เทคอนกรีตครั้งที่ :</span> <span class="meta-val">{{{{pourSequence}}}}</span></td>
           </tr>
         </tbody>
       </table>
