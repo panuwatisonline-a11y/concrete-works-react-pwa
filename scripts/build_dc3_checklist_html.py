@@ -117,7 +117,7 @@ def section_title(letter: str, desc: str) -> str:
 
 def dept_cell() -> str:
     """คอลัมน์ส่วนงาน"""
-    return '<td class="c-dept">ST/BU/DR/SG</td>'
+    return '<td class="c-dept">ST/BU/DR/SG/QC</td>'
 
 
 def side_cell(letter: str, desc: str) -> str:
