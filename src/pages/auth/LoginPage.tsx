@@ -7,13 +7,17 @@ import { APP_HOME } from '@/lib/appHome'
 import { auth, theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Truck, Scale, TrendingDown, BarChart3 } from 'lucide-react'
+import { Truck, Scale, TrendingDown, BarChart3, ClipboardList, CalendarDays, FlaskConical, FileText } from 'lucide-react'
 
 const features = [
+  { icon: ClipboardList, text: 'จองและจัดการคำขอคอนกรีต' },
   { icon: Truck, text: 'ติดตามสถานะคอนกรีตแบบ Real-Time' },
+  { icon: CalendarDays, text: 'สรุปการจองและแผนงานเท' },
   { icon: Scale, text: 'Concrete Balance' },
   { icon: TrendingDown, text: 'Loss Concrete' },
   { icon: BarChart3, text: 'Monthly Concrete Summary' },
+  { icon: FlaskConical, text: 'บันทึกผลทดสอบกำลังอัดคอนกรีตพร้อมรายงาน (CST)' },
+  { icon: FileText, text: 'Checklist ก่อนเทคอนกรีต' },
 ]
 
 function GoogleIcon() {
@@ -97,9 +101,26 @@ export function LoginPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-[12px] text-white/55">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            ระบบพร้อมใช้งาน
+          <div className="mt-auto flex w-full flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2">
+            <div className="flex min-w-0 items-center gap-2 text-[12px] text-white/55">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+              ระบบพร้อมใช้งาน
+            </div>
+            <div className="ml-auto flex w-full max-w-[15.25rem] shrink-0 flex-col items-end gap-2 sm:max-w-[16.25rem]">
+              <img
+                src="/templates/checksheet-logo.png"
+                alt="STECON"
+                className="h-9 w-auto max-w-[164px] object-contain object-right [filter:brightness(1.35)_saturate(0.72)_contrast(0.88)_opacity(0.85)]"
+              />
+              <div className="w-full text-right text-pretty">
+                <p className="text-[10.5px] font-semibold leading-snug tracking-[-0.01em] text-white/78 sm:text-[11.5px]">
+                  Sino-Thai Engineering and Construction
+                </p>
+                <p className="mt-0.5 text-[10px] font-normal leading-snug text-white/58 sm:text-[11px]">
+                  Public Company Limited.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
