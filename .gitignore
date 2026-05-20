@@ -16,6 +16,16 @@ dev-dist
 .env.local
 .env.*.local
 
+# Google Service Account keys (ใช้ตั้ง Supabase Edge secrets เท่านั้น)
+*-service-account*.json
+google-service-account.json
+.deploy-upload-fn.json
+.tmp-edge-secrets.env
+.deploy-upload-fn.json
+.mcp-deploy-args.txt
+.mcp-invoke.json
+.mcp-files-only.json
+
 # Local tooling
 .claude/
 

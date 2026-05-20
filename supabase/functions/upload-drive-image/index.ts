@@ -1,35 +1,24 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient } from "jsr:@supabase/supabase-js@2"
-import { JWT } from "npm:google-auth-library@9.14.2"
 
 /**
- * Upload an image; return a URL for <img src> and DB text fields (e.g. before_image).
- *
- * **Mode A — Google Apps Script (แนะนำถ้าไม่อยากใช้ Service Account / Shared drive quota)**
- *   Set secrets: GAS_UPLOAD_URL (web app /exec URL), GAS_UPLOAD_SECRET (same as Script property UPLOAD_SECRET)
- *   GAS runs as the account that deployed the web app (Drive quota ของคนนั้น / โฟลเดอร์ที่เข้าถึงได้)
- *   Script: `google-apps-script/upload-to-drive/Code.gs`
- *
- * **Mode B — Service Account + Drive API v3**
- *   GOOGLE_SERVICE_ACCOUNT_JSON, optional GOOGLE_DRIVE_PARENT_FOLDER_ID (Shared drive folder)
- *
- * Client: FormData `file` + optional `folder` filename prefix + optional `parentFolderId` (Drive folder id).
- *   When `parentFolderId` is valid, uploads there instead of GOOGLE_DRIVE_PARENT_FOLDER_ID / default.
- * Auth: Supabase user JWT.
+ * อัปโหลดไฟล์ไป Google Drive (OAuth 2.0 + Refresh Token)
+ * - Cache access token ใน memory (ลด latency จาก Google token endpoint)
+ * - Promise.all สำหรับงานที่ทำคู่ขนานได้
+ * - Multipart body ผ่าน Blob (ลดการ copy buffer ขนาดใหญ่)
  */
 
-/** Default Drive folder when parent not sent to GAS / not set for SA mode */
-const DEFAULT_DRIVE_PARENT_FOLDER_ID = "1u-Srk6yn3mSOOZd0Lpl6gVC45XO60OPY"
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+const DRIVE_MULTIPART_UPLOAD =
+  "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id&supportsAllDrives=true"
+const DRIVE_PERMISSION_URL = (fileId: string) =>
+  `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions?supportsAllDrives=true`
 
-/** Optional client `parentFolderId` — จำกัดรูปแบบกันส่งขยะ (Drive id มักเป็น a-z A-Z 0-9 _ -) */
+const MAX_BYTES = 10 * 1024 * 1024
 const DRIVE_FOLDER_ID_RE = /^[a-zA-Z0-9_-]{10,100}$/
-
-function parseOptionalParentFolderId(raw: FormDataEntryValue | null): string | null {
-  if (typeof raw !== "string") return null
-  const s = raw.trim()
-  if (!s || !DRIVE_FOLDER_ID_RE.test(s)) return null
-  return s
-}
+/** ขอ token ใหม่ก่อนหมดอายุจริง (วินาที) */
+const TOKEN_EXPIRY_BUFFER_MS = 60_000
+const DEFAULT_TOKEN_TTL_SEC = 3600
 
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -37,270 +26,276 @@ const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
 
-function bytesToBase64(bytes: Uint8Array): string {
-  const chunk = 0x8000
-  let binary = ""
-  for (let i = 0; i < bytes.length; i += chunk) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
-  }
-  return btoa(binary)
+const textEncoder = new TextEncoder()
+
+/** Cache ระดับ isolate — ใช้ซ้ำระหว่าง request ใน instance เดียวกัน */
+let cachedAccessToken: string | null = null
+let cachedAccessTokenExpiresAt = 0
+/** กันยิง refresh พร้อมกันหลาย request */
+let inFlightTokenRefresh: Promise<string> | null = null
+
+let cachedOAuthCreds: { clientId: string; clientSecret: string; refreshToken: string } | null = null
+
+function jsonResponse(body: Record<string, unknown>, status: number): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  })
 }
 
-/** GAS web app บางครั้งคืนค่ามี BOM หรือมีตัวอื่นห่อ JSON — ดึง object ให้ได้มากที่สุด */
-function parseGasJsonBody(raw: string): Record<string, unknown> | null {
-  const trimmed = raw.replace(/^\uFEFF/, "").trim()
-  if (!trimmed) return null
-  const attempt = (s: string): Record<string, unknown> | null => {
-    try {
-      const v = JSON.parse(s) as unknown
-      return typeof v === "object" && v !== null && !Array.isArray(v) ? v as Record<string, unknown> : null
-    } catch {
-      return null
-    }
-  }
-  const direct = attempt(trimmed)
-  if (direct) return direct
-  const i = trimmed.indexOf("{")
-  const j = trimmed.lastIndexOf("}")
-  if (i >= 0 && j > i) return attempt(trimmed.slice(i, j + 1))
-  return null
-}
-
-/** URL สำหรับแสดงใน <img> จากนอก google.com — uc?export=view มักโหลดไม่ขึ้น */
 function driveThumbnailUrl(fileId: string): string {
   return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=s1200`
 }
 
-function normalizeGasResult(obj: Record<string, unknown>): {
-  url?: string
-  fileId?: string
-  error?: string
-} {
-  const error = typeof obj.error === "string" ? obj.error : undefined
-  const fileId = typeof obj.fileId === "string" ? obj.fileId : undefined
-  const rawUrl = typeof obj.url === "string" ? obj.url : undefined
-  const url = fileId ? driveThumbnailUrl(fileId) : rawUrl
-  return { url, fileId, error }
+function readGoogleOAuthFromEnv() {
+  if (cachedOAuthCreds) return cachedOAuthCreds
+
+  const clientId =
+    Deno.env.get("GOOGLE_CLIENT_ID")?.trim() ??
+    Deno.env.get("GOOGLE_OAUTH_CLIENT_ID")?.trim() ??
+    ""
+  const clientSecret =
+    Deno.env.get("GOOGLE_CLIENT_SECRET")?.trim() ??
+    Deno.env.get("GOOGLE_OAUTH_CLIENT_SECRET")?.trim() ??
+    ""
+  const refreshToken =
+    Deno.env.get("GOOGLE_REFRESH_TOKEN")?.trim() ??
+    Deno.env.get("GOOGLE_OAUTH_REFRESH_TOKEN")?.trim() ??
+    ""
+
+  if (!clientId || !clientSecret || !refreshToken) {
+    throw new Error(
+      "ตั้ง secrets: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN",
+    )
+  }
+
+  cachedOAuthCreds = { clientId, clientSecret, refreshToken }
+  return cachedOAuthCreds
 }
 
-async function getDriveAccessToken(): Promise<string> {
-  const raw = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON")
-  if (!raw) throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON secret is not set")
-  const sa = JSON.parse(raw) as { client_email: string; private_key: string }
-  const jwt = new JWT({
-    email: sa.client_email,
-    key: sa.private_key.replace(/\\n/g, "\n"),
-    scopes: ["https://www.googleapis.com/auth/drive"],
+async function refreshGoogleAccessToken(): Promise<string> {
+  const { clientId, clientSecret, refreshToken } = readGoogleOAuthFromEnv()
+
+  const res = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: refreshToken,
+    }),
   })
-  const token = await jwt.getAccessToken()
-  if (!token?.token) throw new Error("Failed to obtain Google access token")
-  return token.token
+
+  const data = (await res.json()) as {
+    access_token?: string
+    expires_in?: number
+    error?: string
+    error_description?: string
+  }
+
+  if (!res.ok || !data.access_token) {
+    const detail = data.error_description ?? data.error ?? "token refresh failed"
+    throw new Error(`Google OAuth: ${detail}`)
+  }
+
+  const ttlSec = typeof data.expires_in === "number" && data.expires_in > 0
+    ? data.expires_in
+    : DEFAULT_TOKEN_TTL_SEC
+  cachedAccessToken = data.access_token
+  cachedAccessTokenExpiresAt = Date.now() + ttlSec * 1000
+
+  return data.access_token
+}
+
+/** ใช้ token จาก cache ถ้ายังไม่หมดอายุ */
+async function getGoogleAccessToken(): Promise<string> {
+  const now = Date.now()
+  if (cachedAccessToken && cachedAccessTokenExpiresAt - TOKEN_EXPIRY_BUFFER_MS > now) {
+    return cachedAccessToken
+  }
+
+  if (inFlightTokenRefresh) {
+    return inFlightTokenRefresh
+  }
+
+  inFlightTokenRefresh = refreshGoogleAccessToken().finally(() => {
+    inFlightTokenRefresh = null
+  })
+  return inFlightTokenRefresh
+}
+
+function parseFolderId(raw: FormDataEntryValue | null): string | null {
+  if (typeof raw !== "string") return null
+  const s = raw.trim()
+  if (!s || !DRIVE_FOLDER_ID_RE.test(s)) return null
+  return s
+}
+
+function envFolderId(key: string): string | null {
+  const v = Deno.env.get(key)?.trim() ?? ""
+  return v && DRIVE_FOLDER_ID_RE.test(v) ? v : null
+}
+
+function resolveParentFolderId(formData: FormData): string | null {
+  const fromForm =
+    parseFolderId(formData.get("folder_id")) ??
+    parseFolderId(formData.get("parentFolderId"))
+  if (fromForm) return fromForm
+
+  const category = String(formData.get("folder") ?? "").trim().toLowerCase()
+  const byCategory: Record<string, string | null> = {
+    before: envFolderId("GOOGLE_DRIVE_FOLDER_ID_BEFORE"),
+    after: envFolderId("GOOGLE_DRIVE_FOLDER_ID_AFTER"),
+    bill: envFolderId("GOOGLE_DRIVE_FOLDER_ID_BILL"),
+    eslip: envFolderId("GOOGLE_DRIVE_FOLDER_ID_BILL"),
+  }
+  if (category && byCategory[category]) {
+    return byCategory[category]
+  }
+
+  return (
+    envFolderId("GOOGLE_DRIVE_FOLDER_ID") ??
+    envFolderId("GOOGLE_DRIVE_PARENT_FOLDER_ID")
+  )
+}
+
+function safeFileName(prefix: string, originalName: string): string {
+  const ext = (originalName.split(".").pop() || "jpg").slice(0, 8).toLowerCase()
+  const safePrefix = prefix.replace(/[^a-zA-Z0-9_-]/g, "") || "upload"
+  return `${safePrefix}-${crypto.randomUUID()}.${ext}`
+}
+
+/** สร้าง multipart body ด้วย Blob — ไม่ต้อง allocate Uint8Array ก้อนเดียวขนาดไฟล์เต็ม */
+function buildMultipartUploadBody(
+  boundary: string,
+  metadata: Record<string, unknown>,
+  mime: string,
+  fileBytes: Uint8Array,
+): Blob {
+  const metaJson = JSON.stringify(metadata)
+  const preamble = textEncoder.encode(
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metaJson}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`,
+  )
+  const closing = textEncoder.encode(`\r\n--${boundary}--`)
+  return new Blob([preamble, fileBytes, closing], {
+    type: `multipart/related; boundary=${boundary}`,
+  })
+}
+
+async function uploadBytesToGoogleDrive(
+  accessToken: string,
+  fileBytes: Uint8Array,
+  options: { parentFolderId: string | null; safeName: string; mime: string },
+): Promise<string> {
+  const metadata: Record<string, unknown> = { name: options.safeName }
+  if (options.parentFolderId) {
+    metadata.parents = [options.parentFolderId]
+  }
+
+  const boundary = `drive_${crypto.randomUUID().replace(/-/g, "")}`
+  const body = buildMultipartUploadBody(boundary, metadata, options.mime, fileBytes)
+
+  const uploadRes = await fetch(DRIVE_MULTIPART_UPLOAD, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": `multipart/related; boundary=${boundary}`,
+    },
+    body,
+  })
+
+  const uploadJson = (await uploadRes.json()) as {
+    id?: string
+    error?: { message?: string }
+  }
+
+  if (!uploadRes.ok) {
+    throw new Error(uploadJson?.error?.message ?? "Drive upload failed")
+  }
+
+  const fileId = uploadJson.id
+  if (!fileId) throw new Error("No file id returned from Drive")
+  return fileId
+}
+
+function setAnyoneReaderPermission(accessToken: string, fileId: string): Promise<void> {
+  return fetch(DRIVE_PERMISSION_URL(fileId), {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ type: "anyone", role: "reader" }),
+  }).then(async (permRes) => {
+    if (permRes.ok) return
+    const permJson = (await permRes.json()) as { error?: { message?: string } }
+    throw new Error(permJson?.error?.message ?? "Failed to set public read on file")
+  })
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders })
   }
+
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
+    return jsonResponse({ error: "Method not allowed" }, 405)
   }
 
   const authHeader = req.headers.get("Authorization") ?? ""
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!
-  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!
-  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    global: { headers: { Authorization: authHeader } },
-  })
-
-  const { data: { user }, error: userErr } = await supabase.auth.getUser()
-  if (userErr || !user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-  }
-
-  let formData: FormData
-  try {
-    formData = await req.formData()
-  } catch {
-    return new Response(JSON.stringify({ error: "Expected multipart form data" }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-  }
-
-  const file = formData.get("file")
-  if (!(file instanceof File)) {
-    return new Response(JSON.stringify({ error: "Missing file field" }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-  }
-  if (!file.type.startsWith("image/")) {
-    return new Response(JSON.stringify({ error: "Only image uploads are allowed" }), {
-      status: 400,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-  }
-  const MAX_BYTES = 10 * 1024 * 1024
-  if (file.size > MAX_BYTES) {
-    return new Response(JSON.stringify({ error: "File too large (max 10 MB)" }), {
-      status: 413,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
-  }
-
-  const folderHint = String(formData.get("folder") ?? "").trim().replace(/[^a-zA-Z0-9_-]/g, "") || "upload"
-  const ext = (file.name.split(".").pop() || "jpg").slice(0, 8).toLowerCase()
-  const safeName = `${folderHint}-${crypto.randomUUID()}.${ext}`
-  const requestedParent = parseOptionalParentFolderId(formData.get("parentFolderId"))
-  const parentFolder =
-    requestedParent ??
-    (Deno.env.get("GOOGLE_DRIVE_PARENT_FOLDER_ID")?.trim() || DEFAULT_DRIVE_PARENT_FOLDER_ID)
-
-  const gasUrl = Deno.env.get("GAS_UPLOAD_URL")?.trim()
-  const gasSecret = Deno.env.get("GAS_UPLOAD_SECRET")?.trim()
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    { global: { headers: { Authorization: authHeader } } },
+  )
 
   try {
+    const [{ data: { user }, error: userErr }, formData] = await Promise.all([
+      supabase.auth.getUser(),
+      req.formData(),
+    ])
+
+    if (userErr || !user) {
+      return jsonResponse({ error: "Unauthorized" }, 401)
+    }
+
+    const file = formData.get("file")
+    if (!(file instanceof File)) {
+      return jsonResponse({ error: "Missing file field" }, 400)
+    }
+
+    if (file.type && !file.type.startsWith("image/")) {
+      return jsonResponse({ error: "Only image uploads are allowed" }, 400)
+    }
+
+    if (file.size > MAX_BYTES) {
+      return jsonResponse({ error: "File too large (max 10 MB)" }, 413)
+    }
+
+    const namePrefix = String(formData.get("folder") ?? "upload").trim() || "upload"
+    const parentFolderId = resolveParentFolderId(formData)
     const mime = file.type || "application/octet-stream"
-    const fileBytes = new Uint8Array(await file.arrayBuffer())
+    const safeName = safeFileName(namePrefix, file.name)
 
-    if (gasUrl && gasSecret) {
-      const gasRes = await fetch(gasUrl, {
-        method: "POST",
-        redirect: "follow",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          secret: gasSecret,
-          parentFolderId: parentFolder,
-          name: safeName,
-          mimeType: mime,
-          base64: bytesToBase64(fileBytes),
-        }),
-      })
-      const gasText = await gasRes.text()
-      const gasObj = parseGasJsonBody(gasText)
-      if (!gasObj) {
-        console.error("GAS non-JSON", gasRes.status, gasText.slice(0, 500))
-        return new Response(JSON.stringify({ error: "GAS returned non-JSON" }), {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        })
-      }
-      const gasJson = normalizeGasResult(gasObj)
-      if (gasJson.error && !gasJson.url) {
-        console.error("GAS error", gasRes.status, gasJson.error)
-        return new Response(JSON.stringify({ error: gasJson.error }), {
-          status: 502,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        })
-      }
-      if (!gasRes.ok || !gasJson.url) {
-        console.error("GAS upload", gasRes.status, gasText.slice(0, 500))
-        return new Response(
-          JSON.stringify({ error: gasJson.error ?? "GAS upload failed" }),
-          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        )
-      }
-      return new Response(JSON.stringify({ url: gasJson.url, fileId: gasJson.fileId }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      })
-    }
+    const [accessToken, fileBytes] = await Promise.all([
+      getGoogleAccessToken(),
+      file.arrayBuffer().then((ab) => new Uint8Array(ab)),
+    ])
 
-    const accessToken = await getDriveAccessToken()
-
-    const metadata: Record<string, unknown> = { name: safeName }
-    if (parentFolder) metadata.parents = [parentFolder]
-
-    const boundary = `batch_drive_${crypto.randomUUID()}`
-    const metaJson = JSON.stringify(metadata)
-    const enc = new TextEncoder()
-    const part1 = enc.encode(
-      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metaJson}\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`,
-    )
-    const part2 = enc.encode(`\r\n--${boundary}--`)
-    const body = new Uint8Array(part1.length + fileBytes.length + part2.length)
-    body.set(part1, 0)
-    body.set(fileBytes, part1.length)
-    body.set(part2, part1.length + fileBytes.length)
-
-    const uploadRes = await fetch(
-      "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": `multipart/related; boundary=${boundary}`,
-        },
-        body,
-      },
-    )
-
-    const uploadJson = await uploadRes.json()
-    if (!uploadRes.ok) {
-      console.error("Drive multipart upload", uploadJson)
-      let errMsg = uploadJson?.error?.message ?? "Drive upload failed"
-      if (
-        typeof errMsg === "string" &&
-        errMsg.includes("Service Accounts do not have storage quota")
-      ) {
-        errMsg +=
-          " — ถ้าต้องการใช้ Google Apps Script: ตั้ง Supabase Edge secrets GAS_UPLOAD_URL และ GAS_UPLOAD_SECRET (ไม่ใช่แค่ไฟล์ .env ในเครื่อง) แล้วรัน supabase functions deploy upload-drive-image อีกครั้ง"
-      }
-      return new Response(
-        JSON.stringify({ error: errMsg }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      )
-    }
-
-    const fileId = uploadJson.id as string | undefined
-    if (!fileId) {
-      return new Response(JSON.stringify({ error: "No file id returned from Drive" }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      })
-    }
-
-    const permRes = await fetch(
-      `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions?supportsAllDrives=true`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ type: "anyone", role: "reader" }),
-      },
-    )
-    if (!permRes.ok) {
-      const permJson = await permRes.json()
-      console.error("Drive permissions", permJson)
-      return new Response(
-        JSON.stringify({ error: permJson?.error?.message ?? "Failed to set public read on file" }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      )
-    }
-
-    const url = driveThumbnailUrl(fileId)
-
-    return new Response(JSON.stringify({ url, fileId }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    const fileId = await uploadBytesToGoogleDrive(accessToken, fileBytes, {
+      parentFolderId,
+      safeName,
+      mime,
     })
+
+    await setAnyoneReaderPermission(accessToken, fileId)
+
+    return jsonResponse({ url: driveThumbnailUrl(fileId), fileId }, 200)
   } catch (e) {
     console.error(e)
     const msg = e instanceof Error ? e.message : String(e)
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    })
+    const status = msg.startsWith("Google OAuth:") ? 502 : 500
+    return jsonResponse({ error: msg }, status)
   }
 })

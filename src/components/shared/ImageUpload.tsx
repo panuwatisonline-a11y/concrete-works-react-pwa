@@ -3,6 +3,7 @@ import { Upload, X, Image as ImageIcon } from 'lucide-react'
 import { supabase, isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
+import type { DriveUploadCategory } from '@/lib/driveUploadCategory'
 import { toast } from 'sonner'
 
 function invokeUploadDriveImageWithProgress(
@@ -53,7 +54,8 @@ interface ImageUploadProps {
   /** เรียกเมื่อเข้า/ออกช่วงอัปโหลด (ใช้กับปุ่มส่งฟอร์ม: ระหว่างอัปโหลดยังไม่มี URL — ควรปิดการกด) */
   onUploadingChange?: (uploading: boolean) => void
   bucket?: string
-  folder?: string
+  /** before | after | bill — Edge Function อัปโหลดเข้าโฟลเดอร์ Drive ที่ตรงกัน */
+  folder?: DriveUploadCategory | string
   label?: string
   disabled?: boolean
 }

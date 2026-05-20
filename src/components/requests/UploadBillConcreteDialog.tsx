@@ -117,7 +117,7 @@ export function UploadBillConcreteDialog({
                 value={imageUrl ?? undefined}
                 onChange={setImageUrl}
                 onUploadingChange={setFileUploading}
-                folder="eslip"
+                folder="bill"
                 label="อัปโหลด Bill Concrete"
               />
             </div>
