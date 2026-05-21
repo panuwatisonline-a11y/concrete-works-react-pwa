@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { Camera, Image as ImageIcon, X } from 'lucide-react'
 import { supabase, isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
+import { compressImage, UPLOAD_MAX_BYTES } from '@/lib/compressImage'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import type { DriveUploadCategory } from '@/lib/driveUploadCategory'
 import { toast } from 'sonner'
@@ -68,7 +69,8 @@ export function ImageUpload({
   label = 'อัปโหลดรูป',
   disabled = false,
 }: ImageUploadProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   const previewObjectUrlRef = useRef<string | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -127,7 +129,19 @@ export function ImageUpload({
     const trimmedValue = typeof value === 'string' ? value.trim() : ''
     const previousUrl = trimmedValue !== '' ? trimmedValue : null
 
-    setLocalPreviewFromFile(file)
+    let fileToUpload = file
+    try {
+      fileToUpload = await compressImage(file)
+    } catch {
+      fileToUpload = file
+    }
+
+    if (fileToUpload.size > UPLOAD_MAX_BYTES) {
+      toast.error('รูปใหญ่เกินไป (สูงสุด 10 MB) — ลองถ่ายใหม่หรือเลือกรูปอื่น')
+      return
+    }
+
+    setLocalPreviewFromFile(fileToUpload)
     /** ล้าง URL ที่บันทึกไว้ทันที จนได้ URL จากรอบอัปโหลดนี้คืนมา — ป้องกันส่งฟอร์มด้วยลิงก์เก่าระหว่างอัปโหลด */
     onChange(null)
     setUploading(true)
@@ -142,7 +156,7 @@ export function ImageUpload({
       }
 
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('file', fileToUpload)
       formData.append('folder', folder)
 
       const result = await invokeUploadDriveImageWithProgress(
@@ -168,6 +182,18 @@ export function ImageUpload({
       ? (imageSrcForImgTag(value, 'detail') ?? value)
       : localPreviewUrl
   const showPreview = Boolean(displaySrc)
+  const pickDisabled = disabled || uploading
+
+  function onFileInputChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) void handleFile(file)
+    e.target.value = ''
+  }
+
+  const pickButtonClass = cn(
+    'flex flex-1 flex-col items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-3 text-sm text-zinc-700 transition-colors hover:border-zinc-400 hover:bg-zinc-50',
+    pickDisabled && 'pointer-events-none opacity-50',
+  )
 
   return (
     <div className="space-y-2">
@@ -206,31 +232,51 @@ export function ImageUpload({
           )}
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={disabled || uploading}
+        <div
           className={cn(
-            'flex h-40 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-zinc-200 text-zinc-500 transition-colors hover:border-zinc-400 hover:text-zinc-800',
-            (disabled || uploading) && 'cursor-not-allowed opacity-50'
+            'flex h-40 w-full flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-zinc-200 px-4 text-zinc-500',
+            pickDisabled && 'opacity-50',
           )}
         >
-          <Upload className="h-8 w-8" />
-          <span className="text-sm">{label}</span>
-          <ImageIcon className="h-4 w-4 opacity-50" />
-        </button>
+          <span className="text-sm font-medium text-zinc-600">{label}</span>
+          <div className="flex w-full max-w-sm gap-2">
+            <button
+              type="button"
+              disabled={pickDisabled}
+              onClick={() => cameraInputRef.current?.click()}
+              className={pickButtonClass}
+            >
+              <Camera className="h-6 w-6" aria-hidden />
+              <span>ถ่ายรูป</span>
+            </button>
+            <button
+              type="button"
+              disabled={pickDisabled}
+              onClick={() => galleryInputRef.current?.click()}
+              className={pickButtonClass}
+            >
+              <ImageIcon className="h-6 w-6" aria-hidden />
+              <span>เลือกรูป</span>
+            </button>
+          </div>
+        </div>
       )}
       <input
-        ref={inputRef}
+        ref={galleryInputRef}
         type="file"
         accept="image/*"
-        title="เลือกรูปภาพ"
+        title="เลือกรูปจากอัลบั้ม"
         className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0]
-          if (file) void handleFile(file)
-          e.target.value = ''
-        }}
+        onChange={onFileInputChange}
+      />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        title="ถ่ายรูปด้วยกล้อง"
+        className="hidden"
+        onChange={onFileInputChange}
       />
     </div>
   )
