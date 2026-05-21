@@ -12,15 +12,36 @@ export interface DashboardRequestRow {
   volume_confirm: number | null
   volume_loss: number | null
   pct_loss: number | null
+  request_date: string | null
   casting_date: string | null
   booked_at: string | null
   postpone_date: string | null
   strength: number | null
   client: { client_name: string }[] | { client_name: string } | null
   structure: { structure_name: string }[] | { structure_name: string } | null
+  location:
+    | { full_location: string | null; location1: string | null }[]
+    | { full_location: string | null; location1: string | null }
+    | null
+  concrete_work:
+    | { concrete_work: string }[]
+    | { concrete_work: string }
+    | null
   mixcode:
-    | { supplier: string | null; strength: number | null; strength_type: string | null }[]
-    | { supplier: string | null; strength: number | null; strength_type: string | null }
+    | {
+        mixcode: string | null
+        supplier: string | null
+        strength: number | null
+        strength_type: string | null
+        slump: string | null
+      }[]
+    | {
+        mixcode: string | null
+        supplier: string | null
+        strength: number | null
+        strength_type: string | null
+        slump: string | null
+      }
     | null
   booked_by_profile: {
     fname: string | null
@@ -83,12 +104,14 @@ function isoDayPrefix(v: string | null | undefined): string | null {
   return null
 }
 
-/** yyyy-MM-dd สำหรับตัวกรองและกราฟแนวโน้ม: เลื่อนวัน (postpone) ก่อน แล้ววันเท แล้ววันที่จอง */
+/** yyyy-MM-dd สำหรับตัวกรองและกราฟแนวโน้ม: เลื่อนวัน → วันเท → วันที่ขอ → วันที่จอง */
 export function rowPrimaryDateIso(r: DashboardRequestRow): string | null {
   const p = isoDayPrefix(r.postpone_date)
   if (p) return p
   const c = isoDayPrefix(r.casting_date)
   if (c) return c
+  const rd = isoDayPrefix(r.request_date)
+  if (rd) return rd
   return isoDayPrefix(r.booked_at)
 }
 
@@ -307,13 +330,16 @@ export async function fetchDashboardRequestRows(supabase: SupabaseClient): Promi
         volume_confirm,
         volume_loss,
         pct_loss,
+        request_date,
         casting_date,
         booked_at,
         postpone_date,
         strength,
         client:Client(client_name),
+        location:Location(full_location, location1),
+        concrete_work:"Concrete Works"(concrete_work),
         structure:Structure(structure_name),
-        mixcode:"Mixed Code"(supplier, strength, strength_type),
+        mixcode:"Mixed Code"(mixcode, supplier, strength, strength_type, slump),
         booked_by_profile:profiles!booked_by(fname, lname, employee_id)
       `,
       )
