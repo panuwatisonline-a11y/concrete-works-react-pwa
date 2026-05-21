@@ -804,7 +804,7 @@ export function RequestListPage() {
       </div>
 
       {mobileView === 'summary' ? (
-        <div className="mx-auto mt-6 grid w-[70%] min-w-0 grid-cols-1 gap-3">
+        <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3">
           {!masterLoaded ? (
             <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
           ) : statusRowsForSummary.length === 0 ? (
