@@ -43,7 +43,7 @@ const CST_SHORTCUT_OVERLAY = 'z-[260]'
 const CST_SHORTCUT_CONTENT = cn('!z-[270]', modal.xl, modal.shell)
 
 const schema = z.object({
-  client_id: z.string().min(1, 'กรุณาเลือก Client'),
+  client_id: z.string().min(1, 'กรุณาเลือก User Group'),
   abc_code_id: z.string().optional(),
   wbs_code_id: z.string().optional(),
   concrete_work_id: z.string().min(1, 'กรุณาเลือก Concrete Work'),
@@ -170,13 +170,13 @@ function CstShortcutStep0Fields({
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <Label>Client *</Label>
+        <Label>User Group *</Label>
         <Controller
           name="client_id"
           control={control}
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก Client" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
               <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
                 {clients.map((c) => (
                   <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>
@@ -372,7 +372,7 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
         </CardHeader>
         <CardContent className={cn(rq.cardContent, 'space-y-1.5 text-sm')}>
           {[
-            ['Client', summary.client],
+            ['User Group', summary.client],
             ['ABC Code', summary.abc],
             ['WBS Code', summary.wbs],
             ['Concrete Work', summary.concrete],

@@ -461,7 +461,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
                   const core: { label: string; value: ReactNode }[] = [
                     { label: 'รหัสคำขอ', value: <span className="font-mono font-semibold">{shortId(request.id)}</span> },
-                    { label: 'Client', value: client ?? '—' },
+                    { label: 'User Group', value: client ?? '—' },
                     { label: 'Location', value: locationLine ?? '—' },
                     { label: 'งานคอนกรีต', value: cw ?? '—' },
                     { label: 'Structure', value: structureLine || '—' },

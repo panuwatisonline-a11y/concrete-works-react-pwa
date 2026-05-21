@@ -475,7 +475,7 @@ function RequestFeedCard({
 
         <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
           <div className="grid grid-cols-1 gap-y-2 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
-            <FeedDetailRow icon={Building2} label="Client" value={client} />
+            <FeedDetailRow icon={Building2} label="User Group" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
             <FeedDetailRow icon={Landmark} label="Structure" value={structureDetailName} />

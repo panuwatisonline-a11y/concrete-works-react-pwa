@@ -27,8 +27,8 @@ export function ClientPage() {
   const [q, setQ] = useState('')
 
   useDesktopSearchRegistration({
-    placeholder: 'ค้นหาชื่อบริษัท (Client)…',
-    ariaLabel: 'ค้นหาในตาราง Client',
+    placeholder: 'ค้นหาชื่อบริษัท (User Group)…',
+    ariaLabel: 'ค้นหาในตาราง User Group',
     showRequestFilterButton: false,
     search: q,
     onSearchChange: setQ,
@@ -106,9 +106,9 @@ export function ClientPage() {
 
   return (
     <div className={app.pageAdmin}>
-      <h1 className={rq.heroTitle}>Client (Contractor)</h1>
+      <h1 className={rq.heroTitle}>User Group</h1>
       <CrudTable
-        title="Client"
+        title="User Group"
         data={filtered}
         loading={loading}
         columns={[{ key: 'client_name', label: 'ชื่อบริษัท' }]}

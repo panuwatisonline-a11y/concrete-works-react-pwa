@@ -63,7 +63,7 @@ export function buildCstPourInfoRows(request: RequestWithRelations): { label: st
     { label: 'Volume', value: pourVolumeLabel(request) },
   ]
 
-  if (client) rows.splice(1, 0, { label: 'Client', value: client })
+  if (client) rows.splice(1, 0, { label: 'User Group', value: client })
   if (request.sample_qty != null) {
     rows.push({ label: 'ตัวอย่าง', value: `${request.sample_qty} ก้อน` })
   }

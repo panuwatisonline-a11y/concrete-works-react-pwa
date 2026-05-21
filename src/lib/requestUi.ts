@@ -155,7 +155,7 @@ export function isTableContentPath(pathname: string): boolean {
   )
 }
 
-/** หน้า CRUD แคบ — 50% ของ contentMaxWide (เช่น Structure, Client, Jobs) */
+/** หน้า CRUD แคบ — 50% ของ contentMaxWide (เช่น Structure, User Group, Jobs) */
 export function isNarrowContentPath(pathname: string): boolean {
   return (
     pathname.startsWith('/admin/structure') ||

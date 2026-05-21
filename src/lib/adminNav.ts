@@ -37,7 +37,7 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/admin/abc-code', label: 'ABC', icon: Code2 },
   { to: '/admin/wbs-code', label: 'WBS', icon: GitBranch },
   { to: '/admin/jobs', label: 'Jobs', icon: Briefcase },
-  { to: '/admin/client', label: 'Client', icon: Building2 },
+  { to: '/admin/client', label: 'User Group', icon: Building2 },
   { to: '/admin/inspector', label: 'Inspector', icon: ShieldCheck },
   { to: '/admin/users', label: 'User Settings', icon: Users },
 ]

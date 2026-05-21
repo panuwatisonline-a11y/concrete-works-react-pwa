@@ -128,7 +128,7 @@ export function UsersPage() {
   }, [])
 
   useDesktopSearchRegistration({
-    placeholder: 'ค้นหา รหัสพนักงาน ชื่อ เบอร์โทร Role Client โครงการ…',
+    placeholder: 'ค้นหา รหัสพนักงาน ชื่อ เบอร์โทร Role User Group โครงการ…',
     ariaLabel: 'ค้นหาในตารางผู้ใช้',
     showRequestFilterButton: false,
     search: userSearch,
@@ -323,7 +323,7 @@ export function UsersPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className={adminDataRow.label}>Client</dt>
+                  <dt className={adminDataRow.label}>User Group</dt>
                   <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
                 </div>
                 <div>
@@ -401,7 +401,7 @@ export function UsersPage() {
         <table className={tableCompact.table}>
           <thead className={tableCompact.head}>
             <tr>
-              {['ชื่อ', 'Client', 'รหัสพนักงาน', 'เบอร์โทร', 'โครงการ', 'วันที่สมัคร', 'Role', 'สถานะ', 'การจัดการ'].map((h) => (
+              {['ชื่อ', 'User Group', 'รหัสพนักงาน', 'เบอร์โทร', 'โครงการ', 'วันที่สมัคร', 'Role', 'สถานะ', 'การจัดการ'].map((h) => (
                 <th key={h}>{h}</th>
               ))}
             </tr>
@@ -553,7 +553,7 @@ export function UsersPage() {
                 </Select>
               </div>
               <div>
-                <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Client</p>
+                <p className={cn(rq.dataRowLabel, 'mb-1.5')}>User Group</p>
                 <Select value={draftClient} onValueChange={setDraftClient}>
                   <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
                     <SelectValue placeholder="ไม่ระบุ" />

@@ -5,7 +5,7 @@
 
 /** Request list — matches fields used in `collectRequestIdsMatchingSearch`. */
 export const REQUEST_LIST_SEARCH_PLACEHOLDER =
-  'ค้นหา Client, งานคอนกรีต, โครงสร้าง, Location, Mix, กำลัง, ABC, WBS…'
+  'ค้นหา User Group, งานคอนกรีต, โครงสร้าง, Location, Mix, กำลัง, ABC, WBS…'
 
 export const REQUEST_LIST_SEARCH_ARIA = 'ค้นหาในคำขอ'
 
@@ -16,7 +16,7 @@ export const REQUEST_DETAIL_SEARCH_ARIA = 'ค้นหาคำขอ แล้
 
 /** CST list — ค้นหาในคำขอ Complete (เดียวกับรายการคำขอ) */
 export const CST_LIST_SEARCH_PLACEHOLDER =
-  'ค้นหา CST — Client, โครงสร้าง, Location, Mix, ABC, WBS…'
+  'ค้นหา CST — User Group, โครงสร้าง, Location, Mix, ABC, WBS…'
 
 export const CST_LIST_SEARCH_ARIA = 'ค้นหาในหน้า CST'
 
@@ -43,7 +43,7 @@ function adminIdle(pathname: string): DesktopSearchBarConfig {
   if (pathname.startsWith('/admin/users')) {
     placeholder = 'Users Settings — จัดการผู้ใช้จากตารางในหน้านี้'
   } else if (pathname.startsWith('/admin/client')) {
-    placeholder = 'Client — แก้ไขรายชื่อบริษัทจากตารางในหน้านี้'
+    placeholder = 'User Group — แก้ไขรายชื่อบริษัทจากตารางในหน้านี้'
   } else if (pathname.startsWith('/admin/location')) {
     placeholder = 'Location — ค้นหา/แก้ไขจากตารางในหน้านี้'
   } else if (pathname.startsWith('/admin/concrete-works')) {

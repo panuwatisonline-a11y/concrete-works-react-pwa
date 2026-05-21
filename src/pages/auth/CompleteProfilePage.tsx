@@ -182,12 +182,12 @@ export function CompleteProfilePage() {
                 <Input placeholder="0830836564" {...register('phone')} />
               </div>
               <div className="space-y-1.5">
-                <Label>บริษัท / Contractor</Label>
+                <Label>User Group</Label>
                 <Select
                   value={watch('client_id') || undefined}
                   onValueChange={(v) => setValue('client_id', v)}
                 >
-                  <SelectTrigger><SelectValue placeholder="เลือกบริษัท" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
                   <SelectContent>
                     {clients.map((c) => (
                       <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>

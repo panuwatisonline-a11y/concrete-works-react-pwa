@@ -39,7 +39,7 @@ export function RequestFiltersDialog() {
                 className="h-10 w-full rounded-xl"
               />
               <p className="text-[11px] leading-snug text-pour-subtle">
-                ครอบคลุม Client, งานคอนกรีต, โครงสร้าง, ที่ตั้ง, Mixcode, กำลัง/slump, ABC, WBS, หมายเหตุ และเลข structure_no
+                ครอบคลุม User Group, งานคอนกรีต, โครงสร้าง, ที่ตั้ง, Mixcode, กำลัง/slump, ABC, WBS, หมายเหตุ และเลข structure_no
               </p>
             </div>
 

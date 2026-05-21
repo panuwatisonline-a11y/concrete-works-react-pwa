@@ -34,7 +34,7 @@ import {
 } from '@/lib/mixcodeStrengthOptions'
 
 const schema = z.object({
-  client_id: z.string().min(1, 'กรุณาเลือก Client'),
+  client_id: z.string().min(1, 'กรุณาเลือก User Group'),
   location_id: z.string().min(1, 'กรุณาเลือก Location'),
   concrete_work_id: z.string().min(1, 'กรุณาเลือก Concrete Work'),
   structure_id: z.string().min(1, 'กรุณาเลือก Structure'),
@@ -354,10 +354,10 @@ export function RequestNewPage() {
     if (s === 0) return (
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <Label>Client *</Label>
+          <Label>User Group *</Label>
           <Controller name="client_id" control={control} render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก Client" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
               <SelectContent>{clients.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>)}</SelectContent>
             </Select>
           )} />
@@ -521,7 +521,7 @@ export function RequestNewPage() {
           </CardHeader>
           <CardContent className={cn(rq.cardContent, 'space-y-1.5 text-sm')}>
             {[
-              ['Client', client?.client_name],
+              ['User Group', client?.client_name],
               ['Location', location?.full_location ?? location?.location1],
               ['Structure', `${structure?.structure_name ?? '-'} ${vals.structure_no ? `(${vals.structure_no})` : ''}`],
               ['วันเท', formatDate(vals.casting_date)],

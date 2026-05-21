@@ -301,7 +301,7 @@ export function RequestDetailPage() {
                   </span>
                 ),
               },
-              { id: 'client', label: 'Client', value: (request.client as { client_name: string } | null)?.client_name },
+              { id: 'client', label: 'User Group', value: (request.client as { client_name: string } | null)?.client_name },
               { id: 'location', label: 'Location', value: (request.location as { full_location: string | null } | null)?.full_location },
               { id: 'cw', label: 'Concrete Work', value: (request.concrete_work as { concrete_work: string } | null)?.concrete_work },
               {
