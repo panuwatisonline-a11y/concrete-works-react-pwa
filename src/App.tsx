@@ -21,6 +21,7 @@ import { BookingSummaryPage } from '@/pages/requests/BookingSummaryPage'
 import { APP_HOME } from '@/lib/appHome'
 import { AdminLayout } from '@/pages/admin/AdminLayout'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+import { LossConcretePage } from '@/pages/admin/LossConcretePage'
 import { UsersPage } from '@/pages/admin/UsersPage'
 import { ClientPage } from '@/pages/admin/ClientPage'
 import { LocationPage } from '@/pages/admin/LocationPage'
@@ -86,6 +87,7 @@ function AppInner() {
 
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
+          <Route path="loss-concrete" element={<LossConcretePage />} />
           <Route path="inspector" element={<InspectorPage />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="client" element={<ClientPage />} />

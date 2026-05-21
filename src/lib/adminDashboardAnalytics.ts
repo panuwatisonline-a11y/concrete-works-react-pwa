@@ -10,6 +10,8 @@ export interface DashboardRequestRow {
   volume_request: number | null
   volume_dwg: number | null
   volume_confirm: number | null
+  volume_loss: number | null
+  pct_loss: number | null
   casting_date: string | null
   booked_at: string | null
   postpone_date: string | null
@@ -303,6 +305,8 @@ export async function fetchDashboardRequestRows(supabase: SupabaseClient): Promi
         volume_request,
         volume_dwg,
         volume_confirm,
+        volume_loss,
+        pct_loss,
         casting_date,
         booked_at,
         postpone_date,

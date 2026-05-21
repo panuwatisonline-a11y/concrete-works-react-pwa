@@ -13,6 +13,7 @@ import {
   Gauge,
   BarChart3,
   ShieldCheck,
+  TrendingDown,
 } from 'lucide-react'
 import { canManageUsers } from '@/lib/permissions'
 
@@ -28,6 +29,7 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/cst', label: 'CST', icon: FlaskConical },
   { to: '/admin/cst-machine', label: 'CST Machine', icon: Gauge },
   { to: '/cst/concrete-summary', label: 'Concrete Summary', icon: BarChart3 },
+  { to: '/admin/loss-concrete', label: 'Loss Concrete', icon: TrendingDown },
   { to: '/admin/location', label: 'Location', icon: MapPin },
   { to: '/admin/concrete-works', label: 'Concrete Works', icon: HardHat },
   { to: '/admin/structure', label: 'Structure', icon: Layers },

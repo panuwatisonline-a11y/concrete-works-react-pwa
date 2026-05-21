@@ -82,6 +82,7 @@ function collapsedNavClass(active: boolean) {
 function isAdminLinkActive(to: string, location: ReturnType<typeof useLocation>) {
   if (to === '/cst') return location.pathname === '/cst'
   if (to === '/cst/concrete-summary') return location.pathname.startsWith('/cst/concrete-summary')
+  if (to === '/admin/loss-concrete') return location.pathname.startsWith('/admin/loss-concrete')
   return isNavToActive(to, location)
 }
 
