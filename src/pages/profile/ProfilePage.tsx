@@ -103,7 +103,7 @@ export function ProfilePage() {
     profile?.job_id != null ? jobs.find((j) => j.id === profile.job_id)?.job_name : undefined
 
   return (
-    <div className={rq.pageNarrow}>
+    <div className={rq.page}>
       <RequestScreenHeader
         title="โปรไฟล์"
         subtitle="ข้อมูลบัญชีและการตั้งค่า"

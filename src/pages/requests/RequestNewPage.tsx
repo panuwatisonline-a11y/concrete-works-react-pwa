@@ -602,7 +602,7 @@ export function RequestNewPage() {
   }
 
   return (
-    <div className={rq.pageNarrow}>
+    <div className={rq.page}>
       <RequestScreenHeader
         title="สร้างคำขอใหม่"
         subtitle={`${STEPS[step]} · ขั้นตอนที่ ${step + 1}/${STEPS.length}`}

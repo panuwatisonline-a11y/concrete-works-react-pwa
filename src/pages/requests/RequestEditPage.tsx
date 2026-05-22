@@ -150,7 +150,7 @@ export function RequestEditPage() {
 
   if (!request) {
     return (
-      <div className={rq.pageNarrow}>
+      <div className={rq.page}>
         <div className="flex flex-col items-center justify-center py-20">
           <div className={rq.spinner} />
           <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
@@ -160,7 +160,7 @@ export function RequestEditPage() {
   }
 
   return (
-    <div className={rq.pageNarrow}>
+    <div className={rq.page}>
       <RequestScreenHeader title="แก้ไขคำขอ" subtitle="แก้ไขได้เมื่อสถานะรอตรวจสอบเท่านั้น" onBack={() => navigate(-1)} />
 
       <Card className={rq.card}>

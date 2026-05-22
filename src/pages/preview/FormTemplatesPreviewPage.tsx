@@ -16,7 +16,7 @@ import {
 } from '@/lib/cstStrengthReportTemplate'
 import { Button } from '@/components/ui/button'
 import { injectChecklistDocumentStyles, injectPreviewScreenStyles } from '@/lib/localPrintChecklist'
-import { theme } from '@/lib/requestUi'
+import { rq, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 const CHECKLIST_SAMPLE: ChecklistBeforePourTemplateData = {
@@ -464,7 +464,7 @@ export function FormTemplatesPreviewPage() {
   })
 
   return (
-    <div className="mx-auto max-w-5xl px-2 pb-6 sm:px-3 pour-desktop:px-4">
+    <div className={rq.page}>
       <div className="mb-4">
         <h1 className="text-lg font-bold tracking-tight text-[color:var(--pour-ink-0)] pour-desktop:text-xl">ตัวอย่างแบบฟอร์ม</h1>
         <p className="mt-1 text-sm text-pour-muted">
