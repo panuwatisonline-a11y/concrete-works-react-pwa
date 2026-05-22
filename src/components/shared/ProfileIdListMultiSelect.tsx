@@ -13,10 +13,8 @@ export type ProfilePickerOption = {
 
 const triggerClass = (hasSelection: boolean) =>
   cn(
-    'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
-    hasSelection
-      ? 'border-[color:var(--pour-accent)]/55 bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-0)]'
-      : 'border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] text-pour-subtle',
+    'pour-form-picker data-pour-no-press h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
+    hasSelection ? 'text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
   )
 
 function ProfilePickerListPanel({
@@ -89,7 +87,7 @@ function ProfilePickerListPanel({
             return (
               <label
                 key={opt.id}
-                className="flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[color:var(--pour-ink-0)] hover:bg-[color:var(--pour-nav-hover-bg)]"
+                className="pour-form-picker flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[color:var(--pour-ink-0)] pour-pointer-fine:hover:bg-[color:var(--pour-nav-hover-bg)]"
                 onClick={(e) => {
                   if (!isMulti) return
                   e.preventDefault()
@@ -245,7 +243,7 @@ export function ProfileIdSingleSelect({
       onClick={inDialog ? () => handleOpenChange(!open) : undefined}
     >
       <span className="line-clamp-2 min-w-0 flex-1 break-words">{summaryText ?? placeholder}</span>
-      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50 transition-transform', open && 'rotate-180')} />
+      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50', open && 'rotate-180')} />
     </Button>
   )
 
@@ -393,7 +391,7 @@ export function ProfileIdListMultiSelect({
       onClick={inDialog ? () => handleOpenChange(!open) : undefined}
     >
       <span className="line-clamp-2 min-w-0 flex-1 break-words">{summaryText ?? placeholder}</span>
-      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50 transition-transform', open && 'rotate-180')} />
+      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50', open && 'rotate-180')} />
     </Button>
   )
 

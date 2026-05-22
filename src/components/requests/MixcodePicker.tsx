@@ -67,10 +67,9 @@ export function MixcodePicker({
                         }
                       }}
                       className={cn(
-                        'cursor-pointer border-t border-[color:var(--glass-border-subtle)] outline-none transition-colors first:border-t-0',
-                        'hover:bg-[color:var(--pour-nav-hover-bg)] focus-visible:bg-[color:var(--pour-nav-hover-bg)] focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[color:var(--pour-accent)]/35',
-                        on &&
-                          'bg-[color:var(--pour-accent-muted)] ring-1 ring-inset ring-[color:var(--pour-accent)]/45 hover:bg-[color:var(--pour-accent-muted)]',
+                        'pour-form-picker cursor-pointer border-t border-[color:var(--glass-border-subtle)] outline-none first:border-t-0',
+                        'pour-pointer-fine:hover:bg-[color:var(--pour-nav-hover-bg)]',
+                        on && 'bg-[color:var(--pour-accent-muted)]/40',
                       )}
                     >
                       <td className="w-9 px-1 py-2 align-middle text-center sm:w-10 sm:px-2 sm:py-2.5">

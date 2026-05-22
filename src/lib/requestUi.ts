@@ -82,7 +82,9 @@ export const glass = {
   borderSubtle: 'border-[color:var(--glass-border-subtle)]',
   borderEdge: 'border-[color:var(--glass-edge)]',
   input:
-    'pour-form-control border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:shadow-[0_0_0_2px_var(--pour-accent-ring)]',
+    'pour-form-control border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none',
+  picker:
+    'pour-form-picker pour-form-control data-pour-no-press border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none data-[state=open]:border-[color:var(--pour-accent)]',
 } as const
 
 export const theme = {

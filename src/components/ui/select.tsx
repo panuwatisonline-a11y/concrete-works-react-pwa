@@ -1,6 +1,7 @@
 ﻿import * as React from 'react'
 import * as SelectPrimitive from '@radix-ui/react-select'
 import { Check, ChevronDown, ChevronUp } from 'lucide-react'
+import { glass } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 /** Dropdown ต้องสูงกว่า Dialog ชั้น workflow/CST (overlay z-[260], content z-[270]) */
@@ -17,13 +18,12 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'pour-form-control flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] focus:outline-none focus:border-[color:var(--pour-accent)] focus:shadow-[0_0_0_2px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-      /* ยังไม่เลือก */
-      '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
+      glass.picker,
+      'flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'text-[color:var(--pour-ink-0)]',
+      '[&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
       '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[color:var(--pour-ink-3)]',
-      /* เลือกแล้ว — ขอบเน้นเบา */
-      '[&:not([data-placeholder])]:border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
-      className
+      className,
     )}
     {...props}
   >
@@ -72,7 +72,6 @@ const SelectContent = React.forwardRef<
       ref={ref}
       className={cn(
         'pour-glass relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl text-[color:var(--pour-ink-0)]',
-        position === 'popper' && 'translate-y-1',
         className
       )}
       position={position}
@@ -112,7 +111,7 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-[color:var(--pour-nav-hover-bg)] focus:text-[color:var(--pour-ink-0)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       className
     )}
     {...props}

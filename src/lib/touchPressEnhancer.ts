@@ -8,7 +8,8 @@ const PRESSABLE_SELECTOR = [
   '.pour-card-lift',
 ].join(', ')
 
-const IGNORE_SELECTOR = 'input, textarea, select, [data-pour-no-press], [contenteditable="true"]'
+const IGNORE_SELECTOR =
+  'input, textarea, select, [data-pour-no-press], [contenteditable="true"], [role="combobox"], [role="option"], .pour-form-picker'
 
 function findPressable(target: EventTarget | null): HTMLElement | null {
   if (!(target instanceof Element)) return null

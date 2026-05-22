@@ -446,11 +446,33 @@
       background-color 0.15s ease;
   }
 
-  /** ช่องกรอก — เปลี่ยนเฉพาะขอบ/วงแหวนโฟกัส ไม่กระตุกพื้นหลัง */
-  .pour-form-control {
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
+  /** ช่องกรอก / dropdown — ไม่มี transition ตอนแตะหรือเลือก */
+  .pour-form-control,
+  .pour-form-picker {
+    transition: none;
+  }
+
+  button[role='combobox'],
+  .pour-form-picker,
+  .pour-form-fields [role='combobox'] {
+    transform: none !important;
+  }
+
+  button[role='combobox']:active,
+  button[role='combobox'].pour-pressed,
+  .pour-form-picker:active,
+  .pour-form-picker.pour-pressed {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  [role='option'] {
+    transition: none !important;
+  }
+
+  [role='option'][data-highlighted] {
+    background-color: color-mix(in srgb, var(--pour-nav-hover-bg) 55%, transparent);
   }
 
   .pour-form-field label,

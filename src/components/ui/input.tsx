@@ -9,7 +9,7 @@ import {
 const NATIVE_DATE_INPUT_TYPES = new Set(['date', 'datetime-local', 'time', 'month', 'week'])
 
 const INPUT_BASE =
-  'pour-form-control flex h-10 min-w-0 max-w-full w-full items-center rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-[15px] font-medium text-[color:var(--pour-ink-0)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50'
+  'pour-form-control flex h-10 min-w-0 max-w-full w-full items-center rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-[15px] font-medium text-[color:var(--pour-ink-0)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
 
 function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {
   if (typeof ref === 'function') ref(node)
@@ -92,13 +92,6 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       }
     }, [useIosFacade, syncFacadeFromNative])
 
-    const filledClasses = cn(
-      '[&:not(:placeholder-shown)]:border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
-      isControlled &&
-        String(value ?? '').trim() !== '' &&
-        'border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
-    )
-
     if (useIosFacade && type) {
       const displayValue = formatTemporalInputDisplay(type, facadeRaw)
       const facadeFilled = displayValue !== ''
@@ -116,7 +109,6 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
           className={cn(
             'pour-date-input-shell relative h-10 w-full min-w-0 max-w-full overflow-hidden',
             'focus-within:[&>input:first-child]:border-[color:var(--pour-accent)]',
-            'focus-within:[&>input:first-child]:shadow-[0_0_0_2px_var(--pour-accent-ring)]',
             facadeFilled && 'pour-date-input-shell--filled',
           )}
         >
@@ -131,8 +123,6 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
             className={cn(
               INPUT_BASE,
               'pointer-events-none absolute inset-0 z-0',
-              facadeFilled &&
-                'border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
               className,
             )}
           />
@@ -155,7 +145,6 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
     const inputClassName = cn(
       INPUT_BASE,
       isNativeDateInput && 'pour-date-input',
-      filledClasses,
       className,
     )
 
