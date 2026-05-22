@@ -7,7 +7,7 @@ import { APP_HOME } from '@/lib/appHome'
 import { auth, theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Truck, Scale, TrendingDown, BarChart3, ClipboardList, CalendarDays, FlaskConical, FileText } from 'lucide-react'
+import { Truck, Scale, TrendingDown, BarChart3, ClipboardList, CalendarDays, FlaskConical, FileText, Bell, CloudOff } from 'lucide-react'
 
 const features = [
   { icon: ClipboardList, text: 'จองและจัดการคำขอคอนกรีต' },
@@ -18,6 +18,8 @@ const features = [
   { icon: BarChart3, text: 'Monthly Concrete Summary' },
   { icon: FlaskConical, text: 'บันทึกผลทดสอบกำลังอัดคอนกรีตพร้อมรายงาน (CST)' },
   { icon: FileText, text: 'Checklist ก่อนเทคอนกรีต' },
+  { icon: Bell, text: 'ระบบ Push Notification' },
+  { icon: CloudOff, text: 'ระบบ Offline Sync' },
 ]
 
 function GoogleIcon() {
@@ -60,8 +62,8 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex h-dvh max-h-dvh min-h-0 flex-col overflow-y-auto overscroll-y-contain bg-[color:var(--pour-bg)] pour-desktop:flex-row pour-desktop:overflow-hidden">
-      <div className="relative hidden shrink-0 overflow-hidden p-12 pour-desktop:flex pour-desktop:h-full pour-desktop:w-[42%]">
+    <div className="flex min-h-dvh flex-col overflow-y-auto overscroll-y-contain bg-[color:var(--pour-bg)] pour-desktop:h-dvh pour-desktop:max-h-dvh pour-desktop:flex-row pour-desktop:overflow-hidden">
+      <div className="relative hidden min-h-0 shrink-0 overflow-hidden p-8 pour-desktop:flex pour-desktop:h-full pour-desktop:w-[42%] pour-wide:p-12">
         <div
           className="pointer-events-none absolute inset-0 bg-[url('/login-sidebar-bg.png')] bg-cover bg-center bg-no-repeat"
           aria-hidden
@@ -71,37 +73,37 @@ export function LoginPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col justify-between gap-10">
-          <div>
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col gap-6 pour-wide:gap-8">
+          <div className="shrink-0">
             <div className="flex items-center gap-3">
               <img src="/pwa-192x192.png" alt="" className="h-10 w-10 rounded-xl object-contain" aria-hidden />
               <span className="text-xl font-bold tracking-tight text-white">Concrete Works</span>
             </div>
-            <div className="mt-5 max-w-md rounded-lg border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+            <div className="mt-4 max-w-md rounded-lg border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm pour-wide:mt-5">
               <p className="text-sm font-semibold leading-snug text-white/95">{BRAND_TAGLINE}</p>
             </div>
           </div>
 
-          <div>
-            <h1 className="mb-4 text-[2rem] font-bold leading-[1.15] tracking-tight text-white">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.25)_transparent]">
+            <h1 className="mb-3 text-[1.65rem] font-bold leading-[1.15] tracking-tight text-white pour-wide:mb-4 pour-wide:text-[2rem]">
               Application จัดการงานคอนกรีต
             </h1>
-            <p className="mb-8 text-[15px] leading-relaxed text-white/70">
+            <p className="mb-5 text-[14px] leading-relaxed text-white/70 pour-wide:mb-6 pour-wide:text-[15px]">
               จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
             </p>
-            <div className="space-y-4">
+            <div className="space-y-3 pour-wide:space-y-4">
               {features.map(({ icon: Icon, text }, i) => (
-                <div key={i} className="flex items-center gap-3 text-[14px] text-white/90">
+                <div key={i} className="flex items-start gap-3 text-[13px] leading-snug text-white/90 pour-wide:text-[14px]">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
                     <Icon className="h-4 w-4" strokeWidth={1.75} />
                   </span>
-                  {text}
+                  <span className="min-w-0 pt-1">{text}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-auto flex w-full flex-wrap items-end justify-between gap-x-6 gap-y-4 pt-2">
+          <div className="flex w-full shrink-0 flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-white/10 pt-4 pour-wide:pt-5">
             <div className="flex min-w-0 items-center gap-2 text-[12px] text-white/55">
               <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
               ระบบพร้อมใช้งาน
@@ -125,7 +127,7 @@ export function LoginPage() {
         </div>
       </div>
 
-      <div className={auth.shell}>
+      <div className={cn(auth.shell, 'min-h-0 shrink-0 pour-desktop:min-h-0 pour-desktop:overflow-y-auto')}>
         <div className={auth.card}>
           <div className="mb-8 flex items-center gap-3 pour-desktop:hidden">
             <img src="/pwa-192x192.png" alt="" className="h-10 w-10 rounded-xl object-contain" aria-hidden />
