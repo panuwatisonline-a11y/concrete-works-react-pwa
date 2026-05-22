@@ -136,13 +136,16 @@ export const theme = {
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
   /** เนื้อหารายการใน main */
   mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
-  /** ความกว้างเนื้อหามาตรฐาน — เท่าหน้า CST (394 ≈ 98.5rem เมื่อ pour-wide) */
-  contentMax: 'pour-wide:max-w-394',
+  /**
+   * กรอบเนื้อหาใน main — inset 10% ซ้าย/ขวาจาก container (เนื้อหา 80%, ลด 20% จากความกว้างเต็ม)
+   * ใช้ % ของคอลัมน์ main ทุกขนาดจอ ขอบซ้าย–ขวาเท่ากัน
+   */
+  contentFrame: 'mx-auto w-[80%] min-w-0 max-w-full',
 } as const
 
-/** ความกว้าง content ใน AppLayout — เท่าทุกหน้า (แบบ CST) */
+/** กรอบเนื้อหาใน AppLayout — เท่าทุกหน้า */
 export function getContentMaxClass(_pathname?: string): string {
-  return theme.contentMax
+  return theme.contentFrame
 }
 
 /** App-wide layout chrome */
