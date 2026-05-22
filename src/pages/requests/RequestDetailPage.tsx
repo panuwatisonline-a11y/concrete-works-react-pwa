@@ -3,6 +3,10 @@ import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
+import { cacheRequestDetail, getCachedRequestDetail } from '@/lib/offline/cache'
+import { fetchRequestById, fetchRequestLogs, REQUEST_DETAIL_SELECT } from '@/lib/requestQueries'
+import { isFullyOnline } from '@/stores/connectivityStore'
+import { useConnectivityStore } from '@/stores/connectivityStore'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -95,37 +99,53 @@ export function RequestDetailPage() {
     if (!id) return
     if (!opts?.background) setLoading(true)
     setError(null)
+
+    const applyCached = async (): Promise<boolean> => {
+      const cached = await getCachedRequestDetail(id)
+      if (!cached) return false
+      setRequest(cached.request)
+      setLogs(cached.logs)
+      setCstAgesSaved(cached.cstAgesSaved)
+      useConnectivityStore.getState().setUsingOfflineCache(true)
+      return true
+    }
+
+    if (!isFullyOnline()) {
+      const ok = await applyCached()
+      if (!ok) setError('ไม่มีข้อมูลที่บันทึกไว้สำหรับรายการนี้')
+      setLoading(false)
+      return
+    }
+
     try {
-      const [{ data: req, error: reqErr }, { data: logData, error: logErr }, cstRows] = await Promise.all([
-        supabase.from('Request').select(`
-          *,
-          status:Status(id, status_name),
-          client:Client(id, client_name),
-          location:Location(id, full_location),
-          concrete_work:"Concrete Works"(id, concrete_work),
-          structure:Structure(id, structure_name),
-          mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type, sample_type, supplier),
-          abc_code:"ABC Code"(id, full_abc),
-          wbs_code:"WBS Code"(id, full_wbs),
-          booked_by_profile:profiles!booked_by(fname, lname, phone)
-        `).eq('id', id).single(),
-        supabase.from('Request_Log').select(`
-          *,
-          profile:profiles!action_by(fname, lname)
-        `).eq('request_id', id).order('created_at', { ascending: false }),
+      const [req, logData, cstRows] = await Promise.all([
+        fetchRequestById(id).then(async (r) => {
+          if (r) return r
+          const { data, error: reqErr } = await supabase
+            .from('Request')
+            .select(REQUEST_DETAIL_SELECT)
+            .eq('id', id)
+            .single()
+          if (reqErr) throw reqErr
+          return data as RequestWithRelations
+        }),
+        fetchRequestLogs(id),
         fetchCstByRequestId(id).catch(() => []),
       ])
-      if (reqErr) throw reqErr
-      if (logErr) throw logErr
-      setRequest(req as RequestWithRelations)
-      setLogs((logData ?? []) as RequestLogWithProfile[])
-      setCstAgesSaved(
-        cstRows
-          .map((r) => r.age)
-          .filter((a): a is number => a != null && !Number.isNaN(a)),
-      )
+      if (!req) throw new Error('ไม่พบข้อมูล')
+      const ages = cstRows
+        .map((r) => r.age)
+        .filter((a): a is number => a != null && !Number.isNaN(a))
+      setRequest(req)
+      setLogs(logData)
+      setCstAgesSaved(ages)
+      useConnectivityStore.getState().setUsingOfflineCache(false)
+      await cacheRequestDetail(id, req, logData, ages)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'โหลดข้อมูลไม่สำเร็จ')
+      const ok = await applyCached()
+      if (!ok) {
+        setError(err instanceof Error ? err.message : 'โหลดข้อมูลไม่สำเร็จ')
+      }
     } finally {
       setLoading(false)
     }

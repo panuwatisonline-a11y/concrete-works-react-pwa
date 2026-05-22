@@ -4,16 +4,18 @@ import { useFilterStore } from '@/stores/filterStore'
 import { icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
-type ListTab = 'summary' | 'latest' | 'mine'
+type ListTab = 'summary' | 'latest' | 'mine' | 'calendar'
 
 const TABS: { id: ListTab; label: string }[] = [
   { id: 'summary', label: 'สถานะการจอง' },
+  { id: 'calendar', label: 'ปฏิทิน' },
   { id: 'latest', label: 'รายการทั้งหมด' },
   { id: 'mine', label: 'รายการของฉัน' },
 ]
 
 function tabHref(tab: ListTab): string {
   if (tab === 'summary') return '/requests?view=summary'
+  if (tab === 'calendar') return '/requests?view=calendar'
   if (tab === 'mine') return '/requests?view=latest&scope=mine'
   return '/requests?view=latest'
 }
@@ -21,6 +23,7 @@ function tabHref(tab: ListTab): string {
 function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
   if (pathname !== '/requests') return 'summary'
   if (search.get('view') === 'summary') return 'summary'
+  if (search.get('view') === 'calendar') return 'calendar'
   if (search.get('scope') === 'mine') return 'mine'
   return 'latest'
 }
@@ -48,7 +51,7 @@ export function RequestListTabs({
               key={tab.id}
               to={tabHref(tab.id)}
               onClick={() => {
-                if (tab.id !== 'summary') resetFilter()
+                if (tab.id !== 'summary' && tab.id !== 'calendar') resetFilter()
               }}
               className={cn(
                 'pour-interactive pour-nav-item rounded-lg px-3 py-2 text-sm font-medium transition-colors',

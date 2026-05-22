@@ -3,7 +3,11 @@ import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { runOrQueueMutation } from '@/lib/offline/actions'
+import { cacheRequestDetail } from '@/lib/offline/cache'
+import { runCreateRequestMutation } from '@/lib/requestMutations'
 import { supabase } from '@/lib/supabase'
+import type { RequestWithRelations } from '@/types/app.types'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
@@ -15,7 +19,6 @@ import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { formatDate, cn, formatVolumeCuM } from '@/lib/utils'
-import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { markLocalRequestMutation, triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { APP_HOME } from '@/lib/appHome'
@@ -146,7 +149,8 @@ export function RequestNewPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, profile, role } = useAuthStore()
-  const { clients, locations, concreteWorks, structures, mixcodes, abcCodes, wbsCodes } = useMasterDataStore()
+  const { clients, locations, concreteWorks, structures, mixcodes, abcCodes, wbsCodes, statuses } =
+    useMasterDataStore()
   const [step, setStep] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const submitLockRef = useRef(false)
@@ -295,7 +299,9 @@ export function RequestNewPage() {
     submitLockRef.current = true
     setSubmitting(true)
     try {
-      const { data: req, error } = await supabase.from('Request').insert({
+      const requestId = crypto.randomUUID()
+      const row = {
+        id: requestId,
         status_id: 1,
         booked_by: user.id,
         booked_at: new Date().toISOString(),
@@ -316,25 +322,75 @@ export function RequestNewPage() {
         sample_qty: data.sample_qty ? parseInt(data.sample_qty) : null,
         remarks: data.remarks || null,
         before_image: beforeImage,
-      }).select().single()
-
-      if (error || !req) {
-        toast.error('เกิดข้อผิดพลาด')
-        return
       }
 
-      markLocalRequestMutation(req.id)
+      const ok = await runOrQueueMutation({
+        kind: 'create_request',
+        requestId,
+        userId: user.id,
+        payload: { requestId, row },
+        online: async () => {
+          markLocalRequestMutation(requestId)
+          const r = await runCreateRequestMutation(user.id, { requestId, row })
+          if (!r.ok) {
+            toast.error(r.message || 'เกิดข้อผิดพลาด')
+            return false
+          }
+          const id = r.requestId ?? requestId
+          toast.success('ส่งคำขอเรียบร้อย')
+          await notifyRequestListChanged()
+          triggerRequestPushNotify({ requestId: id, eventType: 'INSERT', actorUserId: user.id })
+          navigate(`/requests/${id}`)
+          return true
+        },
+        queuedMessage: 'บันทึกคำขอในคิว — จะส่งเมื่อเชื่อมต่อได้',
+      })
 
-      const { error: logErr } = await ensureBookedRequestLog(req.id, user.id)
-      if (logErr) {
-        toast.error('บันทึกประวัติไม่สำเร็จ')
-        return
-      }
+      if (!ok) return
 
-      toast.success('ส่งคำขอเรียบร้อย')
+      const client = clients.find((c) => c.id === row.client_id)
+      const location = locations.find((l) => l.id === row.location_id)
+      const cw = concreteWorks.find((c) => c.id === row.concrete_work_id)
+      const structure = structures.find((s) => s.id === row.structure_id)
+      const mixcode = mixcodes.find((m) => m.id === row.mixcode_id)
+      const optimistic = {
+        ...row,
+        status: statuses.find((s) => s.id === 1),
+        client: client ? { id: client.id, client_name: client.client_name } : undefined,
+        location: location
+          ? { id: location.id, full_location: location.full_location, location1: location.location1 }
+          : undefined,
+        concrete_work: cw ? { id: cw.id, concrete_work: cw.concrete_work } : undefined,
+        structure: structure ? { id: structure.id, structure_name: structure.structure_name } : undefined,
+        mixcode: mixcode
+          ? {
+              id: mixcode.id,
+              mixcode: mixcode.mixcode,
+              strength: mixcode.strength,
+              slump: mixcode.slump,
+              strength_type: mixcode.strength_type,
+              supplier: mixcode.supplier,
+            }
+          : undefined,
+        booked_by_profile: {
+          id: user.id,
+          fname: profile?.fname ?? null,
+          lname: profile?.lname ?? null,
+          employee_id: profile?.employee_id ?? null,
+          phone: profile?.phone ?? null,
+          role: profile?.role ?? 'user',
+          status: profile?.status ?? 'approved',
+          client_id: profile?.client_id ?? null,
+          client_name: profile?.client_name ?? null,
+          job_id: profile?.job_id ?? null,
+          inspector_id: profile?.inspector_id ?? null,
+          created_at: profile?.created_at ?? '',
+        },
+      } as RequestWithRelations
+
+      await cacheRequestDetail(requestId, optimistic, [], [])
       await notifyRequestListChanged()
-      triggerRequestPushNotify({ requestId: req.id, eventType: 'INSERT', actorUserId: user.id })
-      navigate(`/requests/${req.id}`)
+      navigate(`/requests/${requestId}`)
     } finally {
       submitLockRef.current = false
       setSubmitting(false)

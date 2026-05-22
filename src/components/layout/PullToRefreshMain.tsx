@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { RefreshCw } from 'lucide-react'
+import { useConnectivityStore } from '@/stores/connectivityStore'
 import { usePullRefreshStore } from '@/stores/pullRefreshStore'
 import { registerMainScrollEl } from '@/stores/mainScrollStore'
 import {
@@ -48,6 +49,8 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   const [pullEnabled, setPullEnabled] = useState(() =>
     typeof window !== 'undefined' ? isPullRefreshEnabled() : true,
   )
+  const connectivityOnline = useConnectivityStore((s) => s.phase === 'online')
+  const canPullRefresh = pullEnabled && connectivityOnline
 
   pullRef.current = pull
 
@@ -93,7 +96,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
 
   useEffect(() => {
     const scrollEl = scrollRef.current
-    if (!scrollEl || !pullEnabled || !handler) return
+    if (!scrollEl || !canPullRefresh || !handler) return
 
     const onTouchStart = (e: TouchEvent) => {
       if (refreshingRef.current || e.touches.length !== 1) return
@@ -152,7 +155,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
       scrollEl.removeEventListener('touchcancel', onTouchCancel, opts)
       resetPull()
     }
-  }, [pullEnabled, handler, resetPull, runRefresh])
+  }, [canPullRefresh, handler, resetPull, runRefresh])
 
   const ready = pull >= THRESHOLD
   const label = refreshing
@@ -161,7 +164,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
       ? 'ปล่อยเพื่อรีเฟรช'
       : 'ดึงลงเพื่อรีเฟรช'
 
-  const showIndicator = pullEnabled && handler && (pull > 0 || refreshing)
+  const showIndicator = canPullRefresh && handler && (pull > 0 || refreshing)
   const indicatorHeight = showIndicator ? Math.max(pull, refreshing ? THRESHOLD * 0.65 : 0) : 0
 
   return (
@@ -174,7 +177,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         aria-hidden={!showIndicator}
         className={cn(
           'flex shrink-0 items-end justify-center overflow-hidden transition-[height,opacity] duration-200 ease-out',
-          !pullEnabled && 'hidden',
+          !canPullRefresh && 'hidden',
           !showIndicator && 'pointer-events-none opacity-0',
         )}
         style={{ height: indicatorHeight }}

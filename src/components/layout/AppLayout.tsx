@@ -8,6 +8,8 @@ import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog
 import { useMasterDataInit } from '@/hooks/useMasterData'
 import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
 import { useMainScrollRouteSync } from '@/hooks/useMainScrollRouteSync'
+import { ConnectivityBanner } from '@/components/layout/ConnectivityBanner'
+import { useConnectivity } from '@/hooks/useConnectivity'
 import { getContentMaxClass, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -15,6 +17,7 @@ export function AppLayout() {
   const { pathname } = useLocation()
   const contentMaxClass = getContentMaxClass(pathname)
 
+  useConnectivity()
   useMasterDataInit()
   usePullToRefreshHost()
   useMainScrollRouteSync()
@@ -39,6 +42,8 @@ export function AppLayout() {
         )}
       >
         <AppHeader />
+
+        <ConnectivityBanner />
 
         <DesktopTopBar />
 

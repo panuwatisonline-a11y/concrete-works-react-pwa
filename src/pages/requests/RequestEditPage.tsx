@@ -5,6 +5,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { runOrQueueMutation } from '@/lib/offline/actions'
+import { runUpdateRequestMutation } from '@/lib/requestMutations'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
@@ -109,7 +111,7 @@ export function RequestEditPage() {
   async function onSubmit(data: FormData) {
     if (!id || !request) return
     setSubmitting(true)
-    const { error } = await supabase.from('Request').update({
+    const patch = {
       casting_date: data.casting_date,
       request_time: data.request_time,
       mixcode_id: parseInt(data.mixcode_id),
@@ -120,16 +122,30 @@ export function RequestEditPage() {
       remarks: data.remarks || null,
       structure_no: data.structure_no || null,
       before_image: beforeImage,
-    }).eq('id', id)
-
-    if (!error) {
-      toast.success('บันทึกสำเร็จ')
-      await notifyRequestListChanged()
-      navigate(`/requests/${id}`)
-    } else {
-      toast.error('เกิดข้อผิดพลาด')
     }
-    setSubmitting(false)
+
+    try {
+      const ok = await runOrQueueMutation({
+        kind: 'update_request',
+        requestId: id,
+        userId: user?.id ?? '',
+        payload: { patch },
+        online: async () => {
+          const r = await runUpdateRequestMutation(id, { patch })
+          if (!r.ok) {
+            toast.error('เกิดข้อผิดพลาด')
+            return false
+          }
+          toast.success('บันทึกสำเร็จ')
+          await notifyRequestListChanged()
+          navigate(`/requests/${id}`)
+          return true
+        },
+      })
+      if (ok) navigate(`/requests/${id}`)
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   if (!request) {

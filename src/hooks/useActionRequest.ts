@@ -1,4 +1,13 @@
-import { supabase } from '@/lib/supabase'
+import { runOrQueueMutation } from '@/lib/offline/actions'
+import {
+  runApproveMutation,
+  runCancelMutation,
+  runCompleteMutation,
+  runConfirmOrderMutation,
+  runInspectMutation,
+  runPostponeMutation,
+  runRejectMutation,
+} from '@/lib/requestMutations'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { markLocalRequestMutation, triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { useAuthStore } from '@/stores/authStore'
@@ -11,23 +20,7 @@ async function afterRequestMutation(requestId: string, actorUserId?: string | nu
 
 export function useActionRequest() {
   const { user } = useAuthStore()
-
-  async function logAction(
-    requestId: string,
-    statusId: number,
-    action: string,
-    note?: string,
-    extra?: Record<string, unknown>
-  ) {
-    await supabase.from('Request_Log').insert({
-      request_id: requestId,
-      status_id: statusId,
-      action,
-      action_by: user?.id,
-      note: note ?? null,
-      ...extra,
-    })
-  }
+  const uid = user?.id ?? ''
 
   async function inspect(
     requestId: string,
@@ -42,94 +35,103 @@ export function useActionRequest() {
       before_image: string | null
     },
   ) {
-    const payload: Record<string, unknown> = {
-      status_id: 2,
-      inspected_by: user?.id,
-      inspected_at: new Date().toISOString(),
-    }
-    if (corrections) {
-      payload.location_id = corrections.location_id
-      payload.concrete_work_id = corrections.concrete_work_id
-      payload.structure_id = corrections.structure_id
-      payload.structure_no = corrections.structure_no
-      payload.mixcode_id = corrections.mixcode_id
-      payload.volume_request = corrections.volume_request
-      payload.before_image = corrections.before_image
-    }
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase.from('Request').update(payload).eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 2, 'inspected', note)
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('ตรวจสอบเรียบร้อย')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_inspect',
+      requestId,
+      userId: uid,
+      payload: { note, corrections },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runInspectMutation(requestId, uid, { note, corrections })
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('ตรวจสอบเรียบร้อย')
+        return true
+      },
+    })
   }
 
   async function approve(requestId: string, note?: string) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({ status_id: 3, approved_by: user?.id, approved_at: new Date().toISOString() })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 3, 'approved', note)
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('อนุมัติเรียบร้อย')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_approve',
+      requestId,
+      userId: uid,
+      payload: { note },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runApproveMutation(requestId, uid, { note })
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('อนุมัติเรียบร้อย')
+        return true
+      },
+    })
   }
 
   async function reject(requestId: string, reason: string) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({ status_id: 6, rejected_by: user?.id, rejected_at: new Date().toISOString(), reason_reject: reason })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 6, 'rejected', reason)
-    await afterRequestMutation(requestId, user?.id)
-    toast.warning('Reject เรียบร้อย')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_reject',
+      requestId,
+      userId: uid,
+      payload: { reason },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runRejectMutation(requestId, uid, { reason })
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.warning('Reject เรียบร้อย')
+        return true
+      },
+    })
   }
 
   async function postpone(requestId: string, data: { date: string; time: string; reason: string }) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({
-        status_id: 5,
-        postponed_by: user?.id,
-        postponed_at: new Date().toISOString(),
-        postpone_date: data.date,
-        postpone_time: data.time,
-        reason_postpone: data.reason,
-      })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 5, 'postponed', data.reason, {
-      postpone_date: data.date,
-      postpone_time: data.time,
+    return runOrQueueMutation({
+      kind: 'workflow_postpone',
+      requestId,
+      userId: uid,
+      payload: data,
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runPostponeMutation(requestId, uid, data)
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('เลื่อนวันเรียบร้อย')
+        return true
+      },
     })
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('เลื่อนวันเรียบร้อย')
-    return true
   }
 
   async function confirmOrder(requestId: string, note?: string, volumeActual?: number) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({
-        status_id: 4,
-        confirmed_by: user?.id,
-        confirmed_at: new Date().toISOString(),
-        ...(volumeActual != null && !Number.isNaN(volumeActual) ? { volume_actual: volumeActual } : {}),
-      })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 4, 'order_confirmed', note)
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('สั่งเทคอนกรีตแล้ว')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_confirm_order',
+      requestId,
+      userId: uid,
+      payload: { note, volumeActual },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runConfirmOrderMutation(requestId, uid, { note, volumeActual })
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('สั่งเทคอนกรีตแล้ว')
+        return true
+      },
+    })
   }
 
   async function complete(
@@ -142,53 +144,65 @@ export function useActionRequest() {
       eslip_url?: string
       checksheet_url?: string
       note?: string
-    }
+    },
   ) {
-    const patch: Record<string, unknown> = {
-      status_id: 8,
-      confirmed_by: user?.id,
-      confirmed_at: new Date().toISOString(),
-      volume_confirm: data.volume_confirm,
-    }
-    if (data.volume_actual !== undefined) patch.volume_actual = data.volume_actual
-    if (data.strength !== undefined) patch.strength = data.strength
-    if (data.after_image !== undefined) patch.after_image = data.after_image
-    if (data.eslip_url !== undefined) patch.eslip_url = data.eslip_url
-    if (data.checksheet_url !== undefined) patch.checksheet_url = data.checksheet_url
-
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 8, 'completed', data.note)
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('Confirm เรียบร้อย — ดำเนินการสำเร็จ')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_complete',
+      requestId,
+      userId: uid,
+      payload: data,
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runCompleteMutation(requestId, uid, data)
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('Confirm เรียบร้อย — ดำเนินการสำเร็จ')
+        return true
+      },
+    })
   }
 
   async function cancel(requestId: string, reason: string) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({ status_id: 7, cancelled_by: user?.id, cancelled_at: new Date().toISOString(), reason_cancel: reason })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 7, 'cancelled', reason)
-    await afterRequestMutation(requestId, user?.id)
-    toast.warning('ยกเลิกเรียบร้อย')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_cancel',
+      requestId,
+      userId: uid,
+      payload: { reason },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runCancelMutation(requestId, uid, { reason })
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.warning('ยกเลิกเรียบร้อย')
+        return true
+      },
+    })
   }
 
   async function reApprove(requestId: string, note?: string) {
-    markLocalRequestMutation(requestId)
-    const { error } = await supabase
-      .from('Request')
-      .update({ status_id: 3, approved_by: user?.id, approved_at: new Date().toISOString() })
-      .eq('id', requestId)
-    if (error) { toast.error('เกิดข้อผิดพลาด'); return false }
-    await logAction(requestId, 3, 're_approved', note)
-    await afterRequestMutation(requestId, user?.id)
-    toast.success('อนุมัติสั่งเทใหม่เรียบร้อย')
-    return true
+    return runOrQueueMutation({
+      kind: 'workflow_re_approve',
+      requestId,
+      userId: uid,
+      payload: { note },
+      online: async () => {
+        markLocalRequestMutation(requestId)
+        const r = await runApproveMutation(requestId, uid, { note }, 're_approved')
+        if (!r.ok) {
+          toast.error('เกิดข้อผิดพลาด')
+          return false
+        }
+        await afterRequestMutation(requestId, uid)
+        toast.success('อนุมัติสั่งเทใหม่เรียบร้อย')
+        return true
+      },
+    })
   }
 
   return { inspect, approve, reject, postpone, confirmOrder, complete, cancel, reApprove }

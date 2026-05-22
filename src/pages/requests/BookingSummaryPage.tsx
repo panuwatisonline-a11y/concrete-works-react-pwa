@@ -1,4 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { CalendarDays, ClipboardList, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
@@ -113,9 +114,18 @@ function BookingSummaryMobileCard({
 
 export function BookingSummaryPage() {
   const { profile, role } = useAuthStore()
+  const [searchParams] = useSearchParams()
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
-  const [castingDateIso, setCastingDateIso] = useState(todayIsoLocal)
+  const dateFromUrl = searchParams.get('date')?.trim()
+  const [castingDateIso, setCastingDateIso] = useState(
+    () => (dateFromUrl && /^\d{4}-\d{2}-\d{2}$/.test(dateFromUrl) ? dateFromUrl : todayIsoLocal()),
+  )
+
+  useEffect(() => {
+    if (!dateFromUrl || !/^\d{4}-\d{2}-\d{2}$/.test(dateFromUrl)) return
+    setCastingDateIso(dateFromUrl)
+  }, [dateFromUrl])
   const [supplierFilter, setSupplierFilter] = useState('')
   const [requests, setRequests] = useState<RequestWithRelations[]>([])
   const [loading, setLoading] = useState(true)

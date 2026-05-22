@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { runOrQueueMutation } from '@/lib/offline/actions'
+import { runPatchImageMutation } from '@/lib/requestMutations'
+import { useAuthStore } from '@/stores/authStore'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
@@ -35,6 +37,7 @@ export function UploadBillConcreteDialog({
   overlayClassName,
   dialogContentClassName,
 }: UploadBillConcreteDialogProps) {
+  const { user } = useAuthStore()
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [fileUploading, setFileUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -60,10 +63,23 @@ export function UploadBillConcreteDialog({
     if (!trimmedUrl || saving) return
     setSaving(true)
     try {
-      const { error } = await supabase.from('Request').update({ eslip_url: trimmedUrl }).eq('id', requestId)
-      if (error) throw error
-      toast.success('บันทึก Bill Concrete แล้ว')
-      await notifyRequestListChanged()
+      const ok = await runOrQueueMutation({
+        kind: 'patch_eslip_url',
+        requestId,
+        userId: user?.id ?? '',
+        payload: { url: trimmedUrl },
+        online: async () => {
+          const r = await runPatchImageMutation(requestId, 'eslip_url', trimmedUrl)
+          if (!r.ok) {
+            toast.error(r.message)
+            return false
+          }
+          toast.success('บันทึก Bill Concrete แล้ว')
+          await notifyRequestListChanged()
+          return true
+        },
+      })
+      if (!ok) return
       setReplacing(false)
       onSuccess?.()
     } catch (e) {

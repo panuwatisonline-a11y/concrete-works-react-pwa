@@ -1,5 +1,5 @@
 import type { ElementType } from 'react'
-import { Activity, ClipboardList, Files, PlusCircle, User } from 'lucide-react'
+import { Activity, CalendarDays, ClipboardList, Files, PlusCircle, User } from 'lucide-react'
 import { APP_HOME } from '@/lib/appHome'
 import { canBookConcrete } from '@/lib/permissions'
 
@@ -12,6 +12,7 @@ export type MainNavItem = {
 
 const BASE_MAIN_LINKS: MainNavItem[] = [
   { to: APP_HOME, label: 'สถานะ', icon: Activity, end: true },
+  { to: '/requests?view=calendar', label: 'ปฏิทินจอง', icon: CalendarDays },
   { to: '/requests/booking-summary', label: 'สรุปรายการจอง', icon: ClipboardList },
   { to: '/preview/forms', label: 'ตัวอย่างแบบฟอร์ม', icon: Files },
   { to: '/profile', label: 'โปรไฟล์', icon: User },

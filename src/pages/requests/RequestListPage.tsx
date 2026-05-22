@@ -1,6 +1,19 @@
 ﻿import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
+import { flushOfflineMutationQueue } from '@/lib/offline/flush'
+import {
+  buildListCacheKey,
+  cacheRequestRows,
+  countCachedByStatus,
+  filterCachedRequests,
+  getAllCachedRequests,
+  getListSnapshot,
+  saveListSnapshot,
+} from '@/lib/offline/cache'
+import { isFullyOnline } from '@/stores/connectivityStore'
+import { useConnectivityStore } from '@/stores/connectivityStore'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
+import { REQUEST_LIST_SELECT } from '@/lib/requestQueries'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -46,6 +59,7 @@ import {
 import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
+import { RequestBookingCalendar } from '@/components/requests/RequestBookingCalendar'
 import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
 import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
@@ -557,8 +571,9 @@ export function RequestListPage() {
   const skipReturnRefresh = useRef(true)
   const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
   const [searchParams, setSearchParams] = useSearchParams()
-  /** ค่าเริ่มต้นของแอป = สถานะ (summary) — ถ้าไม่มี ?view= จะถูก normalize เป็น summary */
-  const mobileView = searchParams.get('view') === 'summary' ? 'summary' : 'latest'
+  const viewParam = searchParams.get('view')
+  const mobileView =
+    viewParam === 'summary' ? 'summary' : viewParam === 'calendar' ? 'calendar' : 'latest'
   const scopeMine = searchParams.get('scope') === 'mine'
   const [listLayout, setListLayout] = useState<'grid' | 'list'>(readListLayout)
 
@@ -575,9 +590,8 @@ export function RequestListPage() {
     warmChecklistTemplateCache()
   }, [])
 
-  const viewParam = searchParams.get('view')
   useEffect(() => {
-    if (viewParam === 'summary' || viewParam === 'latest') return
+    if (viewParam === 'summary' || viewParam === 'latest' || viewParam === 'calendar') return
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev)
@@ -587,6 +601,16 @@ export function RequestListPage() {
       { replace: true },
     )
   }, [viewParam, setSearchParams])
+
+  useEffect(() => {
+    const from = searchParams.get('casting_from')
+    const to = searchParams.get('casting_to')
+    if (!from && !to) return
+    setFilter({
+      casting_date_from: from,
+      casting_date_to: to ?? from,
+    })
+  }, [searchParams, setFilter])
 
   const [requests, setRequests] = useState<RequestWithRelations[]>([])
   const [total, setTotal] = useState(0)
@@ -610,41 +634,78 @@ export function RequestListPage() {
     onSearchChange: (v) => setFilter({ search: v }),
   })
 
+  const loadRequestsFromOfflineCache = useCallback(async (): Promise<boolean> => {
+    const cacheKey = buildListCacheKey({
+      scopeMine,
+      userId: user?.id,
+      clientId: profile?.client_id,
+      filterKey,
+      page,
+      search: debouncedSearch,
+    })
+    const snap = await getListSnapshot(cacheKey)
+    if (snap) {
+      setRequests(snap.requests)
+      setTotal(snap.total)
+      useConnectivityStore.getState().setUsingOfflineCache(true)
+      return true
+    }
+    const all = await getAllCachedRequests()
+    const filtered = filterCachedRequests({
+      requests: all,
+      filter,
+      search: debouncedSearch,
+      scopeMine,
+      userId: user?.id,
+      clientId: profile?.client_id,
+      page,
+      pageSize: PAGE_SIZE,
+    })
+    if (all.length === 0) return false
+    setRequests(filtered.requests)
+    setTotal(filtered.total)
+    useConnectivityStore.getState().setUsingOfflineCache(true)
+    return true
+  }, [scopeMine, user?.id, profile?.client_id, filterKey, page, debouncedSearch, filter])
+
   const fetchRequests = useCallback(async (opts?: { background?: boolean }) => {
     if (!opts?.background) setLoading(true)
     try {
       if (!isSupabaseConfigured) {
         setRequests([])
         setTotal(0)
+        useConnectivityStore.getState().setUsingOfflineCache(false)
         return
       }
       if (scopeMine && !user) {
         setRequests([])
         setTotal(0)
+        useConnectivityStore.getState().setUsingOfflineCache(false)
         return
       }
 
-      const searchIds = await collectRequestIdsMatchingSearch(supabase, debouncedSearch)
+      if (!isFullyOnline()) {
+        const ok = await loadRequestsFromOfflineCache()
+        if (!ok) {
+          setRequests([])
+          setTotal(0)
+        }
+        return
+      }
+
+      const searchIds = isFullyOnline()
+        ? await collectRequestIdsMatchingSearch(supabase, debouncedSearch)
+        : null
       if (searchIds !== null && searchIds.length === 0) {
         setRequests([])
         setTotal(0)
+        useConnectivityStore.getState().setUsingOfflineCache(false)
         return
       }
 
       let query = supabase
         .from('Request')
-        .select(`
-        *,
-        status:Status(id, status_name),
-        client:Client(id, client_name),
-        location:Location(id, full_location, location1),
-        concrete_work:"Concrete Works"(id, concrete_work),
-        structure:Structure(id, structure_name),
-        mixcode:"Mixed Code"(id, mixcode, strength, slump, strength_type, supplier),
-        abc_code:"ABC Code"(id, full_abc),
-        wbs_code:"WBS Code"(id, full_wbs),
-        booked_by_profile:profiles!booked_by(fname, lname, employee_id, phone)
-      `, { count: 'exact' })
+        .select(REQUEST_LIST_SELECT, { count: 'exact' })
 
       if (scopeMine && user) query = query.eq('booked_by', user.id)
       if (scopeMine && profile?.client_id != null) {
@@ -664,22 +725,43 @@ export function RequestListPage() {
       const { data, count, error } = await query
       if (error) {
         console.error('Request list:', error.message)
-        setRequests([])
-        setTotal(0)
+        const ok = await loadRequestsFromOfflineCache()
+        if (!ok) {
+          setRequests([])
+          setTotal(0)
+        }
         return
       }
-      setRequests((data ?? []) as RequestWithRelations[])
+      const rows = (data ?? []) as RequestWithRelations[]
+      setRequests(rows)
       setTotal(count ?? 0)
+      useConnectivityStore.getState().setUsingOfflineCache(false)
+      const cacheKey = buildListCacheKey({
+        scopeMine,
+        userId: user?.id,
+        clientId: profile?.client_id,
+        filterKey,
+        page,
+        search: debouncedSearch,
+      })
+      await cacheRequestRows(rows)
+      await saveListSnapshot(cacheKey, rows, count ?? 0)
     } catch (e) {
       console.error('Request list fetch:', e)
-      setRequests([])
-      setTotal(0)
+      const ok = await loadRequestsFromOfflineCache()
+      if (!ok) {
+        setRequests([])
+        setTotal(0)
+      }
     } finally {
       setLoading(false)
     }
-  }, [user, profile?.client_id, filter, debouncedSearch, page, scopeMine])
+  }, [user, profile?.client_id, filter, debouncedSearch, page, scopeMine, filterKey, loadRequestsFromOfflineCache])
 
-  useEffect(() => { void fetchRequests() }, [fetchRequests])
+  useEffect(() => {
+    if (mobileView === 'calendar') return
+    void fetchRequests()
+  }, [fetchRequests, mobileView])
 
   const statusRowsForSummary = useMemo(
     () => [...statuses].sort((a, b) => a.id - b.id),
@@ -693,6 +775,11 @@ export function RequestListPage() {
     }
     if (!opts?.background) setCountsLoading(true)
     try {
+      if (!isFullyOnline()) {
+        const all = await getAllCachedRequests()
+        setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, profile?.client_id))
+        return
+      }
       const map: Record<number, number> = {}
       await Promise.all(
         statusRowsForSummary.map(async (s) => {
@@ -711,7 +798,8 @@ export function RequestListPage() {
       setStatusCounts(map)
     } catch (e) {
       console.error('Status counts:', e)
-      setStatusCounts({})
+      const all = await getAllCachedRequests()
+      setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, profile?.client_id))
     } finally {
       setCountsLoading(false)
     }
@@ -722,13 +810,16 @@ export function RequestListPage() {
   }, [loadStatusCounts])
 
   const refreshPage = useCallback(async () => {
+    if (isFullyOnline()) await flushOfflineMutationQueue()
     await Promise.all([
       fetchRequests({ background: true }),
       loadStatusCounts({ background: true }),
     ])
   }, [fetchRequests, loadStatusCounts])
 
-  usePullToRefreshRegistration(refreshPage)
+  usePullToRefreshRegistration(
+    mobileView === 'calendar' ? async () => {} : refreshPage,
+  )
 
   useEffect(() => {
     const onInvalidate = () => {
@@ -773,7 +864,11 @@ export function RequestListPage() {
   const feedSections = useMemo(() => buildGroupedRequestSections(requests), [requests])
 
   const listContentReady =
-    mobileView === 'summary' ? !countsLoading && masterLoaded : !loading
+    mobileView === 'summary'
+      ? !countsLoading && masterLoaded
+      : mobileView === 'calendar'
+        ? true
+        : !loading
   useRequestListScrollRestore(listContentReady)
 
   const listTitle = scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'
@@ -803,13 +898,21 @@ export function RequestListPage() {
   return (
     <div className={cn(rq.page, 'flex flex-col')}>
       <RequestListPageHeader
-        title={mobileView === 'summary' ? 'สถานะการจอง' : listTitle}
+        title={
+          mobileView === 'summary'
+            ? 'สถานะการจอง'
+            : mobileView === 'calendar'
+              ? 'ปฏิทินจอง'
+              : listTitle
+        }
         subtitle={
           mobileView === 'summary'
             ? countsLoading
               ? 'กำลังโหลด…'
               : `รายการทั้งหมด ${grandTotal} รายการ`
-            : listSubtitle
+            : mobileView === 'calendar'
+              ? 'มุมมองรายเดือนตามวันเท — คลิกวันเพื่อดูรายการ'
+              : listSubtitle
         }
         showCreate={canBookConcrete(role)}
       />
@@ -821,7 +924,15 @@ export function RequestListPage() {
         />
       </div>
 
-      {mobileView === 'summary' ? (
+      {mobileView === 'calendar' ? (
+        <div className="mt-6">
+          <RequestBookingCalendar
+            scopeMine={scopeMine}
+            userId={user?.id}
+            clientId={profile?.client_id}
+          />
+        </div>
+      ) : mobileView === 'summary' ? (
         <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3">
           {!masterLoaded ? (
             <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>

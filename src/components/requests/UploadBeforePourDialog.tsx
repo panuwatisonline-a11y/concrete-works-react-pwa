@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { runOrQueueMutation } from '@/lib/offline/actions'
+import { runPatchImageMutation } from '@/lib/requestMutations'
 import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
-import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
@@ -32,6 +34,7 @@ export function UploadBeforePourDialog({
   overlayClassName,
   dialogContentClassName,
 }: UploadBeforePourDialogProps) {
+  const { user } = useAuthStore()
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [fileUploading, setFileUploading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -47,10 +50,23 @@ export function UploadBeforePourDialog({
     if (!trimmed || saving) return
     setSaving(true)
     try {
-      const { error } = await supabase.from('Request').update({ before_image: trimmed }).eq('id', requestId)
-      if (error) throw error
-      toast.success('บันทึกรูปก่อนเทแล้ว')
-      await notifyRequestListChanged()
+      const ok = await runOrQueueMutation({
+        kind: 'patch_before_image',
+        requestId,
+        userId: user?.id ?? '',
+        payload: { url: trimmed },
+        online: async () => {
+          const r = await runPatchImageMutation(requestId, 'before_image', trimmed)
+          if (!r.ok) {
+            toast.error(r.message)
+            return false
+          }
+          toast.success('บันทึกรูปก่อนเทแล้ว')
+          await notifyRequestListChanged()
+          return true
+        },
+      })
+      if (!ok) return
       onOpenChange(false)
       onSuccess?.()
     } catch (e) {
