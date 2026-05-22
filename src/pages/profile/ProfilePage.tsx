@@ -124,7 +124,7 @@ export function ProfilePage() {
         }
       />
 
-      <Card className={rq.card}>
+      <Card className={rq.cardForm}>
         <div className={cn(rq.cardHeader, 'rounded-t-2xl')}>
           <div className="flex items-center gap-5">
             <div className="shrink-0 rounded-full bg-gradient-to-tr from-blue-400 via-blue-500 to-indigo-600 p-[3px] shadow-sm">

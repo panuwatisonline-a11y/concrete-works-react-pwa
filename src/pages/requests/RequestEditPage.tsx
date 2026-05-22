@@ -163,7 +163,7 @@ export function RequestEditPage() {
     <div className={rq.page}>
       <RequestScreenHeader title="แก้ไขคำขอ" subtitle="แก้ไขได้เมื่อสถานะรอตรวจสอบเท่านั้น" onBack={() => navigate(-1)} />
 
-      <Card className={rq.card}>
+      <Card className={rq.cardForm}>
         <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
           <CardTitle className={rq.cardTitle}>รายละเอียดการจอง</CardTitle>
         </CardHeader>

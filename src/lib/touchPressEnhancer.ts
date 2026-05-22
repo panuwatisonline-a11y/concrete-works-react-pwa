@@ -6,7 +6,6 @@ const PRESSABLE_SELECTOR = [
   '[role="button"]:not([aria-disabled="true"])',
   '.pour-interactive',
   '.pour-card-lift',
-  'label[for]',
 ].join(', ')
 
 const IGNORE_SELECTOR = 'input, textarea, select, [data-pour-no-press], [contenteditable="true"]'

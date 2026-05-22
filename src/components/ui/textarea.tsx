@@ -8,9 +8,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttribu
     return (
       <textarea
         className={cn(
-          'flex min-h-[80px] min-w-0 max-w-full w-full rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2.5 text-sm font-medium text-[color:var(--pour-ink-0)] placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:bg-[var(--glass-bg-strong)] focus-visible:shadow-[0_0_0_3px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50',
-          '[&:not(:placeholder-shown)]:border-[color:var(--pour-accent)] [&:not(:placeholder-shown)]:bg-[var(--glass-bg-strong)]',
-          filledFromValue && 'border-[color:var(--pour-accent)] bg-[var(--glass-bg-strong)]',
+          'pour-form-control flex min-h-[80px] min-w-0 max-w-full w-full rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2.5 text-sm font-medium text-[color:var(--pour-ink-0)] placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50',
+          '[&:not(:placeholder-shown)]:border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
+          filledFromValue &&
+            'border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
           className,
         )}
         ref={ref}

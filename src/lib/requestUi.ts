@@ -53,7 +53,7 @@ export const layout = {
   formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
   /** ฟอร์มใน modal — คอลัมน์คู่เมื่อโหมด desktop (แนวนอน + กว้างพอ) */
   formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2 pour-desktop:gap-4',
-  formField: 'min-w-0 space-y-1.5',
+  formField: 'pour-form-field min-w-0 space-y-1.5',
   statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-wide:grid-cols-3',
   statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4',
   statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-5',
@@ -82,7 +82,7 @@ export const glass = {
   borderSubtle: 'border-[color:var(--glass-border-subtle)]',
   borderEdge: 'border-[color:var(--glass-edge)]',
   input:
-    'border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:bg-[var(--glass-bg-strong)] focus-visible:shadow-[0_0_0_3px_var(--pour-accent-ring)]',
+    'pour-form-control border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:shadow-[0_0_0_2px_var(--pour-accent-ring)]',
 } as const
 
 export const theme = {
@@ -236,7 +236,10 @@ export const rq = {
   page: cn('mx-auto w-full min-w-0 max-w-none', space.page, ink.base),
   pageNarrow: cn('mx-auto w-full min-w-0 max-w-none', space.pageNarrow, ink.base),
   card: cn('overflow-hidden rounded-2xl', glass.surface, anim.cardLift, ink.base),
+  /** การ์ดที่มีฟอร์ม — ไม่ยก/หดตอนโฟกัสหรือแตะ */
+  cardForm: cn('overflow-hidden rounded-2xl', glass.surface, ink.base),
   cardMuted: cn('overflow-hidden rounded-2xl', glass.surfaceMuted, ink.base),
+  cardMutedForm: cn('overflow-hidden rounded-2xl', glass.surfaceMuted, ink.base),
   cardHeader: cn(
     'border-b border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]',
     space.cardPadHeader,

@@ -148,7 +148,7 @@ export function CompleteProfilePage() {
   return (
     <div className={app.shellScroll}>
       <div className={app.shellInner}>
-        <Card className="w-full max-w-md">
+        <Card className={cn('w-full max-w-md', rq.cardForm)}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-1 text-center')}>
             <CardTitle className="text-2xl font-extrabold tracking-tight text-[color:var(--pour-ink-0)]">Concrete Works</CardTitle>
             <CardDescription className="text-sm text-pour-muted">

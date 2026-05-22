@@ -571,7 +571,7 @@ export function RequestNewPage() {
           />
         </div>
 
-        <Card className={rq.cardMuted}>
+        <Card className={rq.cardMutedForm}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
             <CardTitle className={rq.cardTitle}>สรุปข้อมูล</CardTitle>
           </CardHeader>
@@ -611,9 +611,9 @@ export function RequestNewPage() {
 
       <RequestNewStepBar step={step} />
 
-      <Card className={rq.card}>
+      <Card className={rq.cardForm}>
         <CardContent className={rq.cardContent}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} className="pour-form-fields">
             {stepFields(step)}
 
             <div className="mt-8 flex justify-between gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-5">

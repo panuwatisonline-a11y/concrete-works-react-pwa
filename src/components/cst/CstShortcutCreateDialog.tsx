@@ -366,7 +366,7 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
         {errors.volume_confirm ? <p className="text-xs text-rose-600">{errors.volume_confirm.message}</p> : null}
       </div>
 
-      <Card className={rq.cardMuted}>
+      <Card className={rq.cardMutedForm}>
         <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
           <CardTitle className={rq.cardTitle}>สรุปข้อมูล</CardTitle>
         </CardHeader>

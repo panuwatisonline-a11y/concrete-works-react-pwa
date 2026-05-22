@@ -17,12 +17,12 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] focus:outline-none focus:border-[color:var(--pour-accent)] focus:bg-[var(--glass-bg-strong)] focus:shadow-[0_0_0_3px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'pour-form-control flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-sm font-medium text-[color:var(--pour-ink-0)] focus:outline-none focus:border-[color:var(--pour-accent)] focus:shadow-[0_0_0_2px_var(--pour-accent-ring)] disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       /* ยังไม่เลือก */
-      '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:bg-[var(--glass-bg)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
+      '[&[data-placeholder]]:border-[color:var(--glass-border-subtle)] [&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
       '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[color:var(--pour-ink-3)]',
-      /* เลือกแล้ว — พื้นขาว + ขอบเขียวอ่อน */
-      '[&:not([data-placeholder])]:border-[color:var(--pour-accent)] [&:not([data-placeholder])]:bg-[var(--glass-bg-strong)]',
+      /* เลือกแล้ว — ขอบเน้นเบา */
+      '[&:not([data-placeholder])]:border-[color:color-mix(in_srgb,var(--pour-accent)_55%,var(--glass-border-subtle))]',
       className
     )}
     {...props}

@@ -441,16 +441,26 @@
   .pour-glass-strong,
   .pour-glass-muted {
     transition:
-      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-      border-color 0.22s ease,
-      background-color 0.22s ease;
+      box-shadow 0.2s ease,
+      border-color 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  /** ช่องกรอก — เปลี่ยนเฉพาะขอบ/วงแหวนโฟกัส ไม่กระตุกพื้นหลัง */
+  .pour-form-control {
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .pour-form-field label,
+  .pour-form-fields label {
+    transition: color 0.15s ease;
   }
 
   a[href],
   button,
   [role='button'],
-  label[for],
   .pour-interactive,
   .pour-card-lift {
     touch-action: manipulation;
@@ -469,7 +479,7 @@
   @media not ((orientation: landscape) and (min-width: 768px)) {
     .pour-interactive:active,
     .pour-interactive.pour-pressed {
-      transform: scale(0.96) translateZ(0);
+      transform: scale(0.98) translateZ(0);
       opacity: 0.88;
       filter: brightness(0.9);
       transition-duration: 0.05s;
@@ -504,9 +514,8 @@
 
     a.pour-pressed,
     button.pour-pressed,
-    [role='button'].pour-pressed,
-    label.pour-pressed {
-      transform: scale(0.96) translateZ(0);
+    [role='button'].pour-pressed {
+      transform: scale(0.98) translateZ(0);
       opacity: 0.88;
       filter: brightness(0.9);
       transition-duration: 0.05s;
@@ -554,7 +563,6 @@
     a.pour-pressed,
     button.pour-pressed,
     [role='button'].pour-pressed,
-    label.pour-pressed,
     .pour-nav-item.pour-pressed,
     .pour-nav-item:active,
     .pour-nav-pill.pour-pressed,
@@ -881,8 +889,7 @@
   .pour-interactive.pour-pressed,
   a.pour-pressed,
   button.pour-pressed,
-  [role='button'].pour-pressed,
-  label.pour-pressed {
+  [role='button'].pour-pressed {
     transform: none;
     opacity: 1;
     filter: none;
