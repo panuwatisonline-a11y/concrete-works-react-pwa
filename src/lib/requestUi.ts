@@ -137,10 +137,10 @@ export const theme = {
   /** เนื้อหารายการใน main */
   mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
   /**
-   * กรอบเนื้อหาใน main — inset 10% ซ้าย/ขวาจาก container (เนื้อหา 80%, ลด 20% จากความกว้างเต็ม)
-   * ใช้ % ของคอลัมน์ main ทุกขนาดจอ ขอบซ้าย–ขวาเท่ากัน
+   * กรอบเนื้อหาใน main — % ของคอลัมน์ main, ขอบซ้าย–ขวาเท่ากัน
+   * มือถือ: 98% | desktop (pour-desktop): 80% (inset 10% ต่อข้าง)
    */
-  contentFrame: 'mx-auto w-[80%] min-w-0 max-w-full',
+  contentFrame: 'mx-auto w-[98%] min-w-0 max-w-full pour-desktop:w-[80%]',
 } as const
 
 /** กรอบเนื้อหาใน AppLayout — เท่าทุกหน้า */
