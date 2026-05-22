@@ -466,20 +466,13 @@
       box-shadow 0.2s ease;
   }
 
-  .pour-interactive:active,
-  .pour-interactive.pour-pressed {
-    transform: scale(0.96) translateZ(0);
-    opacity: 0.88;
-    filter: brightness(0.9);
-    transition-duration: 0.05s;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
+  @media not ((orientation: landscape) and (min-width: 768px)) {
     .pour-interactive:active,
     .pour-interactive.pour-pressed {
-      transform: scale(0.98) translateZ(0);
-      opacity: 0.95;
-      filter: brightness(0.96);
+      transform: scale(0.96) translateZ(0);
+      opacity: 0.88;
+      filter: brightness(0.9);
+      transition-duration: 0.05s;
     }
   }
 
@@ -499,32 +492,25 @@
     box-shadow: var(--glass-shadow);
   }
 
-  .pour-card-lift:active,
-  .pour-card-lift.pour-pressed {
-    transform: scale(0.97) translateZ(0);
-    opacity: 0.9;
-    filter: brightness(0.9);
-    box-shadow: var(--glass-shadow-sm);
-    transition-duration: 0.05s;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
+  @media not ((orientation: landscape) and (min-width: 768px)) {
     .pour-card-lift:active,
     .pour-card-lift.pour-pressed {
-      transform: translateY(0) scale(0.99) translateZ(0);
-      opacity: 0.96;
-      filter: brightness(0.96);
+      transform: scale(0.97) translateZ(0);
+      opacity: 0.9;
+      filter: brightness(0.9);
+      box-shadow: var(--glass-shadow-sm);
+      transition-duration: 0.05s;
     }
-  }
 
-  a.pour-pressed,
-  button.pour-pressed,
-  [role='button'].pour-pressed,
-  label.pour-pressed {
-    transform: scale(0.96) translateZ(0);
-    opacity: 0.88;
-    filter: brightness(0.9);
-    transition-duration: 0.05s;
+    a.pour-pressed,
+    button.pour-pressed,
+    [role='button'].pour-pressed,
+    label.pour-pressed {
+      transform: scale(0.96) translateZ(0);
+      opacity: 0.88;
+      filter: brightness(0.9);
+      transition-duration: 0.05s;
+    }
   }
 
   /* เมนู / drawer / sidebar — เน้นพื้นหลังตอนกด (ไม่หดทั้งแถบ) */
@@ -536,25 +522,60 @@
       opacity 0.1s ease;
   }
 
-  .pour-nav-item.pour-pressed,
-  .pour-nav-item:active {
-    transform: none;
-    opacity: 1;
-    filter: none;
-    background-color: color-mix(
-      in srgb,
-      var(--pour-accent-muted) 78%,
-      var(--pour-nav-hover-bg)
-    ) !important;
-    transition-duration: 0.05s;
+  @media not ((orientation: landscape) and (min-width: 768px)) {
+    .pour-nav-item.pour-pressed,
+    .pour-nav-item:active {
+      transform: none;
+      opacity: 1;
+      filter: none;
+      background-color: color-mix(
+        in srgb,
+        var(--pour-accent-muted) 78%,
+        var(--pour-nav-hover-bg)
+      ) !important;
+      transition-duration: 0.05s;
+    }
+
+    .pour-nav-pill.pour-pressed,
+    .pour-nav-pill:active {
+      transform: scale(0.94) translateZ(0);
+      opacity: 0.92;
+      filter: brightness(0.92);
+      transition-duration: 0.05s;
+    }
   }
 
-  .pour-nav-pill.pour-pressed,
-  .pour-nav-pill:active {
-    transform: scale(0.94) translateZ(0);
-    opacity: 0.92;
-    filter: brightness(0.92);
-    transition-duration: 0.05s;
+  /* PC (pour-desktop) — ไม่ใช้ mobile press / stack side effects */
+  @media ((orientation: landscape) and (min-width: 768px)) {
+    .pour-interactive:active,
+    .pour-interactive.pour-pressed,
+    .pour-card-lift:active,
+    .pour-card-lift.pour-pressed,
+    a.pour-pressed,
+    button.pour-pressed,
+    [role='button'].pour-pressed,
+    label.pour-pressed,
+    .pour-nav-item.pour-pressed,
+    .pour-nav-item:active,
+    .pour-nav-pill.pour-pressed,
+    .pour-nav-pill:active {
+      transform: none;
+      opacity: 1;
+      filter: none;
+    }
+
+    .pour-nav-item.pour-pressed,
+    .pour-nav-item:active {
+      background-color: inherit !important;
+    }
+
+    .pour-page-transition-active.pour-page-transition-stack,
+    .pour-page-push-in,
+    .pour-page-push-out,
+    .pour-page-pop-in,
+    .pour-page-pop-out {
+      overflow: visible;
+    }
   }
 
   .pour-shell-live {
