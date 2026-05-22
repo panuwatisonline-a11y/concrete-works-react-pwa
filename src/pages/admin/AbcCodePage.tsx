@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useMemo } from 'react'
+import { ExternalLink, FileText } from 'lucide-react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { app, rq } from '@/lib/requestUi'
+import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
@@ -19,6 +20,10 @@ import type { AbcCode, AbcCodeSegment } from '@/types/app.types'
 type SegmentKey = 'ABC Code1' | 'ABC Code2' | 'ABC Code3' | 'ABC Code4'
 
 const SEGMENT_KEYS: SegmentKey[] = ['ABC Code1', 'ABC Code2', 'ABC Code3', 'ABC Code4']
+
+/** คู่มือ ABC — ABC 13-05-2568 (Google Drive) */
+const ABC_GUIDE_URL =
+  'https://drive.google.com/file/d/1gns85KAtCtp0p5TZxN7lq1JU6aMWcWsw/view'
 
 function normSegmentCode(code: string | null | undefined) {
   return String(code ?? '').trim().toLowerCase()
@@ -146,6 +151,33 @@ export function AbcCodePage() {
   return (
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>ABC Code</h1>
+
+      <a
+        href={ABC_GUIDE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          'pour-interactive pour-nav-item flex w-full items-center gap-3 rounded-xl border px-4 py-3 no-underline',
+          glass.borderSubtle,
+          glass.surfaceMuted,
+          'hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)]',
+        )}
+      >
+        <FileText
+          className={cn(icon.md, 'text-[color:var(--pour-accent)]')}
+          strokeWidth={ICON_STROKE}
+          aria-hidden
+        />
+        <span className="min-w-0 flex-1 text-left">
+          <span className={cn(type.bodyStrong, 'block text-[color:var(--pour-ink-0)]')}>
+            คู่มือ ABC Code
+          </span>
+          <span className={cn(type.caption, 'mt-0.5 block text-pour-muted')}>
+            ABC 13-05-2568 (PDF)
+          </span>
+        </span>
+        <ExternalLink className={cn(icon.sm, 'text-pour-muted')} strokeWidth={ICON_STROKE} aria-hidden />
+      </a>
 
       <PourUnderlineTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel="มุมมอง ABC Code" />
 

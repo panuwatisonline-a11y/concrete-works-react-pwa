@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useMemo } from 'react'
+import { ExternalLink, FileText } from 'lucide-react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
@@ -9,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { app, rq } from '@/lib/requestUi'
+import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
@@ -19,6 +20,10 @@ import type { WbsCode, WbsSegment } from '@/types/app.types'
 type WbsKey = 'WBS1' | 'WBS2' | 'WBS3' | 'WBS4' | 'WBS5' | 'WBS6' | 'WBS7'
 
 const WBS_KEYS: WbsKey[] = ['WBS1', 'WBS2', 'WBS3', 'WBS4', 'WBS5', 'WBS6', 'WBS7']
+
+/** คู่มือ WBS — ประกาศ ซท.-ปก. 17-2568 (Google Drive) */
+const WBS_GUIDE_URL =
+  'https://drive.google.com/file/d/1wCFucY5icgod4bUH0w77m_N75lHGyA7u/view'
 
 function normSegmentCode(code: string | null | undefined) {
   return String(code ?? '').trim().toLowerCase()
@@ -145,6 +150,33 @@ export function WbsCodePage() {
   return (
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>WBS Code</h1>
+
+      <a
+        href={WBS_GUIDE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          'pour-interactive pour-nav-item flex w-full items-center gap-3 rounded-xl border px-4 py-3 no-underline',
+          glass.borderSubtle,
+          glass.surfaceMuted,
+          'hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)]',
+        )}
+      >
+        <FileText
+          className={cn(icon.md, 'text-[color:var(--pour-accent)]')}
+          strokeWidth={ICON_STROKE}
+          aria-hidden
+        />
+        <span className="min-w-0 flex-1 text-left">
+          <span className={cn(type.bodyStrong, 'block text-[color:var(--pour-ink-0)]')}>
+            คู่มือ WBS Code
+          </span>
+          <span className={cn(type.caption, 'mt-0.5 block text-pour-muted')}>
+            ประกาศ ซท.-ปก. 17-2568 ระเบียบปฏิบัติแนวทางในการใช้งาน WBS (PDF)
+          </span>
+        </span>
+        <ExternalLink className={cn(icon.sm, 'text-pour-muted')} strokeWidth={ICON_STROKE} aria-hidden />
+      </a>
 
       <PourUnderlineTabs
         tabs={[
