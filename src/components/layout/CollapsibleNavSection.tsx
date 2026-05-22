@@ -32,7 +32,7 @@ export function CollapsibleNavSection({
         onClick={() => setOpen((v) => !v)}
         className={cn(
           theme.navSectionLabel,
-          'mb-0 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-[color:var(--pour-accent-muted)]/40',
+          'pour-interactive pour-nav-item mb-0 flex w-full items-center justify-between gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-[color:var(--pour-accent-muted)]/40',
           headerClassName,
         )}
       >

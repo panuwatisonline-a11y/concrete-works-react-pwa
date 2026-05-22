@@ -40,7 +40,7 @@ function MobilePrimaryNav() {
   const isAdminArea = location.pathname.startsWith('/admin')
   const pill = (active: boolean) =>
     cn(
-      'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2',
+      'pour-interactive pour-nav-item pour-nav-pill inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2',
       theme.navPillMobile,
       active ? theme.navPillActive : theme.navPillInactive,
     )
@@ -142,7 +142,7 @@ export function AppHeader() {
           <button
             type="button"
             className={cn(
-              'pour-interactive inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl border border-transparent text-[color:var(--pour-ink-2)] hover:border-[color:var(--glass-border-subtle)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]',
+              'pour-interactive pour-nav-item inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-start rounded-xl border border-transparent text-[color:var(--pour-ink-2)] hover:border-[color:var(--glass-border-subtle)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]',
             )}
             onClick={() => setDrawerOpen(true)}
             aria-label="เปิดเมนู"
@@ -151,7 +151,7 @@ export function AppHeader() {
           </button>
           <Link
             to={APP_HOME}
-            className="min-w-0 justify-self-start px-0.5 text-left no-underline"
+            className="pour-interactive pour-nav-item min-w-0 justify-self-start rounded-lg px-0.5 py-1 text-left no-underline"
           >
             <span className={cn('block', type.bodyStrong, theme.brandWordmark)}>Concrete Works</span>
             <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
@@ -183,7 +183,7 @@ export function AppHeader() {
               <Link
                 to={APP_HOME}
                 onClick={() => setDrawerOpen(false)}
-                className="flex min-w-0 flex-1 items-center gap-3 no-underline"
+                className="pour-interactive pour-nav-item flex min-w-0 flex-1 items-center gap-3 rounded-lg no-underline"
                 aria-label="Concrete Works — ไปหน้าสถานะหลัก"
               >
                 <span className={cn(theme.sidebarBrandLogoWrap, 'h-10 w-10')} aria-hidden>
@@ -196,7 +196,7 @@ export function AppHeader() {
               </Link>
               <button
                 type="button"
-                className="shrink-0 rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
+                className="pour-interactive pour-nav-item shrink-0 rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
                 onClick={() => setDrawerOpen(false)}
                 aria-label="ปิดเมนู"
               >

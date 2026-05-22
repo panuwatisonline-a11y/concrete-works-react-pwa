@@ -8,6 +8,7 @@ import { useRequestPushOnRealtime } from '@/hooks/useRequestPushOnRealtime'
 import { useAuthInit } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/authStore'
 import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
+import { TouchPressEnhancer } from '@/components/motion/TouchPressEnhancer'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/pages/auth/LoginPage'
 import { CompleteProfilePage } from '@/pages/auth/CompleteProfilePage'
@@ -110,6 +111,7 @@ function AppInner() {
 export default function App() {
   return (
     <BrowserRouter>
+      <TouchPressEnhancer />
       <AppInner />
       <Toaster position="top-center" />
     </BrowserRouter>

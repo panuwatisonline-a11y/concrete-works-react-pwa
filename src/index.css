@@ -447,17 +447,51 @@
       background-color 0.22s ease;
   }
 
+  a[href],
+  button,
+  [role='button'],
+  label[for],
+  .pour-interactive,
+  .pour-card-lift {
+    touch-action: manipulation;
+  }
+
   .pour-interactive {
     transition:
-      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.2s ease,
+      transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.1s ease,
+      filter 0.1s ease,
       background-color 0.2s ease,
       border-color 0.2s ease,
       box-shadow 0.2s ease;
   }
 
+  .pour-interactive:active,
+  .pour-interactive.pour-pressed {
+    transform: scale(0.96) translateZ(0);
+    opacity: 0.88;
+    filter: brightness(0.9);
+    transition-duration: 0.05s;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pour-interactive:active,
+    .pour-interactive.pour-pressed {
+      transform: scale(0.98) translateZ(0);
+      opacity: 0.95;
+      filter: brightness(0.96);
+    }
+  }
+
   .pour-card-lift {
     will-change: transform;
+    transition:
+      transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.1s ease,
+      filter 0.1s ease,
+      box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      border-color 0.22s ease,
+      background-color 0.22s ease;
   }
 
   .pour-card-lift:hover {
@@ -465,9 +499,62 @@
     box-shadow: var(--glass-shadow);
   }
 
-  .pour-card-lift:active {
-    transform: translateY(0);
-    transition-duration: 0.12s;
+  .pour-card-lift:active,
+  .pour-card-lift.pour-pressed {
+    transform: scale(0.97) translateZ(0);
+    opacity: 0.9;
+    filter: brightness(0.9);
+    box-shadow: var(--glass-shadow-sm);
+    transition-duration: 0.05s;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .pour-card-lift:active,
+    .pour-card-lift.pour-pressed {
+      transform: translateY(0) scale(0.99) translateZ(0);
+      opacity: 0.96;
+      filter: brightness(0.96);
+    }
+  }
+
+  a.pour-pressed,
+  button.pour-pressed,
+  [role='button'].pour-pressed,
+  label.pour-pressed {
+    transform: scale(0.96) translateZ(0);
+    opacity: 0.88;
+    filter: brightness(0.9);
+    transition-duration: 0.05s;
+  }
+
+  /* เมนู / drawer / sidebar — เน้นพื้นหลังตอนกด (ไม่หดทั้งแถบ) */
+  .pour-nav-item {
+    transition:
+      background-color 0.12s ease,
+      color 0.12s ease,
+      transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.1s ease;
+  }
+
+  .pour-nav-item.pour-pressed,
+  .pour-nav-item:active {
+    transform: none;
+    opacity: 1;
+    filter: none;
+    background-color: color-mix(
+      in srgb,
+      var(--pour-accent-muted) 78%,
+      var(--pour-nav-hover-bg)
+    ) !important;
+    transition-duration: 0.05s;
+  }
+
+  .pour-nav-pill.pour-pressed,
+  .pour-nav-pill:active {
+    transform: scale(0.94) translateZ(0);
+    opacity: 0.92;
+    filter: brightness(0.92);
+    transition-duration: 0.05s;
   }
 
   .pour-shell-live {
@@ -494,7 +581,63 @@
     z-index: 1;
   }
 
-  @keyframes pour-page-enter {
+  /* —— Page transitions: mobile stack (push/pop), desktop fade —— */
+  @keyframes pour-page-push-in {
+    from {
+      opacity: 0.92;
+      transform: translate3d(100%, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes pour-page-push-out {
+    from {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      opacity: 0.9;
+      transform: translate3d(-18%, 0, 0);
+    }
+  }
+
+  @keyframes pour-page-pop-in {
+    from {
+      opacity: 0.9;
+      transform: translate3d(-18%, 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes pour-page-pop-out {
+    from {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      opacity: 0.92;
+      transform: translate3d(100%, 0, 0);
+    }
+  }
+
+  @keyframes pour-page-fade-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @keyframes pour-page-fade-in {
     from {
       opacity: 0;
       transform: translateY(10px);
@@ -536,16 +679,88 @@
     }
   }
 
+  .pour-page-stage {
+    position: relative;
+    min-width: 0;
+  }
+
+  .pour-page-transition-active.pour-page-transition-stack {
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .pour-page-transition-active.pour-page-transition-stack .pour-page-stack-exit {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    contain: layout style paint;
+  }
+
+  .pour-page-transition-stack .pour-page-stack-exit,
+  .pour-page-transition-stack .pour-page-stack-enter {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .pour-page-stack-surface {
+    background: var(--pour-bg);
+    min-height: 100%;
+  }
+
+  .pour-page-push-in.pour-page-stack-enter {
+    box-shadow: -6px 0 28px rgba(0, 0, 0, 0.18);
+  }
+
+  html.light .pour-page-push-in.pour-page-stack-enter {
+    box-shadow: -4px 0 20px rgba(15, 23, 42, 0.08);
+  }
+
+  .pour-page-push-in {
+    animation: pour-page-push-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .pour-page-push-out {
+    animation: pour-page-push-out 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .pour-page-pop-in {
+    animation: pour-page-pop-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .pour-page-pop-out {
+    animation: pour-page-pop-out 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .pour-page-fade-out {
+    animation: pour-page-fade-out 0.22s cubic-bezier(0.4, 0, 0.72, 0) forwards;
+  }
+
+  .pour-page-fade-in {
+    animation: pour-page-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
   .pour-page-enter {
-    animation: pour-page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: pour-page-fade-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .pour-page-push-in .pour-stagger-item,
+  .pour-page-pop-in .pour-stagger-item,
+  .pour-page-push-out .pour-stagger-item,
+  .pour-page-pop-out .pour-stagger-item {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
   }
 
   .pour-stagger-item {
-    animation: pour-stagger-item 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: pour-stagger-item 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .pour-fade-in {
-    animation: pour-fade-in 0.35s ease-out both;
+    animation: pour-fade-in 0.28s ease-out both;
   }
 
   /* การ์ดสถานะ — เส้นขอบบางเส้นเดียว กระพริบเบา (ไม่ซ้อนกับ border pour-glass) */
@@ -615,7 +830,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pour-page-push-in,
+  .pour-page-push-out,
+  .pour-page-pop-in,
+  .pour-page-pop-out,
+  .pour-page-fade-in,
+  .pour-page-fade-out,
   .pour-page-enter,
+  .pour-page-exit,
   .pour-stagger-item,
   .pour-fade-in {
     animation: none !important;
@@ -626,8 +848,28 @@
     opacity: 0.4;
   }
 
-  .pour-card-lift:hover {
+  .pour-card-lift:hover,
+  .pour-card-lift:active,
+  .pour-card-lift.pour-pressed {
     transform: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .pour-interactive:active,
+  .pour-interactive.pour-pressed,
+  a.pour-pressed,
+  button.pour-pressed,
+  [role='button'].pour-pressed,
+  label.pour-pressed {
+    transform: none;
+    opacity: 1;
+    filter: none;
+  }
+
+  .pour-nav-pill:active,
+  .pour-nav-pill.pour-pressed {
+    transform: scale(0.98);
   }
 
   .pour-status-border-pulse::after {

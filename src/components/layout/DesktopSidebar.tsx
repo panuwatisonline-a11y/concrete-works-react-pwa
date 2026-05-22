@@ -71,7 +71,7 @@ function expandedNavClass(active: boolean) {
 
 function collapsedNavClass(active: boolean) {
   return cn(
-    'flex w-full min-h-9 items-center justify-start rounded-lg py-1.5 pl-1.5 pr-1 text-left transition-colors duration-200',
+    'pour-interactive pour-nav-item flex w-full min-h-9 items-center justify-start rounded-lg py-1.5 pl-1.5 pr-1 text-left transition-colors duration-200',
     type.navCompact,
     active
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'

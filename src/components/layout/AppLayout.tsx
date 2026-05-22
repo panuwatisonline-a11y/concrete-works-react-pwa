@@ -7,6 +7,7 @@ import { DesktopTopBar } from './DesktopTopBar'
 import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog'
 import { useMasterDataInit } from '@/hooks/useMasterData'
 import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
+import { useMainScrollRouteSync } from '@/hooks/useMainScrollRouteSync'
 import { getContentMaxClass, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -16,6 +17,7 @@ export function AppLayout() {
 
   useMasterDataInit()
   usePullToRefreshHost()
+  useMainScrollRouteSync()
 
   return (
     <div

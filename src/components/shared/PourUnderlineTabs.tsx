@@ -32,7 +32,7 @@ export function PourUnderlineTabs<T extends string>({
               aria-selected={isActive}
               onClick={() => onChange(tab.id)}
               className={cn(
-                'pour-interactive rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'pour-interactive pour-nav-item rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
                   : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',

@@ -51,7 +51,7 @@ export function RequestListTabs({
                 if (tab.id !== 'summary') resetFilter()
               }}
               className={cn(
-                'pour-interactive rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'pour-interactive pour-nav-item rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
                   : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
@@ -75,7 +75,7 @@ export function RequestListTabs({
             title="มุมมองตาราง"
             aria-label="มุมมองตาราง"
             className={cn(
-              'pour-interactive flex h-8 w-8 items-center justify-center rounded-md',
+              'pour-interactive pour-nav-item flex h-8 w-8 items-center justify-center rounded-md',
               layoutMode === 'grid'
                 ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
                 : 'text-[color:var(--pour-ink-3)] hover:text-[color:var(--pour-ink-0)]',
@@ -89,7 +89,7 @@ export function RequestListTabs({
             title="มุมมองรายการ"
             aria-label="มุมมองรายการ"
             className={cn(
-              'pour-interactive flex h-8 w-8 items-center justify-center rounded-md',
+              'pour-interactive pour-nav-item flex h-8 w-8 items-center justify-center rounded-md',
               layoutMode === 'list'
                 ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
                 : 'text-[color:var(--pour-ink-3)] hover:text-[color:var(--pour-ink-0)]',

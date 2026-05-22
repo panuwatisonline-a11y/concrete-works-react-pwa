@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { usePullRefreshStore } from '@/stores/pullRefreshStore'
+import { registerMainScrollEl } from '@/stores/mainScrollStore'
 import {
   isPullRefreshEnabled,
   isScrollAtTop,
@@ -51,6 +52,11 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
   pullRef.current = pull
 
   useEffect(() => subscribePullRefreshEnabled(setPullEnabled), [])
+
+  useEffect(() => {
+    registerMainScrollEl(scrollRef.current)
+    return () => registerMainScrollEl(null)
+  }, [])
 
   const resetPull = useCallback(() => {
     touchRef.current = { active: false, startY: 0, scrollRoot: null }

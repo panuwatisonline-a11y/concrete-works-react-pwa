@@ -6,6 +6,9 @@ import { useFilterStore } from '@/stores/filterStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
+import { useRequestListScrollRestore } from '@/hooks/useRequestListScrollRestore'
+import { usePourDesktop } from '@/lib/pourLayout'
+import { afterPageTransition } from '@/stores/pageTransitionStore'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
 import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
@@ -341,7 +344,7 @@ function RequestFeedCard({
     return (
       <>
         <div className={cn(rq.card, 'flex flex-col overflow-hidden p-0', anim.cardLift)}>
-          <Link to={`/requests/${r.id}`} className="block outline-none active:scale-[0.998]">
+          <Link to={`/requests/${r.id}`} className="pour-interactive block outline-none">
             <div className="pour-file-card-preview relative flex items-center justify-center overflow-hidden">
               {thumbUrl && !thumbFailed ? (
                 <img
@@ -402,7 +405,12 @@ function RequestFeedCard({
 
   return (
     <>
-      <div className={cn(rq.card, 'transition hover:border-[color:var(--glass-edge)] hover:shadow-[var(--glass-shadow-sm)]')}>
+      <div
+        className={cn(
+          rq.card,
+          'transition hover:border-[color:var(--glass-edge)] hover:shadow-[var(--glass-shadow-sm)]',
+        )}
+      >
         <div className="flex gap-3 px-4 pt-4 pb-2 pour-desktop:gap-3 pour-desktop:px-5 pour-desktop:pt-5 pour-desktop:pb-3">
           {thumbUrl && !thumbFailed ? (
             <button
@@ -431,7 +439,7 @@ function RequestFeedCard({
           ) : null}
           <Link
             to={`/requests/${r.id}`}
-            className="flex min-w-0 flex-1 gap-2.5 rounded-md outline-none active:scale-[0.998]"
+            className="pour-interactive flex min-w-0 flex-1 gap-2.5 rounded-md outline-none"
           >
             {(!thumbUrl || thumbFailed) && (
               <div className="shrink-0 pt-px pour-desktop:pt-0.5">
@@ -473,7 +481,7 @@ function RequestFeedCard({
           </Link>
         </div>
 
-        <Link to={`/requests/${r.id}`} className="block active:scale-[0.998]">
+        <Link to={`/requests/${r.id}`} className="pour-interactive block">
           <div className="grid grid-cols-1 gap-y-2 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
             <FeedDetailRow icon={Building2} label="User Group" value={client} />
             <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
@@ -542,6 +550,7 @@ export function RequestListPage() {
   const { user, profile, role } = useAuthStore()
   const { bookerScope } = useInspectorBookerScope()
   const location = useLocation()
+  const isDesktop = usePourDesktop()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
@@ -729,15 +738,20 @@ export function RequestListPage() {
     return () => window.removeEventListener(REQUEST_LIST_INVALIDATED_EVENT, onInvalidate)
   }, [refreshPage])
 
-  /** กลับจากหน้ารายละเอียด/แก้ไข — รีเฟรชรายการ + ตัวนับสถานะ (ครั้งแรก mount ใช้ fetchRequests อยู่แล้ว) */
+  /** กลับจาก detail — รีเฟรชหลัง transition จบ เพื่อไม่ให้ list กระตุกระหว่าง slide */
   useEffect(() => {
     if (location.pathname !== '/requests') return
     if (skipReturnRefresh.current) {
       skipReturnRefresh.current = false
       return
     }
-    void refreshPage()
-  }, [location.pathname, location.key, refreshPage])
+    const run = () => void refreshPage()
+    if (isDesktop) {
+      run()
+      return
+    }
+    return afterPageTransition(run)
+  }, [location.pathname, location.key, refreshPage, isDesktop])
 
   useEffect(() => {
     if (isFirstFilterEffect.current) {
@@ -757,6 +771,10 @@ export function RequestListPage() {
   )
 
   const feedSections = useMemo(() => buildGroupedRequestSections(requests), [requests])
+
+  const listContentReady =
+    mobileView === 'summary' ? !countsLoading && masterLoaded : !loading
+  useRequestListScrollRestore(listContentReady)
 
   const listTitle = scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'
   const listSubtitle = loading ? 'กำลังโหลด…' : `${total} รายการ`

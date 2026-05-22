@@ -99,7 +99,7 @@ export const theme = {
       'border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
     ),
   navPillMobile: type.navCompact,
-  navLink: cn('flex items-center gap-2.5 rounded-lg px-3 py-2', type.nav),
+  navLink: cn('pour-interactive pour-nav-item flex items-center gap-2.5 rounded-lg px-3 py-2', type.nav),
   navSectionLabel: cn('px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em]', ink.subtle),
   primaryNavStrip: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   mainColumnDesktop: cn(
