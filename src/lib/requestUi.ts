@@ -103,9 +103,11 @@ export const theme = {
   navSectionLabel: cn('px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em]', ink.subtle),
   primaryNavStrip: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   mainColumnDesktop: cn(
+    'bg-[color:var(--pour-bg)]',
     'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
-    'pour-desktop:bg-[color:var(--pour-bg)]',
   ),
+  /** พื้นที่ scroll ใน AppLayout — สีเดียวกับ header ทุกขนาดจอ */
+  mainScrollSurface: 'bg-[color:var(--pour-bg)]',
   sidebarSurface:
     'bg-[color:var(--pour-sidebar)] pour-desktop:border-r pour-desktop:border-[color:var(--pour-line)]',
   sidebarBrandPanel: cn(
@@ -136,11 +138,13 @@ export const theme = {
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
   /** เนื้อหารายการใน main */
   mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
+  /** padding แนวนอน scroll มือถือ — เดิม px-4/sm:px-6 ลดลงเล็กน้อย */
+  mainScrollPadX: 'px-3 sm:px-4 pour-desktop:px-0',
   /**
-   * กรอบเนื้อหาใน main — % ของคอลัมน์ main, ขอบซ้าย–ขวาเท่ากัน
-   * มือถือ: 98% | desktop (pour-desktop): 80% (inset 10% ต่อข้าง)
+   * กรอบเนื้อหาใน main
+   * มือถือ: เต็มความกว้าง + mainScrollPadX | desktop: 80% กึ่งกลาง (inset 10% ต่อข้าง)
    */
-  contentFrame: 'mx-auto w-[98%] min-w-0 max-w-full pour-desktop:w-[80%]',
+  contentFrame: 'mx-auto flex min-h-full w-full min-w-0 max-w-full flex-col pour-desktop:w-[80%]',
 } as const
 
 /** กรอบเนื้อหาใน AppLayout — เท่าทุกหน้า */

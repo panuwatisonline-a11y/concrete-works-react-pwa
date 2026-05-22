@@ -16,7 +16,7 @@ import {
   resolveScrollRoot,
   subscribePullRefreshEnabled,
 } from '@/lib/pourLayout'
-import { type } from '@/lib/requestUi'
+import { theme, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 const THRESHOLD = 64
@@ -198,6 +198,7 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         ref={scrollRef}
         className={cn(
           'min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-y-contain',
+          theme.mainScrollSurface,
           '[touch-action:pan-y] [-webkit-overflow-scrolling:touch]',
         )}
       >
