@@ -9,7 +9,13 @@ const REQUIRED = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY']
 
 function loadEnvFiles() {
   const merged = { ...process.env }
-  for (const name of ['.env.production.local', '.env.production', '.env.local', '.env']) {
+  for (const name of [
+    '.env.production.local',
+    '.env.production',
+    'env/production.env',
+    '.env.local',
+    '.env',
+  ]) {
     const filePath = resolve(process.cwd(), name)
     if (!existsSync(filePath)) continue
     for (const line of readFileSync(filePath, 'utf8').split('\n')) {
