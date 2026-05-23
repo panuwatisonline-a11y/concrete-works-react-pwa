@@ -42,6 +42,26 @@ import { PrintConcreteSummaryPreviewPage } from '@/pages/print/PrintConcreteSumm
 import { PrintBookingSummaryPreviewPage } from '@/pages/print/PrintBookingSummaryPreviewPage'
 import { CstListPage } from '@/pages/cst/CstListPage'
 import { ConcreteSummaryPage } from '@/pages/cst/ConcreteSummaryPage'
+import { isSupabaseConfigured } from '@/lib/supabase'
+
+function SupabaseConfigMissing() {
+  return (
+    <div
+      className={cn(
+        'flex min-h-[100dvh] flex-col items-center justify-center gap-3 px-6 text-center',
+        theme.shell,
+      )}
+    >
+      <p className="text-lg font-semibold text-[color:var(--pour-ink-0)]">ตั้งค่า Supabase ไม่ครบ</p>
+      <p className="max-w-md text-sm text-pour-muted">
+        บน Cloudflare Pages → Settings → Environment variables ใส่{' '}
+        <code className="text-pour-subtle">VITE_SUPABASE_URL</code>,{' '}
+        <code className="text-pour-subtle">VITE_SUPABASE_ANON_KEY</code>,{' '}
+        <code className="text-pour-subtle">VITE_WEB_PUSH_PUBLIC_KEY</code> แล้วกด <strong>Redeploy</strong>
+      </p>
+    </div>
+  )
+}
 
 function AppInner() {
   useAuthInit()
@@ -109,6 +129,10 @@ function AppInner() {
 }
 
 export default function App() {
+  if (!isSupabaseConfigured) {
+    return <SupabaseConfigMissing />
+  }
+
   return (
     <BrowserRouter>
       <TouchPressEnhancer />

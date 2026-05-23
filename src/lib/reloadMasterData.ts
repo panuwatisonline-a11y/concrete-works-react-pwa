@@ -10,9 +10,11 @@ export async function reloadMasterData(): Promise<void> {
 
   if (!isSupabaseConfigured) {
     console.error(
-      'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY at build time. On Vercel: add env vars and redeploy.',
+      'Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY at build time. Add env vars on the host (Cloudflare Pages / Vercel) and redeploy.',
     )
-    toast.error('ตั้งค่า Supabase ไม่ครบ — ตรวจสอบ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY บน Vercel แล้ว Redeploy')
+    toast.error(
+      'ตั้งค่า Supabase ไม่ครบ — ใส่ VITE_SUPABASE_URL และ VITE_SUPABASE_ANON_KEY บน Cloudflare/Vercel แล้ว Redeploy',
+    )
     setLoaded(true)
     return
   }
