@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "deploy:pages": "npm run build && wrangler pages deploy dist --project-name=concrete-works-react-pwa",
+    "deploy:pages:preview": "npm run build && wrangler pages deploy dist --project-name=concrete-works-react-pwa --branch=preview",
     "deploy:upload-drive-image": "npx supabase functions deploy upload-drive-image --project-ref whvjuhldzzyqvzaievqc",
     "deploy:send-push": "npx supabase functions deploy send-push --project-ref whvjuhldzzyqvzaievqc",
     "deploy:notify-request-change": "npx supabase functions deploy notify-request-change --project-ref whvjuhldzzyqvzaievqc",
@@ -71,6 +73,7 @@
     "workbox-expiration": "^7.4.1",
     "workbox-precaching": "^7.4.1",
     "workbox-routing": "^7.4.1",
-    "workbox-strategies": "^7.4.1"
+    "workbox-strategies": "^7.4.1",
+    "wrangler": "^4.94.0"
   }
 }

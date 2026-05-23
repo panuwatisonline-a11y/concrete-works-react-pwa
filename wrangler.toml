@@ -1,0 +1,5 @@
+# Cloudflare Pages — static deploy from `dist` after `npm run build`
+# Docs: https://developers.cloudflare.com/pages/framework-guides/deploy-a-vite-project/
+name = "concrete-works-react-pwa"
+compatibility_date = "2025-05-23"
+pages_build_output_dir = "dist"
