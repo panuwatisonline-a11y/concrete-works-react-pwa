@@ -38,13 +38,16 @@ if (missing.length > 0) {
   console.error('\n[build] Missing required environment variables:')
   for (const key of missing) console.error(`  - ${key}`)
   console.error(`
-Cloudflare Pages:
-  Settings → Environment variables → add each name exactly (VITE_ prefix).
-  Enable for: Production (and Preview if needed).
-  Type: must be available at BUILD time (not Runtime-only for static Vite).
-  Then Deployments → Retry deployment.
+Fix options:
+  1) GitHub Actions (recommended): repo Settings → Secrets → add VITE_* and CLOUDFLARE_* (see .github/workflows/cloudflare-pages.yml)
+  2) Cloudflare Dashboard: Settings → Environment variables — names must be exact, available at BUILD time, Production scope
+  3) Local: copy .env.example to .env
 
-Local: copy .env.example to .env and fill values.
+Visible VITE_* keys during this build: ${
+    Object.keys(env)
+      .filter((k) => k.startsWith('VITE_'))
+      .join(', ') || '(none)'
+  }
 `)
   process.exit(1)
 }
