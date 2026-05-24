@@ -21,6 +21,7 @@ import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
+import { AppVersionLabel } from '@/components/layout/AppVersionLabel'
 
 export function AppHeader() {
   const headerRef = useRef<HTMLElement>(null)
@@ -248,6 +249,7 @@ export function AppHeader() {
               <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
               ออกจากระบบ
             </Button>
+            <AppVersionLabel />
           </div>
         </DialogContent>
       </Dialog>

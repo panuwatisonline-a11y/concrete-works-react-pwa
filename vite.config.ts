@@ -1,10 +1,16 @@
-﻿import path from 'path'
+﻿import { readFileSync } from 'fs'
+import path from 'path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const appVersion = JSON.parse(readFileSync('./package.json', 'utf-8')).version as string
+
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   plugins: [
     react(),
     tailwindcss(),

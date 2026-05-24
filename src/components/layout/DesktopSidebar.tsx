@@ -18,6 +18,7 @@ import { mainNavLinks } from '@/lib/mainNav'
 import { canManageUsers } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
+import { AppVersionLabel } from '@/components/layout/AppVersionLabel'
 
 interface NavItem {
   to: string
@@ -379,6 +380,7 @@ export function DesktopSidebar() {
           >
             <span className="w-full text-left text-[11px] leading-snug">ออกจากระบบ</span>
           </button>
+          <AppVersionLabel className="mt-1.5 text-[9px]" />
         </div>
       </aside>
     )
@@ -524,6 +526,7 @@ export function DesktopSidebar() {
           <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
           ออกจากระบบ
         </Button>
+        <AppVersionLabel />
       </div>
     </aside>
   )
