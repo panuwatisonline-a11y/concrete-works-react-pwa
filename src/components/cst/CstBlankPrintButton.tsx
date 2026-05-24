@@ -12,13 +12,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
-  Select,
+  SearchableSelect,
   SELECT_CONTENT_ELEVATED_Z,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  mapSearchableOptions,
+} from '@/components/ui/searchable-select'
 import { fetchCompressionMachines } from '@/lib/cstData'
 import { localPrintCstBlankReport, normalizeCstTestAges } from '@/lib/cstPrint'
 import { ICON_STROKE, layout } from '@/lib/requestUi'
@@ -138,24 +135,22 @@ export function CstBlankPrintButton({ request, className }: CstBlankPrintButtonP
             {compressionMachines.length === 0 ? (
               <p className="text-xs text-pour-muted">ยังไม่มีเครื่องในระบบ — พิมพ์ได้โดยเว้นช่องเครื่องว่าง</p>
             ) : (
-              <Select
+              <SearchableSelect
                 value={machineId || BLANK_MACHINE_NONE}
                 onValueChange={(v) => setMachineId(v === BLANK_MACHINE_NONE ? '' : v)}
                 disabled={printing}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="ไม่ระบุ" />
-                </SelectTrigger>
-                <SelectContent className={cn(SELECT_CONTENT_ELEVATED_Z, 'max-h-48')}>
-                  <SelectItem value={BLANK_MACHINE_NONE}>ไม่ระบุ — เว้นว่าง</SelectItem>
-                  {compressionMachines.map((m) => (
-                    <SelectItem key={m.id} value={String(m.id)}>
-                      {m.machine?.trim() || `เครื่อง #${m.id}`}
-                      {m.k_display ? ` · ${m.k_display}` : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="ไม่ระบุ"
+                contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                listClassName="max-h-48"
+                options={[
+                  { value: BLANK_MACHINE_NONE, label: 'ไม่ระบุ — เว้นว่าง' },
+                  ...mapSearchableOptions(
+                    compressionMachines,
+                    (m) => String(m.id),
+                    (m) => `${m.machine?.trim() || `เครื่อง #${m.id}`}${m.k_display ? ` · ${m.k_display}` : ''}`,
+                  ),
+                ]}
+              />
             )}
           </div>
 

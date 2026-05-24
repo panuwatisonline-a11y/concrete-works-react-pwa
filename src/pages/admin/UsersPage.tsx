@@ -3,7 +3,7 @@ import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -524,65 +524,54 @@ export function UsersPage() {
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>สถานะการอนุมัติ</p>
-                <Select value={draftStatus} onValueChange={(v) => setDraftStatus(v as UserStatus)}>
-                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                    {(['pending', 'approved', 'rejected'] as const).map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {STATUS_BADGE[s].label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={draftStatus}
+                  onValueChange={(v) => setDraftStatus(v as UserStatus)}
+                  options={(['pending', 'approved', 'rejected'] as const).map((s) => ({
+                    value: s,
+                    label: STATUS_BADGE[s].label,
+                  }))}
+                  triggerClassName="h-auto min-h-9 whitespace-normal py-2 text-left text-sm"
+                  listClassName="max-h-[min(50dvh,18rem)]"
+                />
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>Role</p>
-                <Select value={draftRole} onValueChange={(v) => setDraftRole(v as UserRole)}>
-                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                    {ROLES.map((r) => (
-                      <SelectItem key={r} value={r}>
-                        {ROLE_LABELS[r]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={draftRole}
+                  onValueChange={(v) => setDraftRole(v as UserRole)}
+                  options={ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }))}
+                  triggerClassName="h-auto min-h-9 whitespace-normal py-2 text-left text-sm"
+                  listClassName="max-h-[min(50dvh,18rem)]"
+                />
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>User Group</p>
-                <Select value={draftClient} onValueChange={setDraftClient}>
-                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                    <SelectValue placeholder="ไม่ระบุ" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                    <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
-                    {clients.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>
-                        {c.client_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={draftClient}
+                  onValueChange={setDraftClient}
+                  placeholder="ไม่ระบุ"
+                  options={[
+                    { value: SELECT_NONE, label: 'ไม่ระบุ' },
+                    ...mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name),
+                  ]}
+                  triggerClassName="h-auto min-h-9 whitespace-normal py-2 text-left text-sm"
+                  listClassName="max-h-[min(50dvh,18rem)]"
+                />
               </div>
               <div>
                 <p className={cn(rq.dataRowLabel, 'mb-1.5')}>โครงการ</p>
-                <Select value={draftJob} onValueChange={setDraftJob}>
-                  <SelectTrigger className="h-auto min-h-9 w-full whitespace-normal py-2 text-left text-sm [&>span]:line-clamp-none [&>span]:whitespace-normal [&>span]:break-words">
-                    <SelectValue placeholder="ไม่ระบุ" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                    <SelectItem value={SELECT_NONE}>ไม่ระบุ</SelectItem>
-                    {jobs.map((j) => (
-                      <SelectItem key={j.id} value={String(j.id)}>
-                        {j.job_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={draftJob}
+                  onValueChange={setDraftJob}
+                  placeholder="ไม่ระบุ"
+                  options={[
+                    { value: SELECT_NONE, label: 'ไม่ระบุ' },
+                    ...mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name),
+                  ]}
+                  triggerClassName="h-auto min-h-9 whitespace-normal py-2 text-left text-sm"
+                  listClassName="max-h-[min(50dvh,18rem)]"
+                />
               </div>
             </div>
           )}

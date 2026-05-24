@@ -7,7 +7,7 @@ import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
@@ -299,15 +299,12 @@ export function WbsCodePage() {
                 return (
                   <div key={k} className="space-y-1.5">
                     <Label>{k}</Label>
-                    <Select
-                      value={raw != null ? String(raw) : undefined}
+                    <SearchableSelect
+                      value={raw != null ? String(raw) : ''}
                       onValueChange={(v) => onChange(field, parseInt(v, 10))}
-                    >
-                      <SelectTrigger><SelectValue placeholder={`เลือก ${k}`} /></SelectTrigger>
-                      <SelectContent>
-                        {segments[k].map((s) => <SelectItem key={s.id} value={String(s.id)}>{s.code_name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                      placeholder={`เลือก ${k}`}
+                      options={mapSearchableOptions(segments[k], (s) => String(s.id), (s) => s.code_name)}
+                    />
                   </div>
                 )
               })}

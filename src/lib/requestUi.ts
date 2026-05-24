@@ -93,17 +93,8 @@ export const theme = {
   brandWordmark:
     'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-brand)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
   headerBar: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
-  navPillActive:
-    'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)] ring-1 ring-[color:var(--pour-line)]',
-  navPillInactive:
-    cn(
-      ink.body,
-      'border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
-    ),
-  navPillMobile: type.navCompact,
   navLink: cn('pour-interactive pour-nav-item flex items-center gap-2.5 rounded-lg px-3 py-2', type.nav),
   navSectionLabel: cn('px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em]', ink.subtle),
-  primaryNavStrip: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   mainColumnDesktop: cn(
     'bg-[color:var(--pour-bg)]',
     'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
@@ -135,7 +126,6 @@ export const theme = {
   sidebarSearch:
     'h-9 w-full rounded-lg border border-[color:var(--pour-line)] bg-[color:var(--pour-bg-2)] px-3 text-sm text-[color:var(--pour-ink-0)] placeholder:text-[color:var(--pour-ink-3)] focus:border-[color:var(--pour-accent)] focus:outline-none focus:ring-2 focus:ring-[color:var(--pour-accent-ring)]',
   headerBarMobile: 'px-3 py-2',
-  primaryNavStripPad: 'px-3 py-2.5',
   drawerPanel: cn(glass.surfaceStrong, 'border-[color:var(--glass-border-subtle)]'),
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
   /** เนื้อหารายการใน main */

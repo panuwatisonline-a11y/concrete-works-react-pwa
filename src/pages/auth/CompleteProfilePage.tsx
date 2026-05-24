@@ -7,7 +7,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
@@ -183,31 +183,21 @@ export function CompleteProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label>User Group</Label>
-                <Select
-                  value={watch('client_id') || undefined}
+                <SearchableSelect
+                  value={watch('client_id') ?? ''}
                   onValueChange={(v) => setValue('client_id', v)}
-                >
-                  <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
-                  <SelectContent>
-                    {clients.map((c) => (
-                      <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="เลือก User Group"
+                  options={mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label>โครงการ</Label>
-                <Select
-                  value={watch('job_id') || undefined}
+                <SearchableSelect
+                  value={watch('job_id') ?? ''}
                   onValueChange={(v) => setValue('job_id', v)}
-                >
-                  <SelectTrigger><SelectValue placeholder="เลือกโครงการ" /></SelectTrigger>
-                  <SelectContent>
-                    {jobs.map((j) => (
-                      <SelectItem key={j.id} value={String(j.id)}>{j.job_name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="เลือกโครงการ"
+                  options={mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name)}
+                />
               </div>
               <Button
                 type="submit"

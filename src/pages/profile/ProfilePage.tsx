@@ -12,7 +12,7 @@ import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { UserAvatar } from '@/components/shared/UserAvatar'
@@ -173,14 +173,14 @@ export function ProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label>โครงการ</Label>
-                <Select value={watch('job_id') || undefined} onValueChange={(v) => setValue('job_id', v)}>
-                  <SelectTrigger className="rounded-xl">
-                    <SelectValue placeholder="เลือกโครงการ" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60 w-(--radix-select-trigger-width)">
-                    {jobs.map((j) => <SelectItem key={j.id} value={String(j.id)}>{j.job_name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  value={watch('job_id') ?? ''}
+                  onValueChange={(v) => setValue('job_id', v)}
+                  placeholder="เลือกโครงการ"
+                  triggerClassName="rounded-xl"
+                  listClassName="max-h-60"
+                  options={mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name)}
+                />
               </div>
               <div className={cn(layout.formGrid2, 'rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-3 text-sm ring-1 ring-[color:var(--pour-surface-border)]/80')}>
                 <div>

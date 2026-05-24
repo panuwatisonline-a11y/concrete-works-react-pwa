@@ -10,13 +10,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
-  Select,
+  SearchableSelect,
   SELECT_CONTENT_ELEVATED_Z,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  mapSearchableOptions,
+} from '@/components/ui/searchable-select'
 import {
   Dialog,
   DialogContent,
@@ -314,21 +311,21 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label>Location *</Label>
-              <Select
+              <SearchableSelect
                 value={inspectData.location_id}
                 onValueChange={(v) => setInspectData((p) => ({ ...p, location_id: v }))}
-              >
-                <SelectTrigger><SelectValue placeholder="เลือก Location" /></SelectTrigger>
-                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                  {locations.map((l) => (
-                    <SelectItem key={l.id} value={String(l.id)}>{l.full_location ?? l.location1}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="เลือก Location"
+                contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                options={mapSearchableOptions(
+                  locations,
+                  (l) => String(l.id),
+                  (l) => l.full_location ?? l.location1,
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Concrete work *</Label>
-              <Select
+              <SearchableSelect
                 value={inspectData.concrete_work_id}
                 onValueChange={(v) => setInspectData((p) => ({
                   ...p,
@@ -336,28 +333,24 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                   structure_id: '',
                   mixcode_id: '',
                 }))}
-              >
-                <SelectTrigger><SelectValue placeholder="เลือก Concrete work" /></SelectTrigger>
-                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                  {concreteWorks.map((cw) => (
-                    <SelectItem key={cw.id} value={String(cw.id)}>{cw.concrete_work}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="เลือก Concrete work"
+                contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Structure *</Label>
-              <Select
+              <SearchableSelect
                 value={inspectData.structure_id}
                 onValueChange={(v) => setInspectData((p) => ({ ...p, structure_id: v, mixcode_id: '' }))}
-              >
-                <SelectTrigger><SelectValue placeholder="เลือก Structure" /></SelectTrigger>
-                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                  {filteredStructuresInspect.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>{s.structure_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder="เลือก Structure"
+                contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                options={mapSearchableOptions(
+                  filteredStructuresInspect,
+                  (s) => String(s.id),
+                  (s) => s.structure_name,
+                )}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Structure number</Label>

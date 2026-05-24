@@ -7,13 +7,7 @@ import { StructureListMultiSelect } from '@/components/shared/StructureListMulti
 import { MixCodeBalancePanel } from '@/components/mixcode/MixCodeBalancePanel'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SearchableSelect } from '@/components/ui/searchable-select'
 import { toast } from 'sonner'
 import { cn, formatVolumeNumber } from '@/lib/utils'
 import { app, layout, rq } from '@/lib/requestUi'
@@ -387,21 +381,14 @@ export function MixcodePage() {
               <div className={layout.formGridDialog}>
                 <div className={layout.formField}>
                   <Label>Sample Type</Label>
-                  <Select
-                    value={String(formData.sample_type ?? '').trim() || undefined}
+                  <SearchableSelect
+                    value={String(formData.sample_type ?? '').trim()}
                     onValueChange={(v) => onChange('sample_type', v)}
-                  >
-                    <SelectTrigger className="h-auto min-h-10 w-full text-left text-[15px] [&>span]:line-clamp-2 [&>span]:whitespace-normal [&>span]:break-words">
-                      <SelectValue placeholder="เลือกขนาดตัวอย่าง" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-[min(50dvh,18rem)] w-[var(--radix-select-trigger-width)] max-w-[calc(100vw-2rem)]">
-                      {sampleTypeSelectOptions.map((opt) => (
-                        <SelectItem key={opt} value={opt} className="text-[15px]">
-                          {opt}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="เลือกขนาดตัวอย่าง"
+                    triggerClassName="h-auto min-h-10 text-left text-[15px]"
+                    listClassName="max-h-[min(50dvh,18rem)]"
+                    options={sampleTypeSelectOptions.map((opt) => ({ value: opt, label: opt }))}
+                  />
                 </div>
                 <div className={layout.formField}>
                   <Label>Slump</Label>

@@ -1,6 +1,6 @@
 ﻿import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useWatch, type ControllerRenderProps, type UseFormTrigger } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { runOrQueueMutation } from '@/lib/offline/actions'
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
@@ -23,12 +23,16 @@ import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
 import { markLocalRequestMutation, triggerRequestPushNotify } from '@/lib/requestPushNotify'
 import { APP_HOME } from '@/lib/appHome'
 import { canBookConcrete } from '@/lib/permissions'
-import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
+import { structureHasCompatibleMixcode } from '@/lib/structureListTokens'
+import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
+import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
 import { layout, rq } from '@/lib/requestUi'
+import { scrollToFirstInvalidFormField } from '@/lib/formScrollToError'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
 import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
 import {
+  listMixcodeStrengthOptions,
   mixcodeStrengthLabelForOptionValue,
   mixcodeStrengthOptionValueForStoredStrength,
   parseMixcodeStrengthOptionValue,
@@ -75,6 +79,38 @@ function requestTimeToInputValue(t: string | null | undefined): string {
 }
 
 const STEPS = ['ข้อมูลงาน', 'ข้อมูลการเท', 'รูปภาพ & ยืนยัน']
+
+const STEP_VALIDATE_FIELDS: Record<number, Array<keyof FormData>> = {
+  0: ['client_id', 'concrete_work_id', 'structure_id', 'location_id'],
+  1: ['casting_date', 'request_time', 'strength', 'mixcode_id', 'volume_request'],
+}
+
+function fieldWrapClass(message?: string) {
+  return cn(
+    'space-y-1.5 rounded-xl transition-shadow',
+    message && 'ring-2 ring-rose-500/35 ring-offset-2 ring-offset-[color:var(--pour-bg)]',
+  )
+}
+
+function withFieldRevalidate<TFieldName extends keyof FormData>(
+  name: TFieldName,
+  field: ControllerRenderProps<FormData, TFieldName>,
+  trigger: UseFormTrigger<FormData>,
+  extra?: (value: FormData[TFieldName]) => void,
+) {
+  return (value: FormData[TFieldName]) => {
+    extra?.(value)
+    field.onChange(value)
+    queueMicrotask(() => {
+      void trigger(name)
+    })
+  }
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null
+  return <p data-field-error className="text-xs text-rose-600">{message}</p>
+}
 
 const STEP_BAR_SHELL = cn(
   'pour-contain w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-3 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-inset ring-white/70',
@@ -152,13 +188,16 @@ export function RequestNewPage() {
   const { clients, locations, concreteWorks, structures, mixcodes, abcCodes, wbsCodes, statuses } =
     useMasterDataStore()
   const [step, setStep] = useState(0)
+  const [showStepErrors, setShowStepErrors] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const submitLockRef = useRef(false)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [beforeImageUploading, setBeforeImageUploading] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
-  const { control, register, handleSubmit, watch, setValue, getValues, reset, trigger, formState: { errors } } = useForm<FormData>({
+  const { control, register, handleSubmit, watch, setValue, getValues, reset, trigger, clearErrors, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    reValidateMode: 'onChange',
     defaultValues: {
       client_id: profile?.client_id ? String(profile.client_id) : '',
       location_id: '',
@@ -181,6 +220,7 @@ export function RequestNewPage() {
 
   const watchConcreteWork = watch('concrete_work_id')
   const watchStructureId = watch('structure_id')
+  const watchStrength = useWatch({ control, name: 'strength', defaultValue: '' })
   const selectedCW = concreteWorks.find((cw) => String(cw.id) === watchConcreteWork)
   const selectedStructure = structures.find((s) => String(s.id) === watchStructureId)
 
@@ -191,33 +231,36 @@ export function RequestNewPage() {
     )
   }, [structures, selectedCW, mixcodes])
 
-  /** Mixcode: intersect กับ Concrete Work แล้วจึงกรองตามโครงสร้างที่เลือก */
-  const filteredMixcodes = useMemo(() => {
-    if (!selectedCW) return mixcodes
-    return mixcodes.filter((m) => {
-      if (!structureListsIntersect(m.structure_list, selectedCW.structure_list)) return false
-      if (!selectedStructure) return true
-      const allowed = parseStructureListTokens(m.structure_list)
-      if (allowed.length === 0) return true
-      return allowed.includes(selectedStructure.structure_name)
-    })
-  }, [mixcodes, selectedCW, selectedStructure])
+  const {
+    scopeMixcodes,
+    pickerMixcodes,
+    mixcodePickerLocked,
+    pickerEmptyMessage,
+  } = useBookingMixcodePicker({
+    mixcodes,
+    concreteWork: selectedCW,
+    structure: selectedStructure,
+    dwgStrengthOption: watchStrength,
+    getMixcodeId: () => getValues('mixcode_id'),
+    setMixcodeId: (id) => setValue('mixcode_id', id),
+    scopeEmptyMessage: 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก',
+  })
 
   useEffect(() => {
-    const cur = getValues('mixcode_id')
+    const cur = getValues('strength')
     if (!cur) return
-    if (!filteredMixcodes.some((m) => String(m.id) === cur)) {
-      setValue('mixcode_id', '')
-    }
-  }, [filteredMixcodes, getValues, setValue])
+    const opts = listMixcodeStrengthOptions(scopeMixcodes)
+    if (!opts.some((o) => o.value === cur)) setValue('strength', '')
+  }, [scopeMixcodes, getValues, setValue])
 
   useEffect(() => {
     const cur = getValues('structure_id')
     if (!cur) return
     if (!filteredStructures.some((s) => String(s.id) === cur)) {
-      setValue('structure_id', '')
+      setValue('structure_id', '', { shouldValidate: false })
+      clearErrors('structure_id')
     }
-  }, [filteredStructures, getValues, setValue])
+  }, [filteredStructures, getValues, setValue, clearErrors])
 
   useEffect(() => {
     const cloneId = (location.state as { cloneFromRequestId?: string } | null)?.cloneFromRequestId?.trim()
@@ -296,6 +339,11 @@ export function RequestNewPage() {
 
   async function onSubmit(data: FormData) {
     if (step !== 2 || !user || submitLockRef.current) return
+    const mixErr = validateMixcodeForBooking(data.mixcode_id, mixcodes, data.strength)
+    if (mixErr) {
+      toast.error(mixErr)
+      return
+    }
     submitLockRef.current = true
     setSubmitting(true)
     try {
@@ -398,85 +446,119 @@ export function RequestNewPage() {
   }
 
   const nextStep = async () => {
-    const step1Fields: Array<keyof FormData> = ['client_id', 'location_id', 'concrete_work_id', 'structure_id']
-    const step2Fields: Array<keyof FormData> = ['casting_date', 'request_time', 'strength', 'mixcode_id', 'volume_request']
-    const fieldsToCheck = step === 0 ? step1Fields : step2Fields
+    const fieldsToCheck = STEP_VALIDATE_FIELDS[step]
+    if (!fieldsToCheck) return
     const ok = await trigger(fieldsToCheck)
-    if (ok) setStep(step + 1)
-    else toast.error('กรุณากรอกข้อมูลให้ครบ')
+    if (ok) {
+      setShowStepErrors(false)
+      setStep(step + 1)
+      return
+    }
+    setShowStepErrors(true)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const msg = scrollToFirstInvalidFormField(fieldsToCheck, formRef.current)
+        toast.error(msg ?? 'กรุณากรอกข้อมูลให้ครบ')
+      })
+    })
   }
+
+  const visibleFieldError = (name: keyof FormData) =>
+    showStepErrors ? errors[name]?.message : undefined
 
   const stepFields = (s: number) => {
     if (s === 0) return (
       <div className="space-y-4">
-        <div className="space-y-1.5">
+        <div data-form-field="client_id" className={fieldWrapClass(visibleFieldError('client_id'))}>
           <Label>User Group *</Label>
           <Controller name="client_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
-              <SelectContent>{clients.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>)}</SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={withFieldRevalidate('client_id', field, trigger)}
+              placeholder="เลือก User Group"
+              aria-invalid={Boolean(visibleFieldError('client_id'))}
+              options={mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name)}
+            />
           )} />
-          {errors.client_id && <p className="text-xs text-rose-600">{errors.client_id.message}</p>}
+          <FieldError message={visibleFieldError('client_id')} />
         </div>
 
         <div className="space-y-1.5">
           <Label>ABC Code</Label>
           <Controller name="abc_code_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก ABC Code" /></SelectTrigger>
-              <SelectContent>{abcCodes.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.full_abc}</SelectItem>)}</SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              placeholder="เลือก ABC Code"
+              options={mapSearchableOptions(abcCodes, (c) => String(c.id), (c) => c.full_abc ?? '')}
+            />
           )} />
         </div>
 
         <div className="space-y-1.5">
           <Label>WBS Code</Label>
           <Controller name="wbs_code_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก WBS Code" /></SelectTrigger>
-              <SelectContent>{wbsCodes.map((w) => <SelectItem key={w.id} value={String(w.id)}>{w.full_wbs}</SelectItem>)}</SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              placeholder="เลือก WBS Code"
+              options={mapSearchableOptions(wbsCodes, (w) => String(w.id), (w) => w.full_wbs ?? '')}
+            />
           )} />
         </div>
 
-        <div className="space-y-1.5">
-          <Label>Location *</Label>
-          <Controller name="location_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก Location" /></SelectTrigger>
-              <SelectContent>{locations.map((l) => <SelectItem key={l.id} value={String(l.id)}>{l.full_location ?? l.location1}</SelectItem>)}</SelectContent>
-            </Select>
-          )} />
-          {errors.location_id && <p className="text-xs text-rose-600">{errors.location_id.message}</p>}
-        </div>
-
-        <div className="space-y-1.5">
+        <div data-form-field="concrete_work_id" className={fieldWrapClass(visibleFieldError('concrete_work_id'))}>
           <Label>Concrete Work *</Label>
           <Controller name="concrete_work_id" control={control} render={({ field }) => (
-            <Select value={field.value} onValueChange={(v) => { field.onChange(v); setValue('structure_id', '') }}>
-              <SelectTrigger><SelectValue placeholder="เลือก Concrete Work" /></SelectTrigger>
-              <SelectContent>{concreteWorks.map((cw) => <SelectItem key={cw.id} value={String(cw.id)}>{cw.concrete_work}</SelectItem>)}</SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={withFieldRevalidate('concrete_work_id', field, trigger, () => {
+                setValue('structure_id', '', { shouldValidate: false })
+                clearErrors('structure_id')
+              })}
+              placeholder="เลือก Concrete Work"
+              aria-invalid={Boolean(visibleFieldError('concrete_work_id'))}
+              options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
+            />
           )} />
-          {errors.concrete_work_id && <p className="text-xs text-rose-600">{errors.concrete_work_id.message}</p>}
+          <FieldError message={visibleFieldError('concrete_work_id')} />
         </div>
 
-        <div className={layout.formGrid2}>
-          <div className="space-y-1.5">
-            <Label>Structure *</Label>
-            <Controller name="structure_id" control={control} render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger><SelectValue placeholder="เลือก Structure" /></SelectTrigger>
-                <SelectContent>{filteredStructures.map((s) => <SelectItem key={s.id} value={String(s.id)}>{s.structure_name}</SelectItem>)}</SelectContent>
-              </Select>
-            )} />
-            {errors.structure_id && <p className="text-xs text-rose-600">{errors.structure_id.message}</p>}
-          </div>
-          <div className="space-y-1.5">
-            <Label>Structure No.</Label>
-            <Input placeholder="C-001" {...register('structure_no')} />
-          </div>
+        <div data-form-field="structure_id" className={fieldWrapClass(visibleFieldError('structure_id'))}>
+          <Label>Structure *</Label>
+          <Controller name="structure_id" control={control} render={({ field }) => (
+            <SearchableSelect
+              value={field.value}
+              onValueChange={withFieldRevalidate('structure_id', field, trigger)}
+              placeholder="เลือก Structure"
+              aria-invalid={Boolean(visibleFieldError('structure_id'))}
+              options={mapSearchableOptions(filteredStructures, (s) => String(s.id), (s) => s.structure_name)}
+            />
+          )} />
+          <FieldError message={visibleFieldError('structure_id')} />
+        </div>
+
+        <div data-form-field="location_id" className={fieldWrapClass(visibleFieldError('location_id'))}>
+          <Label>Location *</Label>
+          <Controller name="location_id" control={control} render={({ field }) => (
+            <SearchableSelect
+              value={field.value}
+              onValueChange={withFieldRevalidate('location_id', field, trigger)}
+              placeholder="เลือก Location"
+              aria-invalid={Boolean(visibleFieldError('location_id'))}
+              options={mapSearchableOptions(
+                locations,
+                (l) => String(l.id),
+                (l) => l.full_location ?? l.location1,
+              )}
+            />
+          )} />
+          <FieldError message={visibleFieldError('location_id')} />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Structure No.</Label>
+          <Input placeholder="C-001" {...register('structure_no')} />
         </div>
       </div>
     )
@@ -484,31 +566,31 @@ export function RequestNewPage() {
     if (s === 1) return (
       <div className="space-y-4">
         <div className={layout.formGrid2}>
-          <div className="space-y-1.5">
+          <div data-form-field="casting_date" className={fieldWrapClass(visibleFieldError('casting_date'))}>
             <Label>วันเท *</Label>
-            <Input type="date" {...register('casting_date')} />
-            {errors.casting_date && <p className="text-xs text-rose-600">{errors.casting_date.message}</p>}
+            <Input type="date" aria-invalid={Boolean(visibleFieldError('casting_date'))} {...register('casting_date', { onChange: () => { void trigger('casting_date') } })} />
+            <FieldError message={visibleFieldError('casting_date')} />
           </div>
-          <div className="space-y-1.5">
+          <div data-form-field="request_time" className={fieldWrapClass(visibleFieldError('request_time'))}>
             <Label>เวลา *</Label>
-            <Input type="time" {...register('request_time')} />
-            {errors.request_time && <p className="text-xs text-rose-600">{errors.request_time.message}</p>}
+            <Input type="time" aria-invalid={Boolean(visibleFieldError('request_time'))} {...register('request_time', { onChange: () => { void trigger('request_time') } })} />
+            <FieldError message={visibleFieldError('request_time')} />
           </div>
         </div>
 
-        <div className="space-y-1.5">
+        <div data-form-field="strength" className={fieldWrapClass(visibleFieldError('strength'))}>
           <Label>{DWG_STRENGTH_FIELD_LABEL} *</Label>
           <Controller
             name="strength"
             control={control}
             render={({ field }) => (
-              <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+              <RequireStrengthSelect value={field.value} onChange={withFieldRevalidate('strength', field, trigger)} mixcodes={scopeMixcodes} />
             )}
           />
-          {errors.strength && <p className="text-xs text-rose-600">{errors.strength.message}</p>}
+          <FieldError message={visibleFieldError('strength')} />
         </div>
 
-        <div className="space-y-1.5">
+        <div data-form-field="mixcode_id" className={fieldWrapClass(visibleFieldError('mixcode_id'))}>
           <Label>Mixcode *</Label>
           <Controller
             name="mixcode_id"
@@ -516,17 +598,15 @@ export function RequestNewPage() {
             render={({ field }) => (
               <MixcodePicker
                 value={field.value}
-                onChange={field.onChange}
-                mixcodes={filteredMixcodes}
-                emptyMessage={
-                  mixcodes.length > 0 && filteredMixcodes.length === 0
-                    ? 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก'
-                    : undefined
-                }
+                onChange={withFieldRevalidate('mixcode_id', field, trigger)}
+                mixcodes={pickerMixcodes}
+                disabled={mixcodePickerLocked}
+                dwgStrengthOption={watchStrength}
+                emptyMessage={pickerEmptyMessage}
               />
             )}
           />
-          {errors.mixcode_id && <p className="text-xs text-rose-600">{errors.mixcode_id.message}</p>}
+          <FieldError message={visibleFieldError('mixcode_id')} />
         </div>
 
         <div className={layout.formGrid2}>
@@ -534,10 +614,10 @@ export function RequestNewPage() {
             <Label>DWG volume (cu.m)</Label>
             <Input type="number" step="0.01" {...register('volume_dwg')} />
           </div>
-          <div className="space-y-1.5">
+          <div data-form-field="volume_request" className={fieldWrapClass(visibleFieldError('volume_request'))}>
             <Label>Request Volume (cu.m) *</Label>
-            <Input type="number" step="0.01" {...register('volume_request')} />
-            {errors.volume_request && <p className="text-xs text-rose-600">{errors.volume_request.message}</p>}
+            <Input type="number" step="0.01" aria-invalid={Boolean(visibleFieldError('volume_request'))} {...register('volume_request', { onChange: () => { void trigger('volume_request') } })} />
+            <FieldError message={visibleFieldError('volume_request')} />
           </div>
         </div>
 
@@ -613,35 +693,49 @@ export function RequestNewPage() {
 
       <Card className={rq.cardForm}>
         <CardContent className={rq.cardContent}>
-          <form onSubmit={handleSubmit(onSubmit)} className="pour-form-fields">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit(onSubmit)}
+            className={cn(
+              'pour-form-fields',
+              'pb-[calc(5.25rem+env(safe-area-inset-bottom,0px))] pour-pointer-fine:pb-0',
+            )}
+          >
             {stepFields(step)}
-
-            <div className="mt-8 flex justify-between gap-2 border-t border-[color:var(--pour-surface-border)]/80 pt-5">
-              {step > 0 ? (
-                <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => setStep(step - 1)}>
-                  ย้อนกลับ
-                </Button>
-              ) : (
-                <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => navigate(APP_HOME)}>
-                  ยกเลิก
-                </Button>
-              )}
-              {step < 2 ? (
-                <Button type="button" className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20" onClick={nextStep}>
-                  ถัดไป
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
-                  disabled={submitting || beforeImageUploading}
-                  onClick={() => { void handleSubmit(onSubmit)() }}
-                >
-                  {submitting ? 'กำลังส่ง...' : 'ยืนยันการขอ'}
-                </Button>
-              )}
-            </div>
           </form>
+
+          <div
+            className={cn(
+              'flex justify-between gap-2 border-t border-[color:var(--pour-surface-border)]/80',
+              'fixed inset-x-0 bottom-0 z-30 bg-[color:var(--pour-bg)]/95 px-4 py-3 shadow-[0_-4px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm',
+              'pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]',
+              'pour-pointer-fine:static pour-pointer-fine:z-auto pour-pointer-fine:mt-8 pour-pointer-fine:border-t pour-pointer-fine:bg-transparent pour-pointer-fine:px-0 pour-pointer-fine:py-0 pour-pointer-fine:pt-5 pour-pointer-fine:shadow-none pour-pointer-fine:backdrop-blur-none',
+            )}
+          >
+            {step > 0 ? (
+              <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => { setShowStepErrors(false); setStep(step - 1) }}>
+                ย้อนกลับ
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" className="rounded-xl border-[color:var(--pour-surface-border)]" onClick={() => navigate(APP_HOME)}>
+                ยกเลิก
+              </Button>
+            )}
+            {step < 2 ? (
+              <Button type="button" className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20" onClick={nextStep}>
+                ถัดไป
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                className="rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
+                disabled={submitting || beforeImageUploading}
+                onClick={() => { void handleSubmit(onSubmit)() }}
+              >
+                {submitting ? 'กำลังส่ง...' : 'ยืนยันการขอ'}
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
     </div>

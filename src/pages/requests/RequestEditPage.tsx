@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -30,11 +30,14 @@ import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
 import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
 import {
+  listMixcodeStrengthOptions,
   mixcodeStrengthOptionValueForStoredStrength,
   parseMixcodeStrengthOptionValue,
   DWG_STRENGTH_FIELD_LABEL,
   DWG_STRENGTH_REQUIRED_MESSAGE,
 } from '@/lib/mixcodeStrengthOptions'
+import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
+import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
 import type { Request } from '@/types/app.types'
 
 const schema = z.object({
@@ -56,12 +59,44 @@ export function RequestEditPage() {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { filter, setFilter } = useFilterStore()
-  const { mixcodes } = useMasterDataStore()
+  const { mixcodes, concreteWorks, structures } = useMasterDataStore()
   const [request, setRequest] = useState<Request | null>(null)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, control, handleSubmit, reset, watch, setValue, getValues, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
+
+  const watchStrength = watch('strength')
+  const selectedCW = useMemo(
+    () => concreteWorks.find((cw) => cw.id === request?.concrete_work_id),
+    [concreteWorks, request?.concrete_work_id],
+  )
+  const selectedStructure = useMemo(
+    () => structures.find((s) => s.id === request?.structure_id),
+    [structures, request?.structure_id],
+  )
+
+  const {
+    scopeMixcodes,
+    pickerMixcodes,
+    mixcodePickerLocked,
+    pickerEmptyMessage,
+  } = useBookingMixcodePicker({
+    mixcodes,
+    concreteWork: selectedCW,
+    structure: selectedStructure,
+    dwgStrengthOption: watchStrength,
+    getMixcodeId: () => getValues('mixcode_id'),
+    setMixcodeId: (id) => setValue('mixcode_id', id),
+    scopeEmptyMessage: 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างของรายการนี้',
+  })
+
+  useEffect(() => {
+    const cur = getValues('strength')
+    if (!cur) return
+    const opts = listMixcodeStrengthOptions(scopeMixcodes)
+    if (!opts.some((o) => o.value === cur)) setValue('strength', '')
+  }, [scopeMixcodes, getValues, setValue])
 
   useDesktopSearchRegistration({
     placeholder: REQUEST_DETAIL_SEARCH_PLACEHOLDER,
@@ -110,6 +145,11 @@ export function RequestEditPage() {
 
   async function onSubmit(data: FormData) {
     if (!id || !request) return
+    const mixErr = validateMixcodeForBooking(data.mixcode_id, mixcodes, data.strength)
+    if (mixErr) {
+      toast.error(mixErr)
+      return
+    }
     setSubmitting(true)
     const patch = {
       casting_date: data.casting_date,
@@ -185,7 +225,7 @@ export function RequestEditPage() {
                 name="strength"
                 control={control}
                 render={({ field }) => (
-                  <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+                  <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={scopeMixcodes} />
                 )}
               />
               {errors.strength && <p className="text-xs text-rose-600">{errors.strength.message}</p>}
@@ -196,7 +236,14 @@ export function RequestEditPage() {
                 name="mixcode_id"
                 control={control}
                 render={({ field }) => (
-                  <MixcodePicker value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+                  <MixcodePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                    mixcodes={pickerMixcodes}
+                    disabled={mixcodePickerLocked}
+                    dwgStrengthOption={watchStrength}
+                    emptyMessage={pickerEmptyMessage}
+                  />
                 )}
               />
             </div>

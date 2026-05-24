@@ -7,7 +7,7 @@ import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
@@ -293,15 +293,12 @@ export function AbcCodePage() {
                 return (
                   <div key={n} className="space-y-1.5">
                     <Label>Code {n}</Label>
-                    <Select
-                      value={raw != null ? String(raw) : undefined}
+                    <SearchableSelect
+                      value={raw != null ? String(raw) : ''}
                       onValueChange={(v) => onChange(key, parseInt(v, 10))}
-                    >
-                      <SelectTrigger><SelectValue placeholder={`เลือก Code ${n}`} /></SelectTrigger>
-                      <SelectContent>
-                        {segments[segKey].map((s) => <SelectItem key={s.id} value={String(s.id)}>{s.code_name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                      placeholder={`เลือก Code ${n}`}
+                      options={mapSearchableOptions(segments[segKey], (s) => String(s.id), (s) => s.code_name)}
+                    />
                   </div>
                 )
               })}

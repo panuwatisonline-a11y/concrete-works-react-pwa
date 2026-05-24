@@ -15,26 +15,26 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  SearchableSelect,
   SELECT_CONTENT_ELEVATED_Z,
-} from '@/components/ui/select'
+  mapSearchableOptions,
+} from '@/components/ui/searchable-select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
 import { RequireStrengthSelect } from '@/components/requests/RequireStrengthSelect'
 import {
   DWG_STRENGTH_FIELD_LABEL,
   DWG_STRENGTH_REQUIRED_MESSAGE,
+  listMixcodeStrengthOptions,
   mixcodeStrengthLabelForOptionValue,
   parseMixcodeStrengthOptionValue,
 } from '@/lib/mixcodeStrengthOptions'
+import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
+import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { createCstShortcutRequest } from '@/lib/cstShortcutCreate'
-import { parseStructureListTokens, structureHasCompatibleMixcode, structureListsIntersect } from '@/lib/structureListTokens'
+import { structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { cn, formatDate, formatVolumeCuM } from '@/lib/utils'
 import { layout, modal, rq } from '@/lib/requestUi'
 import type { AbcCode, ClientItem, ConcreteWork, LocationItem, MixedCode, Structure, WbsCode } from '@/types/app.types'
@@ -175,14 +175,13 @@ function CstShortcutStep0Fields({
           name="client_id"
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก User Group" /></SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                {clients.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>{c.client_name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="เลือก User Group"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name)}
+            />
           )}
         />
         {errors.client_id ? <p className="text-xs text-rose-600">{errors.client_id.message}</p> : null}
@@ -194,14 +193,13 @@ function CstShortcutStep0Fields({
           name="abc_code_id"
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก ABC Code" /></SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                {abcCodes.map((c) => (
-                  <SelectItem key={c.id} value={String(c.id)}>{c.full_abc}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              placeholder="เลือก ABC Code"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(abcCodes, (c) => String(c.id), (c) => c.full_abc ?? '')}
+            />
           )}
         />
       </div>
@@ -212,14 +210,13 @@ function CstShortcutStep0Fields({
           name="wbs_code_id"
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก WBS Code" /></SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                {wbsCodes.map((w) => (
-                  <SelectItem key={w.id} value={String(w.id)}>{w.full_wbs}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              placeholder="เลือก WBS Code"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(wbsCodes, (w) => String(w.id), (w) => w.full_wbs ?? '')}
+            />
           )}
         />
       </div>
@@ -230,24 +227,38 @@ function CstShortcutStep0Fields({
           name="concrete_work_id"
           control={control}
           render={({ field }) => (
-            <Select
+            <SearchableSelect
               value={field.value}
               onValueChange={(v) => {
                 field.onChange(v)
                 setValue('structure_id', '')
                 setValue('mixcode_id', '')
               }}
-            >
-              <SelectTrigger><SelectValue placeholder="เลือก Concrete Work" /></SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                {concreteWorks.map((cw) => (
-                  <SelectItem key={cw.id} value={String(cw.id)}>{cw.concrete_work}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              placeholder="เลือก Concrete Work"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
+            />
           )}
         />
         {errors.concrete_work_id ? <p className="text-xs text-rose-600">{errors.concrete_work_id.message}</p> : null}
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Structure *</Label>
+        <Controller
+          name="structure_id"
+          control={control}
+          render={({ field }) => (
+            <SearchableSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="เลือก Structure"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(filteredStructures, (s) => String(s.id), (s) => s.structure_name)}
+            />
+          )}
+        />
+        {errors.structure_id ? <p className="text-xs text-rose-600">{errors.structure_id.message}</p> : null}
       </div>
 
       <div className="space-y-1.5">
@@ -256,42 +267,25 @@ function CstShortcutStep0Fields({
           name="location_id"
           control={control}
           render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue placeholder="เลือก Location" /></SelectTrigger>
-              <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                {locations.map((l) => (
-                  <SelectItem key={l.id} value={String(l.id)}>{l.full_location ?? l.location1}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableSelect
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder="เลือก Location"
+              contentClassName={SELECT_CONTENT_ELEVATED_Z}
+              options={mapSearchableOptions(
+                locations,
+                (l) => String(l.id),
+                (l) => l.full_location ?? l.location1,
+              )}
+            />
           )}
         />
         {errors.location_id ? <p className="text-xs text-rose-600">{errors.location_id.message}</p> : null}
       </div>
 
-      <div className={layout.formGrid2}>
-        <div className="space-y-1.5">
-          <Label>Structure *</Label>
-          <Controller
-            name="structure_id"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger><SelectValue placeholder="เลือก Structure" /></SelectTrigger>
-                <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                  {filteredStructures.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>{s.structure_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.structure_id ? <p className="text-xs text-rose-600">{errors.structure_id.message}</p> : null}
-        </div>
-        <div className="space-y-1.5">
-          <Label>Structure No.</Label>
-          <Input placeholder="C-001" {...register('structure_no')} />
-        </div>
+      <div className="space-y-1.5">
+        <Label>Structure No.</Label>
+        <Input placeholder="C-001" {...register('structure_no')} />
       </div>
     </div>
   )
@@ -301,8 +295,11 @@ type Step1Props = {
   control: Control<FormData>
   register: UseFormRegister<FormData>
   errors: FieldErrors<FormData>
-  filteredMixcodes: MixedCode[]
-  mixcodes: MixedCode[]
+  scopeMixcodes: MixedCode[]
+  pickerMixcodes: MixedCode[]
+  mixcodePickerLocked: boolean
+  pickerEmptyMessage?: string
+  dwgStrengthOption: string
   summary: {
     client?: string
     abc?: string
@@ -318,7 +315,17 @@ type Step1Props = {
   }
 }
 
-function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, mixcodes, summary }: Step1Props) {
+function CstShortcutStep1Fields({
+  control,
+  register,
+  errors,
+  scopeMixcodes,
+  pickerMixcodes,
+  mixcodePickerLocked,
+  pickerEmptyMessage,
+  dwgStrengthOption,
+  summary,
+}: Step1Props) {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
@@ -333,7 +340,7 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
           name="strength"
           control={control}
           render={({ field }) => (
-            <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={mixcodes} />
+            <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={scopeMixcodes} />
           )}
         />
         {errors.strength ? <p className="text-xs text-rose-600">{errors.strength.message}</p> : null}
@@ -348,12 +355,10 @@ function CstShortcutStep1Fields({ control, register, errors, filteredMixcodes, m
             <MixcodePicker
               value={field.value}
               onChange={field.onChange}
-              mixcodes={filteredMixcodes}
-              emptyMessage={
-                mixcodes.length > 0 && filteredMixcodes.length === 0
-                  ? 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก'
-                  : undefined
-              }
+              mixcodes={pickerMixcodes}
+              disabled={mixcodePickerLocked}
+              dwgStrengthOption={dwgStrengthOption}
+              emptyMessage={pickerEmptyMessage}
             />
           )}
         />
@@ -445,6 +450,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
 
   const watchConcreteWork = watch('concrete_work_id')
   const watchStructureId = watch('structure_id')
+  const watchStrength = watch('strength')
   const selectedCW = concreteWorks.find((cw) => String(cw.id) === watchConcreteWork)
   const selectedStructure = structures.find((s) => String(s.id) === watchStructureId)
 
@@ -455,22 +461,27 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
     )
   }, [structures, selectedCW, mixcodes])
 
-  const filteredMixcodes = useMemo(() => {
-    if (!selectedCW) return mixcodes
-    return mixcodes.filter((m) => {
-      if (!structureListsIntersect(m.structure_list, selectedCW.structure_list)) return false
-      if (!selectedStructure) return true
-      const allowed = parseStructureListTokens(m.structure_list)
-      if (allowed.length === 0) return true
-      return allowed.includes(selectedStructure.structure_name)
-    })
-  }, [mixcodes, selectedCW, selectedStructure])
+  const {
+    scopeMixcodes,
+    pickerMixcodes,
+    mixcodePickerLocked,
+    pickerEmptyMessage,
+  } = useBookingMixcodePicker({
+    mixcodes,
+    concreteWork: selectedCW,
+    structure: selectedStructure,
+    dwgStrengthOption: watchStrength,
+    getMixcodeId: () => getValues('mixcode_id'),
+    setMixcodeId: (id) => setValue('mixcode_id', id),
+    scopeEmptyMessage: 'ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก',
+  })
 
   useEffect(() => {
-    const cur = getValues('mixcode_id')
+    const cur = getValues('strength')
     if (!cur) return
-    if (!filteredMixcodes.some((m) => String(m.id) === cur)) setValue('mixcode_id', '')
-  }, [filteredMixcodes, getValues, setValue])
+    const opts = listMixcodeStrengthOptions(scopeMixcodes)
+    if (!opts.some((o) => o.value === cur)) setValue('strength', '')
+  }, [scopeMixcodes, getValues, setValue])
 
   useEffect(() => {
     const cur = getValues('structure_id')
@@ -480,6 +491,11 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
 
   async function onSubmit(data: FormData) {
     if (step !== 1 || !user?.id || submitLockRef.current) return
+    const mixErr = validateMixcodeForBooking(data.mixcode_id, mixcodes, data.strength)
+    if (mixErr) {
+      toast.error(mixErr)
+      return
+    }
     const vol = parseFloat(data.volume_confirm)
     if (Number.isNaN(vol) || vol <= 0) {
       toast.error('กรุณาระบุ Confirm Volume ที่ถูกต้อง')
@@ -571,8 +587,11 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
                 control={control}
                 register={register}
                 errors={errors}
-                filteredMixcodes={filteredMixcodes}
-                mixcodes={mixcodes}
+                scopeMixcodes={scopeMixcodes}
+                pickerMixcodes={pickerMixcodes}
+                mixcodePickerLocked={mixcodePickerLocked}
+                pickerEmptyMessage={pickerEmptyMessage}
+                dwgStrengthOption={watchStrength}
                 summary={{
                   client: client?.client_name,
                   abc: abc?.full_abc ?? undefined,
@@ -582,7 +601,7 @@ export function CstShortcutCreateDialog({ open, onOpenChange, onCreated }: CstSh
                   structure: structure?.structure_name,
                   structureNo: vals.structure_no,
                   castingDate: vals.casting_date,
-                  strengthLabel: mixcodeStrengthLabelForOptionValue(vals.strength, mixcodes),
+                  strengthLabel: mixcodeStrengthLabelForOptionValue(vals.strength, scopeMixcodes),
                   mixcode: mixcode?.mixcode,
                   volumeConfirm: vals.volume_confirm,
                 }}

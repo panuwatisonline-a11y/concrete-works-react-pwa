@@ -1,8 +1,8 @@
-import { useLayoutEffect, useRef, useState, type ElementType } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
-  Menu, X, LogOut, PlusCircle, User, LayoutDashboard,
-  Search, Star, Activity, Files, ClipboardList,
+  Menu, X, LogOut, LayoutDashboard,
+  Search,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { APP_HOME } from '@/lib/appHome'
 import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
-import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
+import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
 import { mainNavLinks } from '@/lib/mainNav'
@@ -20,61 +20,6 @@ import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
-
-interface NavItem {
-  to: string
-  label: string
-  icon: ElementType
-  end?: boolean
-}
-
-/** แถบหน้าหลักบนมือถือ — แทน bottom tab */
-function MobilePrimaryNav() {
-  const location = useLocation()
-  const { role } = useAuthStore()
-  const resetFilter = useFilterStore((s) => s.resetFilter)
-  const q = new URLSearchParams(location.search)
-  const isMineTab = location.pathname === '/requests' && q.get('scope') === 'mine'
-  const isStatusTab =
-    location.pathname === '/requests' && q.get('view') === 'summary' && q.get('scope') !== 'mine'
-  const isAdminArea = location.pathname.startsWith('/admin')
-  const pill = (active: boolean) =>
-    cn(
-      'pour-interactive pour-nav-item pour-nav-pill inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2',
-      theme.navPillMobile,
-      active ? theme.navPillActive : theme.navPillInactive,
-    )
-
-  return (
-    <nav aria-label="เมนูหลัก" className={cn(theme.primaryNavStrip, 'pour-desktop:hidden')}>
-      <div className={cn('mx-auto flex w-full min-w-0 max-w-none items-center gap-1.5 overflow-x-auto scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden', theme.primaryNavStripPad)}>
-        <Link to="/requests?view=summary" className={pill(isStatusTab)} aria-current={isStatusTab ? 'page' : undefined}>
-          <Activity className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
-          สถานะ
-        </Link>
-        <Link
-          to="/requests?view=latest&scope=mine"
-          className={pill(isMineTab)}
-          aria-current={isMineTab ? 'page' : undefined}
-          onClick={() => resetFilter()}
-        >
-          <Star className={cn(icon.sm, 'text-amber-500')} strokeWidth={ICON_STROKE} fill="currentColor" aria-hidden />
-          รายการของฉัน
-        </Link>
-        {canManageUsers(role) ? (
-          <Link
-            to="/admin"
-            className={pill(isAdminArea)}
-            aria-current={isAdminArea ? 'page' : undefined}
-          >
-            <LayoutDashboard className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
-            Dashboard
-          </Link>
-        ) : null}
-      </div>
-    </nav>
-  )
-}
 
 export function AppHeader() {
   const headerRef = useRef<HTMLElement>(null)
@@ -165,8 +110,6 @@ export function AppHeader() {
             <Search className={icon.sm} strokeWidth={ICON_STROKE} />
           </button>
         </div>
-
-        {!location.pathname.startsWith('/requests') ? <MobilePrimaryNav /> : null}
       </header>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>

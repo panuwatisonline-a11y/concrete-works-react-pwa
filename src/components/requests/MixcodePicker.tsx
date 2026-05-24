@@ -1,6 +1,8 @@
 ﻿import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { MixedCode } from '@/types/app.types'
+import { getMixcodeOverDwgHint, parseDwgStrengthOption } from '@/lib/mixcodeBookingFilter'
+import { formatMixcodeStrengthLabel } from '@/lib/mixcodeStrengthOptions'
 
 export function MixcodePicker({
   value,
@@ -8,6 +10,7 @@ export function MixcodePicker({
   mixcodes,
   disabled,
   emptyMessage,
+  dwgStrengthOption,
 }: {
   value: string
   onChange: (mixcodeId: string) => void
@@ -15,9 +18,24 @@ export function MixcodePicker({
   disabled?: boolean
   /** แสดงเมื่อ `mixcodes` ว่าง (เช่น กรองแล้วไม่มีรายการ) */
   emptyMessage?: string
+  /** ค่า Select DWG Strength — ใช้แสดง hint เมื่อ Mixcode สูงกว่าแบบ */
+  dwgStrengthOption?: string
 }) {
   const selected = value ? mixcodes.find((m) => String(m.id) === value) : undefined
   const emptyLabel = emptyMessage ?? 'ยังไม่มี Mixcode ในระบบ'
+  const overDwgHint = getMixcodeOverDwgHint(selected, dwgStrengthOption)
+  const dwgParts = parseDwgStrengthOption(dwgStrengthOption)
+
+  function strengthCellLabel(m: MixedCode): string {
+    const label =
+      m.strength != null
+        ? `${m.strength}${m.strength_type ? ` ${m.strength_type}` : ''}`
+        : '—'
+    if (dwgParts && m.strength != null && m.strength > dwgParts.strength) {
+      return `${label} ↑`
+    }
+    return label
+  }
 
   return (
     <div className="min-w-0 space-y-2">
@@ -48,10 +66,6 @@ export function MixcodePicker({
               ) : (
                 mixcodes.map((m) => {
                   const on = String(m.id) === value
-                  const strengthLabel =
-                    m.strength != null
-                      ? `${m.strength}${m.strength_type ? ` ${m.strength_type}` : ''}`
-                      : '—'
                   return (
                     <tr
                       key={m.id}
@@ -83,7 +97,7 @@ export function MixcodePicker({
                         {m.mixcode}
                       </td>
                       <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
-                        {strengthLabel}
+                        {strengthCellLabel(m)}
                       </td>
                       <td className="break-words px-1.5 py-2 align-middle text-[12px] leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.slump ?? '—'}
@@ -99,14 +113,19 @@ export function MixcodePicker({
           </table>
         </div>
       </div>
-      {selected && (
-        <p className="rounded-lg border border-[color:var(--pour-accent)]/35 bg-[color:var(--pour-accent-muted)] px-3 py-2 text-sm leading-snug">
-          <span className="text-[color:var(--pour-ink-2)]">เลือกแล้ว: </span>
-          <span className="font-semibold text-[color:var(--pour-ink-0)]">
-            {selected.mixcode} — {selected.strength != null ? `${selected.strength} ${selected.strength_type ?? ''}`.trim() : '—'}
-          </span>
-        </p>
-      )}
+      {selected ? (
+        <div className="space-y-2">
+          <p className="rounded-lg border border-[color:var(--pour-accent)]/35 bg-[color:var(--pour-accent-muted)] px-3 py-2 text-sm leading-snug">
+            <span className="text-[color:var(--pour-ink-2)]">เลือกแล้ว: </span>
+            <span className="font-semibold text-[color:var(--pour-ink-0)]">
+              {selected.mixcode} — {formatMixcodeStrengthLabel(selected) ?? '—'}
+            </span>
+          </p>
+          {overDwgHint ? (
+            <p className="text-xs leading-snug text-pour-muted">{overDwgHint}</p>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   )
 }

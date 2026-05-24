@@ -13,13 +13,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
+  SearchableSelect,
   SELECT_CONTENT_ELEVATED_Z,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  mapSearchableOptions,
+} from '@/components/ui/searchable-select'
 import {
   CST_SAMPLE_TYPE_OPTIONS,
   cstComputedPreviewRows,
@@ -384,41 +381,29 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                     ยังไม่มีเครื่องในระบบ — เพิ่มที่ Admin → CST Machine
                   </p>
                 ) : (
-                  <Select
-                    value={values.machine_id || undefined}
+                  <SearchableSelect
+                    value={values.machine_id ?? ''}
                     onValueChange={(id) => setValues((v) => v && { ...v, machine_id: id })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="เลือกเครื่อง" />
-                    </SelectTrigger>
-                    <SelectContent className={cn(SELECT_CONTENT_ELEVATED_Z, 'max-h-48')}>
-                      {compressionMachines.map((m) => (
-                        <SelectItem key={m.id} value={String(m.id)}>
-                          {m.machine?.trim() || `เครื่อง #${m.id}`}
-                          {m.k_display ? ` · ${m.k_display}` : ''}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    placeholder="เลือกเครื่อง"
+                    contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                    listClassName="max-h-48"
+                    options={mapSearchableOptions(
+                      compressionMachines,
+                      (m) => String(m.id),
+                      (m) => `${m.machine?.trim() || `เครื่อง #${m.id}`}${m.k_display ? ` · ${m.k_display}` : ''}`,
+                    )}
+                  />
                 )}
               </div>
               <div className={cn(layout.formField, CST_META_FULL_SPAN)}>
                 <Label>Sample Type *</Label>
-                <Select
-                  value={values.sample_type || undefined}
+                <SearchableSelect
+                  value={values.sample_type ?? ''}
                   onValueChange={(t) => setValues((v) => v && { ...v, sample_type: t })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="ประเภทตัวอย่าง" />
-                  </SelectTrigger>
-                  <SelectContent className={SELECT_CONTENT_ELEVATED_Z}>
-                    {CST_SAMPLE_TYPE_OPTIONS.map((t) => (
-                      <SelectItem key={t} value={t}>
-                        {t}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="ประเภทตัวอย่าง"
+                  contentClassName={SELECT_CONTENT_ELEVATED_Z}
+                  options={CST_SAMPLE_TYPE_OPTIONS.map((t) => ({ value: t, label: t }))}
+                />
               </div>
             </div>
 

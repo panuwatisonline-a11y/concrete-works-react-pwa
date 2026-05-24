@@ -10,13 +10,7 @@ import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistrati
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import {
   fetchConcreteSummaryRequests,
   fetchCstViewsByRequestIds,
@@ -303,27 +297,16 @@ export function ConcreteSummaryPage() {
           <div className="flex min-w-[12rem] flex-1 flex-wrap items-end gap-2 sm:max-w-md">
             <div className="min-w-[12rem] flex-1 space-y-1.5">
               <Label className="text-sm">Structure</Label>
-              <Select
+              <SearchableSelect
                 value={structureId}
                 onValueChange={setStructureId}
                 disabled={loading || structureOptions.length === 0}
-              >
-                <SelectTrigger className="h-10 w-full">
-                  <SelectValue
-                    placeholder={
-                      structureOptions.length === 0 ? 'ไม่มีโครงสร้างในช่วงนี้' : 'ทุกโครงสร้าง'
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL_STRUCTURES}>ทุกโครงสร้าง</SelectItem>
-                  {structureOptions.map((s) => (
-                    <SelectItem key={s.id} value={String(s.id)}>
-                      {s.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                placeholder={structureOptions.length === 0 ? 'ไม่มีโครงสร้างในช่วงนี้' : 'ทุกโครงสร้าง'}
+                options={[
+                  { value: ALL_STRUCTURES, label: 'ทุกโครงสร้าง' },
+                  ...mapSearchableOptions(structureOptions, (s) => String(s.id), (s) => s.name),
+                ]}
+              />
             </div>
             <Button
               type="button"
