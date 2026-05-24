@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Check, ChevronDown } from 'lucide-react'
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 import { glass } from '@/lib/requestUi'
 
@@ -44,6 +45,14 @@ function optionHaystack(option: SearchableSelectOption): string {
   return `${option.label} ${option.keywords ?? ''}`.toLowerCase()
 }
 
+/** Desktop — โฟกัสช่องค้นหาทันทีเมื่อเปิด; มือถือ — เลือกจาก list ก่อน ไม่ดึงคีย์บอร์ด */
+const SEARCH_FOCUS_MEDIA = '(hover: hover) and (pointer: fine)'
+
+function prefersSearchFocusOnOpen(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.matchMedia(SEARCH_FOCUS_MEDIA).matches
+}
+
 export function SearchableSelect({
   value = '',
   onValueChange,
@@ -58,10 +67,12 @@ export function SearchableSelect({
   id,
   'aria-invalid': ariaInvalid,
 }: SearchableSelectProps) {
+  const listboxId = React.useId()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState('')
   const [highlight, setHighlight] = React.useState(0)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const searchRef = React.useRef<HTMLInputElement>(null)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
 
   const selected = React.useMemo(
     () => options.find((option) => option.value === value),
@@ -83,17 +94,25 @@ export function SearchableSelect({
     setQuery('')
   }, [])
 
+  const focusSearchIfDesktop = React.useCallback(() => {
+    if (!prefersSearchFocusOnOpen()) return
+    requestAnimationFrame(() => searchRef.current?.focus())
+  }, [])
+
   const openPicker = React.useCallback(() => {
     if (disabled) return
     setOpen(true)
     setQuery('')
-    requestAnimationFrame(() => inputRef.current?.focus())
-  }, [disabled])
+    focusSearchIfDesktop()
+  }, [disabled, focusSearchIfDesktop])
 
   const handleOpenChange = React.useCallback(
     (next: boolean) => {
       if (next) openPicker()
-      else close()
+      else {
+        close()
+        searchRef.current?.blur()
+      }
     },
     [close, openPicker],
   )
@@ -102,82 +121,104 @@ export function SearchableSelect({
     (option: SearchableSelectOption) => {
       onValueChange(option.value)
       close()
-      inputRef.current?.blur()
+      searchRef.current?.blur()
+      requestAnimationFrame(() => triggerRef.current?.focus())
     },
     [close, onValueChange],
   )
 
-  const displayValue = open ? query : (selected?.label ?? '')
+  const onSearchKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        close()
+        triggerRef.current?.focus()
+        return
+      }
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        setHighlight((current) => Math.min(current + 1, Math.max(filtered.length - 1, 0)))
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        setHighlight((current) => Math.max(current - 1, 0))
+      }
+      if (event.key === 'Enter' && filtered[highlight]) {
+        event.preventDefault()
+        selectOption(filtered[highlight])
+      }
+    },
+    [close, filtered, highlight, selectOption],
+  )
+
+  const onTriggerKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<HTMLButtonElement>) => {
+      if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        if (!open) openPicker()
+      }
+    },
+    [open, openPicker],
+  )
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverAnchor asChild>
-        <div className="relative min-w-0 max-w-full">
-          <input
-            ref={inputRef}
-            id={id}
-            type="text"
-            role="combobox"
-            aria-expanded={open}
-            aria-autocomplete="list"
-            aria-invalid={ariaInvalid}
-            disabled={disabled}
-            readOnly={!open}
-            value={displayValue}
-            placeholder={open ? searchPlaceholder : placeholder}
-            onChange={(event) => {
-              if (open) setQuery(event.target.value)
-            }}
-            onFocus={openPicker}
-            onClick={() => {
-              if (!open) openPicker()
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') {
-                event.preventDefault()
-                close()
-                inputRef.current?.blur()
-                return
-              }
-              if (!open && (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ')) {
-                event.preventDefault()
-                openPicker()
-                return
-              }
-              if (event.key === 'ArrowDown') {
-                event.preventDefault()
-                setHighlight((current) => Math.min(current + 1, Math.max(filtered.length - 1, 0)))
-              }
-              if (event.key === 'ArrowUp') {
-                event.preventDefault()
-                setHighlight((current) => Math.max(current - 1, 0))
-              }
-              if (event.key === 'Enter' && open && filtered[highlight]) {
-                event.preventDefault()
-                selectOption(filtered[highlight])
-              }
-            }}
-            className={cn(
-              glass.picker,
-              'h-10 min-w-0 max-w-full w-full rounded-xl px-3.5 py-2 pr-9 text-sm font-medium',
-              'placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)]',
-              !open && !selected && 'text-[color:var(--pour-ink-3)]',
-              open ? 'cursor-text' : 'cursor-pointer',
-              disabled && 'cursor-not-allowed opacity-50',
-              triggerClassName,
-            )}
+    <Popover modal open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>
+        <button
+          ref={triggerRef}
+          id={id}
+          type="button"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-invalid={ariaInvalid}
+          disabled={disabled}
+          onKeyDown={onTriggerKeyDown}
+          className={cn(
+            glass.picker,
+            'flex h-10 min-w-0 max-w-full w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2 pr-3 text-left text-sm font-medium',
+            !selected && 'text-[color:var(--pour-ink-3)]',
+            disabled && 'cursor-not-allowed opacity-50',
+            triggerClassName,
+          )}
+        >
+          <span className="min-w-0 flex-1 truncate">{selected?.label ?? placeholder}</span>
+          <ChevronDown
+            className={cn('h-4 w-4 shrink-0 opacity-50 transition-transform', open && 'rotate-180')}
           />
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-50" />
-        </div>
-      </PopoverAnchor>
+        </button>
+      </PopoverTrigger>
       <PopoverContent
-        className={cn('p-0', contentClassName)}
+        className={cn('flex flex-col gap-1.5 p-1.5', contentClassName)}
         align="start"
+        collisionPadding={12}
         onOpenAutoFocus={(event) => event.preventDefault()}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault()
+          triggerRef.current?.focus()
+        }}
       >
+        <Input
+          ref={searchRef}
+          type="search"
+          enterKeyHint="search"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          value={query}
+          placeholder={searchPlaceholder}
+          className="h-9 shrink-0 text-sm"
+          onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={onSearchKeyDown}
+        />
         <div
+          id={listboxId}
           role="listbox"
-          className={cn('max-h-60 overflow-y-auto overscroll-contain p-1', listClassName)}
+          className={cn(
+            'max-h-[min(280px,45dvh)] overflow-y-auto overscroll-y-contain touch-pan-y p-0.5',
+            listClassName,
+          )}
+          onTouchMove={(event) => event.stopPropagation()}
         >
           {filtered.length === 0 ? (
             <p className="px-2 py-3 text-sm text-[color:var(--pour-ink-3)]">{emptyMessage}</p>
