@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState, useMemo } from 'react'
+﻿import { Fragment, useCallback, useEffect, useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -36,6 +36,7 @@ import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
 import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import type { UserStatus } from '@/types/app.types'
 import { adminDeleteProfile, adminUpdateProfile, fetchProfilesForAdmin } from '@/lib/adminProfileRpc'
+import { useJobScope } from '@/hooks/useJobScope'
 
 const ROLE_COLORS: Record<string, string> = {
   user: 'secondary',
@@ -98,6 +99,7 @@ function UserProfileAvatar({
 export function UsersPage() {
   const role = useAuthStore((s) => s.role)
   const { clients, jobs } = useMasterDataStore()
+  const { superAdminJobFilter } = useJobScope()
   const currentProfileId = useAuthStore((s) => s.profile?.id)
   const authUser = useAuthStore((s) => s.user)
   const actorEmail = authUser?.email
@@ -194,11 +196,43 @@ export function UsersPage() {
     )
   }
 
-  const pendingCount = users.filter((u) => u.status === 'pending').length
+  const scopeUsers = useMemo(() => {
+    if (!isSuperAdmin(role) || superAdminJobFilter === 'all') return users
+    return users.filter((u) => u.job_id === superAdminJobFilter)
+  }, [users, role, superAdminJobFilter])
+
+  const pendingCount = scopeUsers.filter((u) => u.status === 'pending').length
+
+  const superAdminShowsAllJobs = isSuperAdmin(role) && superAdminJobFilter === 'all'
+
+  const usersByJobSummary = useMemo(() => {
+    if (!superAdminShowsAllJobs) return []
+    const bucket = new Map<number | null, { jobId: number | null; jobName: string; total: number; pending: number; approved: number; rejected: number }>()
+    for (const u of scopeUsers) {
+      const key = u.job_id ?? null
+      const found = bucket.get(key)
+      if (found) {
+        found.total += 1
+        if (u.status === 'pending') found.pending += 1
+        if (u.status === 'approved') found.approved += 1
+        if (u.status === 'rejected') found.rejected += 1
+        continue
+      }
+      bucket.set(key, {
+        jobId: key,
+        jobName: key == null ? 'ไม่ระบุโครงการ' : jobs.find((j) => j.id === key)?.job_name ?? `Job #${key}`,
+        total: 1,
+        pending: u.status === 'pending' ? 1 : 0,
+        approved: u.status === 'approved' ? 1 : 0,
+        rejected: u.status === 'rejected' ? 1 : 0,
+      })
+    }
+    return Array.from(bucket.values()).sort((a, b) => a.jobName.localeCompare(b.jobName, 'th'))
+  }, [scopeUsers, jobs, superAdminShowsAllJobs])
 
   const filteredUsers = useMemo(() => {
     const t = userSearch.trim().toLowerCase()
-    return users.filter((u) => {
+    return scopeUsers.filter((u) => {
       if (statusFilter !== 'all' && u.status !== statusFilter) return false
       if (!t) return true
       const c = clientLabel(u)
@@ -206,7 +240,17 @@ export function UsersPage() {
       const blob = [u.employee_id, u.fname, u.lname, u.phone, u.role, c, j].join(' ').toLowerCase()
       return blob.includes(t)
     })
-  }, [users, userSearch, statusFilter, clients, jobs])
+  }, [scopeUsers, userSearch, statusFilter, clients, jobs])
+
+  const filteredJobCounts = useMemo(() => {
+    if (!superAdminShowsAllJobs) return new Map<string, number>()
+    const counts = new Map<string, number>()
+    for (const u of filteredUsers) {
+      const key = jobLabel(u)
+      counts.set(key, (counts.get(key) ?? 0) + 1)
+    }
+    return counts
+  }, [filteredUsers, superAdminShowsAllJobs, jobs])
 
   async function saveEdit() {
     if (!editUser) return
@@ -300,6 +344,21 @@ export function UsersPage() {
       </div>
 
       <div className={app.mobileCardStackCompact}>
+        {superAdminShowsAllJobs && !loading && usersByJobSummary.length > 0 && (
+          <div className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/75 p-3 backdrop-blur-sm">
+            <p className="mb-2 text-xs font-medium text-[color:var(--pour-ink-1)]">จำนวนผู้ใช้แยกตามโครงการ</p>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {usersByJobSummary.map((s) => (
+                <div key={String(s.jobId ?? 'none')} className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-white/70 px-3 py-2">
+                  <p className="truncate text-sm font-semibold text-[color:var(--pour-ink-0)]" title={s.jobName}>{s.jobName}</p>
+                  <p className="mt-1 text-xs text-[color:var(--pour-ink-1)]">
+                    ทั้งหมด {s.total} คน · รอ {s.pending} · อนุมัติ {s.approved}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {loading ? (
           <div className={rq.dataRowEmpty}>กำลังโหลด…</div>
         ) : filteredUsers.length === 0 ? (
@@ -307,93 +366,103 @@ export function UsersPage() {
             {users.length === 0 ? 'ไม่มีผู้ใช้' : 'ไม่พบผู้ใช้ที่ตรงกับคำค้น'}
           </div>
         ) : (
-          filteredUsers.map((u) => {
+          filteredUsers.map((u, idx) => {
             const allowManage = canModifyAdminTarget(role, u)
+            const currentJobLabel = jobLabel(u)
+            const prevJobLabel = idx > 0 ? jobLabel(filteredUsers[idx - 1] as Profile) : null
+            const showGroupHeader = superAdminShowsAllJobs && currentJobLabel !== prevJobLabel
             return (
-            <div key={u.id} className={adminDataRow.card}>
-              <dl className={adminDataRow.fields}>
-                <div>
-                  <dt className={adminDataRow.label}>ชื่อ</dt>
-                  <dd className={cn(adminDataRow.value, 'flex min-w-0 items-center gap-2.5 font-semibold')}>
-                    <UserProfileAvatar
-                      profile={u}
-                      currentUserId={currentProfileId}
-                      sessionAvatarUrl={sessionAvatarUrl}
-                      onPreview={openAvatarPreview}
-                    />
-                    <span className="min-w-0 break-words">{userDisplayName(u)}</span>
-                  </dd>
+            <Fragment key={u.id}>
+              {showGroupHeader && (
+                <div className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-3 py-1.5 text-xs font-semibold text-[color:var(--pour-ink-0)] backdrop-blur-sm">
+                  {currentJobLabel} · {filteredJobCounts.get(currentJobLabel) ?? 0} คน
                 </div>
-                <div>
-                  <dt className={adminDataRow.label}>User Group</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>รหัสพนักงาน</dt>
-                  <dd className="font-pour-mono text-xs text-[color:var(--pour-ink-1)]">{u.employee_id ?? '-'}</dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>เบอร์โทร</dt>
-                  <dd className="font-pour-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">{displayPhone(u)}</dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>โครงการ</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{jobLabel(u)}</dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>วันที่สมัคร</dt>
-                  <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{formatDate(u.created_at)}</dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>Role</dt>
-                  <dd>
-                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
-                      {roleDisplayLabel(u.role)}
-                    </Badge>
-                  </dd>
-                </div>
-                <div>
-                  <dt className={adminDataRow.label}>สถานะ</dt>
-                  <dd>
-                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
-                      {STATUS_BADGE[u.status].label}
-                    </span>
-                  </dd>
-                </div>
-              </dl>
-              <div className={adminDataRow.actions}>
-                {allowManage && u.status === 'pending' && (
-                  <>
-                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                      <CheckCircle className="h-3.5 w-3.5" />
-                    </Button>
+              )}
+              <div className={adminDataRow.card}>
+                <dl className={adminDataRow.fields}>
+                  <div>
+                    <dt className={adminDataRow.label}>ชื่อ</dt>
+                    <dd className={cn(adminDataRow.value, 'flex min-w-0 items-center gap-2.5 font-semibold')}>
+                      <UserProfileAvatar
+                        profile={u}
+                        currentUserId={currentProfileId}
+                        sessionAvatarUrl={sessionAvatarUrl}
+                        onPreview={openAvatarPreview}
+                      />
+                      <span className="min-w-0 break-words">{userDisplayName(u)}</span>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>User Group</dt>
+                    <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{clientLabel(u)}</dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>รหัสพนักงาน</dt>
+                    <dd className="font-pour-mono text-xs text-[color:var(--pour-ink-1)]">{u.employee_id ?? '-'}</dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>เบอร์โทร</dt>
+                    <dd className="font-pour-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">{displayPhone(u)}</dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>โครงการ</dt>
+                    <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{jobLabel(u)}</dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>วันที่สมัคร</dt>
+                    <dd className={cn(adminDataRow.value, 'text-[color:var(--pour-ink-1)]')}>{formatDate(u.created_at)}</dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>Role</dt>
+                    <dd>
+                      <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
+                        {roleDisplayLabel(u.role)}
+                      </Badge>
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className={adminDataRow.label}>สถานะ</dt>
+                    <dd>
+                      <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
+                        {STATUS_BADGE[u.status].label}
+                      </span>
+                    </dd>
+                  </div>
+                </dl>
+                <div className={adminDataRow.actions}>
+                  {allowManage && u.status === 'pending' && (
+                    <>
+                      <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                        <CheckCircle className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                        <XCircle className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                  {allowManage && u.status === 'approved' && (
                     <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
                       <XCircle className="h-3.5 w-3.5" />
                     </Button>
-                  </>
-                )}
-                {allowManage && u.status === 'approved' && (
-                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                    <XCircle className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                {allowManage && u.status === 'rejected' && (
-                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                    <CheckCircle className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                {allowManage && (
-                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                    <Edit className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-                {allowManage && u.id !== currentProfileId && (
-                  <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                    <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
-                  </Button>
-                )}
+                  )}
+                  {allowManage && u.status === 'rejected' && (
+                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                      <CheckCircle className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  {allowManage && (
+                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  {allowManage && u.id !== currentProfileId && (
+                    <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
+                      <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
+            </Fragment>
             )
           })
         )}
@@ -422,77 +491,89 @@ export function UsersPage() {
                 </td>
               </tr>
             ) : (
-              filteredUsers.map((u) => {
+              filteredUsers.map((u, idx) => {
                 const allowManage = canModifyAdminTarget(role, u)
+                const currentJobLabel = jobLabel(u)
+                const prevJobLabel = idx > 0 ? jobLabel(filteredUsers[idx - 1] as Profile) : null
+                const showGroupHeader = superAdminShowsAllJobs && currentJobLabel !== prevJobLabel
                 return (
-                <tr key={u.id}>
-                  <td className="min-w-0">
-                    <div className="flex min-w-0 items-center gap-2.5">
-                      <UserProfileAvatar
-                        profile={u}
-                        currentUserId={currentProfileId}
-                        sessionAvatarUrl={sessionAvatarUrl}
-                        onPreview={openAvatarPreview}
-                      />
-                      <span className="min-w-0 break-words">{userDisplayName(u)}</span>
-                    </div>
-                  </td>
-                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
-                    {clientLabel(u)}
-                  </td>
-                  <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
-                  <td className="min-w-0 whitespace-nowrap font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">
-                    {displayPhone(u)}
-                  </td>
-                  <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
-                    {jobLabel(u)}
-                  </td>
-                  <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
-                  <td className="min-w-0">
-                    <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
-                      {roleDisplayLabel(u.role)}
-                    </Badge>
-                  </td>
-                  <td className="min-w-0 whitespace-nowrap">
-                    <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
-                      {STATUS_BADGE[u.status].label}
-                    </span>
-                  </td>
-                  <td className="shrink-0 whitespace-nowrap">
-                    <div className="flex gap-0.5">
-                      {allowManage && u.status === 'pending' && (
-                        <>
-                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                            <CheckCircle className="h-3.5 w-3.5" />
-                          </Button>
+                <Fragment key={u.id}>
+                  {showGroupHeader && (
+                    <tr className="border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/85 text-[color:var(--pour-ink-0)] first:border-t-0">
+                      <td colSpan={9} className="px-2.5 py-2 align-middle text-xs font-semibold leading-snug text-[color:var(--pour-ink-0)] sm:px-3 sm:text-sm">
+                        {currentJobLabel} · {filteredJobCounts.get(currentJobLabel) ?? 0} คน
+                      </td>
+                    </tr>
+                  )}
+                  <tr key={u.id}>
+                    <td className="min-w-0">
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        <UserProfileAvatar
+                          profile={u}
+                          currentUserId={currentProfileId}
+                          sessionAvatarUrl={sessionAvatarUrl}
+                          onPreview={openAvatarPreview}
+                        />
+                        <span className="min-w-0 break-words">{userDisplayName(u)}</span>
+                      </div>
+                    </td>
+                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
+                      {clientLabel(u)}
+                    </td>
+                    <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
+                    <td className="min-w-0 whitespace-nowrap font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">
+                      {displayPhone(u)}
+                    </td>
+                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
+                      {jobLabel(u)}
+                    </td>
+                    <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
+                    <td className="min-w-0">
+                      <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
+                        {roleDisplayLabel(u.role)}
+                      </Badge>
+                    </td>
+                    <td className="min-w-0 whitespace-nowrap">
+                      <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
+                        {STATUS_BADGE[u.status].label}
+                      </span>
+                    </td>
+                    <td className="shrink-0 whitespace-nowrap">
+                      <div className="flex gap-0.5">
+                        {allowManage && u.status === 'pending' && (
+                          <>
+                            <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                              <CheckCircle className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
+                              <XCircle className="h-3.5 w-3.5" />
+                            </Button>
+                          </>
+                        )}
+                        {allowManage && u.status === 'approved' && (
                           <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
                             <XCircle className="h-3.5 w-3.5" />
                           </Button>
-                        </>
-                      )}
-                      {allowManage && u.status === 'approved' && (
-                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                          <XCircle className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                      {allowManage && u.status === 'rejected' && (
-                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                          <CheckCircle className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                      {allowManage && (
-                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                          <Edit className="h-3.5 w-3.5" />
-                        </Button>
-                      )}
-                      {allowManage && u.id !== currentProfileId && (
-                        <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                          <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                        )}
+                        {allowManage && u.status === 'rejected' && (
+                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
+                            <CheckCircle className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        {allowManage && (
+                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
+                            <Edit className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
+                        {allowManage && u.id !== currentProfileId && (
+                          <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
+                            <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                </Fragment>
                 )
               })
             )}

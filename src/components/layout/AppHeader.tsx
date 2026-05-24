@@ -15,11 +15,12 @@ import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
 import { mainNavLinks } from '@/lib/mainNav'
-import { canManageUsers } from '@/lib/permissions'
+import { canManageUsers, isSuperAdmin } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
 
 export function AppHeader() {
   const headerRef = useRef<HTMLElement>(null)
@@ -110,6 +111,11 @@ export function AppHeader() {
             <Search className={icon.sm} strokeWidth={ICON_STROKE} />
           </button>
         </div>
+        {isSuperAdmin(role) ? (
+          <div className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-2 pt-1.5 pour-desktop:hidden">
+            <SuperAdminJobFilter variant="mobile" />
+          </div>
+        ) : null}
       </header>
 
       <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
@@ -147,6 +153,12 @@ export function AppHeader() {
               </button>
             </div>
           </DialogHeader>
+
+          {isSuperAdmin(role) ? (
+            <div className="border-b border-[color:var(--glass-border-subtle)] px-4 py-3 pour-desktop:hidden">
+              <SuperAdminJobFilter variant="mobile" />
+            </div>
+          ) : null}
 
           <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
             <CollapsibleNavSection title="MENU" defaultOpen={!adminSectionActive} panelClassName="space-y-1 pb-1">
