@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { activeCastingDateIso } from '@/lib/activeCastingDate'
 import { CST_LIST_REQUEST_SELECT, CST_LIST_STATUS_ID } from '@/lib/cstListData'
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import type { RequestWithRelations } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 
@@ -37,10 +38,12 @@ export async function fetchConcreteSummaryRequests(
 
   while (true) {
     const offset = page * REQUEST_PAGE_SIZE
-    let query = supabase
-      .from('Request')
-      .select(CST_LIST_REQUEST_SELECT)
-      .eq('status_id', CST_LIST_STATUS_ID)
+    let query = applyScopeToQuery(
+      supabase
+        .from('Request')
+        .select(CST_LIST_REQUEST_SELECT)
+        .eq('status_id', CST_LIST_STATUS_ID),
+    )
       .order('casting_date', { ascending: false, nullsFirst: false })
       .order('booked_at', { ascending: true })
       .range(offset, offset + REQUEST_PAGE_SIZE - 1)

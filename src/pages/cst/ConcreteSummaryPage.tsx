@@ -4,6 +4,7 @@ import { BarChart3, CalendarDays, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
+import { useJobScope } from '@/hooks/useJobScope'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
@@ -131,6 +132,7 @@ function ConcreteSummaryMobileCard({
 
 export function ConcreteSummaryPage() {
   const { role } = useAuthStore()
+  const { queryJobScope } = useJobScope()
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
 
@@ -190,7 +192,7 @@ export function ConcreteSummaryPage() {
         setLoading(false)
       }
     },
-    [dateFrom, dateTo],
+    [dateFrom, dateTo, queryJobScope],
   )
 
   useEffect(() => {
