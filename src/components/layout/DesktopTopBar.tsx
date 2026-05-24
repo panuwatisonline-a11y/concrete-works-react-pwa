@@ -7,6 +7,7 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Input } from '@/components/ui/input'
 import { getDesktopSearchBarConfig } from '@/lib/desktopTopBarSearch'
 import { theme, icon, ICON_STROKE, type } from '@/lib/requestUi'
+import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
 import { cn } from '@/lib/utils'
 
 /** Desktop-only top strip: wide search + actions (matches dashboard ref layout). */
@@ -48,6 +49,7 @@ export function DesktopTopBar() {
         theme.headerBar,
       )}
     >
+      <SuperAdminJobFilter className="shrink-0" />
       <div className="relative flex min-w-0 flex-1 items-center gap-2">
         <div className="relative min-w-0 flex-1">
           <Search

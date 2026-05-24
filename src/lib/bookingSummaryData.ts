@@ -3,6 +3,7 @@ import {
   bookingSummaryMatchesCastingDate,
   sortBookingSummaryRequests,
 } from '@/lib/bookingSummaryRow'
+import { applyJobScope, type QueryJobScope } from '@/lib/jobScope'
 import { CST_LIST_REQUEST_SELECT } from '@/lib/cstListData'
 import type { RequestWithRelations } from '@/types/app.types'
 
@@ -13,13 +14,13 @@ const FETCH_CHUNK = 500
 
 export type FetchBookingSummaryOpts = {
   castingDateIso: string
-  clientId?: number | null
+  jobScope?: QueryJobScope
 }
 
 export async function fetchBookingSummaryForDate(
   opts: FetchBookingSummaryOpts,
 ): Promise<RequestWithRelations[]> {
-  const { castingDateIso, clientId } = opts
+  const { castingDateIso, jobScope = null } = opts
   const date = castingDateIso.trim()
   if (!date) return []
 
@@ -29,7 +30,7 @@ export async function fetchBookingSummaryForDate(
     .or(`and(casting_date.eq.${date},postpone_date.is.null),postpone_date.eq.${date}`)
     .in('status_id', [...BOOKING_SUMMARY_STATUS_IDS])
 
-  if (clientId != null) query = query.eq('client_id', clientId)
+  query = applyJobScope(query, jobScope)
 
   query = query
     .order('request_time', { ascending: true, nullsFirst: false })

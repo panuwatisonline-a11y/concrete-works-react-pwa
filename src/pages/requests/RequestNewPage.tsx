@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { runOrQueueMutation } from '@/lib/offline/actions'
 import { cacheRequestDetail } from '@/lib/offline/cache'
 import { runCreateRequestMutation } from '@/lib/requestMutations'
+import { insertJobIdFromAuth } from '@/lib/jobScopeQueries'
 import { supabase } from '@/lib/supabase'
 import type { RequestWithRelations } from '@/types/app.types'
 import { useAuthStore } from '@/stores/authStore'
@@ -351,6 +352,7 @@ export function RequestNewPage() {
       const row = {
         id: requestId,
         status_id: 1,
+        job_id: insertJobIdFromAuth(),
         booked_by: user.id,
         booked_at: new Date().toISOString(),
         request_date: new Date().toISOString().split('T')[0],

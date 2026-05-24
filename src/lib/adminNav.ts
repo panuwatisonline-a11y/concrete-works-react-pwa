@@ -15,7 +15,7 @@ import {
   ShieldCheck,
   TrendingDown,
 } from 'lucide-react'
-import { canManageUsers } from '@/lib/permissions'
+import { canManageUsers, canManageJobsRegistry } from '@/lib/permissions'
 
 export type AdminNavItem = {
   to: string
@@ -44,6 +44,12 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
 
 export function adminConsoleLinks(role: string | null | undefined): AdminNavItem[] {
   if (!role) return []
-  if (canManageUsers(role)) return adminConsoleNavLinks
-  return adminConsoleNavLinks.filter((l) => l.to !== '/admin/users')
+  let links = adminConsoleNavLinks
+  if (!canManageJobsRegistry(role)) {
+    links = links.filter((l) => l.to !== '/admin/jobs')
+  }
+  if (!canManageUsers(role)) {
+    links = links.filter((l) => l.to !== '/admin/users')
+  }
+  return links
 }

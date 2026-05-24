@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -9,7 +9,9 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import { parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
 import type { ConcreteWork, Structure } from '@/types/app.types'
@@ -55,8 +57,8 @@ export function ConcreteWorksPage() {
     if (!opts?.background) setLoading(true)
     try {
       const [{ data: rows, error: rowsErr }, { data: structRows, error: structErr }] = await Promise.all([
-        supabase.from('Concrete Works').select('*').order('concrete_work'),
-        supabase.from('Structure').select('id, structure_name').order('structure_name'),
+        fetchScopedRows<ConcreteWork>('Concrete Works', { column: 'concrete_work' }),
+        fetchScopedRows<Structure>('Structure', { column: 'structure_name' }),
       ])
       if (rowsErr || structErr) {
         console.error('Concrete Works load:', rowsErr?.message ?? structErr?.message)
@@ -70,7 +72,7 @@ export function ConcreteWorksPage() {
     }
   }
 
-  useEffect(() => { void load() }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Concrete Works', 'Structure', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
@@ -94,7 +96,7 @@ export function ConcreteWorksPage() {
       return false
     }
     const structure_list = sanitizeStructureListForSave(item.structure_list)
-    const { error } = await supabase.from('Concrete Works').insert({
+    const { error } = await insertScopedRow('Concrete Works', {
       concrete_work: name,
       structure_list,
     })
@@ -103,7 +105,7 @@ export function ConcreteWorksPage() {
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
     return false
   }
 

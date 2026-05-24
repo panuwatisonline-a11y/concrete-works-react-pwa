@@ -10,6 +10,10 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
 import { filterTableRows } from '@/lib/tableClientFilter'
+import { useAuthStore } from '@/stores/authStore'
+import { canManageJobsRegistry } from '@/lib/permissions'
+import { APP_HOME } from '@/lib/appHome'
+import { Navigate } from 'react-router-dom'
 import type { Job } from '@/types/app.types'
 
 function jobNameKey(name: string | null | undefined) {
@@ -22,6 +26,7 @@ function duplicateJobWithin(rows: Job[], candidateName: string, excludeId?: numb
 }
 
 export function JobsPage() {
+  const role = useAuthStore((s) => s.role)
   const [data, setData] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [q, setQ] = useState('')
@@ -56,6 +61,10 @@ export function JobsPage() {
   useDataSyncRefetch(['Jobs', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
 
+  if (!canManageJobsRegistry(role)) {
+    return <Navigate to={APP_HOME} replace />
+  }
+
   return (
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>Jobs</h1>
@@ -63,6 +72,7 @@ export function JobsPage() {
         title="โครงการ"
         data={filtered}
         loading={loading}
+        jobScopeView={false}
         columns={[{ key: 'job_name', label: 'ชื่อโครงการ' }]}
         formContent={(_item, formData, onChange) => (
           <div className="space-y-3 py-2">

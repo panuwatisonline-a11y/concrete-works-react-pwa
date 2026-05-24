@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -8,7 +8,9 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { LocationItem } from '@/types/app.types'
 
@@ -64,7 +66,7 @@ export function LocationPage() {
   async function load(opts?: AdminTableLoadOptions) {
     if (!opts?.background) setLoading(true)
     try {
-      const { data: rows, error } = await supabase.from('Location').select('*').order('id')
+      const { data: rows, error } = await fetchScopedRows<LocationItem>('Location', { column: 'id' })
       if (error) {
         console.error('Location load:', error.message)
         toast.error('โหลดข้อมูลไม่สำเร็จ')
@@ -76,7 +78,7 @@ export function LocationPage() {
     }
   }
 
-  useEffect(() => { void load() }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Location', '*'], load)
 
@@ -97,7 +99,7 @@ export function LocationPage() {
       toast.error('ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)')
       return false
     }
-    const { error } = await supabase.from('Location').insert({
+    const { error } = await insertScopedRow('Location', {
       location1: l1,
       location2: loc2,
       location3: loc3,
@@ -108,7 +110,7 @@ export function LocationPage() {
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
     return false
   }
 

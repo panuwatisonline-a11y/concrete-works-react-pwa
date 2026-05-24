@@ -1,8 +1,18 @@
 import { toast } from 'sonner'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
+import { applyJobScope, resolveQueryJobScope } from '@/lib/jobScope'
+import { useAuthStore } from '@/stores/authStore'
+import { useJobFilterStore } from '@/stores/jobFilterStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 
 const MASTER_DATA_TIMEOUT_MS = 25_000
+
+function scopedTableQuery(table: string) {
+  const { profile, role } = useAuthStore.getState()
+  const superAdminFilter = useJobFilterStore.getState().superAdminJobFilter
+  const scope = resolveQueryJobScope({ role, profile, superAdminFilter })
+  return applyJobScope(supabase.from(table).select('*'), scope)
+}
 
 /** โหลด master data ใหม่ — ใช้ตอน pull-to-refresh และ init */
 export async function reloadMasterData(): Promise<void> {
@@ -53,28 +63,27 @@ export async function reloadMasterData(): Promise<void> {
     ] = await Promise.race([
       Promise.all([
         supabase.from('Status').select('*').order('id'),
-        supabase.from('Client').select('*').order('client_name'),
-        supabase.from('Location').select('*').order('id'),
-        supabase.from('Concrete Works').select('*').order('concrete_work'),
-        supabase.from('Structure').select('*').order('structure_name'),
-        supabase.from('Mixed Code').select('*').order('mixcode'),
-        supabase.from('ABC Code').select('*').order('id'),
-        supabase.from('ABC Code1').select('*').order('code_name'),
-        supabase.from('ABC Code2').select('*').order('code_name'),
-        supabase.from('ABC Code3').select('*').order('code_name'),
-        supabase.from('ABC Code4').select('*').order('code_name'),
-        supabase.from('WBS Code').select('*').order('id'),
-        supabase.from('WBS1').select('*').order('code_name'),
-        supabase.from('WBS2').select('*').order('code_name'),
-        supabase.from('WBS3').select('*').order('code_name'),
-        supabase.from('WBS4').select('*').order('code_name'),
-        supabase.from('WBS5').select('*').order('code_name'),
-        supabase.from('WBS6').select('*').order('code_name'),
-        supabase.from('WBS7').select('*').order('code_name'),
+        scopedTableQuery('Client').order('client_name'),
+        scopedTableQuery('Location').order('id'),
+        scopedTableQuery('Concrete Works').order('concrete_work'),
+        scopedTableQuery('Structure').order('structure_name'),
+        scopedTableQuery('Mixed Code').order('mixcode'),
+        scopedTableQuery('ABC Code').order('id'),
+        scopedTableQuery('ABC Code1').order('code_name'),
+        scopedTableQuery('ABC Code2').order('code_name'),
+        scopedTableQuery('ABC Code3').order('code_name'),
+        scopedTableQuery('ABC Code4').order('code_name'),
+        scopedTableQuery('WBS Code').order('id'),
+        scopedTableQuery('WBS1').order('code_name'),
+        scopedTableQuery('WBS2').order('code_name'),
+        scopedTableQuery('WBS3').order('code_name'),
+        scopedTableQuery('WBS4').order('code_name'),
+        scopedTableQuery('WBS5').order('code_name'),
+        scopedTableQuery('WBS6').order('code_name'),
+        scopedTableQuery('WBS7').order('code_name'),
         supabase.from('Jobs').select('*').order('job_name'),
-        supabase
-          .from('Compression Machine')
-          .select('id, machine, serial, k1, k2, cal_date, file, k, k_display')
+        scopedTableQuery('Compression Machine')
+          .select('id, machine, serial, k1, k2, cal_date, file, k, k_display, job_id')
           .order('machine'),
       ]),
       timeoutPromise,

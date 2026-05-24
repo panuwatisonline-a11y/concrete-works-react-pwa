@@ -42,7 +42,7 @@ export function LoginPage() {
     if (!user || !profileHydrated) return
     if (!profile?.employee_id) {
       navigate('/complete-profile', { replace: true })
-    } else if (profile.status === 'approved' || profile.role === 'admin') {
+    } else if (profile.status === 'approved' || profile.role === 'admin' || profile.role === 'super_admin') {
       navigate(APP_HOME, { replace: true })
     } else {
       navigate('/pending-approval', { replace: true })

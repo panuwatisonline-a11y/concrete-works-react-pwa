@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import { format, parseISO, startOfWeek } from 'date-fns'
 
 export type TrendGranularity = 'day' | 'week' | 'month' | 'year'
@@ -318,9 +319,10 @@ export async function fetchDashboardRequestRows(supabase: SupabaseClient): Promi
   const pageSize = 1000
   const all: DashboardRequestRow[] = []
   for (let from = 0; ; from += pageSize) {
-    const { data, error } = await supabase
-      .from('Request')
-      .select(
+    const { data, error } = await applyScopeToQuery(
+      supabase
+        .from('Request')
+        .select(
         `
         id,
         status_id,
@@ -344,7 +346,8 @@ export async function fetchDashboardRequestRows(supabase: SupabaseClient): Promi
       `,
       )
       .order('booked_at', { ascending: false })
-      .range(from, from + pageSize - 1)
+      .range(from, from + pageSize - 1),
+    )
 
     if (error) throw error
     const chunk = (data ?? []) as unknown as DashboardRequestRow[]

@@ -1,14 +1,21 @@
 import type { RequestFilter } from '@/types/app.types'
 import type { RequestLogWithProfile, RequestWithRelations } from '@/types/app.types'
+import type { QueryJobScope } from '@/lib/jobScope'
 import { idbGet, idbGetAll, idbPut, STORES } from '@/lib/offline/db'
 import type { CachedRequestDetail, ListSnapshot } from '@/lib/offline/types'
 
 type CachedRequestRow = RequestWithRelations & { savedAt: string }
 
+function jobScopeCacheKey(jobScope: QueryJobScope): string {
+  if (jobScope === 'all') return 'all'
+  if (jobScope == null) return ''
+  return String(jobScope)
+}
+
 export function buildListCacheKey(opts: {
   scopeMine: boolean
   userId: string | undefined
-  clientId: number | null | undefined
+  jobScope: QueryJobScope
   filterKey: string
   page: number
   search: string
@@ -16,7 +23,7 @@ export function buildListCacheKey(opts: {
   return [
     opts.scopeMine ? 'mine' : 'all',
     opts.userId ?? '',
-    String(opts.clientId ?? ''),
+    jobScopeCacheKey(opts.jobScope),
     opts.filterKey,
     String(opts.page),
     opts.search.trim().toLowerCase(),
@@ -89,6 +96,11 @@ export async function getCachedRequestDetail(
   return idbGet<CachedRequestDetail & { requestId: string }>(STORES.details, requestId)
 }
 
+function matchesJobScope(r: RequestWithRelations, jobScope: QueryJobScope): boolean {
+  if (jobScope === null || jobScope === 'all') return true
+  return r.job_id === jobScope
+}
+
 function matchesFilter(r: RequestWithRelations, filter: RequestFilter): boolean {
   if (filter.status_ids.length > 0 && !filter.status_ids.includes(r.status_id)) return false
   if (filter.casting_date_from && (r.casting_date ?? '') < filter.casting_date_from) return false
@@ -124,14 +136,15 @@ export function filterCachedRequests(opts: {
   search: string
   scopeMine: boolean
   userId: string | undefined
-  clientId: number | null | undefined
+  jobScope: QueryJobScope
   page: number
   pageSize: number
 }): { requests: RequestWithRelations[]; total: number } {
-  let list = opts.requests.filter((r) => matchesFilter(r, opts.filter) && matchesSearch(r, opts.search))
+  let list = opts.requests.filter(
+    (r) => matchesJobScope(r, opts.jobScope) && matchesFilter(r, opts.filter) && matchesSearch(r, opts.search),
+  )
   if (opts.scopeMine && opts.userId) {
     list = list.filter((r) => r.booked_by === opts.userId)
-    if (opts.clientId != null) list = list.filter((r) => r.client_id === opts.clientId)
   }
   list = [...list].sort((a, b) => {
     const da = a.casting_date ?? ''
@@ -148,12 +161,11 @@ export function countCachedByStatus(
   requests: RequestWithRelations[],
   scopeMine: boolean,
   userId: string | undefined,
-  clientId: number | null | undefined,
+  jobScope: QueryJobScope,
 ): Record<number, number> {
-  let list = requests
+  let list = requests.filter((r) => matchesJobScope(r, jobScope))
   if (scopeMine && userId) {
     list = list.filter((r) => r.booked_by === userId)
-    if (clientId != null) list = list.filter((r) => r.client_id === clientId)
   }
   const map: Record<number, number> = {}
   for (const r of list) {

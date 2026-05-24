@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { scopedSelect } from '@/lib/jobScopeQueries'
 import { activeCastingDateIso } from '@/lib/activeCastingDate'
 import {
   CST_REPORT_NO_CASTING_FROM,
@@ -12,10 +13,9 @@ import type { CstViewRow } from '@/types/database.cst.types'
 const COMPRESSION_MACHINE_SELECT = 'id, machine, serial, k1, k2, cal_date, file, k, k_display'
 
 export async function fetchCompressionMachines(): Promise<CompressionMachine[]> {
-  const { data, error } = await supabase
-    .from('Compression Machine')
-    .select(COMPRESSION_MACHINE_SELECT)
-    .order('machine')
+  const { data, error } = await scopedSelect('Compression Machine', COMPRESSION_MACHINE_SELECT).order(
+    'machine',
+  )
 
   if (error) throw error
   return (data ?? []) as CompressionMachine[]

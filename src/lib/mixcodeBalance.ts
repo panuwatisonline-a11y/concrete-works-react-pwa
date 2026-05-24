@@ -1,4 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { applyJobScope } from '@/lib/jobScope'
+import { scopeFromAuth } from '@/lib/jobScopeQueries'
 import type { MixedCode } from '@/types/app.types'
 
 const REQ_PAGE_SIZE = 1000
@@ -38,12 +40,15 @@ export async function fetchMixcodeUsageByMixcodeId(
   supabase: SupabaseClient,
 ): Promise<Record<number, MixcodeUsageById>> {
   const sums: Record<number, MixcodeUsageById> = {}
+  const scope = scopeFromAuth()
   for (let from = 0; ; from += REQ_PAGE_SIZE) {
-    const { data, error } = await supabase
+    let query = supabase
       .from('Request')
       .select('mixcode_id, status_id, volume_request, volume_confirm')
       .not('mixcode_id', 'is', null)
       .range(from, from + REQ_PAGE_SIZE - 1)
+    query = applyJobScope(query, scope)
+    const { data, error } = await query
     if (error) throw error
     const chunk = data ?? []
     for (const row of chunk) {

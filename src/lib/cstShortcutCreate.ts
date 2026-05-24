@@ -1,3 +1,4 @@
+import { withInsertJobId } from '@/lib/jobScopeQueries'
 import { supabase } from '@/lib/supabase'
 import { CST_LIST_STATUS_ID } from '@/lib/cstListData'
 import { NON_SYSTEM_BOOKING_REMARK } from '@/lib/nonSystemBooking'
@@ -24,7 +25,7 @@ export async function createCstShortcutRequest(
   const now = new Date().toISOString()
   const { data: req, error } = await supabase
     .from('Request')
-    .insert({
+    .insert(withInsertJobId({
       status_id: CST_LIST_STATUS_ID,
       booked_by: userId,
       booked_at: now,
@@ -44,19 +45,21 @@ export async function createCstShortcutRequest(
       mixcode_id: input.mixcode_id,
       volume_confirm: input.volume_confirm,
       remarks: NON_SYSTEM_BOOKING_REMARK,
-    })
+    }))
     .select('id')
     .single()
 
   if (error || !req) return { error: error?.message ?? 'เกิดข้อผิดพลาด' }
 
-  const { error: logErr } = await supabase.from('Request_Log').insert({
-    request_id: req.id,
-    status_id: CST_LIST_STATUS_ID,
-    action: 'completed',
-    action_by: userId,
-    note: 'สร้างจาก CST shortcut',
-  })
+  const { error: logErr } = await supabase.from('Request_Log').insert(
+    withInsertJobId({
+      request_id: req.id,
+      status_id: CST_LIST_STATUS_ID,
+      action: 'completed',
+      action_by: userId,
+      note: 'สร้างจาก CST shortcut',
+    }),
+  )
   if (logErr) return { error: logErr.message }
 
   await notifyRequestListChanged()

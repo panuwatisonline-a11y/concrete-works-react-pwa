@@ -134,14 +134,14 @@ export function warmBookingSummaryTemplateCache(): void {
 
 export async function loadBookingSummaryPrintPayload(
   query: BookingSummaryPrintQuery,
-  opts?: { clientId?: number | null },
+  opts?: { jobScope?: import('@/lib/jobScope').QueryJobScope },
 ): Promise<BookingSummaryPrintPayload> {
   const castingDateIso = query.castingDateIso.trim()
   const supplier = query.supplier.trim()
   const searchQ = query.search.trim().toLowerCase()
 
   const requests = castingDateIso
-    ? await fetchBookingSummaryForDate({ castingDateIso, clientId: opts?.clientId ?? null })
+    ? await fetchBookingSummaryForDate({ castingDateIso, jobScope: opts?.jobScope ?? null })
     : []
 
   const matched = requests.filter(
@@ -192,7 +192,7 @@ export async function buildBookingSummaryHtml(
 
 export async function loadBookingSummaryPreview(
   query: BookingSummaryPrintQuery,
-  opts?: { clientId?: number | null },
+  opts?: { jobScope?: import('@/lib/jobScope').QueryJobScope },
 ): Promise<{ html: string; title: string }> {
   await loadBookingSummaryTemplate()
   const payload = await loadBookingSummaryPrintPayload(query, opts)

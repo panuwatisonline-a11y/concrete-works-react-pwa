@@ -1,4 +1,4 @@
-export type UserRole = 'admin' | 'user' | 'inspector' | 'document' | 'engineer'
+export type UserRole = 'super_admin' | 'admin' | 'user' | 'inspector' | 'document' | 'engineer'
 /** @deprecated migrated to inspector — still accepted from DB during transition */
 export type LegacyUserRole = UserRole | 'manager'
 export type UserStatus = 'pending' | 'approved' | 'rejected'
@@ -28,10 +28,12 @@ export interface StatusItem {
 export interface ClientItem {
   id: number
   client_name: string
+  job_id?: number
 }
 
 export interface LocationItem {
   id: number
+  job_id?: number
   location1: string
   location2: string | null
   location3: string | null
@@ -41,17 +43,20 @@ export interface LocationItem {
 
 export interface ConcreteWork {
   id: number
+  job_id?: number
   concrete_work: string
   structure_list: string | null
 }
 
 export interface Structure {
   id: number
+  job_id?: number
   structure_name: string
 }
 
 export interface MixedCode {
   id: number
+  job_id?: number
   mixcode: string
   supplier: string | null
   strength: number | null
@@ -128,6 +133,7 @@ export type CstTestAge = (typeof CST_TEST_AGES)[number]
 export interface Request {
   id: string
   status_id: number
+  job_id?: number | null
   client_id: number | null
   location_id: number | null
   concrete_work_id: number | null

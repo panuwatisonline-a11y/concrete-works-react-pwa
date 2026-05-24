@@ -7,6 +7,7 @@ import {
   loadBookingSummaryPreview,
   warmBookingSummaryTemplateCache,
 } from '@/lib/bookingSummaryPrint'
+import { resolveQueryJobScope } from '@/lib/jobScope'
 import { todayIsoLocal } from '@/lib/cstListDue'
 
 export function PrintBookingSummaryPreviewPage() {
@@ -23,7 +24,7 @@ export function PrintBookingSummaryPreviewPage() {
   const [pageTitle, setPageTitle] = useState('สรุปรายการจองคอนกรีต')
   const [error, setError] = useState<string | null>(null)
 
-  const clientId = role === 'user' ? profile?.client_id ?? null : null
+  const jobScope = resolveQueryJobScope({ role, profile })
 
   useEffect(() => {
     warmBookingSummaryTemplateCache()
@@ -41,7 +42,7 @@ export function PrintBookingSummaryPreviewPage() {
         warmBookingSummaryTemplateCache()
         const { html, title } = await loadBookingSummaryPreview(
           { castingDateIso, supplier, search },
-          { clientId },
+          { jobScope },
         )
         if (cancelled) return
         document.title = title
@@ -56,7 +57,7 @@ export function PrintBookingSummaryPreviewPage() {
     return () => {
       cancelled = true
     }
-  }, [castingDateIso, supplier, search, authLoading, user, clientId])
+  }, [castingDateIso, supplier, search, authLoading, user, jobScope])
 
   if (authLoading) {
     return (

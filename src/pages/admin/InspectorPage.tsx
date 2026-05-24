@@ -22,6 +22,7 @@ import { app, modal, rq, tableCompact } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import {
   formatMemberList,
   inspectorPrimaryLabel,
@@ -33,6 +34,10 @@ import {
   type InspectorWithMembers,
 } from '@/lib/inspectorScope'
 import { canEditMasterData } from '@/lib/permissions'
+import { applyScopeToQuery, insertScopedRowReturning, scopedSelect } from '@/lib/jobScopeQueries'
+import { resolveJobName } from '@/lib/jobScopeDisplay'
+import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
+import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
 import type { Profile } from '@/types/app.types'
 
@@ -42,6 +47,8 @@ function inspectorNameKey(name: string) {
 
 export function InspectorPage() {
   const role = useAuthStore((s) => s.role)
+  const jobs = useMasterDataStore((s) => s.jobs)
+  const showJobColumn = useSuperAdminShowsAllJobs()
   const canEdit = canEditMasterData(role)
   const [rows, setRows] = useState<InspectorWithMembers[]>([])
   const [profileOptions, setProfileOptions] = useState<Profile[]>([])
@@ -71,25 +78,34 @@ export function InspectorPage() {
 
   const filtered = useMemo(() => {
     const t = q.trim().toLowerCase()
-    if (!t) return rows
-    return rows.filter((r) => {
-      const blob = [inspectorPrimaryLabel(r), formatMemberList(r.members)].join(' ').toLowerCase()
-      return blob.includes(t)
-    })
-  }, [rows, q])
+    let list = rows
+    if (t) {
+      list = rows.filter((r) => {
+        const blob = [inspectorPrimaryLabel(r), formatMemberList(r.members)].join(' ').toLowerCase()
+        return blob.includes(t)
+      })
+    }
+    if (!showJobColumn) return list
+    return [...list].sort(
+      (a, b) =>
+        resolveJobName(a.job_id, jobs).localeCompare(resolveJobName(b.job_id, jobs), 'th') || a.id - b.id,
+    )
+  }, [rows, q, showJobColumn, jobs])
 
   async function load(opts?: { background?: boolean }) {
     if (!opts?.background) setLoading(true)
     try {
       const [inspRes, profRes] = await Promise.all([
-        supabase.from('Inspector').select('*').order('inspector_name'),
-        supabase.from('profiles').select('id, fname, lname, employee_id, role, status').order('fname'),
+        scopedSelect('Inspector').order('inspector_name'),
+        applyScopeToQuery(
+          supabase.from('profiles').select('id, fname, lname, employee_id, role, status').order('fname'),
+        ),
       ])
       if (inspRes.error || profRes.error) {
         toast.error('โหลดข้อมูลไม่สำเร็จ')
         return
       }
-      const inspectors = inspRes.data ?? []
+      const inspectors = (inspRes.data ?? []) as InspectorWithMembers[]
       const { data: members, error: memErr } = await supabase
         .from('Inspector_Member')
         .select('inspector_id, profile_id')
@@ -142,9 +158,7 @@ export function InspectorPage() {
     }
   }
 
-  useEffect(() => {
-    void load()
-  }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Inspector', 'Inspector_Member', 'profiles', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
@@ -206,12 +220,12 @@ export function InspectorPage() {
         await replaceInspectorMembers(editRow.id, profileIds)
         toast.success('บันทึกแล้ว')
       } else {
-        const { data, error } = await supabase
-          .from('Inspector')
-          .insert({ inspector_name: inspectorName, primary_profile_id: primaryId })
-          .select('id')
-          .single()
+        const { data, error } = await insertScopedRowReturning('Inspector', {
+          inspector_name: inspectorName,
+          primary_profile_id: primaryId,
+        })
         if (error) throw error
+        if (!data) throw new Error('เพิ่ม Inspector ไม่สำเร็จ')
         await replaceInspectorMembers(data.id, profileIds)
         toast.success('เพิ่ม Inspector แล้ว')
       }
@@ -264,6 +278,7 @@ export function InspectorPage() {
             <table className={tableCompact.table}>
               <thead className={tableCompact.head}>
                 <tr>
+                  {showJobColumn ? <th>โครงการ</th> : null}
                   <th>หัวสาย (Inspector)</th>
                   <th>สมาชิกใน list</th>
                   <th>จำนวน</th>
@@ -273,6 +288,11 @@ export function InspectorPage() {
               <tbody className={tableCompact.body}>
                 {filtered.map((row) => (
                   <tr key={row.id}>
+                    {showJobColumn ? (
+                      <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">
+                        {resolveJobName(row.job_id, jobs)}
+                      </td>
+                    ) : null}
                     <td className="min-w-0 break-words font-medium">{inspectorPrimaryLabel(row)}</td>
                     <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{formatMemberList(row.members)}</td>
                     <td className="tabular-nums">{row.members.length}</td>
@@ -303,6 +323,11 @@ export function InspectorPage() {
                 className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-4"
               >
                 <p className="font-semibold text-[color:var(--pour-ink-0)]">{inspectorPrimaryLabel(row)}</p>
+                {showJobColumn ? (
+                  <p className="mt-1 text-xs font-medium text-[color:var(--pour-accent-hover)]">
+                    {resolveJobName(row.job_id, jobs)}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-sm text-pour-muted">{formatMemberList(row.members)}</p>
                 <p className="mt-0.5 text-xs text-pour-subtle">{row.members.length} คน</p>
                 {canEdit ? (

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -8,7 +8,9 @@ import { toast } from 'sonner'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Structure } from '@/types/app.types'
 
@@ -43,7 +45,7 @@ export function StructurePage() {
   async function load(opts?: AdminTableLoadOptions) {
     if (!opts?.background) setLoading(true)
     try {
-      const { data: rows, error } = await supabase.from('Structure').select('*').order('structure_name')
+      const { data: rows, error } = await fetchScopedRows<Structure>('Structure', { column: 'structure_name' })
       if (error) {
         console.error('Structure load:', error.message)
         toast.error('โหลดข้อมูลไม่สำเร็จ')
@@ -55,7 +57,7 @@ export function StructurePage() {
     }
   }
 
-  useEffect(() => { void load() }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Structure', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
@@ -70,13 +72,13 @@ export function StructurePage() {
       toast.error('ชื่อโครงสร้างนี้มีอยู่แล้ว')
       return false
     }
-    const { error } = await supabase.from('Structure').insert({ structure_name: name })
+    const { error } = await insertScopedRow('Structure', { structure_name: name })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ชื่อโครงสร้างนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
     return false
   }
 

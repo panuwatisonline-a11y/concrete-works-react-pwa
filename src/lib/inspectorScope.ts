@@ -7,6 +7,7 @@ export type InspectorRow = {
   id: number
   inspector_name: string
   primary_profile_id: string | null
+  job_id?: number | null
   created_at?: string
 }
 
@@ -111,7 +112,7 @@ export async function fetchBookerIdsForInspector(inspectorId: number): Promise<S
 
 export async function fetchBookerScopeForProfile(profile: Profile | null): Promise<InspectorBookerScope> {
   if (!profile) return new Set()
-  if (normalizeRole(profile.role) === 'admin') return null
+  if (normalizeRole(profile.role) === 'super_admin') return null
   if (!isInspectorRole(profile.role)) return new Set()
 
   const lineIds = await fetchInspectorLineIdsForPrimary(profile.id)

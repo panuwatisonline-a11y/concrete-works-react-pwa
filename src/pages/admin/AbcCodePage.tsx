@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { ExternalLink, FileText } from 'lucide-react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
@@ -13,7 +13,9 @@ import { cn } from '@/lib/utils'
 import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
+import { fetchScopedRows, insertScopedRow, scopedSelect } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { AbcCode, AbcCodeSegment } from '@/types/app.types'
 
@@ -107,14 +109,14 @@ export function AbcCodePage() {
 
   async function loadSegments() {
     const keys: SegmentKey[] = ['ABC Code1', 'ABC Code2', 'ABC Code3', 'ABC Code4']
-    const results = await Promise.all(keys.map((k) => supabase.from(k).select('*').order('code_name')))
+    const results = await Promise.all(keys.map((k) => scopedSelect(k).order('code_name')))
     const updated: Record<SegmentKey, AbcCodeSegment[]> = { 'ABC Code1': [], 'ABC Code2': [], 'ABC Code3': [], 'ABC Code4': [] }
     keys.forEach((k, i) => { updated[k] = (results[i].data ?? []) as AbcCodeSegment[] })
     setSegments(updated)
   }
 
   async function loadCombos() {
-    const { data } = await supabase.from('ABC Code').select('*').order('id')
+    const { data } = await scopedSelect('ABC Code').order('id')
     setCombos((data ?? []) as AbcCode[])
   }
 
@@ -128,7 +130,10 @@ export function AbcCodePage() {
     void reloadMasterData()
   }
 
-  useEffect(() => { void loadSegments(); void loadCombos() }, [])
+  useScopedPageLoad(async () => {
+    await loadSegments()
+    await loadCombos()
+  })
 
   useDataSyncOnTables(
     ['ABC Code', 'ABC Code1', 'ABC Code2', 'ABC Code3', 'ABC Code4', '*'],
@@ -217,7 +222,7 @@ export function AbcCodePage() {
                     return false
                   }
                   const descTrim = String(item.description ?? '').trim()
-                  const { error } = await supabase.from(key).insert({
+                  const { error } = await insertScopedRow(key, {
                     code_name: code,
                     description: descTrim === '' ? null : descTrim,
                   })
@@ -226,7 +231,7 @@ export function AbcCodePage() {
                     await refreshSegmentsAndMaster()
                     return
                   }
-                  toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
+                  toast.error(error.message.includes('23505') ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
                   return false
                 }}
                 onEdit={async (item) => {
@@ -328,13 +333,13 @@ export function AbcCodePage() {
               toast.error('ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว')
               return false
             }
-            const { error } = await supabase.from('ABC Code').insert(payload)
+            const { error } = await insertScopedRow('ABC Code', payload)
             if (!error) {
               toast.success('เพิ่มสำเร็จ')
               await refreshCombosAndMaster()
               return
             }
-            toast.error(error.code === '23505' ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+            toast.error(error.message.includes('23505') ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
             return false
           }}
           onEdit={async (item) => {

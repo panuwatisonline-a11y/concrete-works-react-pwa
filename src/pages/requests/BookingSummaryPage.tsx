@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { CalendarDays, ClipboardList, Printer } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
+import { useJobScope } from '@/hooks/useJobScope'
 import { canEditBookingSummary } from '@/lib/permissions'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
@@ -114,6 +115,7 @@ function BookingSummaryMobileCard({
 
 export function BookingSummaryPage() {
   const { profile, role } = useAuthStore()
+  const { queryJobScope } = useJobScope()
   const [searchParams] = useSearchParams()
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
@@ -159,7 +161,7 @@ export function BookingSummaryPage() {
         }
         const rows = await fetchBookingSummaryForDate({
           castingDateIso,
-          clientId: role === 'user' ? profile?.client_id ?? null : null,
+          jobScope: queryJobScope,
         })
         setRequests(rows)
       } catch (e) {
@@ -171,7 +173,7 @@ export function BookingSummaryPage() {
         setLoading(false)
       }
     },
-    [castingDateIso, profile?.client_id, role],
+    [castingDateIso, queryJobScope],
   )
 
   useEffect(() => {

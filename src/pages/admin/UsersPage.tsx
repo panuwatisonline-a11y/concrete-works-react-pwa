@@ -20,10 +20,12 @@ import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 import {
   canManageUsers,
-  ASSIGNABLE_ROLES,
+  assignableRolesFor,
+  canAssignRole,
   ROLE_LABELS,
   normalizeRole,
   roleDisplayLabel,
+  isSuperAdmin,
 } from '@/lib/permissions'
 import type { Profile, UserRole } from '@/types/app.types'
 import { Navigate } from 'react-router-dom'
@@ -35,13 +37,13 @@ import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } f
 import type { UserStatus } from '@/types/app.types'
 import { adminDeleteProfile, adminUpdateProfile, fetchProfilesForAdmin } from '@/lib/adminProfileRpc'
 
-const ROLES: UserRole[] = ASSIGNABLE_ROLES
 const ROLE_COLORS: Record<string, string> = {
   user: 'secondary',
   inspector: 'default',
   document: 'outline',
   engineer: 'default',
   admin: 'destructive',
+  super_admin: 'destructive',
 }
 const STATUS_BADGE: Record<UserStatus, { label: string; className: string }> = {
   pending:  { label: 'รออนุมัติ', className: 'border-amber-200 bg-amber-50 text-amber-700' },
@@ -51,16 +53,10 @@ const STATUS_BADGE: Record<UserStatus, { label: string; className: string }> = {
 /** Radix Select.Item cannot use value=""; reserve empty selection for placeholder UX. */
 const SELECT_NONE = '__none__'
 
-/** Only this login may modify profiles whose role is admin (client-side guard; mirror in RLS if needed). */
-const PROFILE_SUPER_ADMIN_EMAIL = 'panuwat.isonline@gmail.com'
-
-function normalizeEmail(email: string | undefined | null): string {
-  return (email ?? '').trim().toLowerCase()
-}
-
-function canModifyAdminTarget(actorEmail: string | undefined | null, target: Profile): boolean {
-  if (normalizeRole(target.role) !== 'admin') return true
-  return normalizeEmail(actorEmail) === normalizeEmail(PROFILE_SUPER_ADMIN_EMAIL)
+function canModifyAdminTarget(actorRole: string | null | undefined, target: Profile): boolean {
+  const targetRole = normalizeRole(target.role)
+  if (targetRole === 'super_admin' || targetRole === 'admin') return isSuperAdmin(actorRole)
+  return true
 }
 
 function userDisplayName(u: Profile) {
@@ -127,6 +123,8 @@ export function UsersPage() {
     })
   }, [])
 
+  const assignableRoles = useMemo(() => assignableRolesFor(role), [role])
+
   useDesktopSearchRegistration({
     placeholder: 'ค้นหา รหัสพนักงาน ชื่อ เบอร์โทร Role User Group โครงการ…',
     ariaLabel: 'ค้นหาในตารางผู้ใช้',
@@ -173,7 +171,7 @@ export function UsersPage() {
   async function setStatus(userId: string, status: UserStatus) {
     const target = users.find((u) => u.id === userId)
     if (!target) return
-    if (!canModifyAdminTarget(actorEmail, target)) {
+    if (!canModifyAdminTarget(role, target)) {
       toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
       return
     }
@@ -212,8 +210,12 @@ export function UsersPage() {
 
   async function saveEdit() {
     if (!editUser) return
-    if (!canModifyAdminTarget(actorEmail, editUser)) {
+    if (!canModifyAdminTarget(role, editUser)) {
       toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
+      return
+    }
+    if (!canAssignRole(role, draftRole)) {
+      toast.error('เฉพาะ Super Admin เท่านั้นที่แต่งตั้ง Super Admin ได้')
       return
     }
     const cid = draftClient === SELECT_NONE ? null : Number.parseInt(draftClient, 10)
@@ -226,7 +228,7 @@ export function UsersPage() {
       new_status: draftStatus,
       new_client_id: cid,
       new_client_name: client?.client_name ?? null,
-      new_job_id: jid,
+      new_job_id: draftRole === 'super_admin' ? null : jid,
       new_inspector_id: editUser.inspector_id,
     })
     setSaving(false)
@@ -242,7 +244,7 @@ export function UsersPage() {
   async function confirmDelete() {
     if (deleteUserId === null) return
     const target = users.find((u) => u.id === deleteUserId)
-    if (target && !canModifyAdminTarget(actorEmail, target)) {
+    if (target && !canModifyAdminTarget(role, target)) {
       toast.error('ไม่มีสิทธิ์แก้ไขบัญชีผู้ดูแลระบบ')
       setDeleteUserId(null)
       return
@@ -306,7 +308,7 @@ export function UsersPage() {
           </div>
         ) : (
           filteredUsers.map((u) => {
-            const allowManage = canModifyAdminTarget(actorEmail, u)
+            const allowManage = canModifyAdminTarget(role, u)
             return (
             <div key={u.id} className={adminDataRow.card}>
               <dl className={adminDataRow.fields}>
@@ -421,7 +423,7 @@ export function UsersPage() {
               </tr>
             ) : (
               filteredUsers.map((u) => {
-                const allowManage = canModifyAdminTarget(actorEmail, u)
+                const allowManage = canModifyAdminTarget(role, u)
                 return (
                 <tr key={u.id}>
                   <td className="min-w-0">
@@ -540,7 +542,7 @@ export function UsersPage() {
                 <SearchableSelect
                   value={draftRole}
                   onValueChange={(v) => setDraftRole(v as UserRole)}
-                  options={ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }))}
+                  options={assignableRoles.map((r) => ({ value: r, label: ROLE_LABELS[r] }))}
                   triggerClassName="h-auto min-h-9 whitespace-normal py-2 text-left text-sm"
                   listClassName="max-h-[min(50dvh,18rem)]"
                 />

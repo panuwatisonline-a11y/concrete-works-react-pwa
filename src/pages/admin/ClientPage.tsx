@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -9,7 +9,9 @@ import type { ClientItem } from '@/types/app.types'
 import { app, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 
 function clientNameKey(name: string | null | undefined) {
@@ -39,7 +41,7 @@ export function ClientPage() {
   async function load(opts?: AdminTableLoadOptions) {
     if (!opts?.background) setLoading(true)
     try {
-      const { data: rows, error } = await supabase.from('Client').select('*').order('client_name')
+      const { data: rows, error } = await fetchScopedRows<ClientItem>('Client', { column: 'client_name' })
       if (error) {
         console.error('Client load:', error.message)
         toast.error('โหลดข้อมูลไม่สำเร็จ')
@@ -51,7 +53,7 @@ export function ClientPage() {
     }
   }
 
-  useEffect(() => { void load() }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Client', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))
@@ -66,13 +68,13 @@ export function ClientPage() {
       toast.error('ชื่อบริษัทนี้มีอยู่แล้ว')
       return false
     }
-    const { error } = await supabase.from('Client').insert({ client_name: name })
+    const { error } = await insertScopedRow('Client', { client_name: name })
     if (!error) {
       toast.success('เพิ่มสำเร็จ')
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ชื่อบริษัทนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
     return false
   }
 

@@ -1,4 +1,5 @@
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
+import { insertJobIdFromAuth } from '@/lib/jobScopeQueries'
 import { supabase } from '@/lib/supabase'
 import type { OfflineMutation } from '@/lib/offline/types'
 
@@ -14,12 +15,15 @@ async function logAction(
   note?: string,
   extra?: Record<string, unknown>,
 ): Promise<MutationResult> {
+  const { data: reqRow } = await supabase.from('Request').select('job_id').eq('id', requestId).maybeSingle()
+  const jobId = (reqRow?.job_id as number | null | undefined) ?? insertJobIdFromAuth()
   const { error } = await supabase.from('Request_Log').insert({
     request_id: requestId,
     status_id: statusId,
     action,
     action_by: userId,
     note: note ?? null,
+    job_id: jobId,
     ...extra,
   })
   if (error) return { ok: false, message: error.message }

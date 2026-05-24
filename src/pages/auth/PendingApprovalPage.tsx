@@ -23,7 +23,7 @@ export function PendingApprovalPage() {
     if (!user) { navigate('/login', { replace: true }); return }
     if (!profileHydrated) return
     if (!profile?.employee_id) { navigate('/complete-profile', { replace: true }); return }
-    if (profile.status === 'approved' || profile.role === 'admin') {
+    if (profile.status === 'approved' || profile.role === 'admin' || profile.role === 'super_admin') {
       navigate(APP_HOME, { replace: true })
     }
   }, [user, profile, profileHydrated, navigate])

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { LossConcreteDashboard } from '@/components/loss-concrete/LossConcreteDashboard'
 import { mapRowsToLossRecords } from '@/lib/lossConcreteAnalytics'
 import {
@@ -36,9 +37,7 @@ export function LossConcretePage() {
     }
   }, [])
 
-  useEffect(() => {
-    void load()
-  }, [load])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Request', '*'], load)
   usePullToRefreshOnLoad(() => load({ background: true }))

@@ -35,6 +35,8 @@ import {
 } from '@/lib/desktopTopBarSearch'
 import type { InspectorBookerScope } from '@/lib/inspectorScope'
 import { useInspectorBookerScope } from '@/hooks/useInspectorBookerScope'
+import { useJobScope } from '@/hooks/useJobScope'
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import { canBookConcrete } from '@/lib/permissions'
 import { getRequestListQuickActions, type RequestListActionItem } from '@/lib/requestQuickActions'
 import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklistPrint'
@@ -62,6 +64,7 @@ import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestBookingCalendar } from '@/components/requests/RequestBookingCalendar'
 import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
+import { JobScopeBadge } from '@/components/shared/JobScopeBadge'
 import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
 import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
 
@@ -375,6 +378,7 @@ function RequestFeedCard({
               )}
               <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">
                 <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0 shadow-sm" />
+                <JobScopeBadge jobId={r.job_id} />
                 {nonSystemBooking ? <NonSystemBookingBadge /> : null}
               </div>
             </div>
@@ -489,7 +493,10 @@ function RequestFeedCard({
                     ) : null}
                   </p>
                 </div>
-                <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0" />
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0" />
+                  <JobScopeBadge jobId={r.job_id} />
+                </div>
               </div>
             </div>
           </Link>
@@ -563,6 +570,7 @@ function RequestFeedCard({
 export function RequestListPage() {
   const { user, profile, role } = useAuthStore()
   const { bookerScope } = useInspectorBookerScope()
+  const { queryJobScope } = useJobScope()
   const location = useLocation()
   const isDesktop = usePourDesktop()
   const { filter, setFilter } = useFilterStore()
@@ -638,7 +646,7 @@ export function RequestListPage() {
     const cacheKey = buildListCacheKey({
       scopeMine,
       userId: user?.id,
-      clientId: profile?.client_id,
+      jobScope: queryJobScope,
       filterKey,
       page,
       search: debouncedSearch,
@@ -657,7 +665,7 @@ export function RequestListPage() {
       search: debouncedSearch,
       scopeMine,
       userId: user?.id,
-      clientId: profile?.client_id,
+      jobScope: queryJobScope,
       page,
       pageSize: PAGE_SIZE,
     })
@@ -666,7 +674,7 @@ export function RequestListPage() {
     setTotal(filtered.total)
     useConnectivityStore.getState().setUsingOfflineCache(true)
     return true
-  }, [scopeMine, user?.id, profile?.client_id, filterKey, page, debouncedSearch, filter])
+  }, [scopeMine, user?.id, queryJobScope, filterKey, page, debouncedSearch, filter])
 
   const fetchRequests = useCallback(async (opts?: { background?: boolean }) => {
     if (!opts?.background) setLoading(true)
@@ -703,14 +711,11 @@ export function RequestListPage() {
         return
       }
 
-      let query = supabase
-        .from('Request')
-        .select(REQUEST_LIST_SELECT, { count: 'exact' })
+      let query = applyScopeToQuery(
+        supabase.from('Request').select(REQUEST_LIST_SELECT, { count: 'exact' }),
+      )
 
       if (scopeMine && user) query = query.eq('booked_by', user.id)
-      if (scopeMine && profile?.client_id != null) {
-        query = query.eq('client_id', profile.client_id)
-      }
 
       if (filter.status_ids.length > 0) query = query.in('status_id', filter.status_ids)
       if (filter.casting_date_from) query = query.gte('casting_date', filter.casting_date_from)
@@ -739,7 +744,7 @@ export function RequestListPage() {
       const cacheKey = buildListCacheKey({
         scopeMine,
         userId: user?.id,
-        clientId: profile?.client_id,
+        jobScope: queryJobScope,
         filterKey,
         page,
         search: debouncedSearch,
@@ -756,7 +761,7 @@ export function RequestListPage() {
     } finally {
       setLoading(false)
     }
-  }, [user, profile?.client_id, filter, debouncedSearch, page, scopeMine, filterKey, loadRequestsFromOfflineCache])
+  }, [user, queryJobScope, filter, debouncedSearch, page, scopeMine, filterKey, loadRequestsFromOfflineCache])
 
   useEffect(() => {
     if (mobileView === 'calendar') return
@@ -777,20 +782,16 @@ export function RequestListPage() {
     try {
       if (!isFullyOnline()) {
         const all = await getAllCachedRequests()
-        setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, profile?.client_id))
+        setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, queryJobScope))
         return
       }
       const map: Record<number, number> = {}
       await Promise.all(
         statusRowsForSummary.map(async (s) => {
-          let q = supabase
-            .from('Request')
-            .select('*', { count: 'exact', head: true })
-            .eq('status_id', s.id)
+          let q = applyScopeToQuery(
+            supabase.from('Request').select('*', { count: 'exact', head: true }).eq('status_id', s.id),
+          )
           if (scopeMine && user) q = q.eq('booked_by', user.id)
-          if (scopeMine && profile?.client_id != null) {
-            q = q.eq('client_id', profile.client_id)
-          }
           const { count } = await q
           map[s.id] = count ?? 0
         }),
@@ -799,11 +800,11 @@ export function RequestListPage() {
     } catch (e) {
       console.error('Status counts:', e)
       const all = await getAllCachedRequests()
-      setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, profile?.client_id))
+      setStatusCounts(countCachedByStatus(all, scopeMine, user?.id, queryJobScope))
     } finally {
       setCountsLoading(false)
     }
-  }, [statusRowsForSummary, user, scopeMine, profile?.client_id])
+  }, [statusRowsForSummary, user, scopeMine, queryJobScope])
 
   useEffect(() => {
     void loadStatusCounts()
@@ -929,7 +930,7 @@ export function RequestListPage() {
           <RequestBookingCalendar
             scopeMine={scopeMine}
             userId={user?.id}
-            clientId={profile?.client_id}
+            jobScope={queryJobScope}
           />
         </div>
       ) : mobileView === 'summary' ? (

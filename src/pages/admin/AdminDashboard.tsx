@@ -1,6 +1,7 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+﻿import { useCallback, useMemo, useState } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { supabase } from '@/lib/supabase'
 import { AdminDashboardContent } from '@/components/dashboard/AdminDashboardContent'
 import {
@@ -42,9 +43,7 @@ export function AdminDashboard() {
     }
   }, [])
 
-  useEffect(() => {
-    void loadDashboard()
-  }, [loadDashboard])
+  useScopedPageLoad(loadDashboard)
 
   useDataSyncRefetch(['Request', '*'], loadDashboard)
   usePullToRefreshOnLoad(() => loadDashboard({ background: true }))

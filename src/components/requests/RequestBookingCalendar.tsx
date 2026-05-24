@@ -18,6 +18,7 @@ import { todayIsoLocal } from '@/lib/cstListDue'
 import { cacheRequestRows } from '@/lib/offline/cache'
 import { isFullyOnline } from '@/stores/connectivityStore'
 import { useConnectivityStore } from '@/stores/connectivityStore'
+import type { QueryJobScope } from '@/lib/jobScope'
 import { icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
 import { cn, formatDate, formatTime, formatVolumeNumber } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
@@ -27,13 +28,13 @@ const WEEKDAYS = ['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'] as cons
 type RequestBookingCalendarProps = {
   scopeMine: boolean
   userId?: string
-  clientId?: number | null
+  jobScope?: QueryJobScope
 }
 
 export function RequestBookingCalendar({
   scopeMine,
   userId,
-  clientId,
+  jobScope,
 }: RequestBookingCalendarProps) {
   const [month, setMonth] = useState(() => {
     const t = todayIsoLocal().split('-').map(Number)
@@ -51,7 +52,7 @@ export function RequestBookingCalendar({
           month,
           scopeMine,
           userId,
-          clientId,
+          jobScope,
         })
         setRows(data)
         if (isFullyOnline()) await cacheRequestRows(data)
@@ -63,7 +64,7 @@ export function RequestBookingCalendar({
         setLoading(false)
       }
     },
-    [month, scopeMine, userId, clientId],
+    [month, scopeMine, userId, jobScope],
   )
 
   useEffect(() => {

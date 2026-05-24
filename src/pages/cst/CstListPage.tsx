@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
+import { useJobScope } from '@/hooks/useJobScope'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -300,6 +301,7 @@ function CstListContent({
 
 export function CstListPage() {
   const { role } = useAuthStore()
+  const { queryJobScope } = useJobScope()
   const { filter, setFilter } = useFilterStore()
   const canEdit = canEditCst(role)
   const canShortcut = canUseCstShortcut(role)
@@ -396,7 +398,7 @@ export function CstListPage() {
         setLoading(false)
       }
     },
-    [page, debouncedSearch, filter.casting_date_from, filter.casting_date_to],
+    [page, debouncedSearch, filter.casting_date_from, filter.casting_date_to, queryJobScope],
   )
 
   const loadFilterData = useCallback(
@@ -423,7 +425,7 @@ export function CstListPage() {
         setFilterLoading(false)
       }
     },
-    [debouncedSearch, filter.casting_date_from, filter.casting_date_to],
+    [debouncedSearch, filter.casting_date_from, filter.casting_date_to, queryJobScope],
   )
 
   useEffect(() => {

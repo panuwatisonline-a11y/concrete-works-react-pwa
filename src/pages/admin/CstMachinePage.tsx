@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { fetchCompressionMachines } from '@/lib/cstData'
@@ -13,6 +13,7 @@ const CST_MACHINE_NUM_STEP = (10 ** -CST_MACHINE_DECIMAL_PLACES).toFixed(
   CST_MACHINE_DECIMAL_PLACES,
 )
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { insertScopedRow } from '@/lib/jobScopeQueries'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -21,6 +22,7 @@ import { app, rq } from '@/lib/requestUi'
 import { formatDate } from '@/lib/utils'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { CompressionMachine } from '@/types/app.types'
 
@@ -100,9 +102,7 @@ export function CstMachinePage() {
     }
   }
 
-  useEffect(() => {
-    void load()
-  }, [])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Compression Machine', '*'], load)
 
@@ -215,7 +215,7 @@ export function CstMachinePage() {
             toast.error('ชื่อเครื่องนี้มีอยู่แล้ว')
             return false
           }
-          const { error } = await supabase.from('Compression Machine').insert(payload)
+          const { error } = await insertScopedRow('Compression Machine', payload)
           if (error) {
             toast.error('เกิดข้อผิดพลาด')
             return false

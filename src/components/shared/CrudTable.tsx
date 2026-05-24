@@ -1,6 +1,9 @@
 ﻿import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { canEditMasterData } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/authStore'
+import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
+import { createJobScopeGroupBy, jobScopeColumn, rowHasJobScope, type JobScopedRow } from '@/lib/jobScopeDisplay'
+import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
@@ -41,6 +44,8 @@ interface CrudTableProps<T extends { id: number }> {
   groupBy?: CrudTableGroupBy<T>
   /** เรียงแถวภายในกลุ่มเดียวกัน (ใช้หลัง `compareGroups`) */
   sortWithinGroup?: (a: T, b: T) => number
+  /** Super Admin + ทุกโครงการ: แสดงคอลัมน์/จัดกลุ่มตาม Job (`auto` = เปิดอัตโนมัติ, `false` = ปิด) */
+  jobScopeView?: boolean | 'auto'
 }
 
 function renderCell<T>(col: Column<T>, row: T) {
@@ -60,8 +65,27 @@ export function CrudTable<T extends { id: number }>({
   embedded = false,
   groupBy,
   sortWithinGroup,
+  jobScopeView = 'auto',
 }: CrudTableProps<T>) {
   const role = useAuthStore((s) => s.role)
+  const jobs = useMasterDataStore((s) => s.jobs)
+  const superAdminShowsAllJobs = useSuperAdminShowsAllJobs()
+  const showJobScope =
+    jobScopeView !== false &&
+    (jobScopeView === true || superAdminShowsAllJobs) &&
+    rowHasJobScope(data as unknown as JobScopedRow[])
+
+  const effectiveColumns = useMemo((): Column<T>[] => {
+    if (!showJobScope) return columns
+    return [jobScopeColumn(jobs) as Column<T>, ...columns]
+  }, [columns, showJobScope, jobs])
+
+  const effectiveGroupBy = useMemo((): CrudTableGroupBy<T> | undefined => {
+    if (groupBy) return groupBy
+    if (!showJobScope) return undefined
+    return createJobScopeGroupBy(jobs) as CrudTableGroupBy<T>
+  }, [groupBy, showJobScope, jobs])
+
   const readOnly = !canEditMasterData(role)
   const [modalOpen, setModalOpen] = useState(false)
   const [editItem, setEditItem] = useState<T | null>(null)
@@ -109,9 +133,9 @@ export function CrudTable<T extends { id: number }>({
 
   const displayRows = useMemo(() => {
     const rows = [...data]
-    if (!groupBy) return rows
+    if (!effectiveGroupBy) return rows
     const cg =
-      groupBy.compareGroups ??
+      effectiveGroupBy.compareGroups ??
       ((a: string, b: string) => {
         const ta = a.trim()
         const tb = b.trim()
@@ -123,25 +147,25 @@ export function CrudTable<T extends { id: number }>({
         return ta.localeCompare(tb, 'th')
       })
     rows.sort((a, b) => {
-      const ka = groupBy.groupKey(a)
-      const kb = groupBy.groupKey(b)
+      const ka = effectiveGroupBy.groupKey(a)
+      const kb = effectiveGroupBy.groupKey(b)
       const g = cg(ka, kb)
       if (g !== 0) return g
       if (sortWithinGroup) return sortWithinGroup(a, b)
       return a.id - b.id
     })
     return rows
-  }, [data, groupBy, sortWithinGroup])
+  }, [data, effectiveGroupBy, sortWithinGroup])
 
   const groupRowCounts = useMemo(() => {
-    if (!groupBy) return new Map<string, number>()
+    if (!effectiveGroupBy) return new Map<string, number>()
     const m = new Map<string, number>()
     for (const row of displayRows) {
-      const k = groupBy.groupKey(row)
+      const k = effectiveGroupBy.groupKey(row)
       m.set(k, (m.get(k) ?? 0) + 1)
     }
     return m
-  }, [displayRows, groupBy])
+  }, [displayRows, effectiveGroupBy])
 
   return (
     <div className={cn('min-w-0 space-y-4', embedded && 'space-y-3')}>
@@ -172,9 +196,9 @@ export function CrudTable<T extends { id: number }>({
         ) : (
           displayRows.map((row, i) => {
             const showGroup =
-              groupBy &&
-              (i === 0 || groupBy.groupKey(displayRows[i - 1]!) !== groupBy.groupKey(row))
-            const gKey = groupBy?.groupKey(row) ?? ''
+              effectiveGroupBy &&
+              (i === 0 || effectiveGroupBy.groupKey(displayRows[i - 1]!) !== effectiveGroupBy.groupKey(row))
+            const gKey = effectiveGroupBy?.groupKey(row) ?? ''
             return (
               <Fragment key={row.id}>
                 {showGroup ? (
@@ -184,12 +208,12 @@ export function CrudTable<T extends { id: number }>({
                       i > 0 && 'mt-2',
                     )}
                   >
-                    {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
+                    {effectiveGroupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                   </div>
                 ) : null}
                 <div className={adminDataRow.card}>
                   <dl className={adminDataRow.fields}>
-                    {columns.map((col) => (
+                    {effectiveColumns.map((col) => (
                       <div key={String(col.key)}>
                         <dt className={adminDataRow.label}>{col.label}</dt>
                         <dd className={cn(adminDataRow.value, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
@@ -221,7 +245,7 @@ export function CrudTable<T extends { id: number }>({
         <table className={tableCompact.table}>
           <thead className={tableCompact.head}>
             <tr>
-              {columns.map((col) => (
+              {effectiveColumns.map((col) => (
                 <th key={String(col.key)} className="font-medium">
                   {col.label}
                 </th>
@@ -232,22 +256,22 @@ export function CrudTable<T extends { id: number }>({
           <tbody className={tableCompact.body}>
             {loading ? (
               <tr>
-                <td colSpan={columns.length + 1} className={tableCompact.emptyCell}>
+                <td colSpan={effectiveColumns.length + 1} className={tableCompact.emptyCell}>
                   กำลังโหลด…
                 </td>
               </tr>
             ) : displayRows.length === 0 ? (
               <tr>
-                <td colSpan={columns.length + 1} className={tableCompact.emptyCell}>
+                <td colSpan={effectiveColumns.length + 1} className={tableCompact.emptyCell}>
                   ไม่มีข้อมูล
                 </td>
               </tr>
             ) : (
               displayRows.map((row, i) => {
                 const showGroup =
-                  groupBy &&
-                  (i === 0 || groupBy.groupKey(displayRows[i - 1]!) !== groupBy.groupKey(row))
-                const gKey = groupBy?.groupKey(row) ?? ''
+                  effectiveGroupBy &&
+                  (i === 0 || effectiveGroupBy.groupKey(displayRows[i - 1]!) !== effectiveGroupBy.groupKey(row))
+                const gKey = effectiveGroupBy?.groupKey(row) ?? ''
                 return (
                   <Fragment key={row.id}>
                     {showGroup ? (
@@ -255,15 +279,15 @@ export function CrudTable<T extends { id: number }>({
                         className="border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/85 text-[color:var(--pour-ink-0)] first:border-t-0"
                       >
                         <td
-                          colSpan={columns.length + 1}
+                          colSpan={effectiveColumns.length + 1}
                           className="px-2.5 py-2 align-middle text-xs font-semibold leading-snug text-[color:var(--pour-ink-0)] sm:px-3 sm:text-sm"
                         >
-                          {groupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
+                          {effectiveGroupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
                         </td>
                       </tr>
                     ) : null}
                     <tr>
-                      {columns.map((col) => (
+                      {effectiveColumns.map((col) => (
                         <td key={String(col.key)} className="min-w-0 break-words text-[color:var(--pour-ink-1)]">
                           {renderCell(col, row)}
                         </td>

@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { fetchCstAgesByRequestIds } from '@/lib/cstData'
 import { isCstDueToday } from '@/lib/cstListDue'
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import { collectRequestIdsMatchingSearch } from '@/lib/requestListSearch'
 import type { RequestWithRelations } from '@/types/app.types'
 
@@ -42,10 +43,12 @@ export async function fetchCstListPage(opts: FetchCstListPageOpts): Promise<CstL
     return { requests: [], total: 0, cstAgesByRequestId: new Map() }
   }
 
-  let query = supabase
-    .from('Request')
-    .select(CST_LIST_REQUEST_SELECT, { count: 'exact' })
-    .eq('status_id', CST_LIST_STATUS_ID)
+  let query = applyScopeToQuery(
+    supabase
+      .from('Request')
+      .select(CST_LIST_REQUEST_SELECT, { count: 'exact' })
+      .eq('status_id', CST_LIST_STATUS_ID),
+  )
 
   if (castingDateFrom) query = query.gte('casting_date', castingDateFrom)
   if (castingDateTo) query = query.lte('casting_date', castingDateTo)

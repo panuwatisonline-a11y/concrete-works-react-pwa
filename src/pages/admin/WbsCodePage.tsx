@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { ExternalLink, FileText } from 'lucide-react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
@@ -13,7 +13,9 @@ import { cn } from '@/lib/utils'
 import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
+import { insertScopedRow, scopedSelect } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { WbsCode, WbsSegment } from '@/types/app.types'
 
@@ -101,14 +103,14 @@ export function WbsCodePage() {
 
   async function loadSegments() {
     const keys: WbsKey[] = ['WBS1', 'WBS2', 'WBS3', 'WBS4', 'WBS5', 'WBS6', 'WBS7']
-    const results = await Promise.all(keys.map((k) => supabase.from(k).select('*').order('code_name')))
+    const results = await Promise.all(keys.map((k) => scopedSelect(k).order('code_name')))
     const updated: Record<WbsKey, WbsSegment[]> = { WBS1: [], WBS2: [], WBS3: [], WBS4: [], WBS5: [], WBS6: [], WBS7: [] }
     keys.forEach((k, i) => { updated[k] = (results[i].data ?? []) as WbsSegment[] })
     setSegments(updated)
   }
 
   async function loadCombos() {
-    const { data } = await supabase.from('WBS Code').select('*').order('id')
+    const { data } = await scopedSelect('WBS Code').order('id')
     setCombos((data ?? []) as WbsCode[])
   }
 
@@ -122,7 +124,10 @@ export function WbsCodePage() {
     void reloadMasterData()
   }
 
-  useEffect(() => { void loadSegments(); void loadCombos() }, [])
+  useScopedPageLoad(async () => {
+    await loadSegments()
+    await loadCombos()
+  })
 
   useDataSyncOnTables(
     ['WBS Code', 'WBS1', 'WBS2', 'WBS3', 'WBS4', 'WBS5', 'WBS6', 'WBS7', '*'],
@@ -224,7 +229,7 @@ export function WbsCodePage() {
                     return false
                   }
                   const descTrim = String(item.description ?? '').trim()
-                  const { error } = await supabase.from(key).insert({
+                  const { error } = await insertScopedRow(key, {
                     code_name: code,
                     description: descTrim === '' ? null : descTrim,
                   })
@@ -233,7 +238,7 @@ export function WbsCodePage() {
                     await refreshSegmentsAndMaster()
                     return
                   }
-                  toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
+                  toast.error(error.message.includes('23505') ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
                   return false
                 }}
                 onEdit={async (item) => {
@@ -337,13 +342,13 @@ export function WbsCodePage() {
               toast.error('ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว')
               return false
             }
-            const { error } = await supabase.from('WBS Code').insert(payload)
+            const { error } = await insertScopedRow('WBS Code', payload)
             if (!error) {
               toast.success('เพิ่มสำเร็จ')
               await refreshCombosAndMaster()
               return
             }
-            toast.error(error.code === '23505' ? 'ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+            toast.error(error.message.includes('23505') ? 'ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
             return false
           }}
           onEdit={async (item) => {

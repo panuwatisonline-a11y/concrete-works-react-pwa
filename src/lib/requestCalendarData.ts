@@ -1,4 +1,5 @@
 import { getAllCachedRequests } from '@/lib/offline/cache'
+import { applyJobScope, type QueryJobScope } from '@/lib/jobScope'
 import { REQUEST_LIST_SELECT } from '@/lib/requestQueries'
 import { isFullyOnline } from '@/stores/connectivityStore'
 import { supabase } from '@/lib/supabase'
@@ -55,13 +56,14 @@ export type FetchCalendarMonthOpts = {
   month: Date
   scopeMine: boolean
   userId?: string
-  clientId?: number | null
+  jobScope?: QueryJobScope
 }
 
 export async function fetchRequestsForCalendarMonth(
   opts: FetchCalendarMonthOpts,
 ): Promise<RequestWithRelations[]> {
   const { from, to } = calendarMonthRange(opts.month)
+  const jobScope = opts.jobScope ?? null
 
   if (!isFullyOnline()) {
     const all = await getAllCachedRequests()
@@ -77,8 +79,8 @@ export async function fetchRequestsForCalendarMonth(
     .order('casting_date', { ascending: true })
     .order('request_time', { ascending: true, nullsFirst: false })
 
+  query = applyJobScope(query, jobScope)
   if (opts.scopeMine && opts.userId) query = query.eq('booked_by', opts.userId)
-  if (opts.scopeMine && opts.clientId != null) query = query.eq('client_id', opts.clientId)
 
   const { data, error } = await query
   if (error) throw error
@@ -91,11 +93,12 @@ function filterMonthScope(
   from: string,
   to: string,
 ): RequestWithRelations[] {
+  const jobScope = opts.jobScope ?? null
   return rows.filter((r) => {
     const key = castingDateKey(r)
     if (!key || key < from || key > to) return false
+    if (jobScope !== null && jobScope !== 'all' && r.job_id !== jobScope) return false
     if (opts.scopeMine && opts.userId && r.booked_by !== opts.userId) return false
-    if (opts.scopeMine && opts.clientId != null && r.client_id !== opts.clientId) return false
     return true
   })
 }

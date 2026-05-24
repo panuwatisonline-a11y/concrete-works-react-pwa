@@ -3,7 +3,7 @@ import { fetchBookerScopeForProfile, type InspectorBookerScope } from '@/lib/ins
 import { isInspectorRole, normalizeRole } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/authStore'
 
-/** โหลดชุด booked_by ที่ Inspector ในสายดูแลได้ (admin/engineer = null = ไม่จำกัด workflow) */
+/** โหลดชุด booked_by ที่ Inspector ในสายดูแลได้ (super_admin/admin/engineer = null = ไม่จำกัด workflow ใน job) */
 export function useInspectorBookerScope(): {
   bookerScope: InspectorBookerScope
   scopeLoading: boolean
@@ -12,13 +12,13 @@ export function useInspectorBookerScope(): {
   const role = useAuthStore((s) => s.role)
   const [bookerScope, setBookerScope] = useState<InspectorBookerScope>(() => {
     const r = normalizeRole(role)
-    return r === 'admin' || r === 'engineer' ? null : new Set()
+    return r === 'super_admin' || r === 'admin' || r === 'engineer' ? null : new Set()
   })
   const [scopeLoading, setScopeLoading] = useState(isInspectorRole(role))
 
   useEffect(() => {
     const r = normalizeRole(role)
-    if (r === 'admin' || r === 'engineer') {
+    if (r === 'super_admin' || r === 'admin' || r === 'engineer') {
       setBookerScope(null)
       setScopeLoading(false)
       return

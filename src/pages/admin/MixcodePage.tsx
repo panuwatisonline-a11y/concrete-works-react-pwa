@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
@@ -13,7 +13,9 @@ import { cn, formatVolumeNumber } from '@/lib/utils'
 import { app, layout, rq } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
+import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
+import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import {
   buildMixcodeBalanceRows,
@@ -154,8 +156,8 @@ export function MixcodePage() {
     try {
       const [{ data: rows, error: rowsErr }, { data: structRows, error: structErr }, usage] =
         await Promise.all([
-          supabase.from('Mixed Code').select('*').order('mixcode'),
-          supabase.from('Structure').select('id, structure_name').order('structure_name'),
+          fetchScopedRows<MixedCode>('Mixed Code', { column: 'mixcode' }),
+          fetchScopedRows<Structure>('Structure', { column: 'structure_name' }),
           fetchMixcodeUsageByMixcodeId(supabase),
         ])
       if (rowsErr || structErr) {
@@ -175,16 +177,14 @@ export function MixcodePage() {
     }
   }, [])
 
-  useEffect(() => {
-    void load()
-  }, [load])
+  useScopedPageLoad(load)
 
   useDataSyncRefetch(['Mixed Code', 'Structure', 'Request', '*'], load)
 
   usePullToRefreshOnLoad(() => load({ background: true }))
 
   async function onAdd(item: Partial<MixedCode>) {
-    const { error } = await supabase.from('Mixed Code').insert({
+    const { error } = await insertScopedRow('Mixed Code', {
       mixcode: item.mixcode ?? '',
       supplier: item.supplier ?? null,
       strength: item.strength ?? null,

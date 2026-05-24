@@ -40,7 +40,7 @@ export function CompleteProfilePage() {
       return
     }
     if (profileHydrated && profile?.employee_id) {
-      const dest = profile.status === 'approved' || profile.role === 'admin' ? APP_HOME : '/pending-approval'
+      const dest = profile.status === 'approved' || profile.role === 'admin' || profile.role === 'super_admin' ? APP_HOME : '/pending-approval'
       navigate(dest, { replace: true })
     }
   }, [user, profile, profileHydrated, navigate])

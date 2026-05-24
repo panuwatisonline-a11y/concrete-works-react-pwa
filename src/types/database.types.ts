@@ -20,7 +20,7 @@ export interface Database {
           fname: string | null
           lname: string | null
           phone: string | null
-          role: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
+          role: 'super_admin' | 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
           client_id: number | null
           client_name: string | null
           job_id: number | null
