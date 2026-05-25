@@ -164,7 +164,7 @@ export function SearchableSelect({
   )
 
   return (
-    <Popover modal open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
           ref={triggerRef}

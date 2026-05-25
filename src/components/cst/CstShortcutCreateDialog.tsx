@@ -340,7 +340,12 @@ function CstShortcutStep1Fields({
           name="strength"
           control={control}
           render={({ field }) => (
-            <RequireStrengthSelect value={field.value} onChange={field.onChange} mixcodes={scopeMixcodes} />
+            <RequireStrengthSelect
+              inDialog
+              value={field.value}
+              onChange={field.onChange}
+              mixcodes={scopeMixcodes}
+            />
           )}
         />
         {errors.strength ? <p className="text-xs text-rose-600">{errors.strength.message}</p> : null}

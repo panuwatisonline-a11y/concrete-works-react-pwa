@@ -5,8 +5,8 @@ export const Z_INDEX = {
   chrome: 40,
   /** dropdown บนหน้าปกติ (ต่ำกว่า modal) */
   popover: 300,
-  /** dropdown ใน MUI Dialog */
-  popoverInModal: 1310,
+  /** dropdown ใน MUI Dialog (สูงกว่า modalElevated 1320) */
+  popoverInModal: 1330,
   /** Dialog มาตรฐาน (= MUI default) */
   modal: 1300,
   /** workflow / CST form ทับ dialog ทั่วไป */
