@@ -102,6 +102,8 @@ export function AppHeader() {
           bgcolor: 'background.default',
           borderBottom: 1,
           borderColor: 'divider',
+          /* iOS notch / status bar — viewport-fit=cover + black-translucent */
+          pt: 'env(safe-area-inset-top, 0px)',
         }}
       >
         {/* Mobile wireframe header: เมนู | ชื่อซ้าย | ค้นหา */}

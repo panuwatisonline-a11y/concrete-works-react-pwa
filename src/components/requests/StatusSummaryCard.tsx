@@ -37,7 +37,7 @@ export function StatusSummaryCard({ statusId, statusName, count, onClick }: Stat
       <span className="relative z-0 w-full pour-desktop:flex pour-desktop:items-center pour-desktop:justify-between pour-desktop:gap-3 pour-desktop:px-4 pour-desktop:py-3.5">
         <span
           className={cn(
-            'min-w-0 text-pour-lg font-medium leading-snug text-[color:var(--pour-ink-0)]',
+            'min-w-0 text-pour-base font-medium leading-snug text-[color:var(--pour-ink-0)]',
             'line-clamp-2 pour-desktop:line-clamp-none pour-desktop:flex-1',
             'pour-desktop:text-pour-base pour-desktop:font-normal pour-desktop:leading-relaxed',
           )}
@@ -46,7 +46,7 @@ export function StatusSummaryCard({ statusId, statusName, count, onClick }: Stat
         </span>
         <span
           className={cn(
-            'min-w-[2.75rem] shrink-0 justify-self-end rounded-full px-2.5 py-1 text-center font-pour-mono text-pour-xl font-semibold tabular-nums leading-none backdrop-blur-sm',
+            'min-w-[2.25rem] shrink-0 justify-self-end rounded-full px-2 py-0.5 text-center font-pour-mono text-pour-lg font-semibold tabular-nums leading-none backdrop-blur-sm',
             'pour-desktop:min-w-0 pour-desktop:px-2.5 pour-desktop:py-1 pour-desktop:text-pour-base pour-desktop:font-medium',
           )}
           style={{

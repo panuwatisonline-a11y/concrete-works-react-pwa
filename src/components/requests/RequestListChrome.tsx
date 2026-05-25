@@ -1,10 +1,9 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import GridView from '@mui/icons-material/GridView'
 import ListIcon from '@mui/icons-material/List'
-import Add from '@mui/icons-material/Add'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { useFilterStore } from '@/stores/filterStore'
-import { type, anim } from '@/lib/requestUi'
+import { anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 type ListTab = 'summary' | 'latest' | 'mine' | 'calendar'
@@ -33,8 +32,9 @@ function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
 
 const tabLinkClass = (isActive: boolean) =>
   cn(
-    'pour-interactive pour-nav-item flex min-w-0 flex-1 basis-0 items-center justify-center rounded-lg px-1.5 py-2.5 text-center text-sm font-medium leading-snug transition-colors sm:px-2 sm:text-base',
-    'pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-xs pour-desktop:leading-tight pour-desktop:sm:px-2 pour-desktop:sm:text-sm',
+    'pour-interactive pour-nav-item flex min-h-[2.5rem] min-w-0 flex-1 basis-0 items-center justify-center rounded-lg px-1 py-2 text-center text-xs font-medium leading-tight transition-colors',
+    'line-clamp-2 break-words [overflow-wrap:anywhere]',
+    'pour-desktop:min-h-0 pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-xs pour-desktop:leading-tight pour-desktop:line-clamp-none',
     isActive
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
       : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
@@ -124,43 +124,41 @@ export function RequestListPageHeader({
   showCreate?: boolean
 }) {
   return (
-    <header
-      className={cn(
-        'flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between',
-        'pour-desktop:flex-row pour-desktop:gap-3',
-        anim.fadeIn,
-      )}
-    >
-      <div className="min-w-0 flex-1">
-        <h1 className="text-pour-xl font-semibold leading-snug tracking-[-0.02em] text-[color:var(--pour-ink-0)] pour-desktop:text-pour-2xl">
-          {title}
-        </h1>
-        {subtitle ? (
-          <p
-            className={cn(
-              'mt-1 truncate text-pour-sm leading-relaxed text-pour-muted',
-              'pour-desktop:text-pour-sm',
-            )}
-            title={subtitle}
-          >
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
-      {showCreate ? (
-        <Link
-          to="/requests/new"
+    <header className={cn('flex min-w-0 flex-col gap-1.5', anim.fadeIn)}>
+      <div className="flex min-w-0 items-start justify-between gap-2 pour-desktop:gap-3">
+        <h1
           className={cn(
-            'pour-interactive inline-flex w-full shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-pour-sm font-semibold sm:w-auto',
-            'bg-[color:var(--pour-accent)] text-white shadow-sm',
-            'hover:bg-[color:var(--pour-accent-hover)]',
-            'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:text-pour-base pour-desktop:font-medium',
+            'min-w-0 flex-1 text-pour-lg font-semibold leading-snug tracking-[-0.02em] text-[color:var(--pour-ink-0)]',
+            'line-clamp-2 pour-desktop:line-clamp-none pour-desktop:text-pour-2xl',
           )}
         >
-          <AppIcon icon={Add} size="sm" className="pour-desktop:hidden" />
-          <AppIcon icon={Add} size="md" className="hidden pour-desktop:block" />
-          เพิ่มรายการจอง
-        </Link>
+          {title}
+        </h1>
+        {showCreate ? (
+          <Link
+            to="/requests/new"
+            className={cn(
+              'pour-interactive inline-flex w-auto shrink-0 items-center justify-center gap-1 rounded-lg px-2.5 py-1.5',
+              'text-pour-xs font-medium leading-none whitespace-nowrap',
+              'bg-[color:var(--pour-accent)] text-white shadow-sm',
+              'hover:bg-[color:var(--pour-accent-hover)]',
+              'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:py-2.5 pour-desktop:text-pour-base',
+            )}
+          >
+            <span className="text-[1.15em] font-semibold leading-none" aria-hidden>
+              +
+            </span>
+            <span>เพิ่มรายการจอง</span>
+          </Link>
+        ) : null}
+      </div>
+      {subtitle ? (
+        <p
+          className="min-w-0 truncate text-pour-sm leading-relaxed text-pour-muted pour-desktop:text-pour-sm"
+          title={subtitle}
+        >
+          {subtitle}
+        </p>
       ) : null}
     </header>
   )
