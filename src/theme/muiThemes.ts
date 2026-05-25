@@ -4,9 +4,8 @@ import type { ThemeVariant } from '@/lib/theme'
 const FONT =
   '"LINE Seed Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
 
-/** Matches src/styles/fluid-typography.css — root rem on desktop landscape */
-const FLUID_HTML_FONT_SIZE =
-  'clamp(13px, calc(13px + (15px - 13px) * ((100vw - 48rem) / 42)), 15px)'
+/** Matches src/styles/pour-pc-type.css — Figma html 14px @ 1440w */
+const FLUID_HTML_FONT_SIZE = 'var(--pour-pc-type-html)'
 
 const shared = {
   shape: { borderRadius: 12 },
@@ -19,6 +18,9 @@ const shared = {
     MuiCssBaseline: {
       styleOverrides: {
         html: {
+          '@media (max-width: 767px)': {
+            fontSize: 'var(--pour-m-type-html)',
+          },
           '@media (orientation: landscape) and (min-width: 768px)': {
             fontSize: FLUID_HTML_FONT_SIZE,
           },

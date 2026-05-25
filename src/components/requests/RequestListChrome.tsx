@@ -32,9 +32,9 @@ function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
 
 const tabLinkClass = (isActive: boolean) =>
   cn(
-    'pour-interactive pour-nav-item flex min-h-[2.5rem] min-w-0 flex-1 basis-0 items-center justify-center rounded-lg px-1 py-2 text-center text-xs font-medium leading-tight transition-colors',
-    'line-clamp-2 break-words [overflow-wrap:anywhere]',
-    'pour-desktop:min-h-0 pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-xs pour-desktop:leading-tight pour-desktop:line-clamp-none',
+    'pour-interactive pour-nav-item flex min-h-8 min-w-0 flex-1 basis-0 items-center justify-center rounded-md px-0.5 py-1 text-center text-pour-xs font-medium leading-none transition-colors',
+    'line-clamp-1 max-w-full truncate',
+    'pour-desktop:min-h-0 pour-desktop:rounded-lg pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-pour-md pour-desktop:leading-tight pour-desktop:line-clamp-none pour-desktop:whitespace-normal',
     isActive
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
       : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
@@ -54,8 +54,8 @@ export function RequestListTabs({
   const active = readActiveTab(location.pathname, searchParams)
 
   return (
-    <div className="flex flex-nowrap items-stretch gap-2 border-b border-[color:var(--pour-line)] pb-3">
-      <nav aria-label="มุมมองรายการ" className="flex min-w-0 flex-1 items-stretch gap-1">
+    <div className="pour-request-list-tabs flex flex-nowrap items-stretch gap-1 border-b border-[color:var(--pour-line)] pb-2 max-md:gap-0.5 pour-desktop:gap-2 pour-desktop:pb-3">
+      <nav aria-label="มุมมองรายการ" className="flex min-w-0 flex-1 items-stretch gap-0.5 pour-desktop:gap-1">
         {TABS.map((tab) => {
           const isActive = active === tab.id
           return (
@@ -128,8 +128,8 @@ export function RequestListPageHeader({
       <div className="flex min-w-0 items-start justify-between gap-2 pour-desktop:gap-3">
         <h1
           className={cn(
-            'min-w-0 flex-1 text-pour-lg font-semibold leading-snug tracking-[-0.02em] text-[color:var(--pour-ink-0)]',
-            'line-clamp-2 pour-desktop:line-clamp-none pour-desktop:text-pour-2xl',
+            'min-w-0 flex-1 text-pour-title font-semibold leading-snug tracking-[-0.02em] text-[color:var(--pour-ink-0)]',
+            'line-clamp-2 pour-desktop:line-clamp-none',
           )}
         >
           {title}
@@ -139,7 +139,7 @@ export function RequestListPageHeader({
             to="/requests/new"
             className={cn(
               'pour-interactive inline-flex w-auto shrink-0 items-center justify-center gap-1 rounded-lg px-2.5 py-1.5',
-              'text-pour-xs font-medium leading-none whitespace-nowrap',
+              'text-pour-sm font-medium leading-none whitespace-nowrap',
               'bg-[color:var(--pour-accent)] text-white shadow-sm',
               'hover:bg-[color:var(--pour-accent-hover)]',
               'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:py-2.5 pour-desktop:text-pour-base',

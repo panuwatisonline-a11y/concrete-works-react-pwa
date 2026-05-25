@@ -1,0 +1,25 @@
+/**
+ * Figma mobile typography — frame 390×844 (iPhone)
+ * ที่ viewport กว้าง 390px ได้ px ตรง wireframe / Figma
+ */
+
+@layer base {
+  @media (max-width: 767px) {
+    :root {
+      --pour-m-type-ref-w: 390;
+
+      --pour-m-type-2xs: round(nearest, calc(10 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-xs: round(nearest, calc(11 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-sm: round(nearest, calc(12 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-base: round(nearest, calc(14 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-md: round(nearest, calc(13 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-lg: round(nearest, calc(15 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-xl: round(nearest, calc(17 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-title: round(nearest, calc(17 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-2xl: round(nearest, calc(18 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-3xl: round(nearest, calc(20 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-display: round(nearest, calc(22 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-html: round(nearest, calc(15 * 100vw / var(--pour-m-type-ref-w)), 1px);
+    }
+  }
+}

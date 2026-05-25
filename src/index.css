@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "./styles/pour-pc-type.css";
+@import "./styles/pour-mobile-type.css";
 @import "./styles/fluid-typography.css";
 @import "./styles/pour-mobile-scale.css";
 @import "./styles/pour-pc-scale.css";
@@ -584,6 +586,49 @@
   .pour-form-control,
   .pour-form-picker {
     transition: none;
+  }
+
+  /**
+   * MUI OutlinedInput แบบ glass — ขอบเดียว (ไม่ซ้อน border บน TextField root กับ fieldset)
+   * ใช้กับ DesktopTopBar search และช่องค้นหาแบบเดียวกัน
+   */
+  .pour-input-glass.MuiFormControl-root {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .pour-input-glass .MuiOutlinedInput-root {
+    border-radius: 0.75rem;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transition: none;
+  }
+
+  .pour-input-glass .MuiOutlinedInput-notchedOutline {
+    border: 1.5px solid var(--glass-border-subtle);
+    border-radius: 0.75rem;
+    transition: border-color 0.15s ease;
+  }
+
+  .pour-input-glass .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+    border-color: var(--glass-edge);
+  }
+
+  .pour-input-glass .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: var(--pour-accent);
+    border-width: 1.5px;
+  }
+
+  .pour-input-glass .MuiOutlinedInput-root.Mui-focused {
+    box-shadow: 0 0 0 3px var(--pour-accent-ring);
+  }
+
+  .pour-input-glass .MuiOutlinedInput-input {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   button[role='combobox'],

@@ -1,6 +1,5 @@
 /**
- * pour-mobile fix-scale — canvas 1200×2608
- * ค่า px ใน calc อ้างอิง artboard 1200 กว้าง (เดิมออกแบบที่ 390 → คูณ ~3.08)
+ * pour-mobile fix-scale — spacing artboard 1200×2608, typography ดู pour-mobile-type.css
  */
 
 @layer components {
@@ -8,14 +7,7 @@
     .pour-mobile-fix-scale {
       --pour-m-ref-w: 1200;
       --pour-m-ref-h: 2608;
-      --pour-m-factor: 0.8;
-      --pour-m-font-factor: 0.92;
-      /* rem อ่านง่ายบนจอแคบ (~390–430px) — artboard 1200 ใช้กับ spacing เท่านั้น */
-      font-size: clamp(
-        13px,
-        calc(52 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor)),
-        16px
-      );
+      --pour-m-factor: 1;
 
       --pour-m-inset-x: calc(49 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
       --pour-m-main-pt: calc(37 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
@@ -26,6 +18,7 @@
       --pour-m-card-px: calc(49 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
       --pour-m-card-py: calc(49 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
       --pour-m-radius-md: calc(37 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-control-h: round(nearest, calc(44 * 100vw / 390), 1px);
     }
 
     .pour-mobile-main-scroll {
@@ -44,22 +37,46 @@
     }
 
     .pour-mobile-fix-scale .pour-request-list-page {
-      padding-top: 0.875rem;
-      padding-bottom: 2rem;
+      padding-top: var(--pour-m-stack-gap);
+      padding-bottom: calc(80 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+    }
+
+    .pour-mobile-fix-scale .pour-request-list-tabs .pour-nav-item {
+      min-height: calc(32 * 100vw / 390);
+      max-height: calc(36 * 100vw / 390);
+      font-size: var(--pour-m-type-xs);
+      padding-top: calc(6 * 100vw / 390);
+      padding-bottom: calc(6 * 100vw / 390);
     }
 
     .pour-mobile-fix-scale .pour-request-summary-card {
       border-radius: 0.75rem;
-      min-height: 3.5rem;
+      min-height: var(--pour-m-control-h);
     }
 
     .pour-mobile-fix-scale .pour-request-summary-card > span {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       align-items: center;
-      column-gap: 0.5rem;
-      padding: 0.5rem 0.625rem;
-      min-height: 3.5rem;
+      column-gap: calc(20 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      padding: calc(20 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor))
+        calc(25 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      min-height: var(--pour-m-control-h);
+      font-size: var(--pour-m-type-base);
+    }
+
+    .pour-mobile-fix-scale .MuiInputBase-root {
+      min-height: var(--pour-m-control-h);
+      font-size: var(--pour-m-type-lg);
+    }
+
+    .pour-mobile-fix-scale .h-9 {
+      height: var(--pour-m-control-h);
+    }
+
+    .pour-mobile-fix-scale .h-10 {
+      min-height: var(--pour-m-control-h);
+      height: var(--pour-m-control-h);
     }
   }
 }

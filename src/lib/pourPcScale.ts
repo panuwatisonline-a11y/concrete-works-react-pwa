@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react'
-import { POUR_PC_REF_HEIGHT, POUR_PC_REF_WIDTH } from '@/lib/pourScaleRefs'
+import {
+  POUR_FONT_UI_FACTOR,
+  POUR_PC_REF_HEIGHT,
+  POUR_PC_REF_WIDTH,
+  POUR_PC_UI_FACTOR,
+} from '@/lib/pourScaleRefs'
 
-export { POUR_PC_REF_WIDTH, POUR_PC_REF_HEIGHT }
-
-/** ตัวคูณสเกล UI บน desktop (0.8 = ลด 20% จาก canvas อ้างอิง) */
-export const POUR_PC_UI_FACTOR = 0.8
+export { POUR_PC_REF_WIDTH, POUR_PC_REF_HEIGHT, POUR_PC_UI_FACTOR, POUR_FONT_UI_FACTOR }
 
 /** ความกว้างจาก px ที่ ref → vw */
 export function pourPcVw(px: number): string {
@@ -16,9 +18,9 @@ export function pourPcVh(px: number): string {
   return `calc(${px} * 100vh / ${POUR_PC_REF_HEIGHT} * ${POUR_PC_UI_FACTOR})`
 }
 
-/** ขนาดตัวอักษร — สเกลตามความกว้างจอ (fix scale แนวนอน) */
+/** ขนาดตัวอักษร Figma — vw + ปัดพิกเซล (ตรง pour-pc-type.css) */
 export function pourPcFontVw(px: number): string {
-  return pourPcVw(px)
+  return `round(nearest, calc(${px} * 100vw / ${POUR_PC_REF_WIDTH} * ${POUR_PC_UI_FACTOR} * ${POUR_FONT_UI_FACTOR}), 1px)`
 }
 
 export function pourPcScaleFactors(viewportW: number, viewportH: number) {

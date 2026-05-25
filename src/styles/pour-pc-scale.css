@@ -11,9 +11,8 @@
       max-width: 100%;
       --pour-pc-ref-w: 1440;
       --pour-pc-ref-h: 900;
-      --pour-pc-factor: 0.8;
-      --pour-pc-font-factor: 0.92;
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      --pour-pc-factor: 1;
+      --pour-pc-font-factor: 1;
 
       /* design tokens — ใช้ใน requestUi ผ่าน var(--pour-pc-*) */
       --pour-pc-inset-x: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
@@ -75,7 +74,7 @@
       gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       border-radius: var(--pour-pc-radius-sm);
-      font-size: calc(13 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-md);
     }
 
     .pour-pc-sidebar-nav .MuiListItemButton-root {
@@ -85,7 +84,7 @@
       padding-left: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding-right: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       border-radius: var(--pour-pc-radius-sm);
-      font-size: calc(13 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-md);
     }
 
     /* ── Tables (ทุกหน้า) ── */
@@ -104,14 +103,14 @@
       min-width: 0 !important;
       max-width: 100%;
       table-layout: fixed;
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
       line-height: 1.45;
     }
 
     .pour-pc-fix-scale .pour-table-shell > table thead th:not(.pour-pc-no-shrink),
     .pour-pc-fix-scale table.pour-pc-app-table thead th:not(.pour-pc-no-shrink) {
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
       max-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -120,7 +119,7 @@
     .pour-pc-fix-scale .pour-table-shell > table thead th.pour-pc-no-shrink,
     .pour-pc-fix-scale table.pour-pc-app-table thead th.pour-pc-no-shrink {
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
       max-width: none;
       overflow: visible;
       text-overflow: clip;
@@ -146,7 +145,7 @@
       white-space: nowrap;
       vertical-align: middle;
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
     }
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:first-child:not(.pour-pc-no-shrink) .flex,
@@ -320,7 +319,7 @@
     .pour-pc-fix-scale input.pour-form-control,
     .pour-pc-fix-scale .MuiInputBase-root {
       min-height: var(--pour-pc-control-h);
-      font-size: calc(13 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-md);
     }
 
     .pour-pc-fix-scale .h-9 {
@@ -404,7 +403,7 @@
     }
 
     .pour-pc-trend-card__title {
-      font-size: calc(14 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-lg);
       gap: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
@@ -415,7 +414,7 @@
     }
 
     .pour-pc-trend-card__toggle-btn {
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
       padding: calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       border-radius: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
@@ -431,7 +430,7 @@
     }
 
     .pour-pc-trend-card__legend-label {
-      font-size: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-xs);
     }
 
     .pour-pc-chart-area {
@@ -460,14 +459,14 @@
       min-width: 0;
       max-width: 100%;
       table-layout: fixed;
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
       line-height: 1.45;
     }
 
     .pour-pc-dash-table thead th,
     .pour-pc-app-table thead th {
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-dash-table thead th:first-child,
@@ -486,7 +485,7 @@
       overflow: hidden;
       text-overflow: ellipsis;
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
     }
 
     .pour-pc-dash-table tbody td:first-child,
@@ -509,7 +508,7 @@
     }
 
     .pour-pc-dash-table .pour-pc-group-badge {
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
       padding: calc(2 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
@@ -522,12 +521,12 @@
     }
 
     .pour-pc-records-head__title {
-      font-size: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-xl);
       gap: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-records-count {
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-base);
       gap: calc(6 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: calc(6 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
@@ -535,7 +534,7 @@
     .pour-pc-structure-filter-btn {
       gap: calc(6 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
       border-radius: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
@@ -548,13 +547,13 @@
     .pour-pc-structure-menu.pour-pc-structure-menu--label {
       gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-structure-menu .pour-pc-structure-menu__item {
       gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: calc(6 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(11 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
+      font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-structure-menu__scroll {

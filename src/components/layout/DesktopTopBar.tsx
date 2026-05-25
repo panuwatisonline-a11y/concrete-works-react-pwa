@@ -50,7 +50,7 @@ export function DesktopTopBar() {
   return (
     <div
       className={cn(
-        'hidden shrink-0 items-center gap-4 px-4 py-3.5 sm:px-6 pour-desktop:flex pour-desktop:shrink-0 pour-desktop:px-6 pour-desktop:py-4 lg:pour-desktop:px-8',
+        'hidden shrink-0 items-center pour-desktop:flex pour-desktop:shrink-0',
         theme.headerBar,
         pourPcUi.topbar,
       )}
@@ -78,10 +78,9 @@ export function DesktopTopBar() {
               if (e.key === 'Enter') navigate('/requests?view=latest')
             }}
             className={cn(
-              'h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] pl-10 pr-3 backdrop-blur-xl',
+              'pour-input-glass h-10 w-full pl-10 pr-3',
               type.body,
               'placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)]',
-              'focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[color:var(--pour-accent-ring)]',
               inputDisabled && 'cursor-not-allowed opacity-50',
             )}
             aria-label={ariaLabel}

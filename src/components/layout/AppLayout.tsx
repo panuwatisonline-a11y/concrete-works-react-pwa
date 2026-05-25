@@ -66,8 +66,6 @@ export function AppLayout() {
             theme.mainScrollPadX,
             pourMobileUi.mainScroll,
             'pour-desktop:min-h-0 pour-desktop:flex-1',
-            'pour-desktop:pb-8 pour-desktop:pt-5',
-            'pour-wide:pt-6 pour-wide:pb-10',
             pourPcUi.mainScroll,
           )}
         >

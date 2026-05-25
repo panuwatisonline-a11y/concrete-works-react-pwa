@@ -23,18 +23,18 @@ export const icon = {
   lg: 'shrink-0',
 } as const
 
-/** สเกลตัวอักษร — fluid clamp บน desktop (ดู fluid-typography.css) */
+/** สเกลตัวอักษร — Figma frame 1440 บน desktop (ดู fluid-typography.css) */
 export const type = {
-  tagline: cn('font-normal leading-relaxed', ink.subtle, 'text-pour-2xs sm:text-pour-xs'),
+  tagline: cn('font-normal leading-relaxed', ink.subtle, 'text-pour-xs'),
   overline: cn('text-pour-2xs font-medium uppercase tracking-[0.08em]', ink.subtle),
   caption: cn('text-pour-sm font-normal leading-relaxed', ink.muted),
   body: cn('text-pour-base font-normal leading-relaxed', ink.body),
   bodyStrong: cn('text-pour-base font-medium leading-relaxed', ink.base),
   detail: cn('text-pour-base font-normal leading-relaxed', ink.body),
-  nav: 'text-pour-base font-medium leading-relaxed',
+  nav: 'text-pour-md font-medium leading-relaxed',
   navCompact: 'text-pour-sm font-medium leading-relaxed',
-  title: cn('text-pour-xl font-semibold leading-snug', ink.base, 'tracking-[-0.01em]'),
-  hero: cn('text-pour-2xl font-semibold leading-snug', ink.base, 'tracking-[-0.02em]'),
+  title: cn('text-pour-lg font-semibold leading-snug', ink.base, 'tracking-[-0.01em]'),
+  hero: cn('text-pour-title font-semibold leading-snug', ink.base, 'tracking-[-0.02em]'),
   /** หัวตาราง — ไม่ uppercase หนาเกิน */
   tableHead: cn('text-pour-xs font-medium leading-snug normal-case tracking-normal', ink.subtle),
 } as const
@@ -138,9 +138,9 @@ export const theme = {
   drawerPanel: cn(glass.surfaceStrong, 'border-[color:var(--glass-border-subtle)]'),
   drawerHeader: cn(glass.surfaceStrong, 'border-b border-[color:var(--glass-border-subtle)]'),
   /** เนื้อหารายการใน main */
-  mobileListBody: 'space-y-3 px-4 pb-4 pt-2 pour-desktop:hidden',
-  /** padding แนวนอน scroll มือถือ — เดิม px-4/sm:px-6 ลดลงเล็กน้อย */
-  mainScrollPadX: 'px-3 sm:px-4 pour-desktop:px-0',
+  mobileListBody:
+    'space-y-3 max-[767px]:px-[var(--pour-m-inset-x)] px-4 pb-4 pt-2 pour-desktop:hidden',
+  mainScrollPadX: 'max-[767px]:px-[var(--pour-m-inset-x)] px-3 sm:px-4 pour-desktop:px-0',
   /**
    * กรอบเนื้อหาใน main
    * มือถือ: เต็มความกว้าง + mainScrollPadX | desktop: 90% กึ่งกลาง (inset 5% ต่อข้าง)
