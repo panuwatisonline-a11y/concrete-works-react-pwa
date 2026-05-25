@@ -8,35 +8,39 @@ import {
 
 export { POUR_PC_REF_WIDTH, POUR_PC_REF_HEIGHT, POUR_PC_UI_FACTOR, POUR_FONT_UI_FACTOR }
 
-/** ความกว้างจาก px ที่ ref → vw */
+const PC_CAP_VW = `min(100vw, ${POUR_PC_REF_WIDTH}px)`
+const PC_CAP_VH = `min(100vh, ${POUR_PC_REF_HEIGHT}px)`
+
+/** ความกว้างจาก px ที่ ref — ไม่ขยายเกินเฟรม 1440 */
 export function pourPcVw(px: number): string {
-  return `calc(${px} * 100vw / ${POUR_PC_REF_WIDTH} * ${POUR_PC_UI_FACTOR})`
+  return `calc(${px} * ${PC_CAP_VW} / ${POUR_PC_REF_WIDTH} * ${POUR_PC_UI_FACTOR})`
 }
 
-/** ความสูงจาก px ที่ ref → vh */
+/** ความสูงจาก px ที่ ref — ไม่ขยายเกินเฟรม 900 */
 export function pourPcVh(px: number): string {
-  return `calc(${px} * 100vh / ${POUR_PC_REF_HEIGHT} * ${POUR_PC_UI_FACTOR})`
+  return `calc(${px} * ${PC_CAP_VH} / ${POUR_PC_REF_HEIGHT} * ${POUR_PC_UI_FACTOR})`
 }
 
-/** ขนาดตัวอักษร Figma — vw + ปัดพิกเซล (ตรง pour-pc-type.css) */
+/** ขนาดตัวอักษร Figma — capped vw */
 export function pourPcFontVw(px: number): string {
-  return `round(nearest, calc(${px} * 100vw / ${POUR_PC_REF_WIDTH} * ${POUR_PC_UI_FACTOR} * ${POUR_FONT_UI_FACTOR}), 1px)`
+  return `round(nearest, calc(${px} * ${PC_CAP_VW} / ${POUR_PC_REF_WIDTH} * ${POUR_PC_UI_FACTOR} * ${POUR_FONT_UI_FACTOR}), 1px)`
 }
 
 export function pourPcScaleFactors(viewportW: number, viewportH: number) {
-  return {
-    w: viewportW / POUR_PC_REF_WIDTH,
-    h: viewportH / POUR_PC_REF_HEIGHT,
-  }
+  const w = Math.min(viewportW, POUR_PC_REF_WIDTH) / POUR_PC_REF_WIDTH
+  const h = Math.min(viewportH, POUR_PC_REF_HEIGHT) / POUR_PC_REF_HEIGHT
+  return { w, h }
 }
 
-/** แปลง px ที่ออกแบบไว้ → ค่าจริงบนจอปัจจุบัน (Recharts ต้องการ number) */
+/** แปลง px ที่ออกแบบไว้ → ค่าจริงบนจอปัจจุบัน (Recharts) — capped ที่เฟรม Figma */
 export function pourPcPxW(px: number, viewportW: number): number {
-  return px * (viewportW / POUR_PC_REF_WIDTH) * POUR_PC_UI_FACTOR
+  const effectiveW = Math.min(viewportW, POUR_PC_REF_WIDTH)
+  return px * (effectiveW / POUR_PC_REF_WIDTH) * POUR_PC_UI_FACTOR
 }
 
 export function pourPcPxH(px: number, viewportH: number): number {
-  return px * (viewportH / POUR_PC_REF_HEIGHT) * POUR_PC_UI_FACTOR
+  const effectiveH = Math.min(viewportH, POUR_PC_REF_HEIGHT)
+  return px * (effectiveH / POUR_PC_REF_HEIGHT) * POUR_PC_UI_FACTOR
 }
 
 /** คลาสร่วม — ต้องอยู่ภายใต้ `.pour-pc-fix-scale` บน pour-desktop */

@@ -1,6 +1,6 @@
 /**
  * pour-desktop fix-scale — canvas 1440×900
- * ความกว้าง / padding แนวนอน → vw, ความสูง / padding แนวตั้ง → vh
+ * สเกลตาม viewport แต่ไม่ขยายเกินเฟรม Figma (จอ 27" / 4K ยังเท่า 1440×900)
  * ใส่ .pour-pc-fix-scale ที่ root shell (AppLayout / auth desktop)
  */
 
@@ -13,41 +13,43 @@
       --pour-pc-ref-h: 900;
       --pour-pc-factor: 1;
       --pour-pc-font-factor: 1;
+      --pour-pc-cap-vw: min(100vw, 1440px);
+      --pour-pc-cap-vh: min(100vh, 900px);
 
       /* design tokens — ใช้ใน requestUi ผ่าน var(--pour-pc-*) */
-      --pour-pc-inset-x: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-inset-x-wide: calc(32 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-main-pt: calc(20 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-main-pb: calc(32 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-main-pb-wide: calc(40 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-page-pt: calc(24 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-page-pb: calc(56 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-page-gap: calc(28 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-section-gap: calc(32 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-section-gap-wide: calc(36 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-stack-gap: calc(14 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-card-px: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-card-py: calc(20 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-card-px-wide: calc(28 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-card-header-py: calc(14 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-form-gap: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-form-gap-wide: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-modal-px: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-modal-py: calc(20 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-modal-footer-py: calc(14 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-inset-y-wide: calc(28 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-radius-sm: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-radius-md: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-radius-lg: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-control-h: calc(40 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-topbar-py: calc(16 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-topbar-px: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      --pour-pc-topbar-px-wide: calc(32 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-inset-x: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-inset-x-wide: calc(32 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-main-pt: calc(20 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-main-pb: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-main-pb-wide: calc(40 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-page-pt: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-page-pb: calc(56 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-page-gap: calc(28 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-section-gap: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-section-gap-wide: calc(36 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-stack-gap: calc(14 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-card-px: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-card-py: calc(20 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-card-px-wide: calc(28 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-card-header-py: calc(14 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-form-gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-form-gap-wide: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-modal-px: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-modal-py: calc(20 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-modal-footer-py: calc(14 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-inset-y-wide: calc(28 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-radius-sm: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-radius-md: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-radius-lg: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-control-h: calc(40 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-topbar-py: calc(16 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-topbar-px: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-topbar-px-wide: calc(32 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     /* ── Chrome: top bar, main scroll, content frame ── */
     .pour-pc-topbar {
-      gap: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       padding: var(--pour-pc-topbar-py) var(--pour-pc-topbar-px);
     }
 
@@ -65,31 +67,31 @@
 
     @media ((orientation: landscape) and (min-width: 1280px)) {
       .pour-pc-main-scroll {
-        padding-top: calc(24 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+        padding-top: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
         padding-bottom: var(--pour-pc-main-pb-wide);
       }
     }
 
     .pour-pc-sidebar-nav .pour-nav-item {
-      gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       border-radius: var(--pour-pc-radius-sm);
       font-size: var(--pour-pc-type-md);
     }
 
     .pour-pc-sidebar-nav .MuiListItemButton-root {
-      gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding-top: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      padding-bottom: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      padding-left: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding-right: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-top: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      padding-bottom: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      padding-left: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-right: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       border-radius: var(--pour-pc-radius-sm);
       font-size: var(--pour-pc-type-md);
     }
 
     /* ── Tables (ทุกหน้า) ── */
     .pour-pc-fix-scale .pour-table-shell {
-      border-radius: calc(14 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(14 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .pour-table-shell.pour-scroll-x,
@@ -109,7 +111,7 @@
 
     .pour-pc-fix-scale .pour-table-shell > table thead th:not(.pour-pc-no-shrink),
     .pour-pc-fix-scale table.pour-pc-app-table thead th:not(.pour-pc-no-shrink) {
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
       max-width: 0;
       overflow: hidden;
@@ -118,7 +120,7 @@
 
     .pour-pc-fix-scale .pour-table-shell > table thead th.pour-pc-no-shrink,
     .pour-pc-fix-scale table.pour-pc-app-table thead th.pour-pc-no-shrink {
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
       max-width: none;
       overflow: visible;
@@ -127,12 +129,12 @@
 
     .pour-pc-fix-scale .pour-table-shell > table thead th:first-child,
     .pour-pc-fix-scale table.pour-pc-app-table thead th:first-child {
-      padding-left: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-left: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .pour-table-shell > table thead th:last-child,
     .pour-pc-fix-scale table.pour-pc-app-table thead th:last-child {
-      padding-right: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-right: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     /* ข้อมูล — บรรทัดเดียว + ellipsis (ขยายคอลัมน์เพื่ออ่านเต็ม) */
@@ -144,7 +146,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       vertical-align: middle;
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-base);
     }
 
@@ -174,12 +176,12 @@
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:first-child,
     .pour-pc-fix-scale table.pour-pc-app-table tbody td:first-child {
-      padding-left: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-left: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:last-child,
     .pour-pc-fix-scale table.pour-pc-app-table tbody td:last-child {
-      padding-right: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-right: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     /* คอลัมน์พิเศษ — กว้างคงที่ ไม่ถูกบีบ (ปุ่ม / toggle / กราฟแถบ) */
@@ -199,48 +201,48 @@
     }
 
     .pour-pc-col-narrow {
-      width: calc(52 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(52 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(52 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(52 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       text-align: center;
       white-space: nowrap;
     }
 
     .pour-pc-col-lead {
-      width: calc(118 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(118 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(118 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(118 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       white-space: nowrap;
     }
 
     .pour-pc-col-age {
-      width: calc(76 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(76 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(76 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(76 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       text-align: center;
       white-space: nowrap;
     }
 
     .pour-pc-col-toggle {
-      width: calc(100 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(100 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(100 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(100 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       text-align: center;
       white-space: nowrap;
     }
 
     .pour-pc-col-chart {
-      width: calc(108 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(108 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(108 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(108 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       white-space: nowrap;
     }
 
     .pour-pc-col-actions {
-      width: calc(96 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(96 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(96 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(96 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
       white-space: nowrap;
     }
 
     .pour-pc-col-actions--wide {
-      width: calc(168 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      min-width: calc(168 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
-      max-width: calc(168 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      width: calc(168 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(168 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      max-width: calc(168 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
     }
 
     /* ตารางปรับความกว้างคอลัมน์ — เลื่อนแนวนอนเมื่อรวมกว้างเกินกรอบ */
@@ -261,7 +263,7 @@
     .pour-pc-fix-scale .pour-pc-col-chart .flex {
       flex-wrap: nowrap;
       justify-content: center;
-      gap: calc(2 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(2 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .pour-pc-col-actions--wide .flex {
@@ -306,11 +308,11 @@
     }
 
     .pour-pc-fix-scale .cst-age-col.pour-pc-col-age {
-      border-left-width: calc(2 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-left-width: calc(2 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .cst-age-col.pour-pc-col-age:first-of-type {
-      border-left: calc(2 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) solid
+      border-left: calc(2 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) solid
         var(--glass-border-subtle);
     }
 
@@ -323,7 +325,7 @@
     }
 
     .pour-pc-fix-scale .h-9 {
-      height: calc(36 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      height: calc(36 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-fix-scale .h-10 {
@@ -339,8 +341,8 @@
     .pour-pc-kpi-grid {
       display: grid;
       grid-template-columns: repeat(1, minmax(0, 1fr));
-      gap: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 768px) {
@@ -364,8 +366,8 @@
     .pour-pc-trend-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 1024px) {
@@ -377,56 +379,56 @@
     .pour-pc-filter-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 1024px) {
       .pour-pc-filter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: calc(32 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+        gap: calc(32 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       }
     }
 
     .pour-pc-trend-card {
-      border-radius: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(24 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(24 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__head {
-      gap: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(20 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(20 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__head--status {
-      margin-bottom: calc(12 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      margin-bottom: calc(12 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__title {
       font-size: var(--pour-pc-type-lg);
-      gap: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__toggle-wrap {
-      gap: calc(4 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(4 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      border-radius: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(4 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(4 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(4 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__toggle-btn {
       font-size: var(--pour-pc-type-sm);
-      padding: calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      border-radius: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(4 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__legend {
-      gap: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor)) calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      margin-bottom: calc(12 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) calc(4 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      margin-bottom: calc(12 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__legend-dot {
-      width: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      height: calc(10 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      width: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      height: calc(10 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-trend-card__legend-label {
@@ -434,11 +436,11 @@
     }
 
     .pour-pc-chart-area {
-      height: calc(250 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      height: calc(250 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-chart-area--status {
-      height: calc(220 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      height: calc(220 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table-wrap,
@@ -465,18 +467,18 @@
 
     .pour-pc-dash-table thead th,
     .pour-pc-app-table thead th {
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-dash-table thead th:first-child,
     .pour-pc-app-table thead th:first-child {
-      padding-left: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-left: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table thead th:last-child,
     .pour-pc-app-table thead th:last-child {
-      padding-right: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-right: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table tbody td:not(.pour-pc-no-shrink),
@@ -484,85 +486,85 @@
       max-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-base);
     }
 
     .pour-pc-dash-table tbody td:first-child,
     .pour-pc-app-table tbody td:first-child {
-      padding-left: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-left: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table tbody td:last-child,
     .pour-pc-app-table tbody td:last-child {
-      padding-right: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-right: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table .pour-pc-group-row td {
-      padding-top: calc(12 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      padding-bottom: calc(12 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      padding-top: calc(12 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      padding-bottom: calc(12 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table .pour-pc-group-inner {
-      gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-dash-table .pour-pc-group-badge {
       font-size: var(--pour-pc-type-base);
-      padding: calc(2 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(2 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-records-section {
-      border-radius: calc(14 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(14 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-records-head {
-      gap: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-records-head__title {
       font-size: var(--pour-pc-type-xl);
-      gap: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-records-count {
       font-size: var(--pour-pc-type-base);
-      gap: calc(6 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(6 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(6 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(6 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-structure-filter-btn {
-      gap: calc(6 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(4 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(6 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(4 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
-      border-radius: calc(8 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      border-radius: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-structure-menu {
-      min-width: calc(200 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-top: calc(6 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      border-radius: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      min-width: calc(200 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-top: calc(6 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      border-radius: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
     .pour-pc-structure-menu.pour-pc-structure-menu--label {
-      gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(8 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-structure-menu .pour-pc-structure-menu__item {
-      gap: calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: calc(6 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding: calc(6 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       font-size: var(--pour-pc-type-sm);
     }
 
     .pour-pc-structure-menu__scroll {
-      max-height: calc(208 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      max-height: calc(208 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     .pour-pc-structure-menu input[type='checkbox'] {
-      width: calc(14 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      height: calc(14 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      width: calc(14 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      height: calc(14 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
   }
 }

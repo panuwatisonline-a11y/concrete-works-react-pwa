@@ -72,7 +72,7 @@
       --text-2xl: var(--pour-pc-type-title);
       --text-3xl: var(--pour-pc-type-3xl);
       --text-4xl: var(--pour-pc-type-display);
-      --text-5xl: round(nearest, calc(36 * 100vw / 1440), 1px);
+      --text-5xl: round(nearest, calc(36 * min(100vw, 1440px) / 1440), 1px);
 
       --text-pour-2xs: var(--pour-pc-type-2xs);
       --text-pour-xs: var(--pour-pc-type-xs);

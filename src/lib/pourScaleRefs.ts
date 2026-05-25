@@ -1,7 +1,7 @@
 /**
  * Canvas อ้างอิง fix-scale (Figma frame) — ออกแบบ UI ตามขนาดนี้ แล้ว map ด้วย vw/vh
  * Mobile: 1200×2608
- * Desktop (pour-desktop): 1440×900 — สเกล 1:1 ที่ viewport = frame (Figma laptop)
+ * Desktop (pour-desktop): 1440×900 — สเกล 1:1 ที่ frame, ไม่ขยายเกินบนจอใหญ่ (27" / 4K)
  */
 
 /** Spacing / layout artboard (ค่า px ใน CSS ÷ 1200 × 100vw) */

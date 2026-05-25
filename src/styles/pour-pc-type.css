@@ -1,25 +1,26 @@
 /**
  * Figma desktop typography — frame 1440×900
- * ที่ viewport กว้าง 1440px ได้ขนาด px ตรงไฟล์ออกแบบ (สเกลด้วย vw + ปัดพิกเซล)
+ * สเกลตามจอแคบลง แต่ไม่ใหญ่เกินค่าใน Figma บนจอ 27" / 4K
  */
 
 @layer base {
   @media ((orientation: landscape) and (min-width: 768px)) {
     :root {
       --pour-pc-type-ref-w: 1440;
+      --pour-pc-cap-vw: min(100vw, 1440px);
 
-      --pour-pc-type-2xs: round(nearest, calc(9 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-xs: round(nearest, calc(10 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-sm: round(nearest, calc(11 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-base: round(nearest, calc(12 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-md: round(nearest, calc(13 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-lg: round(nearest, calc(14 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-xl: round(nearest, calc(16 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-2xl: round(nearest, calc(18 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-title: round(nearest, calc(20 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-3xl: round(nearest, calc(21 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-display: round(nearest, calc(24 * 100vw / var(--pour-pc-type-ref-w)), 1px);
-      --pour-pc-type-html: round(nearest, calc(14 * 100vw / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-2xs: round(nearest, calc(9 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-xs: round(nearest, calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-sm: round(nearest, calc(11 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-base: round(nearest, calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-md: round(nearest, calc(13 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-lg: round(nearest, calc(14 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-xl: round(nearest, calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-2xl: round(nearest, calc(18 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-title: round(nearest, calc(20 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-3xl: round(nearest, calc(21 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-display: round(nearest, calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
+      --pour-pc-type-html: round(nearest, calc(14 * var(--pour-pc-cap-vw) / var(--pour-pc-type-ref-w)), 1px);
     }
   }
 }
