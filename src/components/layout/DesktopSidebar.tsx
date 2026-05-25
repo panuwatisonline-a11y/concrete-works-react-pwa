@@ -10,7 +10,6 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import type { SvgIconComponent } from '@mui/icons-material'
 import ChevronLeft from '@mui/icons-material/ChevronLeft'
 import ChevronRight from '@mui/icons-material/ChevronRight'
-import Logout from '@mui/icons-material/Logout'
 import Dashboard from '@mui/icons-material/Dashboard'
 import Star from '@mui/icons-material/Star'
 import PushPin from '@mui/icons-material/PushPin'
@@ -19,13 +18,11 @@ import { AppIcon } from '@/components/icons/AppIcon'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
-import { UserAvatar } from '@/components/shared/UserAvatar'
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { SidebarAccountFooter } from '@/components/layout/SidebarAccountFooter'
 import Drawer from '@mui/material/Drawer'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
-import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import { theme, BRAND_TAGLINE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
@@ -573,34 +570,14 @@ export function DesktopSidebar() {
         ) : null}
       </div>
 
-      <div className="border-t border-[color:var(--pour-line)] p-4">
-        <ThemeToggle className="mb-3" />
-        <div className="mb-3 flex items-center gap-3 rounded-lg bg-[color:var(--pour-bg-2)] p-3">
-          <UserAvatar profile={profile} avatarUrl={user?.user_metadata?.avatar_url as string | undefined} size="sm" />
-          <div className="min-w-0 flex-1">
-            <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
-            <p className={cn('truncate', type.caption)}>{subtitle}</p>
-          </div>
-          <Link
-            to="/profile"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-[color:var(--pour-ink-3)] transition hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
-            title="โปรไฟล์"
-            aria-label="ไปที่โปรไฟล์"
-          >
-            <AppIcon icon={ChevronRight} size="sm" />
-          </Link>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          className="h-10 w-full rounded-lg border-[color:var(--pour-line)] bg-transparent font-semibold text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
-          onClick={handleLogout}
-        >
-          <AppIcon icon={Logout} size="xs" className="mr-2" />
-          ออกจากระบบ
-        </Button>
-        <AppVersionLabel />
-      </div>
+      <SidebarAccountFooter
+        displayName={displayName}
+        subtitle={subtitle}
+        profile={profile}
+        avatarUrl={user?.user_metadata?.avatar_url as string | undefined}
+        onLogout={handleLogout}
+        showProfileLink
+      />
     </SidebarShell>
   )
 }

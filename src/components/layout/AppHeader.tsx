@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import Menu from '@mui/icons-material/Menu'
 import Close from '@mui/icons-material/Close'
-import Logout from '@mui/icons-material/Logout'
 import Dashboard from '@mui/icons-material/Dashboard'
 import Search from '@mui/icons-material/Search'
 import { AppIcon } from '@/components/icons/AppIcon'
@@ -13,7 +12,6 @@ import Drawer from '@mui/material/Drawer'
 import IconButton from '@mui/material/IconButton'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
 import { theme, BRAND_TAGLINE, type } from '@/lib/requestUi'
@@ -23,10 +21,8 @@ import { mainNavLinks } from '@/lib/mainNav'
 import { canManageUsers, isSuperAdmin } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
-import { UserAvatar } from '@/components/shared/UserAvatar'
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
 import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
-import { AppVersionLabel } from '@/components/layout/AppVersionLabel'
+import { SidebarAccountFooter } from '@/components/layout/SidebarAccountFooter'
 
 export function AppHeader() {
   const headerRef = useRef<HTMLElement>(null)
@@ -245,26 +241,14 @@ export function AppHeader() {
             ) : null}
           </Box>
 
-          <Box sx={{ borderTop: 1, borderColor: 'divider', p: 2 }}>
-            <ThemeToggle className="mb-3" />
-            <div className="mb-3 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] p-3 backdrop-blur-md">
-              <UserAvatar
-                profile={profile}
-                avatarUrl={user?.user_metadata?.avatar_url as string | undefined}
-                size="sm"
-                className="shrink-0 ring-2 ring-[color:var(--glass-border-subtle)]"
-              />
-              <div className="min-w-0 flex-1">
-                <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
-                <p className={cn('truncate', type.caption)}>{profileSubtitle}</p>
-              </div>
-            </div>
-            <Button variant="outline" className="h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] backdrop-blur-sm" onClick={handleLogout}>
-              <AppIcon icon={Logout} size="xs" className="mr-2" />
-              ออกจากระบบ
-            </Button>
-            <AppVersionLabel />
-          </Box>
+          <SidebarAccountFooter
+            displayName={displayName}
+            subtitle={profileSubtitle}
+            profile={profile}
+            avatarUrl={user?.user_metadata?.avatar_url as string | undefined}
+            onLogout={handleLogout}
+            padding="tight"
+          />
       </Drawer>
 
     </>
