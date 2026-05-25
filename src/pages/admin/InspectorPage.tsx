@@ -350,11 +350,11 @@ export function InspectorPage() {
       )}
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className={cn(modal.lg, 'max-h-[min(92dvh,720px)] overflow-y-auto')}>
-          <DialogHeader>
-            <DialogTitle>{editRow ? 'แก้ไข Inspector' : 'เพิ่ม Inspector'}</DialogTitle>
+        <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
+          <DialogHeader className={modal.header}>
+            <DialogTitle className={modal.title}>{editRow ? 'แก้ไข Inspector' : 'เพิ่ม Inspector'}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-1">
+          <div className={cn(modal.body, 'space-y-4')}>
             <div className="space-y-1.5">
               <Label>Inspector (เลือกคนหนึ่ง) *</Label>
               {loading && profileOptions.length === 0 ? (
@@ -394,7 +394,7 @@ export function InspectorPage() {
               )}
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={modal.footer}>
             <Button type="button" variant="outline" onClick={() => setModalOpen(false)} disabled={saving}>
               ยกเลิก
             </Button>

@@ -320,57 +320,59 @@ export function CrudTable<T extends { id: number }>({
         </table>
       </div>
 
-      <Dialog
-        open={modalOpen}
-        onOpenChange={(o) => {
-          if (!o) {
-            setModalOpen(false)
-            setEditItem(null)
-            setFormData({})
-          }
-        }}
-      >
-        <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
-          <DialogHeader className={modal.header}>
-            <DialogTitle className={cn(modal.title, 'break-words')}>
-              {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
-            </DialogTitle>
-          </DialogHeader>
-          <div className={modal.body}>
-            {editItem != null && (
-              <div className="mb-5 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-4 py-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-pour-subtle">ID</p>
-                <p className="font-mono text-base tabular-nums text-[color:var(--pour-ink-1)]">{editItem.id}</p>
-              </div>
-            )}
-            <div className="min-w-0">
-              {formContent(
-                editItem,
-                formData,
-                handleChange as (key: keyof T, value: unknown) => void,
+      {modalOpen ? (
+        <Dialog
+          open
+          onOpenChange={(o) => {
+            if (!o) {
+              setModalOpen(false)
+              setEditItem(null)
+              setFormData({})
+            }
+          }}
+        >
+          <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
+            <DialogHeader className={modal.header}>
+              <DialogTitle className={cn(modal.title, 'break-words')}>
+                {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className={modal.body}>
+              {editItem != null && (
+                <div className="mb-5 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-pour-subtle">ID</p>
+                  <p className="font-mono text-base tabular-nums text-[color:var(--pour-ink-1)]">{editItem.id}</p>
+                </div>
               )}
+              <div className="min-w-0">
+                {formContent(
+                  editItem,
+                  formData,
+                  handleChange as (key: keyof T, value: unknown) => void,
+                )}
+              </div>
             </div>
-          </div>
-          <DialogFooter className={modal.footer}>
-            <Button
-              variant="outline"
-              size="modalAction"
-              className="rounded-xl border-[color:var(--glass-border-subtle)]"
-              onClick={() => setModalOpen(false)}
-            >
-              ยกเลิก
-            </Button>
-            <Button
-              size="modalAction"
-              className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20"
-              onClick={handleSave}
-              disabled={saving}
-            >
-              {saving ? 'กำลังบันทึก...' : 'บันทึก'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter className={modal.footer}>
+              <Button
+                variant="outline"
+                size="modalAction"
+                className="rounded-xl border-[color:var(--glass-border-subtle)]"
+                onClick={() => setModalOpen(false)}
+              >
+                ยกเลิก
+              </Button>
+              <Button
+                size="modalAction"
+                className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? 'กำลังบันทึก...' : 'บันทึก'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      ) : null}
 
       <ConfirmModal
         open={deleteId !== null}

@@ -61,7 +61,6 @@ const DialogContent = React.forwardRef<
       showCloseButton = true,
       overlayClassName,
       dialogContentClassName,
-      ...props
     },
     ref,
   ) => {
@@ -69,6 +68,7 @@ const DialogContent = React.forwardRef<
     const paperClass = cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName)
     const z = resolveDialogZIndex(overlayClassName, paperClass)
     const layer = dialogLayerValue(z)
+    const usesFlexShell = /\bmodal\.shell\b/.test(paperClass) || /\bflex\b.*\bflex-col\b/.test(paperClass)
 
     return (
       <DialogLayerContext.Provider value={layer}>
@@ -78,6 +78,8 @@ const DialogContent = React.forwardRef<
           fullWidth
           maxWidth={maxWidthFromClassName(paperClass)}
           scroll="paper"
+          disableEnforceFocus
+          disableRestoreFocus
           sx={{ zIndex: z }}
           slotProps={{
             backdrop: {
@@ -86,9 +88,11 @@ const DialogContent = React.forwardRef<
             },
             paper: {
               ref,
-              className: paperClass,
+              className: cn(
+                paperClass,
+                usesFlexShell && '!grid !grid-rows-[auto_minmax(0,1fr)_auto] !gap-0',
+              ),
               sx: { zIndex: z },
-              ...props,
             },
           }}
         >

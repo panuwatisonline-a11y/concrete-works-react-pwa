@@ -633,12 +633,12 @@ export function UsersPage() {
           if (!open) setEditUser(null)
         }}
       >
-        <DialogContent className={cn(modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
-          <DialogHeader className="min-w-0 pr-10 text-left sm:pr-12">
+        <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
+          <DialogHeader className={cn(modal.header, 'min-w-0 pr-10 sm:pr-12')}>
             <DialogTitle className="break-words text-[color:var(--pour-ink-0)]">แก้ไขผู้ใช้งาน</DialogTitle>
           </DialogHeader>
-          {editUser && (
-            <div className="min-w-0 space-y-4">
+          {editUser ? (
+            <div className={cn(modal.body, 'min-w-0 space-y-4')}>
               <div className="flex min-w-0 items-center gap-3">
                 <UserProfileAvatar
                   profile={editUser}
@@ -703,8 +703,8 @@ export function UsersPage() {
                 />
               </div>
             </div>
-          )}
-          <DialogFooter>
+          ) : null}
+          <DialogFooter className={modal.footer}>
             <Button
               type="button"
               variant="outline"
