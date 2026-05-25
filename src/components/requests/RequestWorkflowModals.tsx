@@ -38,7 +38,7 @@ import { modal as uiModal } from '@/lib/requestUi'
 
 /** ชั้น overlay / เนื้อหา — สูงกว่า dialog ทั่วไป (z-50) */
 const WF_OVERLAY = 'z-[260]'
-const WF_CONTENT = '!z-[270]'
+const WF_CONTENT = undefined
 
 export type RequestWorkflowModalProps = {
   request: RequestWithRelations

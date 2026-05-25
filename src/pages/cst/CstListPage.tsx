@@ -639,14 +639,16 @@ export function CstListPage() {
         />
       )}
 
-      <CstShortcutCreateDialog
-        open={shortcutOpen}
-        onOpenChange={setShortcutOpen}
-        onCreated={() => {
-          void loadData({ background: true })
-          if (tab === 'filter') void loadFilterData({ background: true })
-        }}
-      />
+      {shortcutOpen ? (
+        <CstShortcutCreateDialog
+          open
+          onOpenChange={setShortcutOpen}
+          onCreated={() => {
+            void loadData({ background: true })
+            if (tab === 'filter') void loadFilterData({ background: true })
+          }}
+        />
+      ) : null}
     </div>
   )
 }

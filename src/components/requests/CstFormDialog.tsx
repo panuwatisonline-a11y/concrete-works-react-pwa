@@ -62,7 +62,7 @@ import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
 import type { CstViewRow } from '@/types/database.cst.types'
 
 const CST_OVERLAY = 'z-[260]'
-const CST_CONTENT = cn('!z-[270]', modal.xl)
+const CST_CONTENT = cn(modal.xl, modal.shell)
 /**
  * ฟิลด์คู่ (วันทดสอบ / เครื่องอัด) — คอลัมน์เดียวบนมือถือ (รวม iPhone แนวนอน)
  * สองคอลัมน์เมื่อมี pointer ละเอียด (เมาส์) — ไม่ใช้ pour-desktop เพราะ landscape บน iPhone ทำให้ชนกัน
@@ -70,7 +70,7 @@ const CST_CONTENT = cn('!z-[270]', modal.xl)
 const CST_META_GRID = 'grid min-w-0 grid-cols-1 gap-3 pour-pointer-fine:grid-cols-2'
 const CST_META_FULL_SPAN = 'pour-pointer-fine:col-span-2'
 const CST_CONFIRM_OVERLAY = 'z-[280]'
-const CST_CONFIRM_CONTENT = '!z-[290]'
+const CST_CONFIRM_CONTENT = undefined
 
 export type CstFormDialogProps = {
   request: RequestWithRelations

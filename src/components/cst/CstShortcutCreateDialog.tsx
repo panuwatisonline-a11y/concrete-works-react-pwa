@@ -40,7 +40,7 @@ import { layout, modal, rq } from '@/lib/requestUi'
 import type { AbcCode, ClientItem, ConcreteWork, LocationItem, MixedCode, Structure, WbsCode } from '@/types/app.types'
 
 const CST_SHORTCUT_OVERLAY = 'z-[260]'
-const CST_SHORTCUT_CONTENT = cn('!z-[270]', modal.xl, modal.shell)
+const CST_SHORTCUT_CONTENT = cn(modal.xl, modal.shell)
 
 const schema = z.object({
   client_id: z.string().min(1, 'กรุณาเลือก User Group'),

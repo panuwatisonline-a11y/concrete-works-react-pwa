@@ -38,6 +38,14 @@ const DialogPortal = ({ children }: { children: React.ReactNode }) => <>{childre
 const DialogClose = ({ children }: { children: React.ReactNode }) => <>{children}</>
 const DialogOverlay = () => null
 
+/** ลบ z-[27x] บน paper — ทับ MUI sx แล้ว modal หายไปหลังเนื้อหาหน้า */
+function stripLegacyPaperZClass(className: string): string {
+  return className
+    .split(/\s+/)
+    .filter((token) => token && !/^!?z-\[\d+\]$/.test(token))
+    .join(' ')
+}
+
 function maxWidthFromClassName(className?: string): 'xs' | 'sm' | 'md' | 'lg' | false {
   if (!className) return 'sm'
   if (/\bmax-w-(3xl|4xl|5xl|6xl|7xl)\b/.test(className) || /\bmodal\.xl\b/.test(className)) return 'md'
@@ -65,7 +73,9 @@ const DialogContent = React.forwardRef<
     ref,
   ) => {
     const { open, onOpenChange } = React.useContext(DialogContext)
-    const paperClass = cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName)
+    const paperClass = stripLegacyPaperZClass(
+      cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName),
+    )
     const z = resolveDialogZIndex(overlayClassName, paperClass)
     const layer = dialogLayerValue(z)
     const usesFlexShell = /\bmodal\.shell\b/.test(paperClass) || /\bflex\b.*\bflex-col\b/.test(paperClass)
