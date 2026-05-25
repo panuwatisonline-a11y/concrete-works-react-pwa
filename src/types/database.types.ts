@@ -411,6 +411,25 @@ export interface Database {
           booking_ok?: boolean | null
         }
       }
+      platform_settings: {
+        Row: {
+          id: number
+          image_upload_provider: 'google_drive' | 'r2'
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: number
+          image_upload_provider?: 'google_drive' | 'r2'
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          image_upload_provider?: 'google_drive' | 'r2'
+          updated_at?: string
+          updated_by?: string | null
+        }
+      }
       Request_Log: {
         Row: {
           id: number
@@ -443,7 +462,12 @@ export interface Database {
         Relationships: []
       }
     }
-    Functions: Record<string, never>
+    Functions: {
+      set_image_upload_provider: {
+        Args: { p_provider: string }
+        Returns: string
+      }
+    }
     Enums: {
       user_role: 'admin' | 'user' | 'inspector' | 'document' | 'engineer' | 'manager'
     }

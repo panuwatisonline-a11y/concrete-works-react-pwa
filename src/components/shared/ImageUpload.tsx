@@ -3,54 +3,14 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera'
 import Image from '@mui/icons-material/Image'
 import Close from '@mui/icons-material/Close'
 import { AppIcon } from '@/components/icons/AppIcon'
-import { supabase, isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { compressImage, UPLOAD_MAX_BYTES } from '@/lib/compressImage'
+import { uploadImageFile } from '@/lib/imageUpload'
+import { warmUploadEdgeFunction } from '@/lib/warmUploadEdge'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import type { DriveUploadCategory } from '@/lib/driveUploadCategory'
 import { toast } from 'sonner'
-
-function invokeUploadDriveImageWithProgress(
-  formData: FormData,
-  accessToken: string,
-  onProgress: (percent: number) => void,
-): Promise<{ ok: true; url: string } | { ok: false; message: string }> {
-  const base = supabaseUrl.replace(/\/$/, '')
-  const url = `${base}/functions/v1/upload-drive-image`
-  return new Promise((resolve) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', url)
-    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`)
-    xhr.setRequestHeader('apikey', supabaseAnonKey)
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && e.total > 0) {
-        onProgress(Math.min(100, Math.round((100 * e.loaded) / e.total)))
-      }
-    }
-    xhr.upload.addEventListener('load', () => {
-      onProgress(100)
-    })
-    xhr.onload = () => {
-      let parsed: { url?: unknown; error?: unknown }
-      try {
-        parsed = JSON.parse(xhr.responseText) as { url?: unknown; error?: unknown }
-      } catch {
-        resolve({ ok: false, message: 'อัปโหลดไม่สำเร็จ' })
-        return
-      }
-      const err =
-        typeof parsed.error === 'string' && parsed.error.trim() !== '' ? parsed.error : null
-      if (xhr.status >= 200 && xhr.status < 300 && typeof parsed.url === 'string' && parsed.url) {
-        resolve({ ok: true, url: parsed.url })
-        return
-      }
-      resolve({ ok: false, message: err ?? 'อัปโหลดไม่สำเร็จ' })
-    }
-    xhr.onerror = () => resolve({ ok: false, message: 'เครือข่ายผิดพลาด' })
-    xhr.onabort = () => resolve({ ok: false, message: 'ยกเลิกการอัปโหลด' })
-    xhr.send(formData)
-  })
-}
 
 interface ImageUploadProps {
   value?: string
@@ -58,7 +18,7 @@ interface ImageUploadProps {
   /** เรียกเมื่อเข้า/ออกช่วงอัปโหลด (ใช้กับปุ่มส่งฟอร์ม: ระหว่างอัปโหลดยังไม่มี URL — ควรปิดการกด) */
   onUploadingChange?: (uploading: boolean) => void
   bucket?: string
-  /** before | after | bill — Edge Function อัปโหลดเข้าโฟลเดอร์ Drive ที่ตรงกัน */
+  /** before | after | bill — Edge Function อัปโหลดตาม platform settings (Drive หรือ R2) */
   folder?: DriveUploadCategory | string
   label?: string
   disabled?: boolean
@@ -77,7 +37,12 @@ export function ImageUpload({
   const previewObjectUrlRef = useRef<string | null>(null)
   const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadPhase, setUploadPhase] = useState<'compressing' | 'uploading' | null>(null)
   const [uploadPercent, setUploadPercent] = useState(0)
+
+  useEffect(() => {
+    warmUploadEdgeFunction()
+  }, [])
 
   useEffect(() => {
     onUploadingChange?.(uploading)
@@ -132,25 +97,38 @@ export function ImageUpload({
     const trimmedValue = typeof value === 'string' ? value.trim() : ''
     const previousUrl = trimmedValue !== '' ? trimmedValue : null
 
+    setLocalPreviewFromFile(file)
+    /** ล้าง URL ที่บันทึกไว้ทันที จนได้ URL จากรอบอัปโหลดนี้คืนมา — ป้องกันส่งฟอร์มด้วยลิงก์เก่าระหว่างอัปโหลด */
+    onChange(null)
+    setUploading(true)
+    setUploadPhase('compressing')
+    setUploadPercent(0)
+
     let fileToUpload = file
+    let session: Awaited<ReturnType<typeof supabase.auth.getSession>>['data']['session'] = null
     try {
-      fileToUpload = await compressImage(file)
+      const [compressed, sessionResult] = await Promise.all([
+        compressImage(file).catch(() => file),
+        supabase.auth.getSession(),
+      ])
+      fileToUpload = compressed
+      session = sessionResult.data.session
     } catch {
       fileToUpload = file
     }
 
     if (fileToUpload.size > UPLOAD_MAX_BYTES) {
       toast.error('รูปใหญ่เกินไป (สูงสุด 10 MB) — ลองถ่ายใหม่หรือเลือกรูปอื่น')
+      setUploading(false)
+      setUploadPhase(null)
+      clearLocalPreview()
+      if (previousUrl) onChange(previousUrl)
       return
     }
 
     setLocalPreviewFromFile(fileToUpload)
-    /** ล้าง URL ที่บันทึกไว้ทันที จนได้ URL จากรอบอัปโหลดนี้คืนมา — ป้องกันส่งฟอร์มด้วยลิงก์เก่าระหว่างอัปโหลด */
-    onChange(null)
-    setUploading(true)
-    setUploadPercent(0)
+
     try {
-      const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         toast.error('กรุณาเข้าสู่ระบบก่อนอัปโหลดรูป')
         clearLocalPreview()
@@ -158,15 +136,15 @@ export function ImageUpload({
         return
       }
 
-      const formData = new FormData()
-      formData.append('file', fileToUpload)
-      formData.append('folder', folder)
+      setUploadPhase('uploading')
+      setUploadPercent(0)
 
-      const result = await invokeUploadDriveImageWithProgress(
-        formData,
-        session.access_token,
-        setUploadPercent,
-      )
+      const result = await uploadImageFile({
+        file: fileToUpload,
+        folder,
+        accessToken: session.access_token,
+        onProgress: setUploadPercent,
+      })
       if (!result.ok) {
         toast.error(result.message)
         clearLocalPreview()
@@ -176,6 +154,7 @@ export function ImageUpload({
       onChange(result.url)
     } finally {
       setUploading(false)
+      setUploadPhase(null)
       setUploadPercent(0)
     }
   }
@@ -214,11 +193,20 @@ export function ImageUpload({
               aria-live="polite"
               aria-busy="true"
             >
-              <span className="text-sm font-medium text-white">กำลังอัปโหลด {uploadPercent}%</span>
+              <span className="text-sm font-medium text-white">
+                {uploadPhase === 'compressing'
+                  ? 'กำลังบีบอัดรูป…'
+                  : `กำลังอัปโหลด ${uploadPercent}%`}
+              </span>
               <div className="h-2 w-full max-w-[220px] overflow-hidden rounded-full bg-[color:var(--glass-bg-muted)]">
                 <div
-                  className="h-full rounded-full bg-[color:var(--glass-bg)] transition-[width] duration-150 ease-out"
-                  style={{ width: `${uploadPercent}%` }}
+                  className={cn(
+                    'h-full rounded-full bg-[color:var(--glass-bg)] transition-[width] duration-150 ease-out',
+                    uploadPhase === 'compressing' && 'w-[35%] animate-pulse',
+                  )}
+                  style={
+                    uploadPhase === 'uploading' ? { width: `${uploadPercent}%` } : undefined
+                  }
                 />
               </div>
             </div>

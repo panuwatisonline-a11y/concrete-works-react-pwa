@@ -6,13 +6,13 @@
 /** ตรงกับ `MAX_BYTES` ใน upload-drive-image */
 export const UPLOAD_MAX_BYTES = 10 * 1024 * 1024
 
-/** ด้านยาวสูงสุด — พอสำหรับแสดงในแอป (thumbnail สูงสุด ~1200px) */
-const DEFAULT_MAX_DIMENSION = 1280
-const DEFAULT_QUALITY = 0.78
-/** เป้าหมายหลังบีบอัด — ลดเวลาอัปโหลดบนมือถือและภาระ Edge Function */
-const DEFAULT_MAX_OUTPUT_BYTES = 800_000
+/** ด้านยาวสูงสุด — พอสำหรับ preview ในแอป (~640px แสดงจริง) */
+const DEFAULT_MAX_DIMENSION = 1024
+const DEFAULT_QUALITY = 0.75
+/** เป้าหมายหลังบีบอัด — ลดเวลาอัปโหลด (ผ่าน Edge → R2 สอง hop) */
+const DEFAULT_MAX_OUTPUT_BYTES = 550_000
 /** ไฟล์เล็กและความละเอียดไม่สูง — ไม่บีบอัด */
-const DEFAULT_SKIP_BELOW_BYTES = 200_000
+const DEFAULT_SKIP_BELOW_BYTES = 280_000
 const MIN_QUALITY = 0.52
 const QUALITY_STEP = 0.07
 

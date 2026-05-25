@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { readAuthAvatarUrl } from '@/lib/profileAvatar'
 import { sleep } from '@/lib/authSession'
+import { warmUploadEdgeFunction } from '@/lib/warmUploadEdge'
 import type { Profile } from '@/types/app.types'
 import type { Session } from '@supabase/supabase-js'
 
@@ -95,6 +96,7 @@ function applySession(session: Session | null) {
     return
   }
   setUser(session.user)
+  warmUploadEdgeFunction()
   window.setTimeout(() => {
     void loadProfile(session.user.id, readAuthAvatarUrl(session.user.user_metadata))
   }, 0)

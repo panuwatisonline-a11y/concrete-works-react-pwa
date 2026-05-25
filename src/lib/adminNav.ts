@@ -13,7 +13,8 @@ import Speed from '@mui/icons-material/Speed'
 import TrendingDown from '@mui/icons-material/TrendingDown'
 import VerifiedUser from '@mui/icons-material/VerifiedUser'
 import Work from '@mui/icons-material/Work'
-import { canManageUsers, canManageJobsRegistry } from '@/lib/permissions'
+import CloudUpload from '@mui/icons-material/CloudUpload'
+import { canManageUsers, canManageJobsRegistry, canManageUploadSettings } from '@/lib/permissions'
 
 export type AdminNavItem = {
   to: string
@@ -38,6 +39,7 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/admin/client', label: 'User Group', icon: Business },
   { to: '/admin/inspector', label: 'Inspector', icon: VerifiedUser },
   { to: '/admin/users', label: 'User Settings', icon: People },
+  { to: '/admin/upload-settings', label: 'Upload Settings', icon: CloudUpload },
 ]
 
 export function adminConsoleLinks(role: string | null | undefined): AdminNavItem[] {
@@ -48,6 +50,9 @@ export function adminConsoleLinks(role: string | null | undefined): AdminNavItem
   }
   if (!canManageUsers(role)) {
     links = links.filter((l) => l.to !== '/admin/users')
+  }
+  if (!canManageUploadSettings(role)) {
+    links = links.filter((l) => l.to !== '/admin/upload-settings')
   }
   return links
 }

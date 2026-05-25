@@ -34,6 +34,7 @@ import { WbsCodePage } from '@/pages/admin/WbsCodePage'
 import { JobsPage } from '@/pages/admin/JobsPage'
 import { CstMachinePage } from '@/pages/admin/CstMachinePage'
 import { InspectorPage } from '@/pages/admin/InspectorPage'
+import { UploadSettingsPage } from '@/pages/admin/UploadSettingsPage'
 import { FormTemplatesPreviewPage } from '@/pages/preview/FormTemplatesPreviewPage'
 import { PrintChecklistPreviewPage } from '@/pages/print/PrintChecklistPreviewPage'
 import { PrintCstPreviewPage } from '@/pages/print/PrintCstPreviewPage'
@@ -121,6 +122,7 @@ function AppInner() {
           <Route path="wbs-code" element={<WbsCodePage />} />
           <Route path="jobs" element={<JobsPage />} />
           <Route path="cst-machine" element={<CstMachinePage />} />
+          <Route path="upload-settings" element={<UploadSettingsPage />} />
         </Route>
       </Route>
 

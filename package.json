@@ -21,7 +21,8 @@
     "secrets:push-vapid": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/set-push-vapid-secrets.ps1",
     "secrets:push-vapid:sh": "bash ./scripts/set-push-secrets.sh",
     "secrets:upload-drive-image": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/set-upload-drive-secrets.ps1",
-    "secrets:upload-drive-oauth": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/set-upload-drive-oauth-secrets.ps1"
+    "secrets:upload-drive-oauth": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/set-upload-drive-oauth-secrets.ps1",
+    "secrets:r2-upload": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/set-r2-upload-secrets.ps1"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

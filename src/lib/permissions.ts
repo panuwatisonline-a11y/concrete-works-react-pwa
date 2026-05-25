@@ -71,6 +71,11 @@ export function canManageJobsRegistry(role: string | null | undefined): boolean 
   return isSuperAdmin(role)
 }
 
+/** Super Admin only — เลือกปลายทางอัปโหลดรูป (Drive / R2) */
+export function canManageUploadSettings(role: string | null | undefined): boolean {
+  return isSuperAdmin(role)
+}
+
 /** จองคอนกรีตผ่าน flow ปกติ (/requests/new) */
 export function canBookConcrete(role: string | null | undefined): boolean {
   const r = normalizeRole(role)
