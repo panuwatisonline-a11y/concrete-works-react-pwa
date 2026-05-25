@@ -1,5 +1,6 @@
 ﻿import { useMemo, useState } from 'react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { usePopoverLayerStyle } from '@/lib/dialogLayer'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { Button } from '@/components/ui/button'
@@ -122,6 +123,7 @@ export function StructureListMultiSelect({
   inDialog?: boolean
   allowedTokens?: string[]
 }) {
+  const popoverLayerStyle = usePopoverLayerStyle()
   const [open, setOpen] = useState(false)
   const [filter, setFilter] = useState('')
 
@@ -235,13 +237,14 @@ export function StructureListMultiSelect({
   }
 
   return (
-    <Popover modal open={open} onOpenChange={handleOpenChange}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         align="start"
         side="bottom"
         sideOffset={6}
         collisionPadding={12}
+        style={popoverLayerStyle}
         className="flex max-w-[calc(100vw-2rem)] flex-col gap-2 p-2 max-h-[min(380px,55dvh)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >

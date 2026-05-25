@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 import { AppIcon } from '@/components/icons/AppIcon'
+import { DialogLayerContext, dialogLayerValue } from '@/lib/dialogLayer'
 import { resolveDialogZIndex } from '@/lib/zIndex'
 import { cn } from '@/lib/utils'
 
@@ -67,39 +68,42 @@ const DialogContent = React.forwardRef<
     const { open, onOpenChange } = React.useContext(DialogContext)
     const paperClass = cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName)
     const z = resolveDialogZIndex(overlayClassName, paperClass)
+    const layer = dialogLayerValue(z)
 
     return (
-      <MuiDialog
-        open={Boolean(open)}
-        onClose={() => onOpenChange?.(false)}
-        fullWidth
-        maxWidth={maxWidthFromClassName(paperClass)}
-        scroll="paper"
-        sx={{ zIndex: z }}
-        slotProps={{
-          backdrop: {
-            className: cn('backdrop-blur-sm bg-black/60', overlayClassName),
-            sx: { zIndex: z },
-          },
-          paper: {
-            ref,
-            className: paperClass,
-            sx: { zIndex: z },
-            ...props,
-          },
-        }}
-      >
-        {showCloseButton && (
-          <IconButton
-            aria-label="Close"
-            onClick={() => onOpenChange?.(false)}
-            sx={{ position: 'absolute', right: 12, top: 12, zIndex: 1 }}
-          >
-            <AppIcon icon={CloseIcon} size="sm" />
-          </IconButton>
-        )}
-        {children}
-      </MuiDialog>
+      <DialogLayerContext.Provider value={layer}>
+        <MuiDialog
+          open={Boolean(open)}
+          onClose={() => onOpenChange?.(false)}
+          fullWidth
+          maxWidth={maxWidthFromClassName(paperClass)}
+          scroll="paper"
+          sx={{ zIndex: z }}
+          slotProps={{
+            backdrop: {
+              className: cn('backdrop-blur-sm bg-black/60', overlayClassName),
+              sx: { zIndex: z },
+            },
+            paper: {
+              ref,
+              className: paperClass,
+              sx: { zIndex: z },
+              ...props,
+            },
+          }}
+        >
+          {showCloseButton && (
+            <IconButton
+              aria-label="Close"
+              onClick={() => onOpenChange?.(false)}
+              sx={{ position: 'absolute', right: 12, top: 12, zIndex: 1 }}
+            >
+              <AppIcon icon={CloseIcon} size="sm" />
+            </IconButton>
+          )}
+          {children}
+        </MuiDialog>
+      </DialogLayerContext.Provider>
     )
   },
 )
@@ -147,6 +151,8 @@ const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttri
   ),
 )
 DialogDescription.displayName = 'DialogDescription'
+
+export { DialogLayerContext, useDialogLayer } from '@/lib/dialogLayer'
 
 export {
   Dialog,

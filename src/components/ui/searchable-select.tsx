@@ -4,6 +4,7 @@ import ExpandMore from '@mui/icons-material/ExpandMore'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { usePopoverLayerStyle } from '@/lib/dialogLayer'
 import { cn } from '@/lib/utils'
 import { glass } from '@/lib/requestUi'
 
@@ -69,6 +70,7 @@ export function SearchableSelect({
   id,
   'aria-invalid': ariaInvalid,
 }: SearchableSelectProps) {
+  const popoverLayerStyle = usePopoverLayerStyle()
   const listboxId = React.useId()
   const [open, setOpen] = React.useState(false)
   const [query, setQuery] = React.useState('')
@@ -194,6 +196,7 @@ export function SearchableSelect({
       </PopoverTrigger>
       <PopoverContent
         className={cn('flex flex-col gap-1.5 p-1.5', contentClassName)}
+        style={popoverLayerStyle}
         align="start"
         collisionPadding={12}
         onOpenAutoFocus={(event) => event.preventDefault()}

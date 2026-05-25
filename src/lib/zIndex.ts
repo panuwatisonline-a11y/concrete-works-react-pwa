@@ -23,8 +23,13 @@ export const Z_TW = {
   popoverInModal: `z-[${Z_INDEX.popoverInModal}]`,
 } as const
 
-/** ใช้ใน SearchableSelect ภายใน Dialog */
+/** ใช้ใน SearchableSelect ภายใน Dialog (ค่าคงที่ — ชอบใช้ DialogLayerContext แทน) */
 export const SELECT_CONTENT_ELEVATED_Z = Z_TW.popoverInModal
+
+/** z-index รายการ dropdown ให้อยู่เหนือเนื้อหา dialog */
+export function popoverZIndexAboveDialog(dialogZIndex: number): number {
+  return dialogZIndex + 10
+}
 
 /** อ่าน z-[26x]/[27x]/[28x]/[29x] จาก legacy overlay class */
 export function resolveDialogZIndex(overlayClassName?: string, className?: string): number {
