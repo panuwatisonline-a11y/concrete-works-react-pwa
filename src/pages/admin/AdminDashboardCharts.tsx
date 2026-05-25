@@ -145,7 +145,7 @@ export function VolumeTrendDualLineChart({
   return (
     <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
       <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
-        <p className="text-[11px] leading-snug text-pour-muted pour-desktop:text-xs">
+        <p className="text-pour-xs leading-snug text-pour-muted pour-desktop:text-xs">
           สะสมต่อช่วง: วันเลื่อน (postpone) ก่อน แล้ววันเท แล้ววันที่จอง — เทียบ Request volume กับ Confirmed volume
         </p>
       </div>
@@ -166,7 +166,7 @@ export function VolumeTrendDualLineChart({
               return (
                 <g key={`gy-${v}`}>
                   <line x1={x0} y1={y} x2={x1} y2={y} stroke="var(--chart-grid)" strokeWidth="1" />
-                  <text x={x0 - 8} y={y + 4} textAnchor="end" className="fill-[color:var(--chart-axis)] text-[11px] font-medium">
+                  <text x={x0 - 8} y={y + 4} textAnchor="end" className="fill-[color:var(--chart-axis)] text-pour-xs font-medium">
                     {formatVolumeNumber(v)}
                   </text>
                 </g>
@@ -219,14 +219,14 @@ export function VolumeTrendDualLineChart({
                   x={p.x}
                   y={vbH - 10}
                   textAnchor={n <= 2 ? 'middle' : i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}
-                  className="fill-[color:var(--chart-label)] text-[8.5px] pour-desktop:text-[9.5px]"
+                  className="fill-[color:var(--chart-label)] text-pour-2xs"
                 >
                   {label}
                 </text>
               )
             })}
         </svg>
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[color:var(--pour-surface-border)]/80 pt-3 text-[10px] text-[color:var(--pour-ink-1)] pour-desktop:text-xs">
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 border-t border-[color:var(--pour-surface-border)]/80 pt-3 text-pour-2xs text-[color:var(--pour-ink-1)] pour-desktop:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2 w-5 rounded-sm bg-[#64748b]" aria-hidden />
             Request volume (m³)
@@ -282,7 +282,7 @@ export function HorizontalVolumeBarChart({
       <div className="flex min-h-[4.25rem] shrink-0 flex-col justify-center border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:min-h-[4.5rem] pour-desktop:px-4 pour-desktop:py-2.5">
         <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">{title}</p>
         {subtitle ? (
-          <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-pour-muted pour-desktop:text-xs">
+          <p className="mt-0.5 line-clamp-2 text-pour-xs leading-snug text-pour-muted pour-desktop:text-xs">
             {subtitle}
           </p>
         ) : null}
@@ -314,7 +314,7 @@ export function HorizontalVolumeBarChart({
           )
         })}
       </div>
-      <div className="shrink-0 border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-[10px] text-pour-muted pour-desktop:px-4">
+      <div className="shrink-0 border-t border-[color:var(--pour-surface-border)]/80 px-3 py-2 text-pour-2xs text-pour-muted pour-desktop:px-4">
         รวม confirmed volume ทั้งหมดในกราฟนี้:{' '}
         <span className="font-semibold text-[color:var(--pour-ink-0)]">
           {fmtVolSummary(slices.reduce((a, b) => a + b.volume, 0))} m³
@@ -367,7 +367,7 @@ export function StatusVolumeStrip({
     <div className="w-full min-w-0 overflow-hidden rounded-[14px] border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]">
       <div className="border-b border-[color:var(--pour-surface-border)]/80 bg-[color:var(--pour-surface-tint)] px-3 py-2 pour-desktop:px-4 pour-desktop:py-2.5">
         <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">สัดส่วนสถานะคำขอ</p>
-        <p className="mt-0.5 text-[11px] text-pour-muted pour-desktop:text-xs">
+        <p className="mt-0.5 text-pour-xs text-pour-muted pour-desktop:text-xs">
           ทั้งหมด {total} รายการ — ชี้ที่แถบสีเพื่อดูรายละเอียดใน tooltip
         </p>
       </div>

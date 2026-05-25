@@ -73,6 +73,8 @@ const DialogContent = React.forwardRef<
     ref,
   ) => {
     const { open, onOpenChange } = React.useContext(DialogContext)
+    if (!open) return null
+
     const paperClass = stripLegacyPaperZClass(
       cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName),
     )
@@ -83,7 +85,7 @@ const DialogContent = React.forwardRef<
     return (
       <DialogLayerContext.Provider value={layer}>
         <MuiDialog
-          open={Boolean(open)}
+          open
           onClose={() => onOpenChange?.(false)}
           fullWidth
           maxWidth={maxWidthFromClassName(paperClass)}
@@ -92,6 +94,7 @@ const DialogContent = React.forwardRef<
           disableRestoreFocus
           sx={{ zIndex: z }}
           slotProps={{
+            transition: { appear: false },
             backdrop: {
               className: cn('backdrop-blur-sm bg-black/60', overlayClassName),
               sx: { zIndex: z },
@@ -159,7 +162,7 @@ const DialogDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttri
       component="p"
       variant="body2"
       color="text.secondary"
-      className={cn('text-[13px] leading-relaxed', className)}
+      className={cn('text-pour-base leading-relaxed', className)}
       {...props}
     />
   ),

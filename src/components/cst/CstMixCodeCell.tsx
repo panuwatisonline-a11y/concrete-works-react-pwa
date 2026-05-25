@@ -17,7 +17,7 @@ export function CstMixCodeCell({ mix }: { mix: CstListMix | null }) {
     <>
       <span>{mix.mixcode.trim()}</span>
       {sub ? (
-        <span className="mt-px block text-[10px] leading-tight text-pour-muted">{sub}</span>
+        <span className="mt-px block text-pour-2xs leading-tight text-pour-muted">{sub}</span>
       ) : null}
     </>
   )

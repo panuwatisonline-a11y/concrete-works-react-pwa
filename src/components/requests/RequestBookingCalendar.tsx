@@ -154,7 +154,7 @@ export function RequestBookingCalendar({
                 {bucket ? (
                   <span
                     className={cn(
-                      'mt-0.5 rounded-full px-1.5 py-px text-[10px] font-bold tabular-nums',
+                      'mt-0.5 rounded-full px-1.5 py-px text-pour-2xs font-bold tabular-nums',
                       'bg-[color:var(--pour-accent)] text-white',
                     )}
                   >

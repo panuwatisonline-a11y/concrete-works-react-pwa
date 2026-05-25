@@ -312,7 +312,7 @@ export function WbsCodePage() {
                 )
               })}
               {previewLine ? (
-                <p className="rounded-lg border border-dashed border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-[13px] leading-snug text-pour-muted">
+                <p className="rounded-lg border border-dashed border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-2 text-pour-base leading-snug text-pour-muted">
                   <span className="font-mono text-[color:var(--pour-ink-1)]">{previewLine}</span>
                 </p>
               ) : null}

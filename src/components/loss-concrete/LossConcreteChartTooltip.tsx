@@ -21,7 +21,7 @@ export function LossConcreteChartTooltip({
   return (
     <div className="rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-3 py-2 shadow-lg backdrop-blur-sm">
       {label != null && label !== '' ? (
-        <p className="mb-1.5 text-[10px] font-semibold text-pour-muted">{String(label)}</p>
+        <p className="mb-1.5 text-pour-2xs font-semibold text-pour-muted">{String(label)}</p>
       ) : null}
       <ul className="space-y-1">
         {payload.map((entry, i) => {

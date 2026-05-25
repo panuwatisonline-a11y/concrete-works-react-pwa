@@ -32,6 +32,7 @@ import { canManageUsers } from '@/lib/permissions'
 import { isNavToActive } from '@/lib/navActive'
 import { CollapsibleNavSection } from '@/components/layout/CollapsibleNavSection'
 import { AppVersionLabel } from '@/components/layout/AppVersionLabel'
+import { pourPcUi, usePourPcScale } from '@/lib/pourPcScale'
 
 interface NavItem {
   to: string
@@ -64,25 +65,22 @@ function readSidebarAutoHide(): boolean {
   }
 }
 
-function sidebarWidth(collapsed: boolean, isPeek: boolean) {
-  if (isPeek) return 12
-  return collapsed ? 144 : 260
+function sidebarWidthPx(collapsed: boolean, isPeek: boolean, pxW: (n: number) => number): number {
+  if (isPeek) return Math.round(pxW(12))
+  return Math.round(collapsed ? pxW(144) : pxW(260))
 }
 
 function SidebarShell({
-  collapsed,
-  isPeek,
+  width,
   mode,
   interaction,
   children,
 }: {
-  collapsed: boolean
-  isPeek: boolean
+  width: number
   mode: string
   interaction: Record<string, unknown>
   children: ReactNode
 }) {
-  const width = sidebarWidth(collapsed, isPeek)
   return (
     <Drawer
       variant="permanent"
@@ -219,7 +217,7 @@ function CollapsedTextNav({ to, label, end, active, onClick }: CollapsedTextNavP
       onClick={onClick}
       className={() => collapsedNavClass(active)}
     >
-      <span className="line-clamp-2 w-full break-words text-left text-[11px] leading-snug">{label}</span>
+      <span className="line-clamp-2 w-full break-words text-left text-pour-xs leading-snug">{label}</span>
     </NavLink>
   )
 }
@@ -245,6 +243,10 @@ export function DesktopSidebar() {
     location.pathname.startsWith('/admin') || location.pathname.startsWith('/cst')
 
   const isPeek = autoHide && !hovered
+  const pc = usePourPcScale()
+  const peekWidth = sidebarWidthPx(collapsed, true, pc.pxW)
+  const collapsedWidth = sidebarWidthPx(true, false, pc.pxW)
+  const expandedWidth = sidebarWidthPx(false, false, pc.pxW)
 
   const clearLeaveTimer = useCallback(() => {
     if (leaveTimerRef.current) {
@@ -323,7 +325,7 @@ export function DesktopSidebar() {
 
   if (isPeek) {
     return (
-      <SidebarShell collapsed={collapsed} isPeek={true} interaction={sidebarInteraction} mode="peek">
+      <SidebarShell width={peekWidth} interaction={sidebarInteraction} mode="peek">
         <Box
           aria-label="เมนูหลัก — วางเมาส์เพื่อแสดง"
           title="แสดงเมนู"
@@ -380,7 +382,7 @@ export function DesktopSidebar() {
     }))
 
     return (
-      <SidebarShell collapsed={true} isPeek={false} interaction={sidebarInteraction} mode="collapsed">
+      <SidebarShell width={collapsedWidth} interaction={sidebarInteraction} mode="collapsed">
         <Box
           sx={{
             display: 'flex',
@@ -407,7 +409,7 @@ export function DesktopSidebar() {
             <span className={cn(theme.sidebarBrandLogoWrap, 'h-10 w-10')} aria-hidden>
               <img src="/pwa-512x512.png" alt="" className={theme.sidebarBrandLogo} />
             </span>
-            <span className="text-[10px] font-bold leading-tight text-[color:var(--pour-ink-0)]">หน้าหลัก</span>
+            <span className="text-pour-2xs font-bold leading-tight text-[color:var(--pour-ink-0)]">หน้าหลัก</span>
           </NavLink>
           <SidebarHeaderControls
             autoHide={autoHide}
@@ -417,7 +419,12 @@ export function DesktopSidebar() {
           />
         </Box>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain py-2.5">
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain py-2.5',
+            pourPcUi.sidebarNav,
+          )}
+        >
           <nav aria-label="เมนูหลัก" className="flex flex-col gap-1 px-2.5">
             {mainNavItems.map((item) => (
               <CollapsedTextNav key={item.to} {...item} />
@@ -449,16 +456,16 @@ export function DesktopSidebar() {
             className={collapsedNavClass(false)}
             onClick={handleLogout}
           >
-            <span className="w-full text-left text-[11px] leading-snug">ออกจากระบบ</span>
+            <span className="w-full text-left text-pour-xs leading-snug">ออกจากระบบ</span>
           </button>
-          <AppVersionLabel className="mt-1.5 text-[9px]" />
+          <AppVersionLabel className="mt-1.5 text-pour-2xs" />
         </div>
       </SidebarShell>
     )
   }
 
   return (
-    <SidebarShell collapsed={false} isPeek={false} interaction={sidebarInteraction} mode="expanded">
+    <SidebarShell width={expandedWidth} interaction={sidebarInteraction} mode="expanded">
       <Box
         sx={{
           display: 'flex',
@@ -501,7 +508,12 @@ export function DesktopSidebar() {
         />
       </Box>
 
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5">
+      <div
+        className={cn(
+          'min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5',
+          pourPcUi.sidebarNav,
+        )}
+      >
         <CollapsibleNavSection
           title="MENU"
           defaultOpen={!adminSectionActive}

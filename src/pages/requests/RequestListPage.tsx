@@ -43,7 +43,7 @@ import { localPrintChecklist, warmChecklistTemplateCache } from '@/lib/checklist
 import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
-import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
+import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import type { SvgIconComponent } from '@mui/icons-material'
 import Business from '@mui/icons-material/Business'
 import Place from '@mui/icons-material/Place'
@@ -137,11 +137,13 @@ function RequestGroupedFeedBody({
   onRequestUpdated,
   layoutMode = 'list',
   bookerScope,
+  onOpenWorkflow,
 }: {
   sections: RequestFeedSection[]
   onRequestUpdated?: () => void
   layoutMode?: 'grid' | 'list'
   bookerScope: InspectorBookerScope
+  onOpenWorkflow: (request: RequestWithRelations, modal: string) => void
 }) {
   const [openMap, setOpenMap] = useState<Record<string, boolean>>({})
 
@@ -226,6 +228,7 @@ function RequestGroupedFeedBody({
                         variant={layoutMode}
                         onRequestUpdated={onRequestUpdated}
                         bookerScope={bookerScope}
+                        onOpenWorkflow={onOpenWorkflow}
                       />
                     </StaggerItem>
                   ))}
@@ -264,7 +267,7 @@ function handleFeedQuickAction(
   a: RequestListActionItem,
   r: RequestWithRelations,
   navigate: ReturnType<typeof useNavigate>,
-  setWorkflowModal: (modal: string | null) => void,
+  onOpenWorkflow: (request: RequestWithRelations, modal: string) => void
 ) {
   if ('cloneFromRequestId' in a) {
     navigate('/requests/new', { state: { cloneFromRequestId: a.cloneFromRequestId } })
@@ -284,7 +287,7 @@ function handleFeedQuickAction(
       .catch((err) => toast.error(err instanceof Error ? err.message : 'คัดลอกไม่สำเร็จ'))
     return
   }
-  setWorkflowModal(a.modal)
+  onOpenWorkflow(r, a.modal)
 }
 
 function RequestFeedCard({
@@ -292,15 +295,16 @@ function RequestFeedCard({
   variant = 'list',
   onRequestUpdated,
   bookerScope,
+  onOpenWorkflow,
 }: {
   r: RequestWithRelations
   variant?: 'grid' | 'list'
   onRequestUpdated?: () => void
   bookerScope: InspectorBookerScope
+  onOpenWorkflow: (request: RequestWithRelations, modal: string) => void
 }) {
   const [thumbFailed, setThumbFailed] = useState(false)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
-  const [workflowModal, setWorkflowModal] = useState<string | null>(null)
   const rawThumb = r.after_image?.trim() || r.before_image?.trim() || null
   const thumbUrl = imageSrcForImgTag(rawThumb, 'card')
   useEffect(() => {
@@ -403,19 +407,11 @@ function RequestFeedCard({
               items={quickActions}
               onItemClick={(a, e) => {
                 e.stopPropagation()
-                handleFeedQuickAction(a, r, navigate, setWorkflowModal)
+                handleFeedQuickAction(a, r, navigate, onOpenWorkflow)
               }}
             />
           ) : null}
         </div>
-        <RequestWorkflowModals
-          request={r}
-          modal={workflowModal}
-          onClose={() => setWorkflowModal(null)}
-          onCompleted={() => {
-            void onRequestUpdated?.()
-          }}
-        />
       </>
     )
   }
@@ -486,7 +482,7 @@ function RequestFeedCard({
                     <span className={cn('min-w-0', type.bodyStrong)}>{bookerDisplay}</span>
                     {nonSystemBooking ? <NonSystemBookingBadge /> : null}
                     {isMyBooking ? (
-                      <span className="shrink-0 rounded-md bg-[var(--pour-accent-muted)] px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[color:var(--pour-accent-hover)]">
+                      <span className="shrink-0 rounded-md bg-[var(--pour-accent-muted)] px-1.5 py-0.5 text-pour-xs font-semibold uppercase tracking-wide text-[color:var(--pour-accent-hover)]">
                         คุณ
                       </span>
                     ) : null}
@@ -539,20 +535,11 @@ function RequestFeedCard({
           items={quickActions}
           onItemClick={(a, e) => {
             e.stopPropagation()
-            handleFeedQuickAction(a, r, navigate, setWorkflowModal)
+            handleFeedQuickAction(a, r, navigate, onOpenWorkflow)
           }}
         />
       ) : null}
     </div>
-
-      <RequestWorkflowModals
-        request={r}
-        modal={workflowModal}
-        onClose={() => setWorkflowModal(null)}
-        onCompleted={() => {
-          void onRequestUpdated?.()
-        }}
-      />
 
       <ImageLightboxDialog
         open={lightboxSrc != null}
@@ -625,6 +612,7 @@ export function RequestListPage() {
   const [loading, setLoading] = useState(true)
   const [statusCounts, setStatusCounts] = useState<Record<number, number>>({})
   const [countsLoading, setCountsLoading] = useState(true)
+  const openFeedWorkflow = useRequestOverlayStore((s) => s.openWorkflow)
 
   /** PostgREST cannot OR across FK tables in one clause; merged-ID search is debounced to avoid request storms. */
   const [debouncedSearch, setDebouncedSearch] = useState(() => filter.search)
@@ -892,6 +880,7 @@ export function RequestListPage() {
       layoutMode={listLayout}
       onRequestUpdated={() => void refreshPage()}
       bookerScope={bookerScope}
+      onOpenWorkflow={openFeedWorkflow}
     />
   )
 
@@ -961,6 +950,7 @@ export function RequestListPage() {
           {pagination}
         </div>
       )}
+
     </div>
   )
 }

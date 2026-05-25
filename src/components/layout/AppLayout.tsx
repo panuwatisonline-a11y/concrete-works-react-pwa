@@ -5,18 +5,27 @@ import { AppHeader } from './AppHeader'
 import { DesktopSidebar } from './DesktopSidebar'
 import { DesktopTopBar } from './DesktopTopBar'
 import { RequestFiltersDialog } from '@/components/requests/RequestFiltersDialog'
+import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
 import { useMasterDataInit } from '@/hooks/useMasterData'
 import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
 import { useMainScrollRouteSync } from '@/hooks/useMainScrollRouteSync'
 import { ConnectivityBanner } from '@/components/layout/ConnectivityBanner'
 import { useConnectivity } from '@/hooks/useConnectivity'
+import { notifyRequestListChanged } from '@/lib/requestListInvalidate'
+import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import Box from '@mui/material/Box'
 import { getContentMaxClass, theme } from '@/lib/requestUi'
+import { pourMobileUi } from '@/lib/pourMobileScale'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn } from '@/lib/utils'
 
 export function AppLayout() {
   const { pathname } = useLocation()
   const contentMaxClass = getContentMaxClass(pathname)
+  const workflow = useRequestOverlayStore((s) => s.workflow)
+  const workflowHostReady = useRequestOverlayStore((s) => s.workflowHostReady)
+  const closeWorkflow = useRequestOverlayStore((s) => s.closeWorkflow)
+  const workflowRequest = workflow?.request ?? null
 
   useConnectivity()
   useMasterDataInit()
@@ -30,6 +39,8 @@ export function AppLayout() {
         theme.shell,
         theme.shellDesktopAccent,
         'pour-desktop:flex-row pour-desktop:gap-0 pour-desktop:p-0 pour-desktop:min-h-0 pour-desktop:overflow-hidden',
+        pourMobileUi.root,
+        pourPcUi.root,
       )}
       sx={{ bgcolor: 'background.default', color: 'text.primary' }}
     >
@@ -53,10 +64,11 @@ export function AppLayout() {
             'mx-auto min-h-0 w-full min-w-0 flex-1',
             theme.mainScrollSurface,
             theme.mainScrollPadX,
-            'pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] pt-3',
+            pourMobileUi.mainScroll,
             'pour-desktop:min-h-0 pour-desktop:flex-1',
             'pour-desktop:pb-8 pour-desktop:pt-5',
             'pour-wide:pt-6 pour-wide:pb-10',
+            pourPcUi.mainScroll,
           )}
         >
           <div className={cn('flex min-w-0 flex-col', contentMaxClass)}>
@@ -66,6 +78,15 @@ export function AppLayout() {
       </div>
 
       <RequestFiltersDialog />
+
+      {workflowHostReady && workflowRequest ? (
+        <RequestWorkflowModals
+          request={workflowRequest}
+          modal={workflow?.modal ?? null}
+          onClose={closeWorkflow}
+          onCompleted={() => void notifyRequestListChanged()}
+        />
+      ) : null}
     </Box>
   )
 }

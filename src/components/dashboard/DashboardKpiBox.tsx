@@ -25,7 +25,7 @@ export function DashboardKpiBox({
         )}
       >
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-pour-muted">{title}</p>
+          <p className="text-pour-2xs font-bold uppercase tracking-wider text-pour-muted">{title}</p>
           <span className="text-[color:var(--pour-ink-2)] opacity-80">{icon}</span>
         </div>
         <p className="font-mono text-2xl font-extrabold tabular-nums text-[color:var(--pour-ink-0)]">

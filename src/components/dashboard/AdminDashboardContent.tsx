@@ -19,8 +19,14 @@ import { AppIcon } from '@/components/icons/AppIcon';
 import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcreteChartTooltip';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { DashboardKpiBox } from '@/components/dashboard/DashboardKpiBox';
-import { DashboardChartBox, dashboardBarChartHeight } from '@/components/dashboard/DashboardChartBox';
-import { dashboardBarChartMargin, dashboardYAxisWidth, truncateAxisLabel } from '@/lib/dashboardChartLayout';
+import { DashboardChartBox } from '@/components/dashboard/DashboardChartBox';
+import {
+  dashboardBarChartHeightVh,
+  dashboardBarChartMarginScaled,
+  dashboardYAxisWidth,
+  truncateAxisLabel,
+} from '@/lib/dashboardChartLayout';
+import { pourPcUi, pourPcVh, usePourPcScale } from '@/lib/pourPcScale';
 import { DashboardBarValueLabel, type DashboardBarLabelProps } from '@/components/dashboard/DashboardBarValueLabel';
 import {
   DASHBOARD_COMPLETE_STATUS,
@@ -41,7 +47,7 @@ import { app, frame, glass, modal, rq, tableCompact, type } from '@/lib/requestU
 import { cn } from '@/lib/utils';
 
 const dashTable = {
-  table: cn(tableCompact.table, 'min-w-[72rem]'),
+  table: cn(tableCompact.table, 'pour-pc-dash-table pour-pc-app-table'),
   head: tableCompact.head,
   body: tableCompact.body,
 } as const;
@@ -72,6 +78,13 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
     cursor: cCursor,
     pieStroke: cPieStroke,
   } = useChartColors();
+
+  const pc = usePourPcScale();
+  const chartFontSm = pc.pxW(11);
+  const chartFontMd = pc.pxW(12);
+  const chartFontXs = pc.pxW(10);
+  const chartIconSm = pc.pxW(18);
+  const chartIconXs = pc.pxW(11);
 
   const [trendGranularity,       setTrendGranularity]       = useState<Granularity>('month');
   const [statusTrendGranularity, setStatusTrendGranularity] = useState<Granularity>('month');
@@ -233,21 +246,38 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       .sort((a, b) => b['DWG Vol'] - a['DWG Vol']);
   }, [chartViewData]);
 
-  const statusYWidth = useMemo(
+  const statusYWidthBase = useMemo(
     () => dashboardYAxisWidth(chartStatusData.map((d) => d.legend)),
     [chartStatusData],
   );
-  const strengthYWidth = useMemo(
+  const strengthYWidthBase = useMemo(
     () => dashboardYAxisWidth(chartStrengthData.map((d) => d.name)),
     [chartStrengthData],
   );
-  const structureYWidth = useMemo(
+  const structureYWidthBase = useMemo(
     () => dashboardYAxisWidth(chartStructureData.map((d) => d.name)),
     [chartStructureData],
   );
-  const staffYWidth = useMemo(
+  const staffYWidthBase = useMemo(
     () => dashboardYAxisWidth(chartStaffData.map((d) => d.name)),
     [chartStaffData],
+  );
+
+  const statusMargin = useMemo(
+    () => dashboardBarChartMarginScaled(statusYWidthBase, pc.viewportW),
+    [statusYWidthBase, pc.viewportW],
+  );
+  const strengthMargin = useMemo(
+    () => dashboardBarChartMarginScaled(strengthYWidthBase, pc.viewportW),
+    [strengthYWidthBase, pc.viewportW],
+  );
+  const structureMargin = useMemo(
+    () => dashboardBarChartMarginScaled(structureYWidthBase, pc.viewportW),
+    [structureYWidthBase, pc.viewportW],
+  );
+  const staffMargin = useMemo(
+    () => dashboardBarChartMarginScaled(staffYWidthBase, pc.viewportW),
+    [staffYWidthBase, pc.viewportW],
   );
 
   const statusBarTotal = useMemo(
@@ -380,7 +410,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
   return (
     <>
       {/* ── KPI CARDS ── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 pour-desktop:pour-pc-kpi-grid">
         <DashboardKpiBox title="Total Requests"    value={kpis.count}        unit="Items" icon={<AppIcon icon={TaskAlt} size="md" />}    color="from-blue-600 to-cyan-500" />
         <DashboardKpiBox title="Request Volume"    value={kpis.requestVol}   unit="m³"    icon={<AppIcon icon={Layers} size="md" />}       color="from-indigo-600 to-violet-500" />
         <DashboardKpiBox title="DWG. Volume"       value={kpis.dwgVol}       unit="m³"    icon={<AppIcon icon={Timeline} size="md" />}     color="from-slate-600 to-slate-400" />
@@ -396,23 +426,23 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       </div>
 
       {/* ── TREND CHARTS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 pour-desktop:pour-pc-trend-grid">
 
-        <div className="border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
-          <div className="flex flex-wrap justify-between items-center gap-3 mb-5">
-            <h3 className="text-sm font-bold text-[color:var(--pour-ink-0)] flex items-center gap-2">
+        <div className="pour-pc-trend-card border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
+          <div className="pour-pc-trend-card__head flex flex-wrap items-center justify-between gap-3 mb-5">
+            <h3 className="pour-pc-trend-card__title flex items-center gap-2 text-sm font-bold text-[color:var(--pour-ink-0)]">
               <AppIcon icon={Timeline} size="sm" className="text-emerald-400" /> Completed Volume Trend
             </h3>
-            <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
+            <div className="pour-pc-trend-card__toggle-wrap flex gap-1 rounded-xl border border-slate-700/50 bg-slate-900/50 p-1">
               {([{ key: 'day', label: 'Day' }, { key: 'week', label: 'Week' }, { key: 'month', label: 'Month' }, { key: 'year', label: 'Year' }] as { key: Granularity; label: string }[]).map(({ key, label }) => (
                 <button key={key} onClick={() => setTrendGranularity(key)}
-                  className={`text-[11px] font-bold px-3 py-1 rounded-lg transition-all ${trendGranularity === key ? 'bg-emerald-500 text-[color:var(--pour-ink-0)] shadow-md shadow-emerald-500/20' : 'text-slate-400 hover:text-slate-200'}`}>
+                  className={`pour-pc-trend-card__toggle-btn text-pour-xs font-bold rounded-lg px-3 py-1 transition-all ${trendGranularity === key ? 'bg-emerald-500 text-[color:var(--pour-ink-0)] shadow-md shadow-emerald-500/20' : 'text-slate-400 hover:text-slate-200'}`}>
                   {label}
                 </button>
               ))}
             </div>
           </div>
-          <div style={{ height: 250 }}>
+          <div className="pour-pc-chart-area h-[250px] pour-desktop:h-auto" style={{ height: pourPcVh(250) }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartTimelineVol} margin={{ top: 28, right: 16, left: -20, bottom: 0 }}>
                 <defs>
@@ -426,48 +456,48 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={true} stroke={cGrid} />
-                <XAxis dataKey="name" stroke={cAxis} fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis dataKey="name" stroke={cAxis} fontSize={chartFontSm} tickLine={false} axisLine={false} />
+                <YAxis stroke={cAxis} fontSize={chartFontMd} tickLine={false} axisLine={false} />
                 <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} valueFormat="volume" />)} cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
                 <Area type="monotone" dataKey="PlanVolume" name="Plan Volume" stroke="#94A3B8" strokeWidth={2} strokeDasharray="5 3" fill="url(#gradPlanVol)" dot={{ r: 3, fill: '#94A3B8', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#94A3B8', strokeWidth: 0 }}>
-                  <LabelList dataKey="PlanVolume" position="top" style={{ fill: cAxis, fontSize: 10, fontWeight: 600, pointerEvents: 'none' }} formatter={(v) => typeof v === 'number' && v > 0 ? v.toFixed(2) : ''} />
+                  <LabelList dataKey="PlanVolume" position="top" style={{ fill: cAxis, fontSize: chartFontXs, fontWeight: 600, pointerEvents: 'none' }} formatter={(v) => typeof v === 'number' && v > 0 ? v.toFixed(2) : ''} />
                 </Area>
                 <Area type="monotone" dataKey="Volume" name="Completed Volume" stroke="#10B981" strokeWidth={3} fill="url(#gradVol)" dot={{ r: 3, fill: '#10B981', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#10B981', strokeWidth: 0 }}>
-                  <LabelList dataKey="Volume" position="top" style={{ fill: '#10B981', fontSize: 10, fontWeight: 600, pointerEvents: 'none' }} formatter={(v) => typeof v === 'number' && v > 0 ? v.toFixed(2) : ''} />
+                  <LabelList dataKey="Volume" position="top" style={{ fill: '#10B981', fontSize: chartFontXs, fontWeight: 600, pointerEvents: 'none' }} formatter={(v) => typeof v === 'number' && v > 0 ? v.toFixed(2) : ''} />
                 </Area>
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
-          <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
-            <h3 className="text-sm font-bold text-[color:var(--pour-ink-0)] flex items-center gap-2">
+        <div className="pour-pc-trend-card border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
+          <div className="pour-pc-trend-card__head pour-pc-trend-card__head--status flex flex-wrap items-center justify-between gap-3 mb-3">
+            <h3 className="pour-pc-trend-card__title flex items-center gap-2 text-sm font-bold text-[color:var(--pour-ink-0)]">
               <AppIcon icon={TrendingUp} size="sm" className="text-indigo-400" /> Requests Trend by Status
             </h3>
-            <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
+            <div className="pour-pc-trend-card__toggle-wrap flex gap-1 rounded-xl border border-slate-700/50 bg-slate-900/50 p-1">
               {([{ key: 'day', label: 'Day' }, { key: 'week', label: 'Week' }, { key: 'month', label: 'Month' }, { key: 'year', label: 'Year' }] as { key: Granularity; label: string }[]).map(({ key, label }) => (
                 <button key={key} onClick={() => setStatusTrendGranularity(key)}
-                  className={`text-[11px] font-bold px-3 py-1 rounded-lg transition-all ${statusTrendGranularity === key ? 'bg-indigo-500 text-[color:var(--pour-ink-0)] shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:text-slate-200'}`}>
+                  className={`pour-pc-trend-card__toggle-btn text-pour-xs font-bold rounded-lg px-3 py-1 transition-all ${statusTrendGranularity === key ? 'bg-indigo-500 text-[color:var(--pour-ink-0)] shadow-md shadow-indigo-500/20' : 'text-slate-400 hover:text-slate-200'}`}>
                   {label}
                 </button>
               ))}
             </div>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+          <div className="pour-pc-trend-card__legend mb-3 flex flex-wrap gap-x-4 gap-y-1">
             {DASHBOARD_STATUS_ORDER.map((key) => (
               <div key={key} className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: DASHBOARD_STATUS_INFO[key].color }} />
-                <span className="text-[10px] text-slate-400">{DASHBOARD_STATUS_INFO[key].legend}</span>
+                <span className="pour-pc-trend-card__legend-dot h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: DASHBOARD_STATUS_INFO[key].color }} />
+                <span className="pour-pc-trend-card__legend-label text-pour-2xs text-slate-400">{DASHBOARD_STATUS_INFO[key].legend}</span>
               </div>
             ))}
           </div>
-          <div style={{ height: 220 }}>
+          <div className="pour-pc-chart-area--status h-[220px] pour-desktop:h-auto" style={{ height: pourPcVh(220) }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartTimelineStatus} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={cGrid} />
-                <XAxis dataKey="name" stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+                <XAxis dataKey="name" stroke={cAxis} fontSize={chartFontMd} tickLine={false} axisLine={false} />
+                <YAxis stroke={cAxis} fontSize={chartFontMd} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} />)} cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
                 {DASHBOARD_STATUS_ORDER.map((key) => (
                   <Line key={key} type="monotone" dataKey={DASHBOARD_STATUS_INFO[key].legend}
@@ -484,20 +514,20 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       </div>
 
       {/* ── FILTER CHARTS — สูงสุด 2 คอลัมน์บนจอใหญ่ เพื่อไม่บีบกราฟ ── */}
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8 pour-desktop:pour-pc-filter-grid">
 
         {/* 1. Status */}
         <DashboardChartBox
           title="Requests by Status (Items)"
           isActive={!!filters.status}
           onClear={() => toggleFilter('status', filters.status!)}
-          height={dashboardBarChartHeight(chartStatusData.length)}
+          height={dashboardBarChartHeightVh(chartStatusData.length)}
           isEmpty={chartStatusData.length === 0}
         >
           <BarChart
             data={chartStatusData}
             layout="vertical"
-            margin={dashboardBarChartMargin(statusYWidth)}
+            margin={statusMargin}
             barCategoryGap="22%"
             barSize={22}
           >
@@ -507,10 +537,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
               dataKey="legend"
               type="category"
               stroke={cAxis}
-              fontSize={11}
+              fontSize={chartFontSm}
               tickLine={false}
               axisLine={false}
-              width={statusYWidth}
+              width={statusMargin.yAxisWidth}
               tickFormatter={(v) => truncateAxisLabel(String(v), 24)}
             />
             <Tooltip
@@ -568,13 +598,13 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
           title="Volume by Strength (m³)"
           isActive={!!filters.strength}
           onClear={() => toggleFilter('strength', filters.strength!)}
-          height={dashboardBarChartHeight(chartStrengthData.length)}
+          height={dashboardBarChartHeightVh(chartStrengthData.length)}
           isEmpty={chartStrengthData.length === 0}
         >
           <BarChart
             data={chartStrengthData}
             layout="vertical"
-            margin={dashboardBarChartMargin(strengthYWidth)}
+            margin={strengthMargin}
             barCategoryGap="22%"
             barSize={22}
           >
@@ -584,10 +614,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
               dataKey="name"
               type="category"
               stroke={cAxis}
-              fontSize={11}
+              fontSize={chartFontSm}
               tickLine={false}
               axisLine={false}
-              width={strengthYWidth}
+              width={strengthMargin.yAxisWidth}
               tickFormatter={(v) => truncateAxisLabel(String(v), 24)}
             />
             <Tooltip
@@ -654,33 +684,33 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                 type="button"
                 onClick={() => setStructureDropdownOpen((o) => !o)}
                 className={cn(
-                  'flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold transition-all',
+                  'pour-pc-structure-filter-btn flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-pour-xs font-semibold transition-all',
                   !allSelected
                     ? 'border-[color:var(--pour-accent)]/40 bg-[color:var(--pour-accent-muted)] text-[color:var(--pour-accent)]'
                     : 'border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] text-pour-muted hover:text-[color:var(--pour-ink-0)]',
                 )}
               >
-                <AppIcon icon={FilterList} size="xs" sx={{ fontSize: 11 }} />
+                <AppIcon icon={FilterList} size="xs" sx={{ fontSize: chartIconXs }} />
                 {allSelected ? 'All' : `${selectedCount} / ${allNames.length}`}
               </button>
               {structureDropdownOpen ? (
-                <div className="absolute right-0 top-full z-[300] mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-lg">
-                  <label className="flex cursor-pointer select-none items-center gap-2.5 border-b border-[color:var(--pour-surface-border)] px-3 py-2 hover:bg-[color:var(--pour-nav-hover-bg)]">
+                <div className="pour-pc-structure-menu absolute right-0 top-full z-[300] mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-lg">
+                  <label className="pour-pc-structure-menu--label flex cursor-pointer select-none items-center gap-2.5 border-b border-[color:var(--pour-surface-border)] px-3 py-2 hover:bg-[color:var(--pour-nav-hover-bg)]">
                     <input
                       type="checkbox"
                       checked={allSelected}
                       onChange={() => setHiddenStructures(allSelected ? new Set(allNames) : new Set())}
                       className="h-3.5 w-3.5 accent-[color:var(--pour-accent)]"
                     />
-                    <span className="text-[11px] font-bold text-[color:var(--pour-ink-1)]">Select all</span>
+                    <span className="text-pour-xs font-bold text-[color:var(--pour-ink-1)]">Select all</span>
                   </label>
-                  <div className="max-h-52 overflow-y-auto">
+                  <div className="pour-pc-structure-menu__scroll max-h-52 overflow-y-auto">
                     {allNames.map((name) => {
                       const checked = !hiddenStructures.has(name);
                       return (
                         <label
                           key={name}
-                          className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-1.5 hover:bg-[color:var(--pour-nav-hover-bg)]"
+                          className="pour-pc-structure-menu__item flex cursor-pointer select-none items-center gap-2.5 px-3 py-1.5 hover:bg-[color:var(--pour-nav-hover-bg)]"
                         >
                           <input
                             type="checkbox"
@@ -695,7 +725,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                             }
                             className="h-3.5 w-3.5 shrink-0 accent-[color:var(--pour-accent)]"
                           />
-                          <span className="text-[11px] leading-tight text-[color:var(--pour-ink-1)]">{name}</span>
+                          <span className="text-pour-xs leading-tight text-[color:var(--pour-ink-1)]">{name}</span>
                         </label>
                       );
                     })}
@@ -711,13 +741,13 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
               isActive={!!filters.structure}
               onClear={() => toggleFilter('structure', filters.structure!)}
               headerActions={structureFilter}
-              height={dashboardBarChartHeight(visibleStructureData.length, 180, 44)}
+              height={dashboardBarChartHeightVh(visibleStructureData.length, 180, 44)}
               isEmpty={visibleStructureData.length === 0}
             >
               <BarChart
                 data={visibleStructureData}
                 layout="vertical"
-                margin={dashboardBarChartMargin(structureYWidth)}
+                margin={structureMargin}
                 barCategoryGap="20%"
                 barSize={20}
               >
@@ -727,10 +757,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                   dataKey="name"
                   type="category"
                   stroke={cAxis}
-                  fontSize={11}
+                  fontSize={chartFontSm}
                   tickLine={false}
                   axisLine={false}
-                  width={structureYWidth}
+                  width={structureMargin.yAxisWidth}
                   tickFormatter={(v) => truncateAxisLabel(String(v), 28)}
                 />
                 <Tooltip
@@ -797,13 +827,13 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
           title="Volume by Staff (m³)"
           isActive={!!filters.staff}
           onClear={() => toggleFilter('staff', filters.staff!)}
-          height={dashboardBarChartHeight(chartStaffData.length)}
+          height={dashboardBarChartHeightVh(chartStaffData.length)}
           isEmpty={chartStaffData.length === 0}
         >
           <BarChart
             data={chartStaffData}
             layout="vertical"
-            margin={dashboardBarChartMargin(staffYWidth)}
+            margin={staffMargin}
             barCategoryGap="22%"
             barSize={22}
           >
@@ -813,10 +843,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
               dataKey="name"
               type="category"
               stroke={cAxis}
-              fontSize={11}
+              fontSize={chartFontSm}
               tickLine={false}
               axisLine={false}
-              width={staffYWidth}
+              width={staffMargin.yAxisWidth}
               tickFormatter={(v) => truncateAxisLabel(String(v), 24)}
             />
             <Tooltip
@@ -875,10 +905,17 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
           title="Supplier Volume (m³)"
           isActive={!!filters.supplier}
           onClear={() => toggleFilter('supplier', filters.supplier!)}
-          height={300}
+          height={pourPcVh(300)}
           isEmpty={chartSupplierData.length === 0}
         >
-          <PieChart margin={{ top: 4, right: 8, left: 8, bottom: 8 }}>
+          <PieChart
+            margin={{
+              top: pc.pxW(4),
+              right: pc.pxW(8),
+              left: pc.pxW(8),
+              bottom: pc.pxH(8),
+            }}
+          >
             <Pie
               data={chartSupplierData}
               cx="50%"
@@ -921,7 +958,11 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
               align="center"
               iconType="circle"
               iconSize={8}
-              wrapperStyle={{ fontSize: 10, lineHeight: '15px', paddingTop: 8 }}
+              wrapperStyle={{
+                fontSize: chartFontXs,
+                lineHeight: `${pc.pxH(15)}px`,
+                paddingTop: pc.pxH(8),
+              }}
               formatter={(value, entry) => {
                 const payload = entry?.payload as { value?: number } | undefined
                 const v =
@@ -941,24 +982,24 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       <section
         className={cn(
           glass.surface,
-          'overflow-hidden rounded-[14px] shadow-[var(--glass-shadow-sm)]',
+          'pour-pc-records-section overflow-hidden rounded-[14px] shadow-[var(--glass-shadow-sm)]',
         )}
         aria-label="Detailed records"
       >
         <div
           className={cn(
             rq.cardHeader,
-            'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
+            'pour-pc-records-head flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
           )}
         >
-          <h2 className={cn(rq.cardTitle, 'flex items-center gap-2 text-base pour-desktop:text-lg')}>
+          <h2 className={cn(rq.cardTitle, 'pour-pc-records-head__title flex items-center gap-2 text-base pour-desktop:text-lg')}>
             <AppIcon icon={Layers} size="md" className="text-[color:var(--pour-accent)]" />
             Detailed Records
           </h2>
           <p
             className={cn(
               type.caption,
-              'inline-flex items-center gap-1.5 rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-1.5 tabular-nums',
+              'pour-pc-records-count inline-flex items-center gap-1.5 rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-1.5 tabular-nums',
             )}
           >
             Total
@@ -967,7 +1008,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
           </p>
         </div>
 
-        <div className={app.tableWrap}>
+        <div className={cn(app.tableWrap, 'pour-pc-dash-table-wrap')}>
           <table className={dashTable.table}>
             <thead className={dashTable.head}>
               <tr>
@@ -982,7 +1023,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                 <th className="text-right">Loss (m³)</th>
                 <th className="text-right">Loss (%DWG)</th>
                 <th>Supplier</th>
-                <th className="text-center">Detail</th>
+                <th className={cn('text-center', pourPcUi.colActions)}>Detail</th>
               </tr>
             </thead>
             <tbody className={dashTable.body}>
@@ -1002,10 +1043,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                     <Fragment key={`group-${statusKey}`}>
                       <tr
                         onClick={() => toggleGroup(statusKey)}
-                        className="cursor-pointer bg-[color:var(--pour-surface-tint)] transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]"
+                        className="pour-pc-group-row cursor-pointer bg-[color:var(--pour-surface-tint)] transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]"
                       >
                         <td colSpan={12} className="!py-3">
-                          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                          <div className="pour-pc-group-inner flex flex-wrap items-center gap-2.5 sm:gap-3">
                             <AppIcon
                               icon={ChevronRight}
                               size="sm"
@@ -1015,12 +1056,12 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                               )}
                             />
                             {isExpanded ? (
-                              <AppIcon icon={FolderOpen} size="sm" sx={{ fontSize: 18 }} className="text-[color:var(--pour-accent)]" />
+                              <AppIcon icon={FolderOpen} size="sm" sx={{ fontSize: chartIconSm }} className="text-[color:var(--pour-accent)]" />
                             ) : (
-                              <AppIcon icon={Folder} size="sm" sx={{ fontSize: 18 }} className="text-pour-muted" />
+                              <AppIcon icon={Folder} size="sm" sx={{ fontSize: chartIconSm }} className="text-pour-muted" />
                             )}
                             <StatusBadge statusId={Number(statusKey)} compact />
-                            <span className="rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-ink-1)]">
+                            <span className="pour-pc-group-badge rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-ink-1)]">
                               {items.length} {items.length === 1 ? 'Item' : 'Items'}
                             </span>
                           </div>
@@ -1033,7 +1074,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                               key={row.ID}
                               onClick={() => setSelectedRow(row)}
                               className="group cursor-pointer transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]/60"
-                              style={{ boxShadow: `inset 3px 0 0 0 ${statusColor}` }}
+                              style={{ boxShadow: `inset ${pc.pxW(3)}px 0 0 0 ${statusColor}` }}
                             >
                               <td className="whitespace-nowrap font-medium text-[color:var(--pour-ink-0)]">
                                 {row['Casting date']}
@@ -1059,7 +1100,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                                   {row.Structure}
                                 </span>
                               </td>
-                              <td className="max-w-[14rem]">{row.Location}</td>
+                              <td className="truncate">{row.Location}</td>
                               <td className="font-medium">{row.Strength}</td>
                               <td className="text-right font-mono tabular-nums text-pour-muted">
                                 {parseFloat(String(row['DWG. Volume'])).toFixed(2)}
@@ -1120,7 +1161,12 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                                   {row.Supplier}
                                 </span>
                               </td>
-                              <td className="text-center text-pour-muted transition-colors group-hover:text-[color:var(--pour-accent)]">
+                              <td
+                                className={cn(
+                                  pourPcUi.colActions,
+                                  'text-center text-pour-muted transition-colors group-hover:text-[color:var(--pour-accent)]',
+                                )}
+                              >
                                 <AppIcon icon={Visibility} size="sm" className="inline" />
                                 <span className="sr-only">View details</span>
                               </td>

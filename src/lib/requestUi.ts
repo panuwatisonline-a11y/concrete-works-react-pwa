@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { pourPcUi } from '@/lib/pourPcScale'
 
 /**
  * POUR theme — Figma-style dark dashboard surfaces.
@@ -22,20 +23,20 @@ export const icon = {
   lg: 'shrink-0',
 } as const
 
-/** สเกลตัวอักษร — แนว Figma: เล็กพอดี น้ำหนักเบา อ่านสบาย */
+/** สเกลตัวอักษร — fluid clamp บน desktop (ดู fluid-typography.css) */
 export const type = {
-  tagline: cn('font-normal leading-relaxed', ink.subtle, 'text-[10px] sm:text-[11px]'),
-  overline: cn('text-[10px] font-medium uppercase tracking-[0.08em]', ink.subtle),
-  caption: cn('text-xs font-normal leading-relaxed', ink.muted),
-  body: cn('text-[13px] font-normal leading-relaxed', ink.body),
-  bodyStrong: cn('text-[13px] font-medium leading-relaxed', ink.base),
-  detail: cn('text-[13px] font-normal leading-relaxed', ink.body),
-  nav: 'text-[13px] font-medium leading-relaxed',
-  navCompact: 'text-xs font-medium leading-relaxed',
-  title: cn('text-lg font-semibold leading-snug pour-desktop:text-xl', ink.base, 'tracking-[-0.01em]'),
-  hero: cn('text-xl font-semibold leading-snug pour-desktop:text-2xl', ink.base, 'tracking-[-0.02em]'),
+  tagline: cn('font-normal leading-relaxed', ink.subtle, 'text-pour-2xs sm:text-pour-xs'),
+  overline: cn('text-pour-2xs font-medium uppercase tracking-[0.08em]', ink.subtle),
+  caption: cn('text-pour-sm font-normal leading-relaxed', ink.muted),
+  body: cn('text-pour-base font-normal leading-relaxed', ink.body),
+  bodyStrong: cn('text-pour-base font-medium leading-relaxed', ink.base),
+  detail: cn('text-pour-base font-normal leading-relaxed', ink.body),
+  nav: 'text-pour-base font-medium leading-relaxed',
+  navCompact: 'text-pour-sm font-medium leading-relaxed',
+  title: cn('text-pour-xl font-semibold leading-snug', ink.base, 'tracking-[-0.01em]'),
+  hero: cn('text-pour-2xl font-semibold leading-snug', ink.base, 'tracking-[-0.02em]'),
   /** หัวตาราง — ไม่ uppercase หนาเกิน */
-  tableHead: cn('text-[11px] font-medium leading-snug normal-case tracking-normal', ink.subtle),
+  tableHead: cn('text-pour-xs font-medium leading-snug normal-case tracking-normal', ink.subtle),
 } as const
 
 /** CSS motion utilities (see index.css @keyframes pour-*) */
@@ -52,25 +53,33 @@ export const anim = {
 export const layout = {
   formGrid2: 'grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2',
   /** ฟอร์มใน modal — คอลัมน์คู่เมื่อโหมด desktop (แนวนอน + กว้างพอ) */
-  formGridDialog: 'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2 pour-desktop:gap-4',
+  formGridDialog:
+    'grid min-w-0 grid-cols-1 gap-3 pour-desktop:grid-cols-2 pour-desktop:gap-[var(--pour-pc-form-gap)]',
   formField: 'pour-form-field min-w-0 space-y-1.5',
   statGrid2: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-wide:grid-cols-3',
   statGrid3: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-4',
   statGrid5: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-wide:grid-cols-5',
-  statGrid6: 'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-desktop:gap-4 pour-wide:grid-cols-6',
+  statGrid6:
+    'grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 pour-desktop:grid-cols-3 pour-desktop:gap-[var(--pour-pc-form-gap)] pour-wide:grid-cols-6',
 } as const
 
 /** Consistent spacing — use across pages & layout */
 export const space = {
-  page: 'space-y-6 pb-12 pt-5 pour-desktop:space-y-8 pour-desktop:pb-14 pour-desktop:pt-6 pour-wide:space-y-9',
-  pageNarrow: 'space-y-6 pb-12 pt-5 pour-desktop:space-y-8 pour-desktop:pb-14 pour-desktop:pt-6 pour-wide:space-y-9',
-  section: 'space-y-5 pour-desktop:space-y-6 pour-wide:space-y-7',
-  stackSm: 'space-y-3.5',
-  insetX: 'px-4 sm:px-5 pour-desktop:px-6 pour-wide:px-8',
-  insetY: 'py-5 pour-desktop:py-6 pour-wide:py-7',
-  cardPad: 'px-5 py-4 pour-desktop:px-6 pour-desktop:py-5 pour-wide:px-7',
-  cardPadHeader: 'px-5 py-3.5 pour-desktop:px-6 pour-wide:px-7',
-  cardPadTight: 'px-5 py-3.5 pour-desktop:px-6 pour-wide:px-7',
+  page:
+    'space-y-6 pb-12 pt-5 pour-desktop:space-y-[var(--pour-pc-section-gap)] pour-desktop:pb-[var(--pour-pc-page-pb)] pour-desktop:pt-[var(--pour-pc-page-pt)] pour-wide:space-y-[var(--pour-pc-section-gap-wide)]',
+  pageNarrow:
+    'space-y-6 pb-12 pt-5 pour-desktop:space-y-[var(--pour-pc-section-gap)] pour-desktop:pb-[var(--pour-pc-page-pb)] pour-desktop:pt-[var(--pour-pc-page-pt)] pour-wide:space-y-[var(--pour-pc-section-gap-wide)]',
+  section:
+    'space-y-5 pour-desktop:space-y-[var(--pour-pc-stack-gap)] pour-wide:space-y-[var(--pour-pc-section-gap-wide)]',
+  stackSm: 'space-y-3.5 pour-desktop:space-y-[var(--pour-pc-stack-gap)]',
+  insetX: 'px-4 sm:px-5 pour-desktop:px-[var(--pour-pc-inset-x)] pour-wide:px-[var(--pour-pc-inset-x-wide)]',
+  insetY: 'py-5 pour-desktop:py-[var(--pour-pc-card-py)] pour-wide:py-[var(--pour-pc-inset-y-wide)]',
+  cardPad:
+    'px-5 py-4 pour-desktop:px-[var(--pour-pc-card-px)] pour-desktop:py-[var(--pour-pc-card-py)] pour-wide:px-[var(--pour-pc-card-px-wide)]',
+  cardPadHeader:
+    'px-5 py-3.5 pour-desktop:px-[var(--pour-pc-card-px)] pour-desktop:py-[var(--pour-pc-card-header-py)] pour-wide:px-[var(--pour-pc-card-px-wide)]',
+  cardPadTight:
+    'px-5 py-3.5 pour-desktop:px-[var(--pour-pc-card-px)] pour-desktop:py-[var(--pour-pc-card-header-py)] pour-wide:px-[var(--pour-pc-card-px-wide)]',
 } as const
 
 /** Reusable glass surface classes (see index.css .pour-glass*) */
@@ -94,7 +103,7 @@ export const theme = {
     'bg-gradient-to-r from-[color:var(--pour-ink-0)] via-[#4da89e] to-[color:var(--pour-brand)] bg-clip-text font-extrabold uppercase tracking-tight text-transparent',
   headerBar: 'bg-[color:var(--pour-bg)] border-b border-[color:var(--pour-line)]',
   navLink: cn('pour-interactive pour-nav-item flex items-center gap-2.5 rounded-lg px-3 py-2', type.nav),
-  navSectionLabel: cn('px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em]', ink.subtle),
+  navSectionLabel: cn('px-3 pb-2 text-pour-2xs font-semibold uppercase tracking-[0.12em]', ink.subtle),
   mainColumnDesktop: cn(
     'bg-[color:var(--pour-bg)]',
     'pour-desktop:flex pour-desktop:min-h-0 pour-desktop:flex-1 pour-desktop:flex-col pour-desktop:overflow-hidden',
@@ -134,9 +143,9 @@ export const theme = {
   mainScrollPadX: 'px-3 sm:px-4 pour-desktop:px-0',
   /**
    * กรอบเนื้อหาใน main
-   * มือถือ: เต็มความกว้าง + mainScrollPadX | desktop: 80% กึ่งกลาง (inset 10% ต่อข้าง)
+   * มือถือ: เต็มความกว้าง + mainScrollPadX | desktop: 90% กึ่งกลาง (inset 5% ต่อข้าง)
    */
-  contentFrame: 'mx-auto flex min-h-full w-full min-w-0 max-w-full flex-col pour-desktop:w-[80%]',
+  contentFrame: 'mx-auto flex min-h-full w-full min-w-0 max-w-full flex-col pour-desktop:w-[90%]',
 } as const
 
 /** กรอบเนื้อหาใน AppLayout — เท่าทุกหน้า */
@@ -149,23 +158,37 @@ export const app = {
   /** Full-viewport scroll host for standalone auth pages (html/body/#root use overflow:hidden). */
   shellScroll: cn(
     'flex min-h-0 h-[100dvh] max-h-[100dvh] flex-col overflow-y-auto overscroll-y-contain px-4 py-10 pour-shell',
+    'pour-desktop:px-[var(--pour-pc-inset-x)] pour-desktop:py-[var(--pour-pc-main-pb-wide)]',
     ink.base,
   ),
   shellInner: 'flex w-full flex-1 flex-col items-center justify-center py-4',
   pageAdmin:
-    cn('mx-auto flex w-full min-w-0 max-w-none flex-col gap-7 pb-12 pt-5 pour-desktop:gap-9 pour-desktop:pb-14 pour-desktop:pt-6', ink.base),
+    cn(
+      'mx-auto flex w-full min-w-0 max-w-none flex-col gap-7 pb-12 pt-5',
+      'pour-desktop:gap-[var(--pour-pc-page-gap)] pour-desktop:pb-[var(--pour-pc-page-pb)] pour-desktop:pt-[var(--pour-pc-page-pt)]',
+      ink.base,
+    ),
   pageAdminTitle: cn(type.title, 'block w-full shrink-0 pb-2 pt-0'),
   pageAdminSection: cn('block w-full min-w-0', space.section),
   /** ตารางเดี่ยว — มุมมน + กรอบบาง */
-  tableWrap: cn('pour-table-shell pour-scroll-x min-w-0 max-w-full', glass.surface),
+  tableWrap: cn(
+    'pour-table-shell pour-scroll-x min-w-0 max-w-full',
+    glass.surface,
+    pourPcUi.tableWrap,
+    pourPcUi.tableShellNoScroll,
+  ),
   tableWrapDesktop: cn(
     'pour-table-shell pour-scroll-x hidden min-w-0 max-w-full pour-desktop:block',
     glass.surface,
+    pourPcUi.tableWrap,
+    pourPcUi.tableShellNoScroll,
   ),
+  /** ตารางปรับความกว้างคอลัมน์ได้ — เลื่อนแนวนอนเมื่อรวมกว้างเกินกรอบ */
+  tableWrapResizable: 'pour-table-resizable-wrap pour-desktop:overflow-x-auto',
   /** ตารางใน accordion/section — ไม่ซ้อน glass */
-  tableWrapNested: 'pour-scroll-x min-w-0 max-w-full',
+  tableWrapNested: cn('pour-scroll-x min-w-0 max-w-full', pourPcUi.tableWrap, pourPcUi.tableShellNoScroll),
   mobileCardStack: 'space-y-3.5 pour-desktop:hidden',
-  table: 'w-full min-w-[36rem] text-[13px] leading-relaxed',
+  table: cn('w-full min-w-[36rem] text-pour-base leading-relaxed', pourPcUi.table),
   tableHead:
     cn(
       type.tableHead,
@@ -188,12 +211,12 @@ export const app = {
 
 /** ตารางแบบอัด — admin / CST */
 export const tableCompact = {
-  table: cn(app.table, 'text-[12px] leading-relaxed'),
+  table: cn(app.table, 'text-pour-sm leading-relaxed', pourPcUi.table),
   head: cn(app.tableHead, '[&_th]:px-2.5 [&_th]:py-2'),
   body: cn(
     app.tableBody,
     app.tableRowHover,
-    '[&_td]:max-w-[14rem] [&_td]:px-2.5 [&_td]:py-2 sm:[&_td]:px-3',
+    '[&_td]:max-w-[14rem] pour-desktop:[&_td]:max-w-none [&_td]:px-2.5 [&_td]:py-2 sm:[&_td]:px-3',
   ),
   emptyCell: 'py-8 text-center text-xs text-[color:var(--pour-ink-3)]',
 } as const
@@ -206,11 +229,13 @@ export const modal = {
   xl: 'w-[calc(100vw-0.75rem)] max-w-xl sm:max-w-2xl pour-desktop:max-w-3xl',
   shell:
     'flex max-h-[min(90dvh,calc(100dvh-2rem))] flex-col gap-0 overflow-hidden p-0 rounded-2xl',
-  header: 'min-w-0 shrink-0 space-y-1 px-5 pt-5 pr-11 text-left sm:px-6 sm:pt-6',
-  body: 'min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-4 sm:px-6 sm:py-5',
+  header:
+    'min-w-0 shrink-0 space-y-1 px-5 pt-5 pr-11 text-left sm:px-6 sm:pt-6 pour-desktop:px-[var(--pour-pc-modal-px)] pour-desktop:pt-[var(--pour-pc-modal-py)]',
+  body:
+    'min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-y-contain px-5 py-4 sm:px-6 sm:py-5 pour-desktop:px-[var(--pour-pc-modal-px)] pour-desktop:py-[var(--pour-pc-modal-py)]',
   footer:
-    'mx-0 shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-3.5 sm:flex-row sm:justify-end sm:px-6 sm:py-4',
-  title: cn(type.title, 'text-base font-semibold pour-desktop:text-lg'),
+    'mx-0 shrink-0 gap-2 border-t border-[color:var(--glass-border-subtle)] px-5 py-3.5 sm:flex-row sm:justify-end sm:px-6 sm:py-4 pour-desktop:px-[var(--pour-pc-modal-px)] pour-desktop:py-[var(--pour-pc-modal-footer-py)]',
+  title: cn(type.title, 'text-pour-md font-semibold'),
 } as const
 
 /** กรอบซ้อนกัน — ลด border/padding ซ้ำ */
@@ -218,8 +243,8 @@ export const frame = {
   section:
     'overflow-hidden rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]/90',
   sectionBody:
-    'min-w-0 border-t border-[color:var(--glass-border-subtle)] px-4 py-4 pour-desktop:px-5 pour-desktop:py-5',
-  sectionTitle: cn(type.bodyStrong, 'text-[13px]'),
+    'min-w-0 border-t border-[color:var(--glass-border-subtle)] px-4 py-4 pour-desktop:px-[var(--pour-pc-card-px)] pour-desktop:py-[var(--pour-pc-card-py)]',
+  sectionTitle: cn(type.bodyStrong, 'text-pour-base'),
   insetPanel: 'rounded-xl bg-[color:var(--pour-bg-2)]/60 ring-1 ring-[color:var(--glass-border-subtle)]',
 } as const
 
@@ -242,7 +267,7 @@ export const rq = {
   heroTitle: type.hero,
   sub: type.caption,
   label: cn(type.caption, 'font-medium'),
-  value: 'min-w-0 text-[13px] font-medium break-words leading-relaxed text-[color:var(--pour-ink-0)]',
+  value: 'min-w-0 text-pour-base font-medium break-words leading-relaxed text-[color:var(--pour-ink-0)]',
   detailRow: 'flex min-w-0 flex-col gap-0.5 sm:flex-row sm:gap-2',
   detailLabel: cn('w-full shrink-0 sm:w-28', type.caption, 'font-medium'),
   spinner:
@@ -301,9 +326,9 @@ export const auth = {
 
 /** การ์ดมือถือแบบกระชับ — คู่กับ tableCompact ในหน้า admin */
 export const adminDataRow = {
-  card: cn(rq.dataRowCard, 'text-[13px] leading-relaxed'),
+  card: cn(rq.dataRowCard, 'text-pour-base leading-relaxed'),
   fields: 'space-y-1.5',
-  label: cn(rq.dataRowLabel, 'text-[10px]'),
-  value: cn(rq.dataRowValue, 'text-[13px]'),
+  label: cn(rq.dataRowLabel, 'text-pour-2xs'),
+  value: cn(rq.dataRowValue, 'text-pour-base'),
   actions: cn(rq.dataRowActions, 'mt-2.5 gap-1.5 pt-2.5'),
 } as const

@@ -5,7 +5,7 @@ export function AppVersionLabel({ className }: { className?: string }) {
   return (
     <p
       className={cn(
-        'mt-2 text-center text-[10px] tabular-nums leading-none text-[color:var(--pour-ink-3)]',
+        'mt-2 text-center text-pour-2xs tabular-nums leading-none text-[color:var(--pour-ink-3)]',
         className,
       )}
       aria-label={`เวอร์ชันแอป ${APP_VERSION}`}

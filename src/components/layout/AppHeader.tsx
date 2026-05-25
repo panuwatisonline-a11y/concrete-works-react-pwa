@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import Menu from '@mui/icons-material/Menu'
 import Close from '@mui/icons-material/Close'
@@ -13,7 +13,8 @@ import IconButton from '@mui/material/IconButton'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { APP_HOME } from '@/lib/appHome'
-import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
+import { POUR_DESKTOP_MEDIA, usePourDesktop } from '@/lib/pourLayout'
+import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import { theme, BRAND_TAGLINE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
@@ -30,7 +31,10 @@ export function AppHeader() {
   const { profile, role, user } = useAuthStore()
   const navigate = useNavigate()
   const location = useLocation()
-  const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
+  const openRequestFilters = useRequestOverlayStore((s) => s.openRequestFilters)
+  const workflowOpen = useRequestOverlayStore((s) => s.workflow)
+  const filtersOpen = useFilterStore((s) => s.requestFiltersOpen)
+  const isPourDesktop = usePourDesktop()
 
   const displayName = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || 'ผู้ใช้'
   const profileSubtitle = user?.email ?? profile?.role ?? '—'
@@ -46,8 +50,17 @@ export function AppHeader() {
 
   function goToSearch() {
     navigate('/requests?view=latest')
-    setRequestFiltersOpen(true)
+    openRequestFilters()
   }
+
+  useEffect(() => {
+    if (!isPourDesktop) return
+    setDrawerOpen(false)
+  }, [isPourDesktop])
+
+  useEffect(() => {
+    if (workflowOpen || filtersOpen) setDrawerOpen(false)
+  }, [workflowOpen, filtersOpen])
 
   useLayoutEffect(() => {
     const root = document.documentElement
@@ -128,7 +141,7 @@ export function AppHeader() {
 
       <Drawer
         anchor="left"
-        open={drawerOpen}
+        open={drawerOpen && !isPourDesktop}
         onClose={() => setDrawerOpen(false)}
         slotProps={{
           paper: {

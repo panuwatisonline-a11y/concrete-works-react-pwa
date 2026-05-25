@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import { auth, theme, BRAND_TAGLINE } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { SvgIconComponent } from '@mui/icons-material'
@@ -73,7 +74,13 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col overflow-y-auto overscroll-y-contain bg-[color:var(--pour-bg)] pour-desktop:h-dvh pour-desktop:max-h-dvh pour-desktop:flex-row pour-desktop:overflow-hidden">
+    <div
+      className={cn(
+        'flex min-h-dvh flex-col overflow-y-auto overscroll-y-contain bg-[color:var(--pour-bg)]',
+        'pour-desktop:h-dvh pour-desktop:max-h-dvh pour-desktop:flex-row pour-desktop:overflow-hidden',
+        pourPcUi.root,
+      )}
+    >
       <div className="relative hidden min-h-0 shrink-0 overflow-hidden p-8 pour-desktop:flex pour-desktop:h-full pour-desktop:w-[42%] pour-wide:p-12">
         <div
           className="pointer-events-none absolute inset-0 bg-[url('/login-sidebar-bg.png')] bg-cover bg-center bg-no-repeat"
@@ -96,15 +103,15 @@ export function LoginPage() {
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.25)_transparent]">
-            <h1 className="mb-3 text-[1.65rem] font-bold leading-[1.15] tracking-tight text-white pour-wide:mb-4 pour-wide:text-[2rem]">
+            <h1 className="mb-3 text-pour-display font-bold leading-[1.15] tracking-tight text-white pour-wide:mb-4">
               Application จัดการงานคอนกรีต
             </h1>
-            <p className="mb-5 text-[14px] leading-relaxed text-white/70 pour-wide:mb-6 pour-wide:text-[15px]">
+            <p className="mb-5 text-pour-md leading-relaxed text-white/70 pour-wide:mb-6 pour-wide:text-pour-lg">
               จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
             </p>
             <div className="space-y-3 pour-wide:space-y-4">
               {features.map(({ icon: FeatureIcon, text }, i) => (
-                <div key={i} className="flex items-start gap-3 text-[13px] leading-snug text-white/90 pour-wide:text-[14px]">
+                <div key={i} className="flex items-start gap-3 text-pour-base leading-snug text-white/90 pour-wide:text-pour-md">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
                     <AppIcon icon={FeatureIcon} size="sm" />
                   </span>
@@ -115,7 +122,7 @@ export function LoginPage() {
           </div>
 
           <div className="flex w-full shrink-0 flex-wrap items-end justify-between gap-x-6 gap-y-4 border-t border-white/10 pt-4 pour-wide:pt-5">
-            <div className="flex min-w-0 items-center gap-2 text-[12px] text-white/55">
+            <div className="flex min-w-0 items-center gap-2 text-pour-sm text-white/55">
               <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
               ระบบพร้อมใช้งาน
             </div>
@@ -126,10 +133,10 @@ export function LoginPage() {
                 className="h-9 w-auto max-w-[164px] object-contain object-right [filter:brightness(1.35)_saturate(0.72)_contrast(0.88)_opacity(0.85)]"
               />
               <div className="w-full text-right text-pretty">
-                <p className="text-[10.5px] font-semibold leading-snug tracking-[-0.01em] text-white/78 sm:text-[11.5px]">
+                <p className="text-pour-2xs font-semibold leading-snug tracking-[-0.01em] text-white/78 sm:text-pour-xs">
                   Sino-Thai Engineering and Construction
                 </p>
-                <p className="mt-0.5 text-[10px] font-normal leading-snug text-white/58 sm:text-[11px]">
+                <p className="mt-0.5 text-pour-2xs font-normal leading-snug text-white/58 sm:text-pour-xs">
                   Public Company Limited.
                 </p>
               </div>

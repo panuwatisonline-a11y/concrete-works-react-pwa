@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/authStore'
 import type { ClientItem, Job, Profile } from '@/types/app.types'
 import { APP_HOME } from '@/lib/appHome'
 import { app, layout, rq } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn } from '@/lib/utils'
 
 const schema = z.object({
@@ -146,7 +147,7 @@ export function CompleteProfilePage() {
   }
 
   return (
-    <div className={app.shellScroll}>
+    <div className={cn(app.shellScroll, pourPcUi.root)}>
       <div className={app.shellInner}>
         <Card className={cn('w-full max-w-md', rq.cardForm)}>
           <CardHeader className={cn(rq.cardHeader, 'space-y-1 text-center')}>

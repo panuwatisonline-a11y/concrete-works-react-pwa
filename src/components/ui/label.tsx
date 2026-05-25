@@ -6,7 +6,12 @@ const Label = React.forwardRef<HTMLLabelElement, React.ComponentProps<typeof For
     <FormLabel
       ref={ref}
       className={className}
-      sx={{ fontSize: '0.875rem', fontWeight: 500, lineHeight: 1, color: 'text.primary' }}
+      sx={{
+        fontSize: 'var(--text-pour-md, 0.875rem)',
+        fontWeight: 500,
+        lineHeight: 1,
+        color: 'text.primary',
+      }}
       {...props}
     />
   ),

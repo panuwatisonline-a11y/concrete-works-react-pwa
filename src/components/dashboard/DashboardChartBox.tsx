@@ -20,7 +20,7 @@ export function DashboardChartBox({
   title: string
   isActive?: boolean
   onClear?: () => void
-  height?: number
+  height?: number | string
   isEmpty?: boolean
   emptyMessage?: string
   /** เช่น lg:col-span-2 สำหรับกราฟที่ต้องการความกว้างเต็มแถว */
@@ -53,7 +53,7 @@ export function DashboardChartBox({
             <button
               type="button"
               onClick={onClear}
-              className="inline-flex shrink-0 items-center gap-1 rounded border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-pour-muted transition-colors hover:text-[color:var(--pour-ink-0)]"
+              className="inline-flex shrink-0 items-center gap-1 rounded border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-2 py-1 text-pour-2xs font-bold uppercase tracking-wider text-pour-muted transition-colors hover:text-[color:var(--pour-ink-0)]"
             >
               <AppIcon icon={Close} size="xs" sx={{ fontSize: 10 }} />
               Clear
@@ -64,7 +64,7 @@ export function DashboardChartBox({
       {isEmpty ? (
         <div
           className="flex items-center justify-center text-sm italic text-pour-muted"
-          style={{ height }}
+          style={{ height, minHeight: height }}
         >
           {emptyMessage}
         </div>

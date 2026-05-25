@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
 import Schedule from '@mui/icons-material/Schedule'
 import { AppIcon } from '@/components/icons/AppIcon'
+import { pourPcUi } from '@/lib/pourPcScale'
+import { cn } from '@/lib/utils'
 
 export function PendingApprovalPage() {
   const navigate = useNavigate()
@@ -37,7 +39,12 @@ export function PendingApprovalPage() {
   const name = [profile?.fname, profile?.lname].filter(Boolean).join(' ') || profile?.employee_id || ''
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center bg-[color:var(--pour-bg)] px-6">
+    <div
+      className={cn(
+        'flex min-h-dvh flex-col items-center justify-center bg-[color:var(--pour-bg)] px-6',
+        pourPcUi.root,
+      )}
+    >
       <div className="w-full max-w-sm rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-8 text-center shadow-[var(--glass-shadow-sm)]">
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-amber-950/50">
           <AppIcon icon={Schedule} size="lg" className="text-amber-500" />

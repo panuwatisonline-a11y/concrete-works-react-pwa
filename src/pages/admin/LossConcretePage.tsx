@@ -71,7 +71,7 @@ export function LossConcretePage() {
     <div className={app.pageAdmin}>
       <h1
         className={cn(
-          'text-2xl font-bold tracking-tight pour-desktop:text-3xl',
+          'text-2xl font-bold tracking-tight',
           theme.brandWordmark,
           app.pageAdminTitle,
         )}
@@ -166,7 +166,7 @@ export function LossConcretePage() {
               </Button>
             </div>
             {!loading && hasDateFilter ? (
-              <p className="mt-3 text-[11px] text-[color:var(--pour-accent)] pour-desktop:text-xs">
+              <p className="mt-3 text-pour-xs text-[color:var(--pour-accent)] pour-desktop:text-xs">
                 Showing {records.length} records in range
                 {allRecords.length !== records.length ? ` (of ${allRecords.length} total)` : null}
               </p>

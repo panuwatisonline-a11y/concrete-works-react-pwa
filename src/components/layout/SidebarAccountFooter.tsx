@@ -64,7 +64,7 @@ export function SidebarAccountFooter({
           <p className={cn('truncate', type.bodyStrong)}>{displayName}</p>
           {!open ? <p className={cn('truncate', type.caption)}>{subtitle}</p> : null}
         </div>
-        {!open ? <AppVersionLabel className="mt-0 shrink-0 text-[9px] opacity-80" /> : null}
+        {!open ? <AppVersionLabel className="mt-0 shrink-0 text-pour-2xs opacity-80" /> : null}
         <AppIcon
           icon={ExpandMore}
           size="sm"
@@ -96,7 +96,7 @@ export function SidebarAccountFooter({
             <AppIcon icon={Logout} size="xs" className="mr-2" />
             ออกจากระบบ
           </Button>
-          <AppVersionLabel className="mt-0 text-[9px]" />
+          <AppVersionLabel className="mt-0 text-pour-2xs" />
         </div>
       ) : null}
     </div>

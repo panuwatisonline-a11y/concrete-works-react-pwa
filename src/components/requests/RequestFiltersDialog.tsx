@@ -38,7 +38,7 @@ export function RequestFiltersDialog() {
                 onChange={(e) => setFilter({ search: e.target.value })}
                 className="h-10 w-full rounded-xl"
               />
-              <p className="text-[11px] leading-snug text-pour-subtle">
+              <p className="text-pour-xs leading-snug text-pour-subtle">
                 ครอบคลุม User Group, งานคอนกรีต, โครงสร้าง, ที่ตั้ง, Mixcode, กำลัง/slump, ABC, WBS, หมายเหตุ และเลข structure_no
               </p>
             </div>
@@ -51,7 +51,7 @@ export function RequestFiltersDialog() {
                     key={s.id}
                     type="button"
                     onClick={() => toggleStatus(s.id)}
-                    className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${
+                    className={`rounded-full border px-2.5 py-1 text-pour-xs font-semibold transition-colors ${
                       filter.status_ids.includes(s.id)
                         ? 'border-[color:var(--pour-accent)] bg-[color:var(--pour-accent)] text-white shadow-sm shadow-[var(--pour-accent-ring)]'
                         : 'border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] text-pour-muted hover:border-[color:var(--glass-edge)]'

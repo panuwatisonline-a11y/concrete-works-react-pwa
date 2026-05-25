@@ -16,6 +16,7 @@ import {
   DWG_STRENGTH_FIELD_LABEL,
 } from '@/lib/mixcodeStrengthOptions'
 import { useFilterStore } from '@/stores/filterStore'
+import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { Button } from '@/components/ui/button'
@@ -83,6 +84,20 @@ export function RequestDetailPage() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState<string | null>(null)
   const [cstAge, setCstAge] = useState<CstTestAge | null>(null)
+
+  const closeOverlayWorkflow = useRequestOverlayStore((s) => s.closeWorkflow)
+
+  const openWorkflowModal = useCallback((m: string) => {
+    closeOverlayWorkflow()
+    useFilterStore.getState().setRequestFiltersOpen(false)
+    setCstAge(null)
+    setModal(m)
+  }, [closeOverlayWorkflow])
+
+  const openCstAge = useCallback((age: CstTestAge) => {
+    setModal(null)
+    setCstAge(age)
+  }, [])
   const [cstAgesSaved, setCstAgesSaved] = useState<number[]>([])
   const [imageLightbox, setImageLightbox] = useState<{ items: { src: string; label: string }[] } | null>(null)
 
@@ -189,9 +204,9 @@ export function RequestDetailPage() {
     const allowed = ['inspect', 'approve', 'reject', 'cancel', 'confirmOrder', 'postpone', 'complete', 'reApprove', 'uploadBeforeOnly', 'uploadEslipOnly'] as const
     if (!allowed.includes(m as (typeof allowed)[number])) return
     initialModalConsumedRef.current = true
-    setModal(m)
+    openWorkflowModal(m)
     navigate(`/requests/${id}`, { replace: true, state: {} })
-  }, [loading, request, location.state, id, navigate])
+  }, [loading, request, location.state, id, navigate, openWorkflowModal])
 
   if (loading) {
     return (
@@ -293,13 +308,13 @@ export function RequestDetailPage() {
                 )
               return
             }
-            setModal(item.modal)
+            openWorkflowModal(item.modal)
           }}
         >
           {sid === 8 && canAct ? (
             <>
               <p className={rq.actions.sectionLabel}>CST — กำลังอัดคอนกรีต (วันทดสอบ)</p>
-              <CstAgeQuickActions savedAges={cstAgesSaved} onAgeClick={setCstAge} />
+              <CstAgeQuickActions savedAges={cstAgesSaved} onAgeClick={openCstAge} />
             </>
           ) : null}
         </RequestActionBar>
@@ -319,7 +334,7 @@ export function RequestDetailPage() {
                 value: (
                   <span className="min-w-0">
                     <span className="font-mono font-semibold text-[color:var(--pour-ink-1)]">{shortId(request.id)}</span>
-                    <span className="mt-1 block break-all font-mono text-[10px] leading-snug text-pour-subtle">{request.id}</span>
+                    <span className="mt-1 block break-all font-mono text-pour-2xs leading-snug text-pour-subtle">{request.id}</span>
                   </span>
                 ),
               },

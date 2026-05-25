@@ -39,6 +39,7 @@ import {
   CONCRETE_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { todayIsoLocal } from '@/lib/cstListDue'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { cn, formatDate } from '@/lib/utils'
@@ -46,27 +47,27 @@ import type { CstViewRow } from '@/types/database.cst.types'
 import type { RequestWithRelations } from '@/types/app.types'
 
 const summaryTh = {
-  item: 'w-10 min-w-[2.5rem] text-center',
-  date: 'min-w-[5.5rem] whitespace-nowrap',
-  work: 'min-w-[5rem]',
-  structure: 'min-w-[5rem]',
-  location: 'min-w-[14rem]',
-  structureNo: 'min-w-[10rem]',
-  supplier: 'min-w-[4.5rem]',
-  slump: 'min-w-[5.5rem] text-center',
-  mix: 'min-w-[4.75rem]',
-  req: 'min-w-[5.5rem] text-center',
-  avg: 'min-w-[4.75rem] max-w-[5.5rem] text-center',
-  result: 'min-w-[5.5rem] text-center',
+  item: cn('text-center', pourPcUi.colNarrow),
+  date: 'whitespace-nowrap',
+  work: '',
+  structure: '',
+  location: '',
+  structureNo: '',
+  supplier: '',
+  slump: cn('text-center', pourPcUi.colNarrow),
+  mix: '',
+  req: cn('text-center', pourPcUi.colNarrow),
+  avg: cn('text-center tabular-nums', pourPcUi.colAge),
+  result: cn('text-center whitespace-nowrap', pourPcUi.colNarrow),
 } as const
 
 const summaryTable = {
-  table: cn(tableCompact.table, 'w-max min-w-full'),
+  table: cn(tableCompact.table, 'min-w-0'),
   head: cn(
     tableCompact.head,
     '[&_th]:px-1.5 [&_th]:py-2 sm:[&_th]:px-2',
     '[&_th]:whitespace-normal [&_th]:break-words [&_th]:align-bottom',
-    '[&_th]:text-[10px] [&_th]:leading-tight sm:[&_th]:text-[11px]',
+    '[&_th]:text-pour-2xs [&_th]:leading-tight sm:[&_th]:text-pour-xs',
   ),
   body: cn(tableCompact.body, '[&_td]:px-1.5 sm:[&_td]:px-2'),
 } as const
@@ -116,14 +117,14 @@ function ConcreteSummaryMobileCard({
           {fields.structure ?? fields.location ?? '—'}
         </p>
         {fields.castingDate !== '—' ? (
-          <p className="mt-px text-[10px] text-pour-muted">{fields.castingDate}</p>
+          <p className="mt-px text-pour-2xs text-pour-muted">{fields.castingDate}</p>
         ) : null}
       </div>
       <div className="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-2 gap-y-0.5 px-3 py-2">
         {rows.map(([label, value]) =>
           value ? (
             <Fragment key={label}>
-              <span className="text-[10px] font-semibold text-pour-muted">{label}</span>
+              <span className="text-pour-2xs font-semibold text-pour-muted">{label}</span>
               <span className="min-w-0 font-medium">{value}</span>
             </Fragment>
           ) : null,

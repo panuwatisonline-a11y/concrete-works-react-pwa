@@ -89,7 +89,7 @@ export function AdminDashboard() {
     <div className={app.pageAdmin}>
       <h1
         className={cn(
-          'text-2xl font-bold tracking-tight pour-desktop:text-3xl',
+          'text-2xl font-bold tracking-tight',
           theme.brandWordmark,
           app.pageAdminTitle,
         )}
@@ -181,7 +181,7 @@ export function AdminDashboard() {
               </Button>
             </div>
             {!loading && hasDateFilter ? (
-              <p className="mt-3 text-[11px] text-[color:var(--pour-accent)] pour-desktop:text-xs">
+              <p className="mt-3 text-pour-xs text-[color:var(--pour-accent)] pour-desktop:text-xs">
                 แสดง {dateFilteredRows.length} รายการในช่วงที่เลือก
                 {rows.length !== dateFilteredRows.length ? ` (จากทั้งหมด ${rows.length} รายการ)` : null}
               </p>

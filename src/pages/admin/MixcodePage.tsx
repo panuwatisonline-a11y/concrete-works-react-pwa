@@ -385,7 +385,7 @@ export function MixcodePage() {
                     value={String(formData.sample_type ?? '').trim()}
                     onValueChange={(v) => onChange('sample_type', v)}
                     placeholder="เลือกขนาดตัวอย่าง"
-                    triggerClassName="h-auto min-h-10 text-left text-[15px]"
+                    triggerClassName="h-auto min-h-10 text-left text-pour-lg"
                     listClassName="max-h-[min(50dvh,18rem)]"
                     options={sampleTypeSelectOptions.map((opt) => ({ value: opt, label: opt }))}
                   />

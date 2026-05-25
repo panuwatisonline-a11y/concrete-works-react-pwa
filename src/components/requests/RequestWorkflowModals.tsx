@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { ImageUpload } from '@/components/shared/ImageUpload'
@@ -36,9 +36,36 @@ import type { RequestWithRelations } from '@/types/app.types'
 import { canConfirmRequest } from '@/lib/requestQuickActions'
 import { modal as uiModal } from '@/lib/requestUi'
 
-/** ชั้น overlay / เนื้อหา — สูงกว่า dialog ทั่วไป (z-50) */
+/** ชั้น workflow — สูงกว่า dialog ทั่วไป (1300) */
 const WF_OVERLAY = 'z-[260]'
+/** confirm ทับ dialog workflow ชั้นเดียวกัน */
+const WF_CONFIRM_OVERLAY = 'z-[280]'
 const WF_CONTENT = undefined
+const WF_SCROLL = 'max-h-[min(92dvh,800px)] overflow-y-auto'
+
+function inspectFormFromRequest(r: RequestWithRelations) {
+  return {
+    location_id: r.location_id != null ? String(r.location_id) : '',
+    concrete_work_id: r.concrete_work_id != null ? String(r.concrete_work_id) : '',
+    structure_id: r.structure_id != null ? String(r.structure_id) : '',
+    structure_no: r.structure_no ?? '',
+    mixcode_id: r.mixcode_id != null ? String(r.mixcode_id) : '',
+    volume_request: r.volume_request != null ? String(r.volume_request) : '',
+    note: '',
+  }
+}
+
+function confirmOrderFormFromRequest(r: RequestWithRelations) {
+  return {
+    volume_actual:
+      r.volume_actual != null
+        ? String(r.volume_actual)
+        : r.volume_request != null
+          ? String(r.volume_request)
+          : '',
+    note: '',
+  }
+}
 
 export type RequestWorkflowModalProps = {
   request: RequestWithRelations
@@ -121,18 +148,10 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
     })
   }, [mixcodes, selectedCWInspect, selectedStructureInspect])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (modal !== 'inspect') return
     const r = requestRef.current
-    setInspectData({
-      location_id: r.location_id != null ? String(r.location_id) : '',
-      concrete_work_id: r.concrete_work_id != null ? String(r.concrete_work_id) : '',
-      structure_id: r.structure_id != null ? String(r.structure_id) : '',
-      structure_no: r.structure_no ?? '',
-      mixcode_id: r.mixcode_id != null ? String(r.mixcode_id) : '',
-      volume_request: r.volume_request != null ? String(r.volume_request) : '',
-      note: '',
-    })
+    setInspectData(inspectFormFromRequest(r))
     setInspectBeforeImage(r.before_image?.trim() || null)
   }, [modal, request.id])
 
@@ -152,18 +171,9 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
     }
   }, [modal, filteredStructuresInspect, inspectData.structure_id])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (modal !== 'confirmOrder') return
-    const r = requestRef.current
-    setConfirmOrderData({
-      volume_actual:
-        r.volume_actual != null
-          ? String(r.volume_actual)
-          : r.volume_request != null
-            ? String(r.volume_request)
-            : '',
-      note: '',
-    })
+    setConfirmOrderData(confirmOrderFormFromRequest(requestRef.current))
   }, [modal, request.id])
 
   async function runCompleted() {
@@ -272,10 +282,13 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
     }
   }
 
+  if (!modal) return null
+
   return (
     <>
+      {modal === 'uploadBeforeOnly' ? (
       <UploadBeforePourDialog
-        open={modal === 'uploadBeforeOnly'}
+        open
         onOpenChange={(o) => {
           if (!o) onClose()
         }}
@@ -284,9 +297,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         overlayClassName={WF_OVERLAY}
         dialogContentClassName={WF_CONTENT}
       />
+      ) : null}
 
+      {modal === 'uploadEslipOnly' ? (
       <UploadBillConcreteDialog
-        open={modal === 'uploadEslipOnly'}
+        open
         onOpenChange={(o) => {
           if (!o) onClose()
         }}
@@ -296,8 +311,10 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         overlayClassName={WF_OVERLAY}
         dialogContentClassName={WF_CONTENT}
       />
+      ) : null}
 
-      <Dialog open={modal === 'inspect'} onOpenChange={(o) => { if (!o) onClose() }}>
+      {modal === 'inspect' ? (
+      <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent
           overlayClassName={WF_OVERLAY}
           className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
@@ -420,8 +437,10 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ) : null}
 
-      <Dialog open={modal === 'confirmOrder'} onOpenChange={(o) => { if (!o) onClose() }}>
+      {modal === 'confirmOrder' ? (
+      <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
         <DialogContent
           overlayClassName={WF_OVERLAY}
           className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
@@ -434,7 +453,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogHeader>
           <div className="space-y-4">
             <div className="rounded-xl border border-(--glass-border-subtle) bg-(--glass-bg-muted) px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-pour-muted">สรุปคำขอ</p>
+              <p className="text-pour-xs font-semibold uppercase tracking-wide text-pour-muted">สรุปคำขอ</p>
               <dl className="mt-2 space-y-2 text-sm">
                 {(() => {
                   const client = (request.client as { client_name: string } | null)?.client_name
@@ -476,8 +495,8 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
                   return [...core, ...extra].map((row) => (
                     <div key={row.label} className="min-w-0 border-b border-(--glass-border-subtle) pb-2 last:border-0 last:pb-0">
-                      <dt className="text-[11px] font-medium leading-tight text-pour-muted">{row.label}</dt>
-                      <dd className="mt-0.5 break-words text-[13px] font-medium leading-snug text-[color:var(--pour-ink-0)]">{row.value}</dd>
+                      <dt className="text-pour-xs font-medium leading-tight text-pour-muted">{row.label}</dt>
+                      <dd className="mt-0.5 break-words text-pour-base font-medium leading-snug text-[color:var(--pour-ink-0)]">{row.value}</dd>
                     </div>
                   ))
                 })()}
@@ -510,9 +529,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ) : null}
 
+      {modal === 'approve' ? (
       <ConfirmModal
-        open={modal === 'approve'}
+        open
         onClose={onClose}
         onConfirm={(note) => handleAction('approve', note)}
         title="ยืนยันการอนุมัติ"
@@ -520,11 +541,13 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         showNote
         noteLabel="หมายเหตุ"
         isLoading={actionBusy}
-        overlayClassName={WF_OVERLAY}
+        overlayClassName={WF_CONFIRM_OVERLAY}
         dialogContentClassName={WF_CONTENT}
       />
+      ) : null}
+      {modal === 'cancel' ? (
       <ConfirmModal
-        open={modal === 'cancel'}
+        open
         onClose={onClose}
         onConfirm={(note) => handleAction('cancel', note)}
         title="ยืนยันการยกเลิก"
@@ -534,23 +557,27 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
         noteLabel="เหตุผล"
         noteRequired
         isLoading={actionBusy}
-        overlayClassName={WF_OVERLAY}
+        overlayClassName={WF_CONFIRM_OVERLAY}
         dialogContentClassName={WF_CONTENT}
       />
+      ) : null}
+      {modal === 'reApprove' ? (
       <ConfirmModal
-        open={modal === 'reApprove'}
+        open
         onClose={onClose}
         onConfirm={(note) => handleAction('reApprove', note)}
         title="สั่งเทใหม่"
         showNote
         noteLabel="หมายเหตุ"
         isLoading={actionBusy}
-        overlayClassName={WF_OVERLAY}
+        overlayClassName={WF_CONFIRM_OVERLAY}
         dialogContentClassName={WF_CONTENT}
       />
+      ) : null}
 
-      <Dialog open={modal === 'reject'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_CONTENT)}>
+      {modal === 'reject' ? (
+      <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_SCROLL, WF_CONTENT)}>
           <DialogHeader><DialogTitle>ระบุเหตุผล Reject</DialogTitle></DialogHeader>
           <div className="space-y-2">
             <Label>เหตุผล <span className="text-zinc-600">*</span></Label>
@@ -564,9 +591,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ) : null}
 
-      <Dialog open={modal === 'postpone'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_CONTENT)}>
+      {modal === 'postpone' ? (
+      <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_SCROLL, WF_CONTENT)}>
           <DialogHeader><DialogTitle>เลื่อนวันเทคอนกรีต</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="space-y-1.5">
@@ -595,9 +624,11 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ) : null}
 
-      <Dialog open={modal === 'complete'} onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.lg, WF_CONTENT)}>
+      {modal === 'complete' ? (
+      <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
+        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.lg, WF_SCROLL, WF_CONTENT)}>
           <DialogHeader><DialogTitle>Confirm รายการ & ดำเนินการ</DialogTitle></DialogHeader>
           <div className="space-y-4">
             {missingEslipForComplete ? (
@@ -643,6 +674,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      ) : null}
     </>
   )
 }

@@ -279,7 +279,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
         {kpiCards.map(({ label, value, unit, accent }) => (
           <div key={label} className={cn('rounded-xl bg-gradient-to-br p-px shadow-sm', accent)}>
             <div className="h-full rounded-xl bg-[color:var(--glass-bg)] p-4">
-              <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-pour-muted">{label}</p>
+              <p className="mb-1 text-pour-2xs font-bold uppercase tracking-wider text-pour-muted">{label}</p>
               <p className="font-mono text-2xl font-extrabold tabular-nums text-[color:var(--pour-ink-0)]">
                 {value}
                 {unit ? <span className="ml-1 text-xs font-semibold text-pour-muted">{unit}</span> : null}
@@ -570,7 +570,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
             <span className="inline-flex items-center gap-1.5">
               <AppIcon icon={Timeline} size="xs" sx={{ fontSize: 12 }} />
               All Data
-              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">{lossItems.length}</span>
+              <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-pour-2xs">{lossItems.length}</span>
             </span>
           </button>
           {categoryGroups.map((cat) => (
@@ -584,16 +584,16 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
               )}
             >
               {cat.label}
-              <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">{cat.items.length}</span>
+              <span className="ml-1 rounded-full bg-white/20 px-1.5 py-0.5 text-pour-2xs">{cat.items.length}</span>
             </button>
           ))}
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="pour-table-shell min-w-0 max-w-full overflow-hidden">
           {!selection ? (
-            <table className="w-full text-xs">
+            <table className="w-full min-w-0 text-xs pour-pc-app-table">
               <thead>
-                <tr className="border-b border-[color:var(--pour-surface-border)] text-[10px] uppercase tracking-wider text-pour-muted">
+                <tr className="border-b border-[color:var(--pour-surface-border)] text-pour-2xs uppercase tracking-wider text-pour-muted">
                   <th className="px-5 py-3 text-left font-bold">Category</th>
                   <th className="px-4 py-3 text-right font-bold">Items</th>
                   <th className="px-4 py-3 text-right font-bold">DWG Vol (m³)</th>
@@ -651,9 +651,9 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
                 return <p className="px-5 py-8 text-center text-sm italic text-pour-muted">ไม่มีข้อมูล</p>
               }
               return (
-                <table className="w-full text-xs">
+                <table className="w-full min-w-0 text-xs pour-pc-app-table">
                   <thead>
-                    <tr className="border-b border-[color:var(--pour-surface-border)] text-[10px] uppercase tracking-wider text-pour-muted">
+                    <tr className="border-b border-[color:var(--pour-surface-border)] text-pour-2xs uppercase tracking-wider text-pour-muted">
                       <th className="px-5 py-3 text-left font-bold">Name</th>
                       <th className="px-4 py-3 text-right font-bold">Items</th>
                       <th className="px-4 py-3 text-right font-bold">DWG Vol (m³)</th>

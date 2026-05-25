@@ -9,6 +9,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { CstRequestPourInfo } from '@/components/requests/CstRequestPourInfo'
 import { modal, rq } from '@/lib/requestUi'
+
+const INFO_OVERLAY = 'z-[260]'
 import { cn } from '@/lib/utils'
 import { shortId } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
@@ -24,7 +26,11 @@ export function CstRequestInfoDialog({ request, open, onOpenChange }: CstRequest
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn(modal.lg)} showCloseButton>
+      <DialogContent
+        overlayClassName={INFO_OVERLAY}
+        className={cn(modal.lg, 'max-h-[min(92dvh,720px)] overflow-y-auto')}
+        showCloseButton
+      >
         <DialogHeader>
           <DialogTitle className={rq.cardTitle}>ข้อมูลการเท</DialogTitle>
           <p className="font-mono text-xs font-semibold text-pour-muted">{shortId(request.id)}</p>

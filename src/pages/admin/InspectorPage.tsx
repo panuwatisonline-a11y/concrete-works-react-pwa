@@ -22,6 +22,7 @@ import Add from '@mui/icons-material/Add'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { app, modal, rq, tableCompact } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
@@ -285,7 +286,7 @@ export function InspectorPage() {
                   <th>หัวสาย (Inspector)</th>
                   <th>สมาชิกใน list</th>
                   <th>จำนวน</th>
-                  <th className="w-28 text-right">จัดการ</th>
+                  <th className={cn('text-right', pourPcUi.colActions)}>จัดการ</th>
                 </tr>
               </thead>
               <tbody className={tableCompact.body}>
@@ -299,9 +300,9 @@ export function InspectorPage() {
                     <td className="min-w-0 break-words font-medium">{inspectorPrimaryLabel(row)}</td>
                     <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{formatMemberList(row.members)}</td>
                     <td className="tabular-nums">{row.members.length}</td>
-                    <td className="text-right">
+                    <td className={cn('text-right', pourPcUi.colActions)}>
                       {canEdit ? (
-                        <div className="flex justify-end gap-1">
+                        <div className="flex shrink-0 justify-end gap-1">
                           <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(row)}>
                             <AppIcon icon={Edit} size="sm" />
                           </Button>

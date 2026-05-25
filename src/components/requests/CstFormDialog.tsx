@@ -147,7 +147,7 @@ function ComputedPreview({
               key={group}
               className="inline-flex min-w-[4.5rem] flex-col items-center rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)]/70 px-2.5 py-1.5 text-center text-xs tabular-nums text-[color:var(--pour-ink-1)]"
             >
-              <span className="text-[10px] font-medium text-pour-muted">ชุด {group}</span>
+              <span className="text-pour-2xs font-medium text-pour-muted">ชุด {group}</span>
               <strong className="text-sm text-[color:var(--pour-accent)]">
                 {avg} {unit}
               </strong>
@@ -157,7 +157,7 @@ function ComputedPreview({
                 </strong>
               ) : null}
               {conclusion != null ? (
-                <strong className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-[color:var(--pour-ink-0)]">
+                <strong className="mt-0.5 text-pour-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-0)]">
                   {conclusion}
                 </strong>
               ) : null}
@@ -339,8 +339,8 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent overlayClassName={CST_OVERLAY} className={CST_CONTENT} showCloseButton>
-        <DialogHeader>
-          <DialogTitle className={rq.cardTitle}>
+        <DialogHeader className={modal.header}>
+          <DialogTitle className={modal.title}>
             บันทึกผล CST
             {age != null ? ` อายุ +${age} วัน` : ''}
           </DialogTitle>
@@ -350,15 +350,16 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
           </DialogDescription>
         </DialogHeader>
 
-        <CstRequestPourInfo request={request} embedded className="border-0 bg-transparent p-0" />
+        <div className={modal.body}>
+          <CstRequestPourInfo request={request} embedded className="border-0 bg-transparent p-0" />
 
-        {loading || !values || age == null ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-16">
-            <CircularProgress size={32} sx={{ flexShrink: 0, color: 'var(--pour-accent)' }} />
-            <p className="text-sm text-pour-muted">กำลังโหลดฟอร์ม…</p>
-          </div>
-        ) : (
-          <div className="min-w-0 space-y-5">
+          {loading || !values || age == null ? (
+            <div className="flex flex-col items-center justify-center gap-2 py-16">
+              <CircularProgress size={32} sx={{ flexShrink: 0, color: 'var(--pour-accent)' }} />
+              <p className="text-sm text-pour-muted">กำลังโหลดฟอร์ม…</p>
+            </div>
+          ) : (
+            <div className="min-w-0 space-y-5">
             <div className={CST_META_GRID}>
               <div className={cn(layout.formField, CST_META_FULL_SPAN)}>
                 <Label>Report No.</Label>
@@ -731,10 +732,11 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                 </span>
               </Button>
             ) : null}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
-        <DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <DialogFooter className={cn(modal.footer, 'flex-col gap-2 sm:flex-row sm:items-center sm:justify-between')}>
           {values?.id ? (
             <Button
               type="button"

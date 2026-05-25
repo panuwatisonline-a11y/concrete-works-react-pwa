@@ -40,6 +40,7 @@ import {
   CST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { app, rq, tableCompact, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn, formatDate, formatVolumeNumber } from '@/lib/utils'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
@@ -57,14 +58,12 @@ const cstTableCompact = {
   table: cn(tableCompact.table, 'min-w-[58rem]'),
   head: cn(
     tableCompact.head,
-    '[&_th.cst-age-col]:max-w-none [&_th.cst-age-col]:w-[5rem] [&_th.cst-age-col]:px-1 [&_th.cst-age-col]:text-center [&_th.cst-age-col]:normal-case [&_th.cst-age-col]:tracking-normal',
-    '[&_th.cst-age-col:first-of-type]:border-l-2 [&_th.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
+    '[&_th.cst-age-col]:px-1 [&_th.cst-age-col]:text-center [&_th.cst-age-col]:normal-case [&_th.cst-age-col]:tracking-normal',
     '[&_th.cst-age-col]:bg-[color:var(--pour-bg-2)]/60',
   ),
   body: cn(
     tableCompact.body,
-    '[&_td.cst-age-col]:max-w-none [&_td.cst-age-col]:w-[5rem] [&_td.cst-age-col]:px-1 [&_td.cst-age-col]:align-top',
-    '[&_td.cst-age-col:first-of-type]:border-l-2 [&_td.cst-age-col:first-of-type]:border-[color:var(--glass-border-subtle)]',
+    '[&_td.cst-age-col]:px-1 [&_td.cst-age-col]:align-top',
     '[&_td.cst-age-col]:bg-[color:var(--pour-bg-2)]/40',
   ),
 } as const
@@ -124,7 +123,7 @@ function MixCodeCell({ mix }: { mix: CstListMix | null }) {
     <>
       <span>{mix.mixcode.trim()}</span>
       {supplier ? (
-        <span className="mt-px block text-[10px] leading-tight text-pour-muted">{supplier}</span>
+        <span className="mt-px block text-pour-2xs leading-tight text-pour-muted">{supplier}</span>
       ) : null}
     </>
   )
@@ -166,7 +165,7 @@ function CstMobileCard({
         <div className="flex items-start justify-between gap-2 border-b border-[color:var(--glass-border-subtle)] px-3 py-2">
           <div className="min-w-0">
             <p className="text-sm font-semibold leading-tight">{f.structure ?? f.location ?? '—'}</p>
-            <p className="mt-px text-[10px] text-pour-muted">{f.castingDate}</p>
+            <p className="mt-px text-pour-2xs text-pour-muted">{f.castingDate}</p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
             <StatusBadge statusId={r.status_id} size="sm" compact />
@@ -177,7 +176,7 @@ function CstMobileCard({
           {rows.map(([label, value]) =>
             value ? (
               <Fragment key={label}>
-                <span className="text-[10px] font-semibold text-pour-muted">{label}</span>
+                <span className="text-pour-2xs font-semibold text-pour-muted">{label}</span>
                 <span className="min-w-0 font-medium">{value}</span>
               </Fragment>
             ) : null,
@@ -185,7 +184,7 @@ function CstMobileCard({
         </div>
       </button>
       <div className="border-t border-[color:var(--glass-border)] bg-[color:var(--pour-bg-2)]/50 px-4 py-3">
-        <p className={cn(rq.actions.sectionLabel, 'mb-2 text-[10px]')}>บันทึกผล CST</p>
+        <p className={cn(rq.actions.sectionLabel, 'mb-2 text-pour-2xs')}>บันทึกผล CST</p>
         <CstAgeQuickActions
           savedAges={savedAges}
           onAgeClick={onAgeClick}
@@ -196,7 +195,7 @@ function CstMobileCard({
         />
         <Link
           to={`/requests/${r.id}`}
-          className={cn(rq.link, 'mt-2 inline-flex items-center gap-0.5 text-[10px]')}
+          className={cn(rq.link, 'mt-2 inline-flex items-center gap-0.5 text-pour-2xs')}
         >
           รายละเอียด
           <AppIcon icon={OpenInNew} size="xs" sx={{ fontSize: 12 }} />
@@ -243,7 +242,7 @@ function CstListContent({
         <table className={cstTableCompact.table}>
           <thead className={cstTableCompact.head}>
             <tr>
-              <th>Casting date</th>
+              <th className={pourPcUi.colLead}>Casting date</th>
               <th>Concrete Work</th>
               <th>Structure</th>
               <th>Location</th>
@@ -251,7 +250,7 @@ function CstListContent({
               <th>Mix Code</th>
               <th>Volume</th>
               {CST_TEST_AGES.map((age) => (
-                <th key={age} className="cst-age-col">
+                <th key={age} className={cn('cst-age-col', pourPcUi.colAge)}>
                   <span className="font-bold tabular-nums">{CST_AGE_COLUMN_LABELS[age]}</span>
                 </th>
               ))}
@@ -265,8 +264,8 @@ function CstListContent({
 
               return (
                 <tr key={r.id} className="cursor-pointer" onClick={() => onInfoClick(r)}>
-                  <td className="whitespace-nowrap tabular-nums">
-                    <div className="flex items-center gap-1.5">
+                  <td className={cn(pourPcUi.colLead, 'tabular-nums')}>
+                    <div className="flex shrink-0 items-center gap-1.5">
                       <CstBlankPrintButton request={r} />
                       <span>{f.castingDate}</span>
                     </div>
@@ -280,7 +279,7 @@ function CstListContent({
                   </td>
                   <td className="tabular-nums whitespace-nowrap">{f.volume}</td>
                   {CST_TEST_AGES.map((age) => (
-                    <td key={age} className="cst-age-col">
+                    <td key={age} className={cn('cst-age-col', pourPcUi.colAge)}>
                       <CstAgeColumnCell
                         age={age}
                         testDateLabel={cstTestDateDisplay(r, age)}
@@ -456,8 +455,17 @@ export function CstListPage() {
   )
 
   const openCstDialog = useCallback((request: RequestWithRelations, age: CstTestAge) => {
+    setInfoRequest(null)
+    setShortcutOpen(false)
     setDialogRequest(request)
     setCstAge(age)
+  }, [])
+
+  const openShortcutDialog = useCallback(() => {
+    setInfoRequest(null)
+    setDialogRequest(null)
+    setCstAge(null)
+    setShortcutOpen(true)
   }, [])
 
   const handleCstSaved = useCallback(() => {
@@ -466,11 +474,18 @@ export function CstListPage() {
 
   const pageCount = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total])
 
+  const openInfoDialog = useCallback((request: RequestWithRelations) => {
+    setDialogRequest(null)
+    setCstAge(null)
+    setShortcutOpen(false)
+    setInfoRequest(request)
+  }, [])
+
   const listContentProps = {
     savedAgesFor,
     canEdit,
     onAgeClick: openCstDialog,
-    onInfoClick: setInfoRequest,
+    onInfoClick: openInfoDialog,
   }
 
   return (
@@ -516,7 +531,7 @@ export function CstListPage() {
               type="button"
               size="sm"
               className="shrink-0 rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
-              onClick={() => setShortcutOpen(true)}
+              onClick={openShortcutDialog}
             >
               <AppIcon icon={Add} size="sm" className="mr-1.5" />
               เพิ่มรายการ (Complete)
@@ -542,7 +557,7 @@ export function CstListPage() {
             testDateIso={filterTestDateIso}
             search={debouncedSearch}
             onTestDateChange={setFilterTestDateIso}
-            onRowClick={setInfoRequest}
+            onRowClick={openInfoDialog}
           />
         )}
         </div>

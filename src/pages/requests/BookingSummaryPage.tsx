@@ -38,6 +38,7 @@ import {
   BOOKING_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
 import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn, formatDate } from '@/lib/utils'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import type { RequestWithRelations } from '@/types/app.types'
@@ -95,12 +96,12 @@ function BookingSummaryMobileCard({
           <span className="mr-1.5 tabular-nums text-pour-muted">#{itemNo}</span>
           {f.structure ?? f.location ?? '—'}
         </p>
-        {headerSub ? <p className="mt-px text-[10px] text-pour-muted">{headerSub}</p> : null}
+        {headerSub ? <p className="mt-px text-pour-2xs text-pour-muted">{headerSub}</p> : null}
       </div>
       <div className="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-2 gap-y-0.5 px-3 py-2">
         {rows.map(([label, value]) => (
           <Fragment key={label}>
-            <span className="text-[10px] font-semibold text-pour-muted">{label}</span>
+            <span className="text-pour-2xs font-semibold text-pour-muted">{label}</span>
             <span className="min-w-0 font-medium">{value}</span>
           </Fragment>
         ))}
@@ -361,11 +362,11 @@ export function BookingSummaryPage() {
               <table className={summaryTable.table}>
                 <thead className={summaryTable.head}>
                   <tr>
-                    <th className="w-12 text-center">Item</th>
+                    <th className={cn(pourPcUi.colNarrow, 'text-center')}>Item</th>
                     {BOOKING_SUMMARY_COLUMNS.map((col) => (
                       <th key={col.key}>{col.label}</th>
                     ))}
-                    <th className="whitespace-nowrap text-center">Accept/No</th>
+                    <th className={cn(pourPcUi.colToggle, 'text-center')}>Accept/No</th>
                   </tr>
                 </thead>
                 <tbody className={summaryTable.body}>
@@ -373,7 +374,9 @@ export function BookingSummaryPage() {
                     const f = getBookingSummaryRowFields(r)
                     return (
                       <tr key={r.id}>
-                        <td className="text-center tabular-nums text-pour-muted">{i + 1}</td>
+                        <td className={cn(pourPcUi.colNarrow, 'text-center tabular-nums text-pour-muted')}>
+                          {i + 1}
+                        </td>
                         {BOOKING_SUMMARY_COLUMNS.map((col) => {
                           const text = cellDisplay(f, col.key)
                           return (
@@ -386,7 +389,7 @@ export function BookingSummaryPage() {
                             </td>
                           )
                         })}
-                        <td className="text-center whitespace-nowrap">
+                        <td className={cn(pourPcUi.colToggle, 'text-center')}>
                           <BookingSummaryOkToggle
                             value={r.booking_ok}
                             disabled={!canEditBookingOk || savingBookingOkId === r.id}

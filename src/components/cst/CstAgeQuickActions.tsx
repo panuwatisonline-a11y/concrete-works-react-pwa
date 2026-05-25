@@ -46,7 +46,7 @@ export function CstAgeQuickActions({
             variant={saved ? 'default' : 'outline'}
             className={cn(
               'tabular-nums font-semibold',
-              dense && 'h-6 min-h-6 px-1.5 text-[11px]',
+              dense && 'h-6 min-h-6 px-1.5 text-pour-xs',
               grid && 'h-9 min-h-9 w-full justify-center px-0 text-xs',
               emphasize &&
                 'border-[color:var(--pour-accent)] bg-[var(--pour-accent-muted)] ring-2 ring-[color:var(--pour-accent-ring)] ring-offset-1',

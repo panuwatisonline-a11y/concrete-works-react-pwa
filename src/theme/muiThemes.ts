@@ -4,15 +4,25 @@ import type { ThemeVariant } from '@/lib/theme'
 const FONT =
   '"LINE Seed Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"'
 
+/** Matches src/styles/fluid-typography.css — root rem on desktop landscape */
+const FLUID_HTML_FONT_SIZE =
+  'clamp(13px, calc(13px + (15px - 13px) * ((100vw - 48rem) / 42)), 15px)'
+
 const shared = {
   shape: { borderRadius: 12 },
   typography: {
     fontFamily: FONT,
+    htmlFontSize: 16,
     button: { textTransform: 'none' as const, fontWeight: 600 },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: {
+          '@media (orientation: landscape) and (min-width: 768px)': {
+            fontSize: FLUID_HTML_FONT_SIZE,
+          },
+        },
         body: {
           overflow: 'hidden',
           height: '100dvh',

@@ -15,7 +15,7 @@ export type ProfilePickerOption = {
 
 const triggerClass = (hasSelection: boolean) =>
   cn(
-    'pour-form-picker data-pour-no-press h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
+    'pour-form-picker data-pour-no-press h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-left text-pour-lg font-normal shadow-none',
     hasSelection ? 'text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
   )
 
@@ -56,7 +56,7 @@ function ProfilePickerListPanel({
       ) : null}
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Input
-          className="h-9 min-w-0 flex-1 text-[14px]"
+          className="h-9 min-w-0 flex-1 text-pour-md"
           placeholder="ค้นหาชื่อ / รหัสพนักงาน…"
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
@@ -65,7 +65,7 @@ function ProfilePickerListPanel({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-pour-muted hover:text-[#dc2626]"
+          className="h-9 shrink-0 rounded-lg px-2.5 text-pour-base font-semibold text-pour-muted hover:text-[#dc2626]"
           disabled={!hasSelection}
           onClick={onClear}
         >
@@ -89,7 +89,7 @@ function ProfilePickerListPanel({
             return (
               <label
                 key={opt.id}
-                className="pour-form-picker flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px] text-[color:var(--pour-ink-0)] pour-pointer-fine:hover:bg-[color:var(--pour-nav-hover-bg)]"
+                className="pour-form-picker flex cursor-pointer items-start gap-2.5 rounded-lg px-2 py-1.5 text-pour-md text-[color:var(--pour-ink-0)] pour-pointer-fine:hover:bg-[color:var(--pour-nav-hover-bg)]"
                 onClick={(e) => {
                   if (!isMulti) return
                   e.preventDefault()

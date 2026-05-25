@@ -18,6 +18,10 @@ import { UserAvatar } from '@/components/shared/UserAvatar'
 import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
+import { ResizableTableToolbar } from '@/components/shared/ResizableTableToolbar'
+import { useResizableTableColumns } from '@/hooks/useResizableTableColumns'
+import type { ResizableTableColumnConfig } from '@/lib/resizableTableColumns'
+import { pourPcUi } from '@/lib/pourPcScale'
 import {
   canManageUsers,
   assignableRolesFor,
@@ -41,6 +45,20 @@ import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } f
 import type { UserStatus } from '@/types/app.types'
 import { adminDeleteProfile, adminUpdateProfile, fetchProfilesForAdmin } from '@/lib/adminProfileRpc'
 import { useJobScope } from '@/hooks/useJobScope'
+
+const USERS_RESIZE_TABLE_ID = 'admin-users'
+
+const USERS_RESIZE_COLUMNS: ResizableTableColumnConfig[] = [
+  { id: 'name', defaultWidth: 200, minWidth: 120 },
+  { id: 'group', defaultWidth: 132 },
+  { id: 'employee', defaultWidth: 108 },
+  { id: 'phone', defaultWidth: 112, maxWidth: 160 },
+  { id: 'job', defaultWidth: 168 },
+  { id: 'created', defaultWidth: 108, maxWidth: 140 },
+  { id: 'role', defaultWidth: 108 },
+  { id: 'status', defaultWidth: 108 },
+  { id: 'actions', defaultWidth: 168, resizable: false },
+]
 
 const ROLE_COLORS: Record<string, string> = {
   user: 'secondary',
@@ -102,20 +120,20 @@ function UsersByJobSummarySection({ items }: { items: UsersByJobSummaryItem[] })
             </p>
             <dl className="mt-2.5 grid grid-cols-3 gap-1 rounded-md border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/60 sm:gap-0 sm:divide-x sm:divide-[color:var(--glass-border-subtle)]">
               <div className="min-w-0 px-1 py-1.5 text-center">
-                <dt className="text-[10px] font-medium leading-tight text-pour-muted">ทั้งหมด</dt>
+                <dt className="text-pour-2xs font-medium leading-tight text-pour-muted">ทั้งหมด</dt>
                 <dd className="mt-0.5 text-sm font-semibold tabular-nums text-[color:var(--pour-ink-0)]">{s.total}</dd>
               </div>
               <div className="min-w-0 px-1 py-1.5 text-center">
-                <dt className="text-[10px] font-medium leading-tight text-amber-700">รอ</dt>
+                <dt className="text-pour-2xs font-medium leading-tight text-amber-700">รอ</dt>
                 <dd className="mt-0.5 text-sm font-semibold tabular-nums text-amber-700">{s.pending}</dd>
               </div>
               <div className="min-w-0 px-1 py-1.5 text-center">
-                <dt className="text-[10px] font-medium leading-tight text-emerald-700">อนุมัติ</dt>
+                <dt className="text-pour-2xs font-medium leading-tight text-emerald-700">อนุมัติ</dt>
                 <dd className="mt-0.5 text-sm font-semibold tabular-nums text-emerald-700">{s.approved}</dd>
               </div>
             </dl>
             {s.rejected > 0 ? (
-              <p className="mt-1.5 text-center text-[10px] font-medium text-rose-600">
+              <p className="mt-1.5 text-center text-pour-2xs font-medium text-rose-600">
                 ปฏิเสธ {s.rejected} คน
               </p>
             ) : null}
@@ -191,6 +209,8 @@ export function UsersPage() {
     search: userSearch,
     onSearchChange: setUserSearch,
   })
+
+  const usersTableResize = useResizableTableColumns(USERS_RESIZE_TABLE_ID, USERS_RESIZE_COLUMNS)
 
   async function load() {
     setLoading(true)
@@ -388,7 +408,7 @@ export function UsersPage() {
               {val === 'pending' && pendingCount > 0 && (
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none tabular-nums',
+                    'rounded-full px-1.5 py-0.5 text-pour-2xs font-bold leading-none tabular-nums',
                     statusFilter === 'pending' ? 'bg-amber-200 text-amber-900' : 'bg-amber-100 text-amber-700',
                   )}
                 >
@@ -514,13 +534,29 @@ export function UsersPage() {
         )}
       </div>
 
-      <div className={app.tableWrapDesktop}>
-        <table className={tableCompact.table}>
+      <p className="mb-1 hidden text-pour-xs leading-snug text-pour-muted pour-desktop:block">
+        ลากขอบหัวคอลัมน์เพื่อปรับความกว้าง · ดับเบิลคลิกที่ขอบเพื่อรีเซ็ตคอลัมน์นั้น
+      </p>
+      <ResizableTableToolbar
+        onReset={usersTableResize.resetWidths}
+        className="mb-1 hidden justify-end pour-desktop:flex"
+      />
+      <div className={cn(app.tableWrapDesktop, app.tableWrapResizable)}>
+        <table className={cn(tableCompact.table, pourPcUi.tableResizable)}>
+          {usersTableResize.colGroup}
           <thead className={tableCompact.head}>
             <tr>
-              {['ชื่อ', 'User Group', 'รหัสพนักงาน', 'เบอร์โทร', 'โครงการ', 'วันที่สมัคร', 'Role', 'สถานะ', 'การจัดการ'].map((h) => (
-                <th key={h}>{h}</th>
-              ))}
+              {usersTableResize.renderHeadCell('name', 'ชื่อ', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('group', 'User Group', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('employee', 'รหัสพนักงาน', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('phone', 'เบอร์โทร', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('job', 'โครงการ', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('created', 'วันที่สมัคร', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('role', 'Role', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('status', 'สถานะ', { className: 'font-medium' })}
+              {usersTableResize.renderHeadCell('actions', 'การจัดการ', {
+                className: cn('font-medium', pourPcUi.colActionsWide),
+              })}
             </tr>
           </thead>
           <tbody className={tableCompact.body}>
@@ -563,29 +599,25 @@ export function UsersPage() {
                         <span className="min-w-0 break-words">{userDisplayName(u)}</span>
                       </div>
                     </td>
-                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={clientLabel(u)}>
-                      {clientLabel(u)}
-                    </td>
+                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{clientLabel(u)}</td>
                     <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
-                    <td className="min-w-0 whitespace-nowrap font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">
+                    <td className={cn('min-w-0 font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]', pourPcUi.tdNowrap)}>
                       {displayPhone(u)}
                     </td>
-                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]" title={jobLabel(u)}>
-                      {jobLabel(u)}
-                    </td>
-                    <td className="min-w-0 whitespace-nowrap text-xs text-pour-muted">{formatDate(u.created_at)}</td>
+                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{jobLabel(u)}</td>
+                    <td className={cn('min-w-0 text-xs text-pour-muted', pourPcUi.tdNowrap)}>{formatDate(u.created_at)}</td>
                     <td className="min-w-0">
                       <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                         {roleDisplayLabel(u.role)}
                       </Badge>
                     </td>
-                    <td className="min-w-0 whitespace-nowrap">
+                    <td className="min-w-0">
                       <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', STATUS_BADGE[u.status].className)}>
                         {STATUS_BADGE[u.status].label}
                       </span>
                     </td>
-                    <td className="shrink-0 whitespace-nowrap">
-                      <div className="flex gap-0.5">
+                    <td className={pourPcUi.colActionsWide}>
+                      <div className="flex shrink-0 gap-0.5">
                         {allowManage && u.status === 'pending' && (
                           <>
                             <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">

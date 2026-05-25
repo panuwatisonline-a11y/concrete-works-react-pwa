@@ -18,7 +18,7 @@ function serializeStructureList(selected: Set<string>, masterOrder: string[]): s
 
 const triggerClass = (hasSelection: boolean) =>
   cn(
-    'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-[15px] font-normal shadow-none',
+    'h-auto min-h-10 w-full justify-between rounded-xl border-[1.5px] px-3.5 py-2 text-left text-pour-lg font-normal shadow-none',
     hasSelection ? 'border-[color:var(--pour-accent)]/55 bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-0)]' : 'border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] text-pour-subtle',
   )
 
@@ -52,7 +52,7 @@ function StructureListPanel({
       ) : null}
       <div className="flex shrink-0 flex-wrap items-center gap-2">
         <Input
-          className="h-9 min-w-0 flex-1 text-[14px]"
+          className="h-9 min-w-0 flex-1 text-pour-md"
           placeholder="ค้นหา…"
           value={filter}
           onChange={(e) => onFilterChange(e.target.value)}
@@ -61,7 +61,7 @@ function StructureListPanel({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-9 shrink-0 rounded-lg px-2.5 text-[13px] font-semibold text-pour-muted hover:text-[#dc2626]"
+          className="h-9 shrink-0 rounded-lg px-2.5 text-pour-base font-semibold text-pour-muted hover:text-[#dc2626]"
           disabled={!hasSelection}
           onClick={onClear}
         >
@@ -85,7 +85,7 @@ function StructureListPanel({
               <label
                 key={name}
                 className={cn(
-                  'flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-[14px]',
+                  'flex items-start gap-2.5 rounded-lg px-2 py-1.5 text-pour-md',
                   disabled
                     ? 'cursor-not-allowed text-pour-subtle'
                     : 'cursor-pointer text-[color:var(--pour-ink-0)] hover:bg-[color:var(--pour-nav-hover-bg)]',

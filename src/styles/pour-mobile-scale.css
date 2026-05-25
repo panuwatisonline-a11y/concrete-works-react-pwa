@@ -1,0 +1,42 @@
+/**
+ * pour-mobile fix-scale — canvas 390×844
+ * ใช้คู่กับ .pour-mobile-fix-scale บน shell (AppLayout)
+ * ไม่ทับ pour-desktop (landscape ≥768px)
+ */
+
+@layer components {
+  @media (max-width: 767px) {
+    .pour-mobile-fix-scale {
+      --pour-m-ref-w: 390;
+      --pour-m-ref-h: 844;
+      --pour-m-factor: 0.8;
+      --pour-m-font-factor: 0.92;
+      font-size: calc(13 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor));
+
+      --pour-m-inset-x: calc(16 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-main-pt: calc(12 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-main-pb: calc(20 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-page-pt: calc(20 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-page-pb: calc(48 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-stack-gap: calc(14 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-card-px: calc(16 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-card-py: calc(16 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-radius-md: calc(12 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+    }
+
+    .pour-mobile-main-scroll {
+      padding-top: var(--pour-m-main-pt);
+      padding-bottom: max(var(--pour-m-main-pb), env(safe-area-inset-bottom, 0px));
+    }
+
+    .pour-mobile-fix-scale .pour-mobile-page-pad {
+      padding-top: var(--pour-m-page-pt);
+      padding-bottom: var(--pour-m-page-pb);
+    }
+
+    .pour-mobile-fix-scale .pour-mobile-inset-x {
+      padding-left: var(--pour-m-inset-x);
+      padding-right: var(--pour-m-inset-x);
+    }
+  }
+}

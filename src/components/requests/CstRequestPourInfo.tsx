@@ -96,7 +96,7 @@ export function CstRequestPourInfo({ request, className, embedded }: CstRequestP
           <p className="text-xs font-bold uppercase tracking-wide text-[color:var(--pour-ink-2)]">
             ข้อมูลการเท
           </p>
-          <span className="font-mono text-[10px] font-semibold text-pour-muted">{shortId(request.id)}</span>
+          <span className="font-mono text-pour-2xs font-semibold text-pour-muted">{shortId(request.id)}</span>
         </div>
       ) : null}
       <dl
@@ -107,7 +107,7 @@ export function CstRequestPourInfo({ request, className, embedded }: CstRequestP
       >
         {rows.map(({ label, value }) => (
           <div key={label} className="min-w-0">
-            <dt className="text-[10px] font-semibold uppercase tracking-wide text-pour-muted">{label}</dt>
+            <dt className="text-pour-2xs font-semibold uppercase tracking-wide text-pour-muted">{label}</dt>
             <dd className="mt-0.5 text-sm font-medium leading-snug text-[color:var(--pour-ink-0)]">{value}</dd>
           </div>
         ))}

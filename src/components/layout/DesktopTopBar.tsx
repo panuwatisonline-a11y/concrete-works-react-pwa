@@ -5,11 +5,13 @@ import Search from '@mui/icons-material/Search'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
+import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import { useDesktopSearchRegistry } from '@/stores/desktopSearchRegistry'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Input } from '@/components/ui/input'
 import { getDesktopSearchBarConfig } from '@/lib/desktopTopBarSearch'
 import { theme, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
 import { cn } from '@/lib/utils'
 
@@ -20,7 +22,7 @@ export function DesktopTopBar() {
   const { profile, user } = useAuthStore()
   const filter = useFilterStore((s) => s.filter)
   const setFilter = useFilterStore((s) => s.setFilter)
-  const setRequestFiltersOpen = useFilterStore((s) => s.setRequestFiltersOpen)
+  const openRequestFilters = useRequestOverlayStore((s) => s.openRequestFilters)
 
   const active = useDesktopSearchRegistry((s) => s.active)
   const searchRevision = useDesktopSearchRegistry((s) => s.searchRevision)
@@ -42,7 +44,7 @@ export function DesktopTopBar() {
 
   function openFiltersDialog() {
     navigate('/requests?view=latest')
-    setRequestFiltersOpen(true)
+    openRequestFilters()
   }
 
   return (
@@ -50,6 +52,7 @@ export function DesktopTopBar() {
       className={cn(
         'hidden shrink-0 items-center gap-4 px-4 py-3.5 sm:px-6 pour-desktop:flex pour-desktop:shrink-0 pour-desktop:px-6 pour-desktop:py-4 lg:pour-desktop:px-8',
         theme.headerBar,
+        pourPcUi.topbar,
       )}
     >
       <SuperAdminJobFilter className="shrink-0" />

@@ -18,6 +18,7 @@ import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcret
 import { DashboardKpiBox } from '@/components/dashboard/DashboardKpiBox'
 import type { MixcodeBalanceRow } from '@/lib/mixcodeBalance'
 import { app, glass, rq, tableCompact, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn, formatVolumeNumber } from '@/lib/utils'
 import { useChartColors } from '@/lib/chartTheme'
 
@@ -241,7 +242,7 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
                 <th className="text-right">Used (m³)</th>
                 <th className="text-right">Pending (m³)</th>
                 <th className="text-right">Balance (m³)</th>
-                <th>Usage %</th>
+                <th className={pourPcUi.colChart}>Usage %</th>
                 <th>For Structure</th>
               </tr>
             </thead>
@@ -281,11 +282,11 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
                       >
                         {row.balance.toFixed(2)}
                         {isOver ? (
-                          <span className="ml-1 text-[10px] font-normal text-rose-500">(Over)</span>
+                          <span className="ml-1 text-pour-2xs font-normal text-rose-500">(Over)</span>
                         ) : null}
                       </td>
-                      <td className="min-w-[7rem]">
-                        <div className="flex items-center gap-2">
+                      <td className={pourPcUi.colChart}>
+                        <div className="flex shrink-0 items-center gap-2">
                           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[color:var(--pour-surface-tint)]">
                             <div
                               className="h-1.5 rounded-full"
@@ -297,7 +298,7 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
                           </div>
                           <span
                             className={cn(
-                              'w-14 text-right text-[11px] font-bold tabular-nums',
+                              'w-14 text-right text-pour-xs font-bold tabular-nums',
                               isOver && 'text-rose-600 dark:text-rose-400',
                               isLow && !isOver && 'text-amber-600 dark:text-amber-400',
                             )}

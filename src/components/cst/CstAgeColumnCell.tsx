@@ -42,7 +42,7 @@ function cstAgeCellClass(saved: boolean, interactive: boolean) {
 
 function dateClass(saved: boolean) {
   return cn(
-    'text-[11px] font-semibold leading-tight tabular-nums',
+    'text-pour-xs font-semibold leading-tight tabular-nums',
     saved ? 'text-[#4ade80]' : 'text-pour-muted',
   )
 }

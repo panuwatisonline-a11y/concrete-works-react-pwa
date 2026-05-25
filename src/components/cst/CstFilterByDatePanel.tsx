@@ -20,6 +20,7 @@ import {
 import { CstMixCodeCell } from '@/components/cst/CstMixCodeCell'
 import { cstMixCodeLabelForCard, getCstListRowFields } from '@/lib/cstListRow'
 import { app, rq, tableCompact, type } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 import { cn, formatDate } from '@/lib/utils'
 import { CST_TEST_AGES, type RequestWithRelations } from '@/types/app.types'
 
@@ -57,13 +58,13 @@ function CstFilterMobileCard({
     >
       <div className="border-b border-[color:var(--glass-border-subtle)] px-3 py-2">
         <p className="text-sm font-semibold leading-tight">{f.structure ?? f.location ?? '—'}</p>
-        <p className="mt-px text-[10px] text-pour-muted">{f.castingDate}</p>
+        <p className="mt-px text-pour-2xs text-pour-muted">{f.castingDate}</p>
       </div>
       <div className="grid grid-cols-[minmax(5.25rem,auto)_1fr] gap-x-2 gap-y-0.5 px-3 py-2">
         {rows.map(([label, value]) =>
           value ? (
             <Fragment key={label}>
-              <span className="text-[10px] font-semibold text-pour-muted">{label}</span>
+              <span className="text-pour-2xs font-semibold text-pour-muted">{label}</span>
               <span className="min-w-0 font-medium">{value}</span>
             </Fragment>
           ) : null,
@@ -91,7 +92,7 @@ function CstFilterTable({
         <table className={filterTableCompact.table}>
           <thead className={filterTableCompact.head}>
             <tr>
-              <th>Casting date</th>
+              <th className={pourPcUi.colLead}>Casting date</th>
               <th>Concrete Work</th>
               <th>Structure</th>
               <th>Location</th>
@@ -105,8 +106,8 @@ function CstFilterTable({
               const f = getCstListRowFields(r)
               return (
                 <tr key={r.id} className="cursor-pointer" onClick={() => onRowClick(r)}>
-                  <td className="whitespace-nowrap tabular-nums">
-                    <div className="flex items-center gap-1.5">
+                  <td className={cn(pourPcUi.colLead, 'tabular-nums')}>
+                    <div className="flex shrink-0 items-center gap-1.5">
                       <CstBlankPrintButton request={r} />
                       <span>{f.castingDate}</span>
                     </div>

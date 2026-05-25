@@ -1,4 +1,7 @@
 ﻿import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { useResizableTableColumns } from '@/hooks/useResizableTableColumns'
+import { ResizableTableToolbar } from '@/components/shared/ResizableTableToolbar'
+import type { ResizableTableColumnConfig } from '@/lib/resizableTableColumns'
 import { canEditMasterData } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/authStore'
 import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
@@ -13,6 +16,7 @@ import Add from '@mui/icons-material/Add'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
+import { pourPcUi } from '@/lib/pourPcScale'
 
 export interface Column<T> {
   key: keyof T | string
@@ -49,6 +53,8 @@ interface CrudTableProps<T extends { id: number }> {
   sortWithinGroup?: (a: T, b: T) => number
   /** Super Admin + ทุกโครงการ: แสดงคอลัมน์/จัดกลุ่มตาม Job (`auto` = เปิดอัตโนมัติ, `false` = ปิด) */
   jobScopeView?: boolean | 'auto'
+  /** คีย์บันทึกความกว้างคอลัมน์ — ไม่ระบุจะใช้ `crud:{title}` */
+  resizableTableId?: string
 }
 
 function renderCell<T>(col: Column<T>, row: T) {
@@ -69,6 +75,7 @@ export function CrudTable<T extends { id: number }>({
   groupBy,
   sortWithinGroup,
   jobScopeView = 'auto',
+  resizableTableId,
 }: CrudTableProps<T>) {
   const role = useAuthStore((s) => s.role)
   const jobs = useMasterDataStore((s) => s.jobs)
@@ -129,6 +136,18 @@ export function CrudTable<T extends { id: number }>({
     await onDelete(deleteId)
     setDeleteId(null)
   }
+
+  const resizeTableKey = resizableTableId ?? `crud:${title}`
+  const resizeColumnConfigs = useMemo((): ResizableTableColumnConfig[] => {
+    const cols: ResizableTableColumnConfig[] = effectiveColumns.map((col) => ({
+      id: String(col.key),
+      defaultWidth: 140,
+    }))
+    cols.push({ id: '__actions', defaultWidth: 96, resizable: false })
+    return cols
+  }, [effectiveColumns])
+
+  const tableResize = useResizableTableColumns(resizeTableKey, resizeColumnConfigs)
 
   const emptyState = (
     <div className={rq.dataRowEmpty}>{loading ? 'กำลังโหลด…' : 'ไม่มีข้อมูล'}</div>
@@ -244,16 +263,26 @@ export function CrudTable<T extends { id: number }>({
         )}
       </div>
 
-      <div className={embedded ? app.tableWrapNested : app.tableWrapDesktop}>
-        <table className={tableCompact.table}>
+      <ResizableTableToolbar
+        onReset={tableResize.resetWidths}
+        className="mb-1 hidden justify-end pour-desktop:flex"
+      />
+      <div
+        className={cn(
+          embedded ? app.tableWrapNested : app.tableWrapDesktop,
+          app.tableWrapResizable,
+        )}
+      >
+        <table className={cn(tableCompact.table, pourPcUi.tableResizable)}>
+          {tableResize.colGroup}
           <thead className={tableCompact.head}>
             <tr>
-              {effectiveColumns.map((col) => (
-                <th key={String(col.key)} className="font-medium">
-                  {col.label}
-                </th>
-              ))}
-              <th className="font-medium">Actions</th>
+              {effectiveColumns.map((col) =>
+                tableResize.renderHeadCell(String(col.key), col.label, { className: 'font-medium' }),
+              )}
+              {tableResize.renderHeadCell('__actions', 'Actions', {
+                className: cn('font-medium', pourPcUi.colActions),
+              })}
             </tr>
           </thead>
           <tbody className={tableCompact.body}>
@@ -295,9 +324,9 @@ export function CrudTable<T extends { id: number }>({
                           {renderCell(col, row)}
                         </td>
                       ))}
-                      <td>
+                      <td className={pourPcUi.colActions}>
                         {!readOnly ? (
-                          <div className="flex gap-0.5">
+                          <div className="flex shrink-0 gap-0.5">
                             <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => openEdit(row)}>
                               <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                             </Button>
