@@ -664,7 +664,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                 {allSelected ? 'All' : `${selectedCount} / ${allNames.length}`}
               </button>
               {structureDropdownOpen ? (
-                <div className="absolute right-0 top-full z-50 mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-lg">
+                <div className="absolute right-0 top-full z-[300] mt-1.5 min-w-[200px] overflow-hidden rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-lg">
                   <label className="flex cursor-pointer select-none items-center gap-2.5 border-b border-[color:var(--pour-surface-border)] px-3 py-2 hover:bg-[color:var(--pour-nav-hover-bg)]">
                     <input
                       type="checkbox"

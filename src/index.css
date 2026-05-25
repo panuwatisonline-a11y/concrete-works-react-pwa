@@ -38,6 +38,7 @@
     --pour-accent: #18a0fb;
     --pour-accent-hover: #0d8ce8;
     --pour-accent-muted: rgba(24, 160, 251, 0.14);
+    --pour-accent-soft: var(--pour-nav-hover-bg);
     --pour-accent-ring: rgba(24, 160, 251, 0.35);
     --pour-brand: #5eb8ff;
     --pour-brand-hover: #3db3fc;
@@ -120,6 +121,7 @@
     --pour-accent: #18a0fb;
     --pour-accent-hover: #0d8ce8;
     --pour-accent-muted: rgba(24, 160, 251, 0.14);
+    --pour-accent-soft: var(--pour-nav-hover-bg);
     --pour-accent-ring: rgba(24, 160, 251, 0.32);
     --pour-brand: #5eb8ff;
     --pour-brand-hover: #3db3fc;
@@ -188,6 +190,7 @@
     --pour-accent: #5bb89a;
     --pour-accent-hover: #48a887;
     --pour-accent-muted: rgba(91, 184, 154, 0.16);
+    --pour-accent-soft: var(--pour-nav-hover-bg);
     --pour-accent-ring: rgba(91, 184, 154, 0.35);
     --pour-brand: #5bb89a;
     --pour-brand-hover: #48a887;
@@ -256,6 +259,7 @@
     --pour-accent: #E88CAD;
     --pour-accent-hover: #D67598;
     --pour-accent-muted: rgba(232, 140, 173, 0.16);
+    --pour-accent-soft: var(--pour-nav-hover-bg);
     --pour-accent-ring: rgba(232, 140, 173, 0.35);
     --pour-brand: #E88CAD;
     --pour-brand-hover: #D67598;
@@ -310,27 +314,6 @@
     --ring: 340 55% 72%;
   }
 
-  .dark {
-    --background: 240 6% 6%;
-    --foreground: 0 0% 98%;
-    --card: 240 6% 8%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 6% 8%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 6% 10%;
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 64%;
-    --accent: 240 4% 20%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 240 5% 30%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 18%;
-    --input: 240 4% 18%;
-    --ring: 0 0% 98%;
-  }
 }
 
 @layer base {

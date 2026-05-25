@@ -242,7 +242,7 @@ export function StructureListMultiSelect({
         side="bottom"
         sideOffset={6}
         collisionPadding={12}
-        className="z-[200] flex max-w-[calc(100vw-2rem)] flex-col gap-2 p-2 max-h-[min(380px,55dvh)]"
+        className="flex max-w-[calc(100vw-2rem)] flex-col gap-2 p-2 max-h-[min(380px,55dvh)]"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {panel}

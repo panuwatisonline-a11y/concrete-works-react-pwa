@@ -6,6 +6,7 @@ import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 import { AppIcon } from '@/components/icons/AppIcon'
+import { resolveDialogZIndex } from '@/lib/zIndex'
 import { cn } from '@/lib/utils'
 
 type DialogContextValue = {
@@ -36,44 +37,72 @@ const DialogPortal = ({ children }: { children: React.ReactNode }) => <>{childre
 const DialogClose = ({ children }: { children: React.ReactNode }) => <>{children}</>
 const DialogOverlay = () => null
 
+function maxWidthFromClassName(className?: string): 'xs' | 'sm' | 'md' | 'lg' | false {
+  if (!className) return 'sm'
+  if (/\bmax-w-(3xl|4xl|5xl|6xl|7xl)\b/.test(className) || /\bmodal\.xl\b/.test(className)) return 'md'
+  if (/\bmax-w-(lg|xl)\b/.test(className) || /\bmodal\.lg\b/.test(className)) return 'md'
+  if (/\bmax-w-md\b/.test(className) || /\bmodal\.md\b/.test(className)) return 'sm'
+  return 'sm'
+}
+
 const DialogContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     showCloseButton?: boolean
     overlayClassName?: string
+    dialogContentClassName?: string
   }
->(({ className, children, showCloseButton = true, overlayClassName, ...props }, ref) => {
-  const { open, onOpenChange } = React.useContext(DialogContext)
+>(
+  (
+    {
+      className,
+      children,
+      showCloseButton = true,
+      overlayClassName,
+      dialogContentClassName,
+      ...props
+    },
+    ref,
+  ) => {
+    const { open, onOpenChange } = React.useContext(DialogContext)
+    const paperClass = cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName)
+    const z = resolveDialogZIndex(overlayClassName, paperClass)
 
-  return (
-    <MuiDialog
-      open={Boolean(open)}
-      onClose={() => onOpenChange?.(false)}
-      fullWidth
-      maxWidth="sm"
-      scroll="paper"
-      slotProps={{
-        backdrop: { className: cn('backdrop-blur-sm bg-black/60', overlayClassName) },
-        paper: {
-          ref,
-          className: cn('grid gap-4 p-5 sm:p-6', className),
-          ...props,
-        },
-      }}
-    >
-      {showCloseButton && (
-        <IconButton
-          aria-label="Close"
-          onClick={() => onOpenChange?.(false)}
-          sx={{ position: 'absolute', right: 12, top: 12, zIndex: 1 }}
-        >
-          <AppIcon icon={CloseIcon} size="sm" />
-        </IconButton>
-      )}
-      {children}
-    </MuiDialog>
-  )
-})
+    return (
+      <MuiDialog
+        open={Boolean(open)}
+        onClose={() => onOpenChange?.(false)}
+        fullWidth
+        maxWidth={maxWidthFromClassName(paperClass)}
+        scroll="paper"
+        sx={{ zIndex: z }}
+        slotProps={{
+          backdrop: {
+            className: cn('backdrop-blur-sm bg-black/60', overlayClassName),
+            sx: { zIndex: z },
+          },
+          paper: {
+            ref,
+            className: paperClass,
+            sx: { zIndex: z },
+            ...props,
+          },
+        }}
+      >
+        {showCloseButton && (
+          <IconButton
+            aria-label="Close"
+            onClick={() => onOpenChange?.(false)}
+            sx={{ position: 'absolute', right: 12, top: 12, zIndex: 1 }}
+          >
+            <AppIcon icon={CloseIcon} size="sm" />
+          </IconButton>
+        )}
+        {children}
+      </MuiDialog>
+    )
+  },
+)
 DialogContent.displayName = 'DialogContent'
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (

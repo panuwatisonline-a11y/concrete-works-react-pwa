@@ -2,10 +2,8 @@ import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Close from '@mui/icons-material/Close'
 import { AppIcon } from '@/components/icons/AppIcon'
+import { Z_INDEX } from '@/lib/zIndex'
 import { cn } from '@/lib/utils'
-
-/** สูงกว่า workflow dialog (z-[270]) — ไม่ให้ lightbox ไปอยู่หลัง modal อัปโหลด Bill */
-const LIGHTBOX_Z = 300
 
 export type ImageLightboxItem = { src: string; label: string }
 
@@ -61,7 +59,7 @@ export function ImageLightboxDialog({
       aria-modal="true"
       aria-label={title}
       className="fixed inset-0 flex flex-col bg-zinc-950/96"
-      style={{ zIndex: LIGHTBOX_Z }}
+      style={{ zIndex: Z_INDEX.lightbox }}
       onClick={() => onOpenChange(false)}
     >
       <button
