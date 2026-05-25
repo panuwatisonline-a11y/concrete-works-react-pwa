@@ -7,7 +7,10 @@ import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
-import { Edit, Trash2, Plus } from 'lucide-react'
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import Add from '@mui/icons-material/Add'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 
@@ -173,7 +176,7 @@ export function CrudTable<T extends { id: number }>({
         <div className="flex justify-end">
           {!readOnly ? (
             <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
-              <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
+              <AppIcon icon={Add} size="sm" className="mr-1" />
               เพิ่ม
             </Button>
           ) : null}
@@ -183,7 +186,7 @@ export function CrudTable<T extends { id: number }>({
           <h2 className="text-base font-medium text-[color:var(--pour-ink-0)]">{title}</h2>
           {!readOnly ? (
             <Button size="sm" className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20" onClick={openAdd}>
-              <Plus className="mr-1 h-4 w-4" strokeWidth={2} />
+              <AppIcon icon={Add} size="sm" className="mr-1" />
               เพิ่ม
             </Button>
           ) : null}
@@ -224,11 +227,11 @@ export function CrudTable<T extends { id: number }>({
                     {!readOnly ? (
                       <>
                         <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
-                          <Edit className="h-3.5 w-3.5" />
+                          <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                         </Button>
                         {(!canDelete || canDelete(row)) && (
                           <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
-                            <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                            <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
                           </Button>
                         )}
                       </>
@@ -296,11 +299,11 @@ export function CrudTable<T extends { id: number }>({
                         {!readOnly ? (
                           <div className="flex gap-0.5">
                             <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => openEdit(row)}>
-                              <Edit className="h-3.5 w-3.5" />
+                              <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                             </Button>
                             {(!canDelete || canDelete(row)) && (
                               <Button size="icon" variant="ghost" className="h-6 w-6 rounded-md" onClick={() => setDeleteId(row.id)}>
-                                <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                                <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
                               </Button>
                             )}
                           </div>

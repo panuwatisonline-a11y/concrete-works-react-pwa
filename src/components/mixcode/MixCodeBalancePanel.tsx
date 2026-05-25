@@ -9,13 +9,17 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Activity, HardHat, Layers, TrendingUp } from 'lucide-react'
+import Timeline from '@mui/icons-material/Timeline'
+import Engineering from '@mui/icons-material/Engineering'
+import Layers from '@mui/icons-material/Layers'
+import TrendingUp from '@mui/icons-material/TrendingUp'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcreteChartTooltip'
 import { DashboardKpiBox } from '@/components/dashboard/DashboardKpiBox'
 import type { MixcodeBalanceRow } from '@/lib/mixcodeBalance'
 import { app, glass, rq, tableCompact, type } from '@/lib/requestUi'
 import { cn, formatVolumeNumber } from '@/lib/utils'
-import { useThemeStore } from '@/stores/themeStore'
+import { useChartColors } from '@/lib/chartTheme'
 
 interface MixCodeBalancePanelProps {
   rows: MixcodeBalanceRow[]
@@ -29,9 +33,7 @@ const dashTable = {
 } as const
 
 export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps) {
-  const isDark = useThemeStore((s) => s.theme) === 'dark'
-  const cGrid = isDark ? '#334155' : '#E2E8F0'
-  const cAxis = isDark ? '#94A3B8' : '#64748B'
+  const { grid: cGrid, axis: cAxis, dim: cDim, tooltipCursorFill } = useChartColors()
   const [supplierFilter, setSupplierFilter] = useState<string | null>(null)
 
   const suppliers = useMemo(
@@ -103,28 +105,28 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
           title="Total PO Qty"
           value={totals.poQty.toFixed(2)}
           unit="m³"
-          icon={<Layers size={20} />}
+          icon={<AppIcon icon={Layers} size="md" />}
           color="from-blue-600 to-cyan-500"
         />
         <DashboardKpiBox
           title="Used (Completed)"
           value={totals.used.toFixed(2)}
           unit="m³"
-          icon={<HardHat size={20} />}
+          icon={<AppIcon icon={Engineering} size="md" />}
           color="from-emerald-600 to-teal-500"
         />
         <DashboardKpiBox
           title="Pending (Active)"
           value={totals.pending.toFixed(2)}
           unit="m³"
-          icon={<Activity size={20} />}
+          icon={<AppIcon icon={Timeline} size="md" />}
           color="from-amber-600 to-orange-500"
         />
         <DashboardKpiBox
           title="Balance Remaining"
           value={totals.balance.toFixed(2)}
           unit="m³"
-          icon={<TrendingUp size={20} />}
+          icon={<AppIcon icon={TrendingUp} size="md" />}
           color={totals.balance < 0 ? 'from-rose-600 to-pink-500' : 'from-slate-600 to-slate-400'}
           isAlert={totals.balance < 0}
         />
@@ -170,7 +172,7 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
                   tickLine={false}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(99,102,241,0.08)' }}
+                  cursor={{ fill: tooltipCursorFill }}
                   content={(props) => (
                     <LossConcreteChartTooltip
                       active={props.active}
@@ -193,7 +195,7 @@ export function MixCodeBalancePanel({ rows, loading }: MixCodeBalancePanelProps)
                 <Bar
                   dataKey="Balance"
                   stackId="a"
-                  fill={isDark ? '#334155' : '#94A3B8'}
+                  fill={cDim}
                   radius={[0, 4, 4, 0]}
                   name="Balance (m³)"
                 />

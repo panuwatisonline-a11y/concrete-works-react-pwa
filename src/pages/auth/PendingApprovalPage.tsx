@@ -7,7 +7,8 @@ import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
-import { Clock } from 'lucide-react'
+import Schedule from '@mui/icons-material/Schedule'
+import { AppIcon } from '@/components/icons/AppIcon'
 
 export function PendingApprovalPage() {
   const navigate = useNavigate()
@@ -39,7 +40,7 @@ export function PendingApprovalPage() {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-[color:var(--pour-bg)] px-6">
       <div className="w-full max-w-sm rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-8 text-center shadow-[var(--glass-shadow-sm)]">
         <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-amber-950/50">
-          <Clock className="h-7 w-7 text-amber-500" strokeWidth={1.75} />
+          <AppIcon icon={Schedule} size="lg" className="text-amber-500" />
         </div>
 
         <h1 className="mb-2 text-xl font-bold text-[color:var(--pour-ink-0)]">รอการอนุมัติ</h1>

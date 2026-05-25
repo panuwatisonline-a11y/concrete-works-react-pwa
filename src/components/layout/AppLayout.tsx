@@ -10,6 +10,7 @@ import { usePullToRefreshHost } from '@/hooks/usePullToRefreshHost'
 import { useMainScrollRouteSync } from '@/hooks/useMainScrollRouteSync'
 import { ConnectivityBanner } from '@/components/layout/ConnectivityBanner'
 import { useConnectivity } from '@/hooks/useConnectivity'
+import Box from '@mui/material/Box'
 import { getContentMaxClass, theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
@@ -23,14 +24,14 @@ export function AppLayout() {
   useMainScrollRouteSync()
 
   return (
-    <div
+    <Box
       className={cn(
-        'flex min-h-0 h-[100dvh] max-h-[100dvh] w-full flex-col text-[color:var(--pour-ink-0)]',
+        'flex min-h-0 h-[100dvh] max-h-[100dvh] w-full flex-col',
         theme.shell,
         theme.shellDesktopAccent,
-        /* โหมด PC: sidebar คงที่ซ้าย — edge-to-edge ไม่มี padding รอบ */
         'pour-desktop:flex-row pour-desktop:gap-0 pour-desktop:p-0 pour-desktop:min-h-0 pour-desktop:overflow-hidden',
       )}
+      sx={{ bgcolor: 'background.default', color: 'text.primary' }}
     >
       <DesktopSidebar />
 
@@ -65,6 +66,6 @@ export function AppLayout() {
       </div>
 
       <RequestFiltersDialog />
-    </div>
+    </Box>
   )
 }

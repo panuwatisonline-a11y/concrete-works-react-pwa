@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
-import { ChevronDown } from 'lucide-react'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
 import {
   CHECKLIST_TEMPLATE_STATIC_DEFAULTS,
   fillChecklistBeforePourTemplate,
@@ -367,12 +368,13 @@ function CollapsiblePreviewBlock(props: {
         className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left transition hover:bg-[color:var(--pour-surface-tint)]"
       >
         <span className="font-semibold text-[color:var(--pour-ink-0)]">{title}</span>
-        <ChevronDown
+        <AppIcon
+          icon={ExpandMore}
+          size="md"
           className={cn(
-            'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
+            'text-pour-muted transition-transform duration-200',
             open && 'rotate-180',
           )}
-          aria-hidden
         />
       </button>
       {open ? (

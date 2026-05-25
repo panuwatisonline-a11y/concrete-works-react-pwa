@@ -1,8 +1,9 @@
 import type { ReactNode, MouseEvent } from 'react'
-import { Copy } from 'lucide-react'
+import ContentCopy from '@mui/icons-material/ContentCopy'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { ICON_STROKE, icon, rq } from '@/lib/requestUi'
+import { rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import type { RequestListActionItem } from '@/lib/requestQuickActions'
 
@@ -39,7 +40,7 @@ function ActionButtons({
             }}
           >
             {isCopy ? (
-              <Copy className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
+              <AppIcon icon={ContentCopy} size="sm" />
             ) : (
               a.label
             )}

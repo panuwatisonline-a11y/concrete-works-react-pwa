@@ -1,7 +1,10 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
-import { FlaskConical, ExternalLink, Plus } from 'lucide-react'
+import Science from '@mui/icons-material/Science'
+import OpenInNew from '@mui/icons-material/OpenInNew'
+import Add from '@mui/icons-material/Add'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
@@ -36,7 +39,7 @@ import {
   CST_LIST_SEARCH_ARIA,
   CST_LIST_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
-import { app, icon, ICON_STROKE, rq, tableCompact, type } from '@/lib/requestUi'
+import { app, rq, tableCompact, type } from '@/lib/requestUi'
 import { cn, formatDate, formatVolumeNumber } from '@/lib/utils'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import type { CstTestAge, RequestWithRelations } from '@/types/app.types'
@@ -196,7 +199,7 @@ function CstMobileCard({
           className={cn(rq.link, 'mt-2 inline-flex items-center gap-0.5 text-[10px]')}
         >
           รายละเอียด
-          <ExternalLink className="h-3 w-3" strokeWidth={ICON_STROKE} aria-hidden />
+          <AppIcon icon={OpenInNew} size="xs" sx={{ fontSize: 12 }} />
         </Link>
       </div>
     </article>
@@ -474,7 +477,7 @@ export function CstListPage() {
     <div className={cn(rq.page, 'flex flex-col')}>
       <header className="space-y-1">
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
-          <FlaskConical className={cn(icon.md, 'text-[color:var(--pour-accent)]')} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={Science} size="md" className="text-[color:var(--pour-accent)]" />
           CST — กำลังอัดคอนกรีต
         </h1>
         <p className={rq.sub}>
@@ -515,7 +518,7 @@ export function CstListPage() {
               className="shrink-0 rounded-xl shadow-md shadow-[color:var(--pour-accent)]/20"
               onClick={() => setShortcutOpen(true)}
             >
-              <Plus className={cn(icon.sm, 'mr-1.5')} strokeWidth={ICON_STROKE} aria-hidden />
+              <AppIcon icon={Add} size="sm" className="mr-1.5" />
               เพิ่มรายการ (Complete)
             </Button>
           ) : null}

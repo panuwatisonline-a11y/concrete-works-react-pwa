@@ -1,17 +1,33 @@
-import { type ElementType, type FocusEvent, useCallback, useEffect, useRef, useState } from 'react'
-import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
-  LogOut, PlusCircle, User, LayoutDashboard,
-  ChevronLeft, ChevronRight, Activity, Star, Files, ClipboardList, Pin, PinOff,
-} from 'lucide-react'
+  type FocusEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import type { SvgIconComponent } from '@mui/icons-material'
+import ChevronLeft from '@mui/icons-material/ChevronLeft'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import Logout from '@mui/icons-material/Logout'
+import Dashboard from '@mui/icons-material/Dashboard'
+import Star from '@mui/icons-material/Star'
+import PushPin from '@mui/icons-material/PushPin'
+import PushPinOutlined from '@mui/icons-material/PushPinOutlined'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import Drawer from '@mui/material/Drawer'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import { Button } from '@/components/ui/button'
 import { APP_HOME } from '@/lib/appHome'
-import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
+import { theme, BRAND_TAGLINE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
 import { mainNavLinks } from '@/lib/mainNav'
@@ -23,7 +39,7 @@ import { AppVersionLabel } from '@/components/layout/AppVersionLabel'
 interface NavItem {
   to: string
   label: string
-  icon: ElementType
+  icon: SvgIconComponent
   end?: boolean
 }
 
@@ -51,12 +67,53 @@ function readSidebarAutoHide(): boolean {
   }
 }
 
-function sidebarShellClass(collapsed: boolean, isPeek: boolean) {
-  return cn(
-    'relative hidden h-full min-h-0 shrink-0 flex-col transition-[width] duration-300 ease-in-out',
-    theme.sidebarSurface,
-    'pour-desktop:flex',
-    isPeek ? 'w-3 overflow-hidden' : collapsed ? 'w-36' : 'w-[260px]',
+function sidebarWidth(collapsed: boolean, isPeek: boolean) {
+  if (isPeek) return 12
+  return collapsed ? 144 : 260
+}
+
+function SidebarShell({
+  collapsed,
+  isPeek,
+  mode,
+  interaction,
+  children,
+}: {
+  collapsed: boolean
+  isPeek: boolean
+  mode: string
+  interaction: Record<string, unknown>
+  children: ReactNode
+}) {
+  const width = sidebarWidth(collapsed, isPeek)
+  return (
+    <Drawer
+      variant="permanent"
+      className="relative hidden h-full min-h-0 shrink-0 pour-desktop:flex"
+      sx={{
+        width,
+        flexShrink: 0,
+        transition: 'width 300ms ease-in-out',
+        '& .MuiDrawer-paper': {
+          width,
+          position: 'relative',
+          overflow: 'visible',
+          borderRight: 1,
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+          transition: 'width 300ms ease-in-out',
+        },
+      }}
+      open
+    >
+      <Box
+        {...interaction}
+        data-sidebar-mode={mode}
+        sx={{ display: 'flex', height: '100%', minHeight: 0, flexDirection: 'column', overflow: 'hidden' }}
+      >
+        {children}
+      </Box>
+    </Drawer>
   )
 }
 
@@ -95,56 +152,65 @@ interface CollapsedTextNavProps {
   onClick?: () => void
 }
 
-const sidebarEdgeBtnClass =
-  'flex h-6 w-6 items-center justify-center rounded-full border border-[color:var(--glass-border)] bg-[color:var(--glass-bg)] text-[color:var(--pour-ink-3)] shadow-sm transition hover:border-[color:var(--glass-edge)] hover:text-[color:var(--pour-ink-0)]'
-
 function SidebarHeaderControls({
   autoHide,
   onToggleAutoHide,
   collapseExpanded,
   onToggleCollapse,
-  className,
 }: {
   autoHide: boolean
   onToggleAutoHide: () => void
   collapseExpanded: boolean
   onToggleCollapse: () => void
-  className?: string
 }) {
+  const collapseLabel = collapseExpanded ? 'ยุบเมนูด้านข้าง' : 'ขยายเมนูด้านข้าง'
+  const pinLabel = autoHide ? 'ปักหมุดเมนู — ไม่ซ่อนอัตโนมัติ' : 'ซ่อนเมนูอัตโนมัติ'
+
   return (
-    <div
-      className={cn('absolute z-20 flex flex-col gap-1.5', className)}
+    <Box
       role="group"
       aria-label="ควบคุมเมนูด้านข้าง"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 0.5,
+        flexShrink: 0,
+        zIndex: 2,
+      }}
     >
-      <button
-        type="button"
-        onClick={onToggleCollapse}
-        className={sidebarEdgeBtnClass}
-        aria-expanded={collapseExpanded}
-        aria-label={collapseExpanded ? 'ยุบเมนูด้านข้าง' : 'ขยายเมนูด้านข้าง'}
-      >
-        {collapseExpanded ? (
-          <ChevronLeft className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} aria-hidden />
-        ) : (
-          <ChevronRight className="h-3.5 w-3.5" strokeWidth={ICON_STROKE} aria-hidden />
-        )}
-      </button>
-      <button
-        type="button"
-        onClick={onToggleAutoHide}
-        className={sidebarEdgeBtnClass}
-        aria-pressed={!autoHide}
-        aria-label={autoHide ? 'ปักหมุดเมนู — ไม่ซ่อนอัตโนมัติ' : 'เปิดซ่อนเมนูอัตโนมัติ'}
-        title={autoHide ? 'ปักหมุดเมนู' : 'ซ่อนเมนูอัตโนมัติ'}
-      >
-        {autoHide ? (
-          <PinOff className="h-3 w-3" strokeWidth={ICON_STROKE} aria-hidden />
-        ) : (
-          <Pin className="h-3 w-3" strokeWidth={ICON_STROKE} aria-hidden />
-        )}
-      </button>
-    </div>
+      <Tooltip title={collapseLabel} placement="right">
+        <IconButton
+          size="small"
+          onClick={onToggleCollapse}
+          aria-expanded={collapseExpanded}
+          aria-label={collapseLabel}
+          sx={{
+            border: 1,
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+            boxShadow: 1,
+          }}
+        >
+          <AppIcon icon={collapseExpanded ? ChevronLeft : ChevronRight} size="xs" sx={{ fontSize: 14 }} />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={autoHide ? 'ปักหมุดเมนู' : 'ซ่อนเมนูอัตโนมัติ'} placement="right">
+        <IconButton
+          size="small"
+          onClick={onToggleAutoHide}
+          aria-pressed={!autoHide}
+          aria-label={pinLabel}
+          sx={{
+            border: 1,
+            borderColor: 'divider',
+            bgcolor: autoHide ? 'action.selected' : 'background.paper',
+            boxShadow: 1,
+          }}
+        >
+          <AppIcon icon={autoHide ? PushPinOutlined : PushPin} size="xs" sx={{ fontSize: 13 }} />
+        </IconButton>
+      </Tooltip>
+    </Box>
   )
 }
 
@@ -260,19 +326,22 @@ export function DesktopSidebar() {
 
   if (isPeek) {
     return (
-      <aside
-        {...sidebarInteraction}
-        data-sidebar-mode="peek"
-        className={sidebarShellClass(collapsed, true)}
-        aria-label="เมนูหลัก — วางเมาส์เพื่อแสดง"
-      >
-        <div
-          className="flex h-full w-full cursor-pointer flex-col items-center justify-center border-r border-[color:var(--pour-line)] bg-[color:var(--pour-sidebar)]"
+      <SidebarShell collapsed={collapsed} isPeek={true} interaction={sidebarInteraction} mode="peek">
+        <Box
+          aria-label="เมนูหลัก — วางเมาส์เพื่อแสดง"
           title="แสดงเมนู"
+          sx={{
+            display: 'flex',
+            height: '100%',
+            width: '100%',
+            cursor: 'pointer',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <ChevronRight className="h-4 w-4 text-[color:var(--pour-ink-3)]" strokeWidth={ICON_STROKE} aria-hidden />
-        </div>
-      </aside>
+          <AppIcon icon={ChevronRight} size="sm" className="opacity-60" />
+        </Box>
+      </SidebarShell>
     )
   }
 
@@ -314,12 +383,18 @@ export function DesktopSidebar() {
     }))
 
     return (
-      <aside
-        {...sidebarInteraction}
-        data-sidebar-mode="collapsed"
-        className={sidebarShellClass(true, false)}
-      >
-        <div className="relative shrink-0 border-b border-[color:var(--glass-border-subtle)] p-2.5 pr-9">
+      <SidebarShell collapsed={true} isPeek={false} interaction={sidebarInteraction} mode="collapsed">
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 0.5,
+            shrink: 0,
+            borderBottom: 1,
+            borderColor: 'divider',
+            p: 1.25,
+          }}
+        >
           <NavLink
             to={APP_HOME}
             title="Concrete Works"
@@ -327,7 +402,7 @@ export function DesktopSidebar() {
             className={() =>
               cn(
                 theme.sidebarBrandPanel,
-                'flex w-full flex-col items-start gap-1 p-2.5 pr-1',
+                'flex min-w-0 flex-1 flex-col items-start gap-1 p-1.5',
                 isNavToActive(APP_HOME, location) && theme.sidebarBrandPanelActive,
               )
             }
@@ -342,9 +417,8 @@ export function DesktopSidebar() {
             onToggleAutoHide={toggleAutoHide}
             collapseExpanded={false}
             onToggleCollapse={toggleCollapsed}
-            className="-right-2.5 top-5"
           />
-        </div>
+        </Box>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-y-contain py-2.5">
           <nav aria-label="เมนูหลัก" className="flex flex-col gap-1 px-2.5">
@@ -382,29 +456,34 @@ export function DesktopSidebar() {
           </button>
           <AppVersionLabel className="mt-1.5 text-[9px]" />
         </div>
-      </aside>
+      </SidebarShell>
     )
   }
 
   return (
-    <aside
-      {...sidebarInteraction}
-      data-sidebar-mode="expanded"
-      className={sidebarShellClass(false, false)}
-    >
-      <div className="relative border-b border-[color:var(--glass-border-subtle)] p-3 pr-9">
+    <SidebarShell collapsed={false} isPeek={false} interaction={sidebarInteraction} mode="expanded">
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: 0.75,
+          borderBottom: 1,
+          borderColor: 'divider',
+          p: 1.5,
+        }}
+      >
         <NavLink
           to={APP_HOME}
           className={() =>
             cn(
               theme.sidebarBrandPanel,
-              'flex items-center gap-3 p-4 pr-2',
+              'flex min-w-0 flex-1 items-center gap-3 p-2.5',
               isNavToActive(APP_HOME, location) && theme.sidebarBrandPanelActive,
             )
           }
           aria-label="Concrete Works — ไปหน้าสถานะหลัก"
         >
-          <span className={cn(theme.sidebarBrandLogoWrap, 'h-[3.25rem] w-[3.25rem]')}>
+          <span className={cn(theme.sidebarBrandLogoWrap, 'h-[3.25rem] w-[3.25rem] shrink-0')}>
             <img
               src="/pwa-512x512.png"
               alt=""
@@ -422,9 +501,8 @@ export function DesktopSidebar() {
           onToggleAutoHide={toggleAutoHide}
           collapseExpanded
           onToggleCollapse={toggleCollapsed}
-          className="-right-2.5 top-7"
         />
-      </div>
+      </Box>
 
       <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 py-5">
         <CollapsibleNavSection
@@ -440,7 +518,7 @@ export function DesktopSidebar() {
               end={homeMainLink.end}
               className={() => expandedNavClass(isNavToActive(homeMainLink.to, location))}
             >
-              <HomeNavIcon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+              <AppIcon icon={HomeNavIcon} size="sm" className="opacity-95" />
               {homeMainLink.label}
             </NavLink>
             <NavLink
@@ -448,17 +526,12 @@ export function DesktopSidebar() {
               onClick={() => resetFilter()}
               className={() => expandedNavClass(isNavToActive(REQUESTS_MINE, location))}
             >
-              <Star
-                className={cn(icon.sm, 'text-amber-500 opacity-95')}
-                strokeWidth={ICON_STROKE}
-                fill="currentColor"
-                aria-hidden
-              />
+              <AppIcon icon={Star} size="sm" className="text-amber-500 opacity-95" sx={{ color: 'inherit' }} />
               รายการของฉัน
             </NavLink>
             {canManageUsers(role) ? (
               <NavLink to="/admin" end className={({ isActive }) => expandedNavClass(isActive)}>
-                <LayoutDashboard className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+                <AppIcon icon={Dashboard} size="sm" className="opacity-95" />
                 Dashboard
               </NavLink>
             ) : null}
@@ -469,7 +542,7 @@ export function DesktopSidebar() {
                 end={end}
                 className={() => expandedNavClass(isNavToActive(to, location))}
               >
-                <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+                <AppIcon icon={Icon} size="sm" className="opacity-95" />
                 {label}
               </NavLink>
             ))}
@@ -491,7 +564,7 @@ export function DesktopSidebar() {
                   end={end}
                   className={() => expandedNavClass(isAdminLinkActive(to, location))}
                 >
-                  <Icon className={cn(icon.sm, 'opacity-95')} strokeWidth={ICON_STROKE} />
+                  <AppIcon icon={Icon} size="sm" className="opacity-95" />
                   {label}
                 </NavLink>
               ))}
@@ -514,7 +587,7 @@ export function DesktopSidebar() {
             title="โปรไฟล์"
             aria-label="ไปที่โปรไฟล์"
           >
-            <ChevronRight className={icon.sm} strokeWidth={ICON_STROKE} aria-hidden />
+            <AppIcon icon={ChevronRight} size="sm" />
           </Link>
         </div>
         <Button
@@ -523,11 +596,11 @@ export function DesktopSidebar() {
           className="h-10 w-full rounded-lg border-[color:var(--pour-line)] bg-transparent font-semibold text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]"
           onClick={handleLogout}
         >
-          <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={Logout} size="xs" className="mr-2" />
           ออกจากระบบ
         </Button>
         <AppVersionLabel />
       </div>
-    </aside>
+    </SidebarShell>
   )
 }

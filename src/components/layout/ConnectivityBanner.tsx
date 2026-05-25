@@ -1,12 +1,17 @@
-import { WifiOff, CloudOff, Loader2, Clock } from 'lucide-react'
+import WifiOff from '@mui/icons-material/WifiOff'
+import CloudOff from '@mui/icons-material/CloudOff'
+import Schedule from '@mui/icons-material/Schedule'
+import CircularProgress from '@mui/material/CircularProgress'
+import type { SvgIconComponent } from '@mui/icons-material'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { CONNECTIVITY_MESSAGES } from '@/lib/connectivity'
 import { useConnectivityStore, type ConnectivityPhase } from '@/stores/connectivityStore'
-import { icon, ICON_STROKE, type } from '@/lib/requestUi'
+import { type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 const BANNER: Record<
   Exclude<ConnectivityPhase, 'online'>,
-  { message: string; Icon: typeof WifiOff; className: string }
+  { message: string; Icon: SvgIconComponent; className: string }
 > = {
   offline: {
     message: CONNECTIVITY_MESSAGES.offline,
@@ -22,7 +27,7 @@ const BANNER: Record<
   },
   syncing: {
     message: CONNECTIVITY_MESSAGES.syncing,
-    Icon: Loader2,
+    Icon: CloudOff,
     className:
       'border-[color:var(--pour-accent)]/30 bg-[color:var(--pour-accent)]/10 text-[color:var(--pour-ink-0)] [--banner-icon:var(--pour-accent)]',
   },
@@ -49,10 +54,7 @@ export function ConnectivityBanner() {
           'pour-desktop:px-6 lg:pour-desktop:px-8',
         )}
       >
-        <BannerRow
-          icon={Loader2}
-          spin={flushing}
-          message={
+        <BannerRow icon={Schedule} spin={flushing} message={
             flushing
               ? CONNECTIVITY_MESSAGES.flushingQueue
               : CONNECTIVITY_MESSAGES.pendingQueue(pending)
@@ -72,7 +74,7 @@ export function ConnectivityBanner() {
 
   const { Icon, message, className } = cfg ?? {
     message: extras.join(' · '),
-    Icon: Clock,
+    Icon: Schedule,
     className: 'border-amber-500/35 bg-amber-500/12 text-amber-100',
   }
 
@@ -105,17 +107,21 @@ function BannerRow({
   spin,
   message,
 }: {
-  icon: typeof WifiOff
+  icon?: SvgIconComponent
   spin?: boolean
   message: string
 }) {
   return (
     <div className="flex items-center gap-2.5">
-      <IconComp
-        className={cn(icon.sm, 'text-[var(--banner-icon,theme(colors.amber.400))]', spin && 'animate-spin')}
-        strokeWidth={ICON_STROKE}
-        aria-hidden
-      />
+      {spin ? (
+        <CircularProgress size={16} sx={{ flexShrink: 0, color: 'var(--banner-icon, theme(colors.amber.400))' }} />
+      ) : IconComp ? (
+        <AppIcon
+          icon={IconComp}
+          size="sm"
+          className="text-[var(--banner-icon,theme(colors.amber.400))]"
+        />
+      ) : null}
       <p className={cn(type.caption, 'min-w-0 flex-1 font-medium leading-snug')}>{message}</p>
     </div>
   )

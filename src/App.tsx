@@ -43,6 +43,7 @@ import { PrintBookingSummaryPreviewPage } from '@/pages/print/PrintBookingSummar
 import { CstListPage } from '@/pages/cst/CstListPage'
 import { ConcreteSummaryPage } from '@/pages/cst/ConcreteSummaryPage'
 import { isSupabaseConfigured } from '@/lib/supabase'
+import { AppThemeProvider } from '@/components/providers/AppThemeProvider'
 
 function SupabaseConfigMissing() {
   return (
@@ -130,14 +131,20 @@ function AppInner() {
 
 export default function App() {
   if (!isSupabaseConfigured) {
-    return <SupabaseConfigMissing />
+    return (
+      <AppThemeProvider>
+        <SupabaseConfigMissing />
+      </AppThemeProvider>
+    )
   }
 
   return (
-    <BrowserRouter>
-      <TouchPressEnhancer />
-      <AppInner />
-      <Toaster position="top-center" />
-    </BrowserRouter>
+    <AppThemeProvider>
+      <BrowserRouter>
+        <TouchPressEnhancer />
+        <AppInner />
+        <Toaster position="top-center" />
+      </BrowserRouter>
+    </AppThemeProvider>
   )
 }

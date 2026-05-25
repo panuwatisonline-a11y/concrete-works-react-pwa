@@ -1,7 +1,10 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
-import { LayoutGrid, List, Plus } from 'lucide-react'
+import GridView from '@mui/icons-material/GridView'
+import ListIcon from '@mui/icons-material/List'
+import Add from '@mui/icons-material/Add'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useFilterStore } from '@/stores/filterStore'
-import { icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
+import { type, anim } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 type ListTab = 'summary' | 'latest' | 'mine' | 'calendar'
@@ -88,7 +91,7 @@ export function RequestListTabs({
             )}
             onClick={() => onLayoutModeChange('grid')}
           >
-            <LayoutGrid className={icon.xs} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={GridView} size="xs" />
           </button>
           <button
             type="button"
@@ -102,7 +105,7 @@ export function RequestListTabs({
             )}
             onClick={() => onLayoutModeChange('list')}
           >
-            <List className={icon.xs} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={ListIcon} size="xs" />
           </button>
         </div>
       ) : null}
@@ -135,7 +138,7 @@ export function RequestListPageHeader({
             type.bodyStrong,
           )}
         >
-          <Plus className={icon.md} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={Add} size="md" />
           เพิ่มรายการจอง
         </Link>
       ) : null}

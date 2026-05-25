@@ -10,13 +10,15 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { Activity, AlertTriangle } from 'lucide-react'
+import Timeline from '@mui/icons-material/Timeline'
+import Warning from '@mui/icons-material/Warning'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcreteChartTooltip'
 import { LOSS_MONTHS, type LossConcreteRecord } from '@/lib/lossConcreteAnalytics'
 import { TrendGranularityToggle } from '@/pages/admin/AdminDashboardCharts'
 import type { TrendGranularity } from '@/lib/adminDashboardAnalytics'
 import { cn } from '@/lib/utils'
-import { useThemeStore } from '@/stores/themeStore'
+import { useChartColors } from '@/lib/chartTheme'
 import { glass } from '@/lib/requestUi'
 
 interface LossCat {
@@ -82,20 +84,12 @@ const tabBtn = (active: boolean, activeClass: string) =>
     active ? activeClass : 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
   )
 
-function chartColors(isDark: boolean) {
-  return {
-    grid: isDark ? '#334155' : '#e2e8f0',
-    axis: isDark ? '#94a3b8' : '#64748b',
-  }
-}
-
 interface LossConcreteDashboardProps {
   records: LossConcreteRecord[]
 }
 
 export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
-  const isDark = useThemeStore((s) => s.theme) === 'dark'
-  const { grid: cGrid, axis: cAxis } = chartColors(isDark)
+  const { grid: cGrid, axis: cAxis, cursor: cCursor } = useChartColors()
   const [trendGranularity, setTrendGranularity] = useState<TrendGranularity>('month')
   const [selection, setSelection] = useState<Selection | null>(null)
   const [cmpMode, setCmpMode] = useState<CmpMode>('m3')
@@ -300,7 +294,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="flex items-center gap-2 text-sm font-bold text-[color:var(--pour-ink-0)]">
-                <AlertTriangle className="text-rose-500" size={16} aria-hidden />
+                <AppIcon icon={Warning} size="sm" className="text-rose-500" />
                 Loss Concrete Trend
               </h3>
               <p className="ml-6 mt-0.5 text-xs font-semibold text-rose-600/90 dark:text-rose-300/80">{chartLabel}</p>
@@ -339,7 +333,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
                         valueFormat="volume"
                       />
                     )}
-                    cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }}
+                    cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }}
                     wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
                   />
                   <Legend wrapperStyle={{ fontSize: 10, color: cAxis, paddingTop: 6 }} />
@@ -406,7 +400,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h3 className="flex items-center gap-2 text-sm font-bold text-[color:var(--pour-ink-0)]">
-                  <Activity className="text-amber-500" size={16} aria-hidden />
+                  <AppIcon icon={Timeline} size="sm" className="text-amber-500" />
                   Comparison
                 </h3>
                 <p className="ml-6 mt-0.5 text-xs font-semibold text-amber-600/90 dark:text-amber-300/80">
@@ -488,7 +482,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
                             valueFormat={cmpMode === 'pct' ? 'percent' : 'volume'}
                           />
                         )}
-                        cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }}
+                        cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }}
                         wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }}
                       />
                       <Legend wrapperStyle={{ fontSize: 10, color: cAxis, paddingTop: 6 }} />
@@ -574,7 +568,7 @@ export function LossConcreteDashboard({ records }: LossConcreteDashboardProps) {
             )}
           >
             <span className="inline-flex items-center gap-1.5">
-              <Activity size={12} aria-hidden />
+              <AppIcon icon={Timeline} size="xs" sx={{ fontSize: 12 }} />
               All Data
               <span className="rounded-full bg-white/20 px-1.5 py-0.5 text-[10px]">{lossItems.length}</span>
             </span>

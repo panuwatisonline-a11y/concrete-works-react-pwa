@@ -1,4 +1,7 @@
-import { Bell, BellOff, Loader2 } from 'lucide-react'
+import Notifications from '@mui/icons-material/Notifications'
+import NotificationsOff from '@mui/icons-material/NotificationsOff'
+import CircularProgress from '@mui/material/CircularProgress'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { usePushNotification } from '@/hooks/usePushNotification'
 import { getPushUnavailableReason, pushUnavailableMessage } from '@/lib/pushNotification'
 import { Button } from '@/components/ui/button'
@@ -62,9 +65,9 @@ export function PushNotificationSettings() {
           )}
         >
           {isSubscribed ? (
-            <Bell className="h-5 w-5" strokeWidth={2} />
+            <AppIcon icon={Notifications} size="md" />
           ) : (
-            <BellOff className="h-5 w-5" strokeWidth={2} />
+            <AppIcon icon={NotificationsOff} size="md" />
           )}
         </div>
 
@@ -88,7 +91,7 @@ export function PushNotificationSettings() {
           onClick={() => void handleToggle()}
         >
           {loading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <CircularProgress size={16} sx={{ flexShrink: 0 }} />
           ) : isSubscribed ? (
             'ปิด'
           ) : (

@@ -17,15 +17,37 @@
   <body>
     <script>
       (function () {
+        var variant = 'dark'
+        var metaColors = {
+          dark: '#1e1e1e',
+          light: '#f5f9fc',
+          green: '#effaf6',
+          pink: '#fff5f9',
+        }
         try {
-          if (localStorage.getItem('pour-theme') === 'light') {
-            document.documentElement.classList.add('light')
-          } else {
-            document.documentElement.classList.add('dark')
+          var raw = localStorage.getItem('cw-theme')
+          if (raw) {
+            var t = JSON.parse(raw)
+            if (
+              t.variant === 'dark' ||
+              t.variant === 'light' ||
+              t.variant === 'green' ||
+              t.variant === 'pink'
+            ) {
+              variant = t.variant
+            } else if (t.mode === 'dark') variant = 'dark'
+            else if (t.mode === 'light') variant = 'pink'
+          } else if (localStorage.getItem('pour-theme') === 'light') {
+            variant = 'pink'
           }
         } catch (e) {
-          document.documentElement.classList.add('dark')
+          /* ignore */
         }
+        var root = document.documentElement
+        root.dataset.theme = variant
+        root.classList.add(variant === 'dark' ? 'dark' : 'light')
+        var meta = document.querySelector('meta[name="theme-color"]')
+        if (meta && metaColors[variant]) meta.setAttribute('content', metaColors[variant])
       })()
     </script>
     <div id="root"></div>

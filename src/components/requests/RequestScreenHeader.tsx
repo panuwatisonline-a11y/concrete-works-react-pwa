@@ -1,5 +1,6 @@
 ﻿import type { ReactNode } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import ArrowBack from '@mui/icons-material/ArrowBack'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { rq } from '@/lib/requestUi'
@@ -24,7 +25,7 @@ export function RequestScreenHeader({ title, subtitle, onBack, right, className 
           onClick={onBack}
           aria-label="กลับ"
         >
-          <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+          <AppIcon icon={ArrowBack} size="md" />
         </Button>
       ) : null}
       <div className="min-w-0 flex-1">

@@ -1,144 +1,107 @@
-﻿import * as React from 'react'
-import * as SelectPrimitive from '@radix-ui/react-select'
-import { Check, ChevronDown, ChevronUp } from 'lucide-react'
-import { glass } from '@/lib/requestUi'
-import { cn } from '@/lib/utils'
+﻿/**
+ * Radix Select API shim — ใช้ MUI; ในแอปใช้ SearchableSelect (Autocomplete) เป็นหลัก
+ */
+import * as React from 'react'
+import MuiSelect, { type SelectChangeEvent } from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
+import Box from '@mui/material/Box'
 
-/** Dropdown ต้องสูงกว่า Dialog ชั้น workflow/CST (overlay z-[260], content z-[270]) */
 export const SELECT_CONTENT_ELEVATED_Z = 'z-[300]'
 
-const Select = SelectPrimitive.Root
-const SelectGroup = SelectPrimitive.Group
-const SelectValue = SelectPrimitive.Value
+type SelectContextValue = {
+  value?: string
+  onValueChange?: (value: string) => void
+  labelId?: string
+}
 
-const SelectTrigger = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Trigger
-    ref={ref}
-    className={cn(
-      glass.picker,
-      'flex h-10 min-w-0 max-w-full w-full items-center justify-between whitespace-nowrap rounded-xl px-3.5 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
-      'text-[color:var(--pour-ink-0)]',
-      '[&[data-placeholder]]:text-[color:var(--pour-ink-3)]',
-      '[&[data-placeholder]>span]:font-normal [&[data-placeholder]>span]:!text-[color:var(--pour-ink-3)]',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-    <SelectPrimitive.Icon asChild>
-      <ChevronDown className="h-4 w-4 opacity-50" />
-    </SelectPrimitive.Icon>
-  </SelectPrimitive.Trigger>
-))
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
+const SelectContext = React.createContext<SelectContextValue>({})
 
-const SelectScrollUpButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollUpButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <ChevronUp className="h-4 w-4" />
-  </SelectPrimitive.ScrollUpButton>
-))
-SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
-
-const SelectScrollDownButton = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.ScrollDownButton
-    ref={ref}
-    className={cn('flex cursor-default items-center justify-center py-1', className)}
-    {...props}
-  >
-    <ChevronDown className="h-4 w-4" />
-  </SelectPrimitive.ScrollDownButton>
-))
-SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName
-
-const SelectContent = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      className={cn(
-        'pour-glass relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-xl text-[color:var(--pour-ink-0)]',
-        className
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
-        className={cn(
-          'p-1',
-          position === 'popper' && 'h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]'
-        )}
-      >
+function Select({
+  value,
+  onValueChange,
+  children,
+  disabled,
+}: {
+  value?: string
+  onValueChange?: (value: string) => void
+  children?: React.ReactNode
+  disabled?: boolean
+}) {
+  const labelId = React.useId()
+  return (
+    <SelectContext.Provider value={{ value, onValueChange, labelId }}>
+      <FormControl fullWidth size="small" disabled={disabled}>
         {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-))
-SelectContent.displayName = SelectPrimitive.Content.displayName
+      </FormControl>
+    </SelectContext.Provider>
+  )
+}
 
-const SelectLabel = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Label>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Label
-    ref={ref}
-    className={cn('px-2 py-1.5 text-sm font-semibold', className)}
-    {...props}
-  />
-))
-SelectLabel.displayName = SelectPrimitive.Label.displayName
+const SelectGroup = ({ children }: { children?: React.ReactNode }) => <>{children}</>
 
-const SelectItem = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn(
-      'relative flex w-full cursor-default select-none items-center rounded-lg py-1.5 pl-2 pr-8 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      className
-    )}
-    {...props}
-  >
-    <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
-      <SelectPrimitive.ItemIndicator>
-        <Check className="h-4 w-4" />
-      </SelectPrimitive.ItemIndicator>
-    </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-  </SelectPrimitive.Item>
-))
-SelectItem.displayName = SelectPrimitive.Item.displayName
+function SelectValue({ placeholder }: { placeholder?: string }) {
+  const { value } = React.useContext(SelectContext)
+  if (value) return null
+  return <span className="text-[color:var(--mui-palette-text-disabled)]">{placeholder}</span>
+}
 
-const SelectSeparator = React.forwardRef<
-  React.ElementRef<typeof SelectPrimitive.Separator>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
->(({ className, ...props }, ref) => (
-  <SelectPrimitive.Separator
-    ref={ref}
-    className={cn('-mx-1 my-1 h-px bg-[color:var(--glass-border-subtle)]', className)}
-    {...props}
-  />
-))
-SelectSeparator.displayName = SelectPrimitive.Separator.displayName
+const SelectTrigger = React.forwardRef<HTMLDivElement, { className?: string; children?: React.ReactNode; id?: string }>(
+  ({ className, children, id }, ref) => {
+    const { value, onValueChange, labelId } = React.useContext(SelectContext)
+    return (
+      <MuiSelect
+        ref={ref}
+        labelId={labelId}
+        id={id}
+        value={value ?? ''}
+        displayEmpty
+        className={className}
+        onChange={(e: SelectChangeEvent<string>) => onValueChange?.(e.target.value)}
+        renderValue={() => children}
+      />
+    )
+  },
+)
+SelectTrigger.displayName = 'SelectTrigger'
+
+const SelectContent = ({ children }: { children?: React.ReactNode }) => <>{children}</>
+const SelectScrollUpButton = () => null
+const SelectScrollDownButton = () => null
+
+const SelectLabel = React.forwardRef<HTMLLabelElement, { children?: React.ReactNode; className?: string }>(
+  ({ children, className }, ref) => {
+    const { labelId } = React.useContext(SelectContext)
+    return (
+      <InputLabel ref={ref} id={labelId} className={className}>
+        {children}
+      </InputLabel>
+    )
+  },
+)
+SelectLabel.displayName = 'SelectLabel'
+
+const SelectItem = React.forwardRef<HTMLLIElement, { value: string; children?: React.ReactNode; className?: string; disabled?: boolean }>(
+  ({ value, children, className, disabled }, ref) => (
+    <MenuItem ref={ref} value={value} className={className} disabled={disabled}>
+      {children}
+    </MenuItem>
+  ),
+)
+SelectItem.displayName = 'SelectItem'
+
+const SelectSeparator = () => <Box sx={{ my: 0.5, borderTop: 1, borderColor: 'divider' }} />
 
 export {
-  Select, SelectGroup, SelectValue, SelectTrigger, SelectContent,
-  SelectLabel, SelectItem, SelectSeparator, SelectScrollUpButton, SelectScrollDownButton,
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
 }

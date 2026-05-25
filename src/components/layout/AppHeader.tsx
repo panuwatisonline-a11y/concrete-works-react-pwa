@@ -1,17 +1,22 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
-import {
-  Menu, X, LogOut, LayoutDashboard,
-  Search,
-} from 'lucide-react'
+import Menu from '@mui/icons-material/Menu'
+import Close from '@mui/icons-material/Close'
+import Logout from '@mui/icons-material/Logout'
+import Dashboard from '@mui/icons-material/Dashboard'
+import Search from '@mui/icons-material/Search'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
+import Drawer from '@mui/material/Drawer'
+import IconButton from '@mui/material/IconButton'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { APP_HOME } from '@/lib/appHome'
 import { POUR_DESKTOP_MEDIA } from '@/lib/pourLayout'
-import { theme, BRAND_TAGLINE, icon, ICON_STROKE, type } from '@/lib/requestUi'
+import { theme, BRAND_TAGLINE, type } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { adminConsoleLinks } from '@/lib/adminNav'
 import { mainNavLinks } from '@/lib/mainNav'
@@ -80,9 +85,15 @@ export function AppHeader() {
 
   return (
     <>
-      <header
+      <Box
+        component="header"
         ref={headerRef}
-        className={cn('sticky top-0 z-40 shrink-0 pour-desktop:hidden', theme.headerBar)}
+        className="sticky top-0 z-40 shrink-0 pour-desktop:hidden"
+        sx={{
+          bgcolor: 'background.default',
+          borderBottom: 1,
+          borderColor: 'divider',
+        }}
       >
         {/* Mobile wireframe header: เมนู | ชื่อซ้าย | ค้นหา */}
         <div className={cn('mx-auto grid min-h-[48px] w-full min-w-0 max-w-none grid-cols-[2.5rem_1fr_2.5rem] items-center gap-x-1 gap-y-0 pour-desktop:hidden', theme.headerBarMobile)}>
@@ -94,7 +105,7 @@ export function AppHeader() {
             onClick={() => setDrawerOpen(true)}
             aria-label="เปิดเมนู"
           >
-            <Menu className={icon.lg} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={Menu} size="lg" />
           </button>
           <Link
             to={APP_HOME}
@@ -109,7 +120,7 @@ export function AppHeader() {
             className={cn('h-9 w-9 shrink-0 justify-self-end', theme.iconButtonChrome)}
             aria-label="ค้นหาและตัวกรอง"
           >
-            <Search className={icon.sm} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={Search} size="sm" />
           </button>
         </div>
         {isSuperAdmin(role) ? (
@@ -117,19 +128,27 @@ export function AppHeader() {
             <SuperAdminJobFilter variant="mobile" />
           </div>
         ) : null}
-      </header>
+      </Box>
 
-      <Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className={cn(
-            'fixed left-0 top-0 z-50 flex h-[100dvh] max-h-[100dvh] w-[min(20rem,92vw)] max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none border border-y-0 border-l-0 p-0 sm:max-w-none',
-            theme.drawerPanel,
-          )}
-        >
-          <DialogHeader className={cn('px-5 py-4 text-left', theme.drawerHeader)}>
-            <DialogTitle className="sr-only">เมนู</DialogTitle>
-            <div className="flex items-center justify-between gap-2">
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 'min(20rem, 92vw)',
+              display: 'flex',
+              flexDirection: 'column',
+            },
+          },
+        }}
+      >
+          <Box sx={{ px: 2.5, py: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <Typography component="h2" className="sr-only">
+              เมนู
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
               <Link
                 to={APP_HOME}
                 onClick={() => setDrawerOpen(false)}
@@ -144,16 +163,11 @@ export function AppHeader() {
                   <span className={cn('mt-0.5 block', type.tagline)}>{BRAND_TAGLINE}</span>
                 </span>
               </Link>
-              <button
-                type="button"
-                className="pour-interactive pour-nav-item shrink-0 rounded-lg p-2 text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-accent-muted)] hover:text-[color:var(--pour-accent)]"
-                onClick={() => setDrawerOpen(false)}
-                aria-label="ปิดเมนู"
-              >
-                <X className={icon.md} strokeWidth={ICON_STROKE} />
-              </button>
-            </div>
-          </DialogHeader>
+              <IconButton aria-label="ปิดเมนู" onClick={() => setDrawerOpen(false)} size="small">
+                <AppIcon icon={Close} size="md" />
+              </IconButton>
+            </Box>
+          </Box>
 
           {isSuperAdmin(role) ? (
             <div className="border-b border-[color:var(--glass-border-subtle)] px-4 py-3 pour-desktop:hidden">
@@ -161,7 +175,7 @@ export function AppHeader() {
             </div>
           ) : null}
 
-          <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-3">
+          <Box component="nav" sx={{ flex: 1, overflowY: 'auto', px: 1.5, py: 1.5 }} className="space-y-4">
             <CollapsibleNavSection title="MENU" defaultOpen={!adminSectionActive} panelClassName="space-y-1 pb-1">
               {drawerMainLinks.map(({ to, label, icon: Icon, end }) => (
                 <NavLink
@@ -178,7 +192,7 @@ export function AppHeader() {
                     )
                   }
                 >
-                  <Icon className={icon.md} strokeWidth={ICON_STROKE} />
+                  <AppIcon icon={Icon} size="md" />
                   {label}
                 </NavLink>
               ))}
@@ -196,7 +210,7 @@ export function AppHeader() {
                     )
                   }
                 >
-                  <LayoutDashboard className={icon.md} strokeWidth={ICON_STROKE} />
+                  <AppIcon icon={Dashboard} size="md" />
                   Dashboard
                 </NavLink>
               ) : null}
@@ -223,15 +237,15 @@ export function AppHeader() {
                         )
                       }
                     >
-                      <Icon className={icon.md} strokeWidth={ICON_STROKE} />
+                      <AppIcon icon={Icon} size="md" />
                       {label}
                     </NavLink>
                 ))}
               </CollapsibleNavSection>
             ) : null}
-          </nav>
+          </Box>
 
-          <div className="border-t border-[color:var(--glass-border-subtle)] p-4">
+          <Box sx={{ borderTop: 1, borderColor: 'divider', p: 2 }}>
             <ThemeToggle className="mb-3" />
             <div className="mb-3 flex items-center gap-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] p-3 backdrop-blur-md">
               <UserAvatar
@@ -246,13 +260,12 @@ export function AppHeader() {
               </div>
             </div>
             <Button variant="outline" className="h-10 w-full rounded-xl border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] backdrop-blur-sm" onClick={handleLogout}>
-              <LogOut className={cn(icon.xs, 'mr-2')} strokeWidth={ICON_STROKE} />
+              <AppIcon icon={Logout} size="xs" className="mr-2" />
               ออกจากระบบ
             </Button>
             <AppVersionLabel />
-          </div>
-        </DialogContent>
-      </Dialog>
+          </Box>
+      </Drawer>
 
     </>
   )

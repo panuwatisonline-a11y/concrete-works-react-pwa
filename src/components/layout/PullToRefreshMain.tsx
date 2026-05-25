@@ -6,7 +6,8 @@ import {
   type ComponentPropsWithoutRef,
   type ReactNode,
 } from 'react'
-import { RefreshCw } from 'lucide-react'
+import Refresh from '@mui/icons-material/Refresh'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useConnectivityStore } from '@/stores/connectivityStore'
 import { usePullRefreshStore } from '@/stores/pullRefreshStore'
 import { registerMainScrollEl } from '@/stores/mainScrollStore'
@@ -183,13 +184,13 @@ export function PullToRefreshMain({ children, className, ...rest }: PullToRefres
         style={{ height: indicatorHeight }}
       >
         <div className="mb-1 flex items-center gap-2 rounded-full border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-strong)] px-3 py-1.5 shadow-[var(--glass-shadow-sm)]">
-          <RefreshCw
+          <AppIcon
+            icon={Refresh}
+            size="sm"
             className={cn(
-              'h-4 w-4 text-[color:var(--pour-accent)]',
+              'text-[color:var(--pour-accent)]',
               (refreshing || ready) && 'animate-spin',
             )}
-            strokeWidth={2}
-            aria-hidden
           />
           <span className={cn(type.caption, 'text-[color:var(--pour-ink-2)]')}>{label}</span>
         </div>

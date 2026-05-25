@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
-import { theme, icon, ICON_STROKE } from '@/lib/requestUi'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
+import { theme } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 
 type CollapsibleNavSectionProps = {
@@ -37,10 +38,10 @@ export function CollapsibleNavSection({
         )}
       >
         <span>{title}</span>
-        <ChevronDown
-          className={cn(icon.sm, 'shrink-0 transition-transform duration-200', open && 'rotate-180')}
-          strokeWidth={ICON_STROKE}
-          aria-hidden
+        <AppIcon
+          icon={ExpandMore}
+          size="sm"
+          className={cn('transition-transform duration-200', open && 'rotate-180')}
         />
       </button>
       {open ? (

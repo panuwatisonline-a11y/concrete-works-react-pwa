@@ -1,4 +1,5 @@
 ﻿import * as React from 'react'
+import TextField from '@mui/material/TextField'
 import { cn } from '@/lib/utils'
 import {
   formatTemporalInputDisplay,
@@ -8,15 +9,11 @@ import {
 
 const NATIVE_DATE_INPUT_TYPES = new Set(['date', 'datetime-local', 'time', 'month', 'week'])
 
-const INPUT_BASE =
-  'pour-form-control flex h-10 min-w-0 max-w-full w-full items-center rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2 text-[15px] font-medium text-[color:var(--pour-ink-0)] file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50'
-
 function assignRef<T>(ref: React.ForwardedRef<T>, node: T | null) {
   if (typeof ref === 'function') ref(node)
   else if (ref) ref.current = node
 }
 
-/** RHF ใส่ค่า default ผ่าน ref หลัง mount — อ่านซ้ำหลายเฟรมให้ facade บน iOS ทัน */
 function scheduleFacadeSync(sync: (el: HTMLInputElement) => void, el: HTMLInputElement) {
   sync(el)
   queueMicrotask(() => sync(el))
@@ -39,6 +36,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       onBlur,
       id,
       placeholder,
+      disabled,
       ...props
     },
     ref,
@@ -108,23 +106,19 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
         <div
           className={cn(
             'pour-date-input-shell relative h-10 w-full min-w-0 max-w-full overflow-hidden',
-            'focus-within:[&>input:first-child]:border-[color:var(--pour-accent)]',
             facadeFilled && 'pour-date-input-shell--filled',
           )}
         >
-          <input
-            type="text"
-            readOnly
+          <TextField
+            size="small"
+            fullWidth
             tabIndex={-1}
             aria-hidden
-            disabled={props.disabled}
+            disabled={disabled}
             placeholder={temporalInputPlaceholder(type, placeholder)}
             value={displayValue}
-            className={cn(
-              INPUT_BASE,
-              'pointer-events-none absolute inset-0 z-0',
-              className,
-            )}
+            className={cn('pointer-events-none absolute inset-0 z-0', className)}
+            slotProps={{ input: { readOnly: true } }}
           />
           <input
             type={type}
@@ -132,6 +126,7 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
             ref={setNativeRef}
             className="pour-date-input-overlay"
             onClick={onClick}
+            disabled={disabled}
             {...(isControlled ? { value } : { defaultValue })}
             onChange={handleNative(onChange)}
             onInput={handleNative(onInput)}
@@ -142,30 +137,45 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
       )
     }
 
-    const inputClassName = cn(
-      INPUT_BASE,
-      isNativeDateInput && 'pour-date-input',
-      className,
-    )
+    if (isNativeDateInput) {
+      return (
+        <div className="pour-date-input-shell w-full">
+          <TextField
+            id={id}
+            type={type}
+            size="small"
+            fullWidth
+            disabled={disabled}
+            placeholder={placeholder}
+            className={cn('pour-date-input', className)}
+            inputRef={ref}
+            onClick={onClick}
+            onChange={onChange}
+            onBlur={onBlur}
+            {...(isControlled ? { value: value as string } : defaultValue !== undefined ? { defaultValue: String(defaultValue) } : {})}
+            slotProps={{ htmlInput: props }}
+          />
+        </div>
+      )
+    }
 
-    const input = (
-      <input
-        type={type}
+    return (
+      <TextField
         id={id}
+        type={type}
+        size="small"
+        fullWidth
+        disabled={disabled}
         placeholder={placeholder}
-        className={inputClassName}
-        ref={ref}
+        className={className}
+        inputRef={ref}
         onClick={onClick}
         onChange={onChange}
-        onInput={onInput}
         onBlur={onBlur}
-        {...props}
-        {...(isControlled ? { value } : defaultValue !== undefined ? { defaultValue } : {})}
+        {...(isControlled ? { value: value as string } : defaultValue !== undefined ? { defaultValue: String(defaultValue) } : {})}
+        slotProps={{ htmlInput: props }}
       />
     )
-
-    if (!isNativeDateInput) return input
-    return <div className="pour-date-input-shell">{input}</div>
   },
 )
 Input.displayName = 'Input'

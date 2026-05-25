@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ClipboardList, Layers, List, MapPin } from 'lucide-react'
+import ChevronLeft from '@mui/icons-material/ChevronLeft'
+import ChevronRight from '@mui/icons-material/ChevronRight'
+import ListAlt from '@mui/icons-material/ListAlt'
+import Layers from '@mui/icons-material/Layers'
+import ListIcon from '@mui/icons-material/List'
+import Place from '@mui/icons-material/Place'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -19,7 +25,7 @@ import { cacheRequestRows } from '@/lib/offline/cache'
 import { isFullyOnline } from '@/stores/connectivityStore'
 import { useConnectivityStore } from '@/stores/connectivityStore'
 import type { QueryJobScope } from '@/lib/jobScope'
-import { icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
+import { rq, type } from '@/lib/requestUi'
 import { cn, formatDate, formatTime, formatVolumeNumber } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
 
@@ -89,10 +95,10 @@ export function RequestBookingCalendar({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-1">
           <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => shiftMonth(-1)} aria-label="เดือนก่อน">
-            <ChevronLeft className={icon.sm} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={ChevronLeft} size="sm" />
           </Button>
           <Button type="button" variant="outline" size="icon" className="h-9 w-9" onClick={() => shiftMonth(1)} aria-label="เดือนถัดไป">
-            <ChevronRight className={icon.sm} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={ChevronRight} size="sm" />
           </Button>
           <Button type="button" variant="ghost" size="sm" className="ml-1" onClick={() => {
             const t = todayIsoLocal().split('-').map(Number)
@@ -184,7 +190,7 @@ export function RequestBookingCalendar({
                 'font-medium hover:bg-[color:var(--pour-nav-hover-bg)]',
               )}
             >
-              <ClipboardList className={icon.sm} strokeWidth={ICON_STROKE} />
+              <AppIcon icon={ListAlt} size="sm" />
               สรุปรายการจอง
             </Link>
             <Link
@@ -195,7 +201,7 @@ export function RequestBookingCalendar({
                 'font-medium hover:bg-[color:var(--pour-nav-hover-bg)]',
               )}
             >
-              <List className={icon.sm} strokeWidth={ICON_STROKE} />
+              <AppIcon icon={ListIcon} size="sm" />
               รายการวันนี้
             </Link>
           </div>
@@ -231,13 +237,13 @@ export function RequestBookingCalendar({
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0 space-y-1">
                           <div className="flex items-start gap-1.5">
-                            <Layers className={cn(icon.xs, 'mt-0.5 shrink-0 text-pour-muted')} strokeWidth={ICON_STROKE} aria-hidden />
+                            <AppIcon icon={Layers} size="xs" className="mt-0.5 text-pour-muted" />
                             <span className={cn(type.bodyStrong, 'min-w-0 leading-snug')}>
                               {structureLine ?? '—'}
                             </span>
                           </div>
                           <div className="flex items-start gap-1.5">
-                            <MapPin className={cn(icon.xs, 'mt-0.5 shrink-0 text-pour-muted')} strokeWidth={ICON_STROKE} aria-hidden />
+                            <AppIcon icon={Place} size="xs" className="mt-0.5 text-pour-muted" />
                             <span className={cn(type.caption, 'min-w-0 leading-snug')}>
                               {loc?.trim() || '—'}
                             </span>

@@ -1,4 +1,5 @@
-﻿import { Check } from 'lucide-react'
+﻿import Check from '@mui/icons-material/Check'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import type { MixedCode } from '@/types/app.types'
 import { getMixcodeOverDwgHint, parseDwgStrengthOption } from '@/lib/mixcodeBookingFilter'
@@ -88,7 +89,7 @@ export function MixcodePicker({
                     >
                       <td className="w-9 px-1 py-2 align-middle text-center sm:w-10 sm:px-2 sm:py-2.5">
                         {on ? (
-                          <Check className="mx-auto h-4 w-4 shrink-0 text-[color:var(--pour-accent)]" strokeWidth={2.5} aria-hidden />
+                          <AppIcon icon={Check} size="sm" className="mx-auto text-[color:var(--pour-accent)]" />
                         ) : (
                           <span className="mx-auto block h-4 w-4 shrink-0" aria-hidden />
                         )}

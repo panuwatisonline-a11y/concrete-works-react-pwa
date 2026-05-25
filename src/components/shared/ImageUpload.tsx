@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { Camera, Image as ImageIcon, X } from 'lucide-react'
+import PhotoCamera from '@mui/icons-material/PhotoCamera'
+import Image from '@mui/icons-material/Image'
+import Close from '@mui/icons-material/Close'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { supabase, isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { compressImage, UPLOAD_MAX_BYTES } from '@/lib/compressImage'
@@ -227,7 +230,7 @@ export function ImageUpload({
               onClick={() => onChange(null)}
               className="absolute -right-2 -top-2 rounded-full bg-zinc-900 p-1 text-white hover:bg-zinc-800"
             >
-              <X className="h-3 w-3" />
+              <AppIcon icon={Close} size="xs" sx={{ fontSize: 12 }} />
             </button>
           )}
         </div>
@@ -246,7 +249,7 @@ export function ImageUpload({
               onClick={() => cameraInputRef.current?.click()}
               className={pickButtonClass}
             >
-              <Camera className="h-6 w-6" aria-hidden />
+              <AppIcon icon={PhotoCamera} size="lg" />
               <span>ถ่ายรูป</span>
             </button>
             <button
@@ -255,7 +258,7 @@ export function ImageUpload({
               onClick={() => galleryInputRef.current?.click()}
               className={pickButtonClass}
             >
-              <ImageIcon className="h-6 w-6" aria-hidden />
+              <AppIcon icon={Image} size="lg" />
               <span>เลือกรูป</span>
             </button>
           </div>

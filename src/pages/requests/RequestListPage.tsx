@@ -44,20 +44,20 @@ import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
-import {
-  Building2,
-  MapPin,
-  Droplets,
-  Ruler,
-  FileText,
-  Layers,
-  GitBranch,
-  Beaker,
-  Calendar,
-  Landmark,
-  Hash,
-  ChevronDown,
-} from 'lucide-react'
+import type { SvgIconComponent } from '@mui/icons-material'
+import Business from '@mui/icons-material/Business'
+import Place from '@mui/icons-material/Place'
+import WaterDrop from '@mui/icons-material/WaterDrop'
+import Straighten from '@mui/icons-material/Straighten'
+import Description from '@mui/icons-material/Description'
+import Layers from '@mui/icons-material/Layers'
+import AccountTree from '@mui/icons-material/AccountTree'
+import Science from '@mui/icons-material/Science'
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import AccountBalance from '@mui/icons-material/AccountBalance'
+import Tag from '@mui/icons-material/Tag'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
 import type { RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
@@ -66,7 +66,7 @@ import { RequestListPageHeader, RequestListTabs } from '@/components/requests/Re
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
 import { JobScopeBadge } from '@/components/shared/JobScopeBadge'
 import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
-import { rq, theme, icon, ICON_STROKE, type, anim } from '@/lib/requestUi'
+import { rq, theme, type, anim } from '@/lib/requestUi'
 
 const LIST_LAYOUT_KEY = 'cw-request-list-layout'
 
@@ -190,14 +190,13 @@ function RequestGroupedFeedBody({
                 }))
               }
             >
-              <ChevronDown
+              <AppIcon
+                icon={ExpandMore}
+                size="sm"
                 className={cn(
-                  icon.sm,
-                  'shrink-0 text-pour-subtle transition-transform duration-200',
+                  'text-pour-subtle transition-transform duration-200',
                   isOpen && 'rotate-180',
                 )}
-                strokeWidth={ICON_STROKE}
-                aria-hidden
               />
               <span className={cn('min-w-0 flex-1 font-semibold leading-snug text-[color:var(--pour-ink-0)]')}>
                 {section.heading}
@@ -241,18 +240,18 @@ function RequestGroupedFeedBody({
 }
 
 function FeedDetailRow({
-  icon: Icon,
+  icon: IconComp,
   label,
   value,
 }: {
-  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>
+  icon: SvgIconComponent
   label: string
   value: ReactNode
 }) {
   if (value == null || value === '' || value === '-') return null
   return (
     <div className={cn('flex gap-2.5', type.detail)}>
-      <Icon className={cn(icon.sm, 'mt-0.5 text-pour-subtle')} strokeWidth={ICON_STROKE} />
+      <AppIcon icon={IconComp} size="sm" className="mt-0.5 text-pour-subtle" />
       <div className="min-w-0 flex-1">
         <span className={type.caption}>{label}</span>
         <span className={cn('ml-1.5', type.bodyStrong)}>{value}</span>
@@ -504,21 +503,21 @@ function RequestFeedCard({
 
         <Link to={`/requests/${r.id}`} className="pour-interactive block">
           <div className="grid grid-cols-1 gap-y-2 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
-            <FeedDetailRow icon={Building2} label="User Group" value={client} />
-            <FeedDetailRow icon={MapPin} label="Location" value={locationLine} />
+            <FeedDetailRow icon={Business} label="User Group" value={client} />
+            <FeedDetailRow icon={Place} label="Location" value={locationLine} />
             <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
-            <FeedDetailRow icon={Landmark} label="Structure" value={structureDetailName} />
-            <FeedDetailRow icon={Hash} label="Structure No." value={structureNoDetail} />
-            <FeedDetailRow icon={Calendar} label="วันเท / เวลา" value={castingLine || null} />
-            <FeedDetailRow icon={Droplets} label="Mix Code" value={mixLine} />
+            <FeedDetailRow icon={AccountBalance} label="Structure" value={structureDetailName} />
+            <FeedDetailRow icon={Tag} label="Structure No." value={structureNoDetail} />
+            <FeedDetailRow icon={CalendarMonth} label="วันเท / เวลา" value={castingLine || null} />
+            <FeedDetailRow icon={WaterDrop} label="Mix Code" value={mixLine} />
             {volumeFeed ? (
-              <FeedDetailRow icon={Ruler} label={volumeFeed.label} value={volumeFeed.value} />
+              <FeedDetailRow icon={Straighten} label={volumeFeed.label} value={volumeFeed.value} />
             ) : null}
             {r.sample_qty != null && (
-              <FeedDetailRow icon={Beaker} label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
+              <FeedDetailRow icon={Science} label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
             )}
-            <FeedDetailRow icon={FileText} label="ABC" value={abc} />
-            <FeedDetailRow icon={GitBranch} label="WBS" value={wbs} />
+            <FeedDetailRow icon={Description} label="ABC" value={abc} />
+            <FeedDetailRow icon={AccountTree} label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
               <div className={cn('rounded-lg bg-[color:var(--pour-bg-2)] px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
                 <span className="text-pour-subtle">หมายเหตุ </span>

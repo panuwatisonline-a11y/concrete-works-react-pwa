@@ -19,9 +19,11 @@
 /** Wide desktop layout: landscape + ≥1280px — content centering, wider grids, expanded typography */
 @custom-variant pour-wide (@media ((orientation: landscape) and (min-width: 1280px)));
 
-/* POUR design tokens — Figma-style dark dashboard */
+/* ธีม 4 สี — design tokens (--pour-* ชื่อเดิมสำหรับ layout) */
 @layer base {
-  :root {
+  /* Dark — ดำ ฟ้า (ค่าเริ่มต้น) */
+  :root,
+  html[data-theme="dark"] {
     --pour-sky: #9ed9de;
     --pour-cream: #1e1e1e;
     --pour-bg: #1e1e1e;
@@ -37,9 +39,9 @@
     --pour-accent-hover: #0d8ce8;
     --pour-accent-muted: rgba(24, 160, 251, 0.14);
     --pour-accent-ring: rgba(24, 160, 251, 0.35);
-    --pour-brand: #ff8c5a;
-    --pour-brand-hover: #f07040;
-    --pour-nav-active-bg: rgba(255, 255, 255, 0.1);
+    --pour-brand: #5eb8ff;
+    --pour-brand-hover: #3db3fc;
+    --pour-nav-active-bg: rgba(24, 160, 251, 0.14);
     --pour-nav-hover-bg: rgba(255, 255, 255, 0.06);
     --pour-blue: var(--pour-accent);
     --pour-blue-deep: var(--pour-accent-hover);
@@ -61,7 +63,7 @@
     --glass-blur: 8px;
     --shell-base: var(--pour-bg);
     --shell-blob-1: rgba(44, 44, 44, 0.5);
-    --shell-blob-2: rgba(24, 160, 251, 0.06);
+    --shell-blob-2: rgba(24, 160, 251, 0.08);
     --shell-blob-3: rgba(30, 30, 30, 0.8);
 
     --ig-bg: var(--pour-bg);
@@ -70,96 +72,242 @@
     --ig-text: var(--pour-ink-0);
     --ig-muted: var(--pour-ink-2);
     --ig-link: var(--pour-blue);
-    --background: 0 0% 12%;
+    --background: 210 10% 12%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 17%;
+    --card: 210 8% 17%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 17%;
+    --popover: 210 8% 17%;
     --popover-foreground: 0 0% 98%;
     --primary: 204 90% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 20%;
+    --secondary: 210 6% 20%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 22%;
+    --muted: 210 6% 22%;
     --muted-foreground: 0 0% 64%;
-    --accent: 0 0% 24%;
+    --accent: 210 6% 24%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 24%;
-    --input: 0 0% 24%;
+    --border: 210 6% 24%;
+    --input: 210 6% 24%;
     --ring: 204 90% 53%;
     --radius: 0.5rem;
     --chart-grid: #383838;
     --chart-surface: #262626;
     --chart-axis: #737373;
     --chart-label: #a3a3a3;
-    /* ความสูง header + MobilePrimaryNav — อัปเดตจาก AppHeader */
+    --chart-label-strong: #ffffff;
+    --chart-dim: #4a4a4a;
+    --chart-cursor: #737373;
+    --chart-pie-stroke: #262626;
+    --chart-tooltip-cursor: rgba(24, 160, 251, 0.14);
     --pour-mobile-header-h: 0px;
   }
 
-  html.light {
-    --pour-sky: #b8ebe8;
-    --pour-cream: #edf8f6;
-    --pour-bg: #edf8f6;
-    --pour-bg-2: #e3f3f1;
-    --pour-sidebar: #f6fcfb;
-    --pour-line: #c5e6e2;
-    --pour-line-2: #b3dbd6;
-    --pour-ink-0: #1c3432;
-    --pour-ink-1: #2e4f4c;
-    --pour-ink-2: #5f8581;
-    --pour-ink-3: #8aa8a4;
-    --pour-accent: #45b8c4;
-    --pour-accent-hover: #36a3af;
-    --pour-accent-muted: rgba(69, 184, 196, 0.16);
-    --pour-accent-ring: rgba(69, 184, 196, 0.32);
-    --pour-brand: #e86a35;
-    --pour-brand-hover: #d45522;
-    --pour-nav-active-bg: rgba(69, 184, 196, 0.14);
-    --pour-nav-hover-bg: rgba(158, 217, 222, 0.22);
-    --pour-canvas: #e8f4f2;
-    --pour-surface-border: #c5e6e2;
-    --pour-surface-tint: #f8fdfc;
-    --pour-surface-warm: #eef7f5;
+  /* Light — ขาว ฟ้า */
+  html[data-theme="light"] {
+    --pour-sky: #d4e8f8;
+    --pour-cream: #f5f9fc;
+    --pour-bg: #f5f9fc;
+    --pour-bg-2: #eef4fa;
+    --pour-sidebar: #fafcfe;
+    --pour-line: #c5d9eb;
+    --pour-line-2: #b3cce0;
+    --pour-ink-0: #1e3a5f;
+    --pour-ink-1: #2e5078;
+    --pour-ink-2: #4a6b8a;
+    --pour-ink-3: #8aa3b8;
+    --pour-accent: #18a0fb;
+    --pour-accent-hover: #0d8ce8;
+    --pour-accent-muted: rgba(24, 160, 251, 0.14);
+    --pour-accent-ring: rgba(24, 160, 251, 0.32);
+    --pour-brand: #5eb8ff;
+    --pour-brand-hover: #3db3fc;
+    --pour-nav-active-bg: rgba(24, 160, 251, 0.12);
+    --pour-nav-hover-bg: rgba(24, 160, 251, 0.06);
+    --pour-canvas: #eef4fa;
+    --pour-surface-border: #c5d9eb;
+    --pour-surface-tint: #ffffff;
+    --pour-surface-warm: #f0f6fc;
 
-    --glass-bg: rgba(255, 255, 255, 0.78);
-    --glass-bg-strong: #e8f6f4;
-    --glass-bg-muted: #f2faf9;
-    --glass-border: #bfe0db;
-    --glass-border-subtle: #d4ece8;
-    --glass-edge: #a8d4ce;
-    --glass-shadow: 0 8px 28px rgba(46, 120, 112, 0.1), 0 1px 2px rgba(46, 120, 112, 0.06);
-    --glass-shadow-sm: 0 2px 10px rgba(46, 120, 112, 0.08), 0 1px 2px rgba(46, 120, 112, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.82);
+    --glass-bg-strong: #eef4fa;
+    --glass-bg-muted: #f8fafd;
+    --glass-border: #c5d9eb;
+    --glass-border-subtle: #d8e6f2;
+    --glass-edge: #b3cce0;
+    --glass-shadow: 0 8px 28px rgba(24, 160, 251, 0.1), 0 1px 2px rgba(30, 58, 95, 0.06);
+    --glass-shadow-sm: 0 2px 10px rgba(24, 160, 251, 0.08), 0 1px 2px rgba(30, 58, 95, 0.05);
     --shell-base: var(--pour-bg);
-    --shell-blob-1: rgba(184, 235, 232, 0.65);
-    --shell-blob-2: rgba(69, 184, 196, 0.14);
-    --shell-blob-3: rgba(237, 248, 246, 0.95);
+    --shell-blob-1: rgba(212, 232, 248, 0.65);
+    --shell-blob-2: rgba(24, 160, 251, 0.12);
+    --shell-blob-3: rgba(245, 249, 252, 0.95);
 
-    --chart-grid: #c5e6e2;
-    --chart-surface: #f6fcfb;
-    --chart-axis: #8aa8a4;
-    --chart-label: #5f8581;
+    --chart-grid: #d8e6f2;
+    --chart-surface: #eef4fa;
+    --chart-axis: #8aa3b8;
+    --chart-label: #4a6b8a;
+    --chart-label-strong: #1e3a5f;
+    --chart-dim: #d8e6f2;
+    --chart-cursor: #8aa3b8;
+    --chart-pie-stroke: #ffffff;
+    --chart-tooltip-cursor: rgba(24, 160, 251, 0.1);
 
-    --background: 168 38% 95%;
-    --foreground: 174 28% 16%;
-    --card: 165 45% 98%;
-    --card-foreground: 174 28% 16%;
-    --popover: 165 45% 98%;
-    --popover-foreground: 174 28% 16%;
-    --primary: 187 48% 52%;
+    --background: 210 40% 98%;
+    --foreground: 215 45% 25%;
+    --card: 210 50% 99%;
+    --card-foreground: 215 45% 25%;
+    --popover: 210 50% 99%;
+    --popover-foreground: 215 45% 25%;
+    --primary: 204 90% 53%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 168 32% 92%;
-    --secondary-foreground: 174 28% 16%;
-    --muted: 168 28% 90%;
-    --muted-foreground: 174 14% 42%;
-    --accent: 168 32% 90%;
-    --accent-foreground: 174 28% 16%;
+    --secondary: 205 70% 88%;
+    --secondary-foreground: 215 45% 25%;
+    --muted: 210 30% 94%;
+    --muted-foreground: 215 20% 48%;
+    --accent: 210 35% 92%;
+    --accent-foreground: 215 45% 25%;
+    --border: 210 35% 88%;
+    --input: 210 35% 88%;
+    --ring: 204 90% 53%;
+  }
+
+  /* Green — พาสเทลมินท์ */
+  html[data-theme="green"] {
+    --pour-sky: #c8f0e4;
+    --pour-cream: #effaf6;
+    --pour-bg: #effaf6;
+    --pour-bg-2: #e4f5ef;
+    --pour-sidebar: #e8f7f2;
+    --pour-line: #c5e8dc;
+    --pour-line-2: #a8dcc8;
+    --pour-ink-0: #2d4a42;
+    --pour-ink-1: #3d5c52;
+    --pour-ink-2: #5a7a6e;
+    --pour-ink-3: #8fa89c;
+    --pour-accent: #5bb89a;
+    --pour-accent-hover: #48a887;
+    --pour-accent-muted: rgba(91, 184, 154, 0.16);
+    --pour-accent-ring: rgba(91, 184, 154, 0.35);
+    --pour-brand: #5bb89a;
+    --pour-brand-hover: #48a887;
+    --pour-nav-active-bg: rgba(91, 184, 154, 0.14);
+    --pour-nav-hover-bg: rgba(91, 184, 154, 0.08);
+    --pour-canvas: #e4f5ef;
+    --pour-surface-border: #c5e8dc;
+    --pour-surface-tint: #f8fdfb;
+    --pour-surface-warm: #e8f7f2;
+
+    --glass-bg: rgba(248, 253, 251, 0.82);
+    --glass-bg-strong: #e4f5ef;
+    --glass-bg-muted: #f4fbf8;
+    --glass-border: #c5e8dc;
+    --glass-border-subtle: #d8efe6;
+    --glass-edge: #a8dcc8;
+    --glass-shadow: 0 8px 28px rgba(91, 184, 154, 0.12), 0 1px 2px rgba(45, 74, 66, 0.06);
+    --glass-shadow-sm: 0 2px 10px rgba(91, 184, 154, 0.1), 0 1px 2px rgba(45, 74, 66, 0.05);
+    --shell-base: var(--pour-bg);
+    --shell-blob-1: rgba(200, 240, 228, 0.55);
+    --shell-blob-2: rgba(91, 184, 154, 0.14);
+    --shell-blob-3: rgba(239, 250, 246, 0.95);
+
+    --chart-grid: #d8efe6;
+    --chart-surface: #e4f5ef;
+    --chart-axis: #8fa89c;
+    --chart-label: #5a7a6e;
+    --chart-label-strong: #2d4a42;
+    --chart-dim: #d8efe6;
+    --chart-cursor: #8fa89c;
+    --chart-pie-stroke: #f8fdfb;
+    --chart-tooltip-cursor: rgba(91, 184, 154, 0.12);
+
+    --background: 158 45% 97%;
+    --foreground: 160 25% 28%;
+    --card: 158 40% 99%;
+    --card-foreground: 160 25% 28%;
+    --popover: 158 40% 99%;
+    --popover-foreground: 160 25% 28%;
+    --primary: 158 38% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 155 55% 78%;
+    --secondary-foreground: 160 25% 28%;
+    --muted: 158 30% 94%;
+    --muted-foreground: 160 12% 48%;
+    --accent: 158 35% 92%;
+    --accent-foreground: 160 25% 28%;
+    --border: 158 35% 88%;
+    --input: 158 35% 88%;
+    --ring: 158 38% 55%;
+  }
+
+  /* Pink — พาสเทลชมพู */
+  html[data-theme="pink"] {
+    --pour-sky: #FFE4F0;
+    --pour-cream: #FFF5F9;
+    --pour-bg: #FFF5F9;
+    --pour-bg-2: #FFECF4;
+    --pour-sidebar: #FFF0F6;
+    --pour-line: #F3D6E4;
+    --pour-line-2: #E8B8D0;
+    --pour-ink-0: #4D3344;
+    --pour-ink-1: #6B4A5C;
+    --pour-ink-2: #7A5C6E;
+    --pour-ink-3: #A8959F;
+    --pour-accent: #E88CAD;
+    --pour-accent-hover: #D67598;
+    --pour-accent-muted: rgba(232, 140, 173, 0.16);
+    --pour-accent-ring: rgba(232, 140, 173, 0.35);
+    --pour-brand: #E88CAD;
+    --pour-brand-hover: #D67598;
+    --pour-nav-active-bg: rgba(232, 140, 173, 0.14);
+    --pour-nav-hover-bg: rgba(232, 140, 173, 0.08);
+    --pour-canvas: #FFECF4;
+    --pour-surface-border: #F3D6E4;
+    --pour-surface-tint: #FFFAFC;
+    --pour-surface-warm: #FFF0F6;
+
+    --glass-bg: rgba(255, 250, 252, 0.82);
+    --glass-bg-strong: #FFECF4;
+    --glass-bg-muted: #FFF8FB;
+    --glass-border: #F3D6E4;
+    --glass-border-subtle: #F8E4EE;
+    --glass-edge: #E8B8D0;
+    --glass-shadow: 0 8px 28px rgba(232, 140, 173, 0.12), 0 1px 2px rgba(77, 51, 68, 0.06);
+    --glass-shadow-sm: 0 2px 10px rgba(232, 140, 173, 0.1), 0 1px 2px rgba(77, 51, 68, 0.05);
+    --shell-base: var(--pour-bg);
+    --shell-blob-1: rgba(255, 192, 220, 0.55);
+    --shell-blob-2: rgba(232, 140, 173, 0.14);
+    --shell-blob-3: rgba(255, 245, 249, 0.95);
+
+    --chart-grid: #F8E4EE;
+    --chart-surface: #FFECF4;
+    --chart-axis: #A8959F;
+    --chart-label: #6B4A5C;
+    --chart-label-strong: #4D3344;
+    --chart-dim: #F8E4EE;
+    --chart-cursor: #A8959F;
+    --chart-pie-stroke: #FFFAFC;
+    --chart-tooltip-cursor: rgba(232, 140, 173, 0.12);
+
+    --background: 340 60% 98%;
+    --foreground: 330 22% 28%;
+    --card: 340 50% 99%;
+    --card-foreground: 330 22% 28%;
+    --popover: 340 50% 99%;
+    --popover-foreground: 330 22% 28%;
+    --primary: 340 55% 72%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 290 35% 80%;
+    --secondary-foreground: 330 22% 28%;
+    --muted: 340 30% 94%;
+    --muted-foreground: 330 12% 48%;
+    --accent: 340 35% 94%;
+    --accent-foreground: 330 22% 28%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 168 28% 82%;
-    --input: 168 28% 82%;
-    --ring: 187 48% 52%;
+    --border: 340 35% 88%;
+    --input: 340 35% 88%;
+    --ring: 340 55% 72%;
   }
 
   .dark {
@@ -623,8 +771,16 @@
     animation: pour-ambient-drift 24s ease-in-out infinite alternate;
   }
 
-  html.light .pour-shell-live::before {
-    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(69, 184, 196, 0.14) 0%, transparent 65%);
+  html[data-theme="light"] .pour-shell-live::before {
+    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(24, 160, 251, 0.14) 0%, transparent 65%);
+  }
+
+  html[data-theme="green"] .pour-shell-live::before {
+    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(91, 184, 154, 0.16) 0%, transparent 65%);
+  }
+
+  html[data-theme="pink"] .pour-shell-live::before {
+    background: radial-gradient(ellipse 45% 40% at 75% 15%, rgba(232, 140, 173, 0.14) 0%, transparent 65%);
   }
 
   .pour-shell-live > * {

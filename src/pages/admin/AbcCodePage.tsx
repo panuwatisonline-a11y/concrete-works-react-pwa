@@ -1,5 +1,7 @@
 ﻿import { useState, useMemo } from 'react'
-import { ExternalLink, FileText } from 'lucide-react'
+import OpenInNew from '@mui/icons-material/OpenInNew'
+import Description from '@mui/icons-material/Description'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
@@ -10,7 +12,7 @@ import { Label } from '@/components/ui/label'
 import { SearchableSelect, mapSearchableOptions } from '@/components/ui/searchable-select'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { app, glass, icon, ICON_STROKE, rq, type } from '@/lib/requestUi'
+import { app, glass, rq, type } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
@@ -168,11 +170,7 @@ export function AbcCodePage() {
           'hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)]',
         )}
       >
-        <FileText
-          className={cn(icon.md, 'text-[color:var(--pour-accent)]')}
-          strokeWidth={ICON_STROKE}
-          aria-hidden
-        />
+        <AppIcon icon={Description} size="md" className="text-[color:var(--pour-accent)]" />
         <span className="min-w-0 flex-1 text-left">
           <span className={cn(type.bodyStrong, 'block text-[color:var(--pour-ink-0)]')}>
             คู่มือ ABC Code
@@ -181,7 +179,7 @@ export function AbcCodePage() {
             ABC 13-05-2568 (PDF)
           </span>
         </span>
-        <ExternalLink className={cn(icon.sm, 'text-pour-muted')} strokeWidth={ICON_STROKE} aria-hidden />
+        <AppIcon icon={OpenInNew} size="sm" className="text-pour-muted" />
       </a>
 
       <PourUnderlineTabs tabs={tabs} value={tab} onChange={setTab} ariaLabel="มุมมอง ABC Code" />

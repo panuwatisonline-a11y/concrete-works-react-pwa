@@ -1,18 +1,25 @@
 ﻿import * as React from 'react'
-import { cn } from '@/lib/utils'
+import TextField from '@mui/material/TextField'
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, value, defaultValue, ...props }, ref) => {
+  ({ className, value, defaultValue, id, name, disabled, placeholder, onChange, onBlur, rows = 4, ...props }, ref) => {
     const isControlled = value !== undefined
     return (
-      <textarea
-        className={cn(
-          'pour-form-control flex min-h-[80px] min-w-0 max-w-full w-full rounded-xl border-[1.5px] border-[color:var(--glass-border-subtle)] bg-[var(--glass-bg)] px-3.5 py-2.5 text-sm font-medium text-[color:var(--pour-ink-0)] placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)] focus-visible:border-[color:var(--pour-accent)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
-          className,
-        )}
-        ref={ref}
-        {...props}
-        {...(isControlled ? { value } : defaultValue !== undefined ? { defaultValue } : {})}
+      <TextField
+        id={id}
+        name={name}
+        disabled={disabled}
+        placeholder={placeholder}
+        multiline
+        minRows={rows}
+        fullWidth
+        size="small"
+        className={className}
+        inputRef={ref}
+        onChange={onChange as React.ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement>}
+        onBlur={onBlur as React.FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>}
+        {...(isControlled ? { value: String(value) } : defaultValue !== undefined ? { defaultValue: String(defaultValue) } : {})}
+        slotProps={{ htmlInput: props }}
       />
     )
   },

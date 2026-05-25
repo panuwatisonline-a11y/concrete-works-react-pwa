@@ -1,5 +1,7 @@
 import { Fragment, useEffect, useMemo } from 'react'
-import { CalendarDays, Printer } from 'lucide-react'
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Print from '@mui/icons-material/Print'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { toast } from 'sonner'
 import { CstBlankPrintButton } from '@/components/cst/CstBlankPrintButton'
 import { CstListSection } from '@/components/cst/CstListSection'
@@ -17,7 +19,7 @@ import {
 } from '@/lib/cstFilterPrint'
 import { CstMixCodeCell } from '@/components/cst/CstMixCodeCell'
 import { cstMixCodeLabelForCard, getCstListRowFields } from '@/lib/cstListRow'
-import { app, ICON_STROKE, rq, tableCompact, type } from '@/lib/requestUi'
+import { app, rq, tableCompact, type } from '@/lib/requestUi'
 import { cn, formatDate } from '@/lib/utils'
 import { CST_TEST_AGES, type RequestWithRelations } from '@/types/app.types'
 
@@ -169,7 +171,7 @@ export function CstFilterByDatePanel({
       <div className="flex flex-wrap items-end gap-4 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg-2)]/40 px-4 py-3 sm:px-5">
         <div className="min-w-[12rem] flex-1 space-y-1.5">
           <Label htmlFor="cst-filter-test-date" className="flex items-center gap-1.5 text-sm">
-            <CalendarDays className="h-4 w-4 text-[color:var(--pour-accent)]" aria-hidden />
+            <AppIcon icon={CalendarMonth} size="sm" className="text-[color:var(--pour-accent)]" />
             วันทดสอบ
           </Label>
           <Input
@@ -199,7 +201,7 @@ export function CstFilterByDatePanel({
               }
             }}
           >
-            <Printer className="h-4 w-4" strokeWidth={ICON_STROKE} aria-hidden />
+            <AppIcon icon={Print} size="sm" />
             พิมพ์รายการ
           </Button>
         </div>

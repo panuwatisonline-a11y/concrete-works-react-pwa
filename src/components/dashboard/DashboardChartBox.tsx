@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ResponsiveContainer } from 'recharts'
-import { X } from 'lucide-react'
+import Close from '@mui/icons-material/Close'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 
 export { dashboardBarChartHeight } from '@/lib/dashboardChartLayout'
@@ -54,7 +55,7 @@ export function DashboardChartBox({
               onClick={onClear}
               className="inline-flex shrink-0 items-center gap-1 rounded border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-pour-muted transition-colors hover:text-[color:var(--pour-ink-0)]"
             >
-              <X size={10} aria-hidden />
+              <AppIcon icon={Close} size="xs" sx={{ fontSize: 10 }} />
               Clear
             </button>
           ) : null}

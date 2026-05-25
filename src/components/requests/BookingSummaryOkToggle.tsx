@@ -1,4 +1,6 @@
-import { Check, X } from 'lucide-react'
+import Check from '@mui/icons-material/Check'
+import Close from '@mui/icons-material/Close'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 
 export type BookingSummaryOkToggleProps = {
@@ -45,7 +47,7 @@ export function BookingSummaryOkToggle({
         title={ok ? 'ยกเลิก Accept' : 'Accept'}
         onClick={pickOk}
       >
-        <Check className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <AppIcon icon={Check} size="xs" />
       </button>
       <button
         type="button"
@@ -56,7 +58,7 @@ export function BookingSummaryOkToggle({
         title={fail ? 'ยกเลิก No' : 'No'}
         onClick={pickFail}
       >
-        <X className="h-3.5 w-3.5 shrink-0" aria-hidden />
+        <AppIcon icon={Close} size="xs" />
       </button>
     </div>
   )

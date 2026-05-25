@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
-import { ChevronDown } from 'lucide-react'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { frame } from '@/lib/requestUi'
 
@@ -36,13 +37,13 @@ export function CstListSection({
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]/70 sm:px-5"
       >
         <span className="flex min-w-0 flex-1 items-center gap-2.5">
-          <ChevronDown
+          <AppIcon
+            icon={ExpandMore}
+            size="md"
             className={cn(
-              'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
+              'text-pour-muted transition-transform duration-200',
               open && 'rotate-180',
             )}
-            strokeWidth={2}
-            aria-hidden
           />
           <span className={cn(frame.sectionTitle, 'truncate')}>{title}</span>
           <span className="shrink-0 rounded-full bg-[color:var(--pour-accent-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-accent)]">

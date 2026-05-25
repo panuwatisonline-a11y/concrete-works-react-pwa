@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from 'react'
-import * as PopoverPrimitive from '@radix-ui/react-popover'
-import { ChevronDown } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
@@ -243,7 +244,7 @@ export function ProfileIdSingleSelect({
       onClick={inDialog ? () => handleOpenChange(!open) : undefined}
     >
       <span className="line-clamp-2 min-w-0 flex-1 break-words">{summaryText ?? placeholder}</span>
-      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50', open && 'rotate-180')} />
+      <AppIcon icon={ExpandMore} size="sm" className={cn('opacity-50', open && 'rotate-180')} />
     </Button>
   )
 
@@ -275,24 +276,19 @@ export function ProfileIdSingleSelect({
   }
 
   return (
-    <PopoverPrimitive.Root modal open={open} onOpenChange={handleOpenChange}>
-      <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
-      <PopoverPrimitive.Portal>
-        <PopoverPrimitive.Content
-          align="start"
-          side="bottom"
-          sideOffset={6}
-          collisionPadding={12}
-          className={cn(
-            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
-            'max-h-[min(380px,52dvh)]',
-          )}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          {panel}
-        </PopoverPrimitive.Content>
-      </PopoverPrimitive.Portal>
-    </PopoverPrimitive.Root>
+    <Popover modal open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent
+        align="start"
+        side="bottom"
+        sideOffset={6}
+        collisionPadding={12}
+        className="z-[200] flex max-w-[calc(100vw-2rem)] flex-col gap-2 p-2 max-h-[min(380px,52dvh)]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        {panel}
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -391,7 +387,7 @@ export function ProfileIdListMultiSelect({
       onClick={inDialog ? () => handleOpenChange(!open) : undefined}
     >
       <span className="line-clamp-2 min-w-0 flex-1 break-words">{summaryText ?? placeholder}</span>
-      <ChevronDown className={cn('h-4 w-4 shrink-0 opacity-50', open && 'rotate-180')} />
+      <AppIcon icon={ExpandMore} size="sm" className={cn('opacity-50', open && 'rotate-180')} />
     </Button>
   )
 
@@ -423,23 +419,18 @@ export function ProfileIdListMultiSelect({
   }
 
   return (
-    <PopoverPrimitive.Root modal open={open} onOpenChange={handleOpenChange}>
-      <PopoverPrimitive.Trigger asChild>{trigger}</PopoverPrimitive.Trigger>
-      <PopoverPrimitive.Portal>
-        <PopoverPrimitive.Content
-          align="start"
-          side="bottom"
-          sideOffset={6}
-          collisionPadding={12}
-          className={cn(
-            'z-[200] flex w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] flex-col gap-2 overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg)] p-2 shadow-[0_4px_24px_rgba(0,0,0,0.12)]',
-            'max-h-[min(420px,60dvh)]',
-          )}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          {panel}
-        </PopoverPrimitive.Content>
-      </PopoverPrimitive.Portal>
-    </PopoverPrimitive.Root>
+    <Popover modal open={open} onOpenChange={handleOpenChange}>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverContent
+        align="start"
+        side="bottom"
+        sideOffset={6}
+        collisionPadding={12}
+        className="z-[200] flex max-w-[calc(100vw-2rem)] flex-col gap-2 p-2 max-h-[min(420px,60dvh)]"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        {panel}
+      </PopoverContent>
+    </Popover>
   )
 }

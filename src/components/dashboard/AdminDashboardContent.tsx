@@ -4,11 +4,18 @@ import {
   ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell,
   LineChart, Line, LabelList,
 } from 'recharts';
-import {
-  HardHat, FileCheck, AlertTriangle, Layers,
-  ChevronRight, Filter, Activity, TrendingUp,
-  Eye, FolderOpen, Folder,
-} from 'lucide-react';
+import Engineering from '@mui/icons-material/Engineering';
+import TaskAlt from '@mui/icons-material/TaskAlt';
+import Warning from '@mui/icons-material/Warning';
+import Layers from '@mui/icons-material/Layers';
+import ChevronRight from '@mui/icons-material/ChevronRight';
+import FilterList from '@mui/icons-material/FilterList';
+import Timeline from '@mui/icons-material/Timeline';
+import TrendingUp from '@mui/icons-material/TrendingUp';
+import Visibility from '@mui/icons-material/Visibility';
+import FolderOpen from '@mui/icons-material/FolderOpen';
+import Folder from '@mui/icons-material/Folder';
+import { AppIcon } from '@/components/icons/AppIcon';
 import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcreteChartTooltip';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { DashboardKpiBox } from '@/components/dashboard/DashboardKpiBox';
@@ -27,7 +34,7 @@ import {
   type DashboardConcreteRecord,
   type DashboardFilters,
 } from '@/lib/dashboardRecordMapper';
-import { useThemeStore } from '@/stores/themeStore';
+import { useChartColors } from '@/lib/chartTheme';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { app, frame, glass, modal, rq, tableCompact, type } from '@/lib/requestUi';
@@ -57,11 +64,14 @@ interface KeyInfo {
 }
 
 export function AdminDashboardContent({ chartData, tableData, filters, toggleFilter }: AdminDashboardContentProps) {
-  const isDark = useThemeStore((s) => s.theme) === 'dark';
-  const cGrid  = isDark ? '#334155' : '#E2E8F0';
-  const cAxis  = isDark ? '#94A3B8' : '#64748B';
-  const cLabel = isDark ? '#E2E8F0' : '#1E293B';
-  const cDim   = isDark ? '#334155' : '#CBD5E1';
+  const {
+    grid: cGrid,
+    axis: cAxis,
+    labelStrong: cLabel,
+    dim: cDim,
+    cursor: cCursor,
+    pieStroke: cPieStroke,
+  } = useChartColors();
 
   const [trendGranularity,       setTrendGranularity]       = useState<Granularity>('month');
   const [statusTrendGranularity, setStatusTrendGranularity] = useState<Granularity>('month');
@@ -371,15 +381,15 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
     <>
       {/* ── KPI CARDS ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-        <DashboardKpiBox title="Total Requests"    value={kpis.count}        unit="Items" icon={<FileCheck size={20}/>}    color="from-blue-600 to-cyan-500" />
-        <DashboardKpiBox title="Request Volume"    value={kpis.requestVol}   unit="m³"    icon={<Layers size={20}/>}       color="from-indigo-600 to-violet-500" />
-        <DashboardKpiBox title="DWG. Volume"       value={kpis.dwgVol}       unit="m³"    icon={<Activity size={20}/>}     color="from-slate-600 to-slate-400" />
-        <DashboardKpiBox title="Confirm Volume"    value={kpis.confirmVol}   unit="m³"    icon={<HardHat size={20}/>}      color="from-emerald-600 to-teal-500" />
+        <DashboardKpiBox title="Total Requests"    value={kpis.count}        unit="Items" icon={<AppIcon icon={TaskAlt} size="md" />}    color="from-blue-600 to-cyan-500" />
+        <DashboardKpiBox title="Request Volume"    value={kpis.requestVol}   unit="m³"    icon={<AppIcon icon={Layers} size="md" />}       color="from-indigo-600 to-violet-500" />
+        <DashboardKpiBox title="DWG. Volume"       value={kpis.dwgVol}       unit="m³"    icon={<AppIcon icon={Timeline} size="md" />}     color="from-slate-600 to-slate-400" />
+        <DashboardKpiBox title="Confirm Volume"    value={kpis.confirmVol}   unit="m³"    icon={<AppIcon icon={Engineering} size="md" />}      color="from-emerald-600 to-teal-500" />
         <DashboardKpiBox
           title="Loss Concrete"
           value={kpis.lossConcVol}
           unit={`m³ (${kpis.lossConcPercent}%)`}
-          icon={<AlertTriangle size={20}/>}
+          icon={<AppIcon icon={Warning} size="md" />}
           color={parseFloat(kpis.lossConcVol) > 0 ? 'from-rose-600 to-pink-500' : 'from-slate-600 to-slate-400'}
           isAlert={parseFloat(kpis.lossConcVol) > 0}
         />
@@ -391,7 +401,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
         <div className="border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
           <div className="flex flex-wrap justify-between items-center gap-3 mb-5">
             <h3 className="text-sm font-bold text-[color:var(--pour-ink-0)] flex items-center gap-2">
-              <Activity className="text-emerald-400" size={18} /> Completed Volume Trend
+              <AppIcon icon={Timeline} size="sm" className="text-emerald-400" /> Completed Volume Trend
             </h3>
             <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
               {([{ key: 'day', label: 'Day' }, { key: 'week', label: 'Week' }, { key: 'month', label: 'Month' }, { key: 'year', label: 'Year' }] as { key: Granularity; label: string }[]).map(({ key, label }) => (
@@ -418,7 +428,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                 <CartesianGrid strokeDasharray="3 3" vertical={true} stroke={cGrid} />
                 <XAxis dataKey="name" stroke={cAxis} fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} valueFormat="volume" />)} cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
+                <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} valueFormat="volume" />)} cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
                 <Area type="monotone" dataKey="PlanVolume" name="Plan Volume" stroke="#94A3B8" strokeWidth={2} strokeDasharray="5 3" fill="url(#gradPlanVol)" dot={{ r: 3, fill: '#94A3B8', strokeWidth: 0 }} activeDot={{ r: 5, fill: '#94A3B8', strokeWidth: 0 }}>
                   <LabelList dataKey="PlanVolume" position="top" style={{ fill: cAxis, fontSize: 10, fontWeight: 600, pointerEvents: 'none' }} formatter={(v) => typeof v === 'number' && v > 0 ? v.toFixed(2) : ''} />
                 </Area>
@@ -433,7 +443,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
         <div className="border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
           <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
             <h3 className="text-sm font-bold text-[color:var(--pour-ink-0)] flex items-center gap-2">
-              <TrendingUp className="text-indigo-400" size={18} /> Requests Trend by Status
+              <AppIcon icon={TrendingUp} size="sm" className="text-indigo-400" /> Requests Trend by Status
             </h3>
             <div className="flex gap-1 bg-slate-900/50 p-1 rounded-xl border border-slate-700/50">
               {([{ key: 'day', label: 'Day' }, { key: 'week', label: 'Week' }, { key: 'month', label: 'Month' }, { key: 'year', label: 'Year' }] as { key: Granularity; label: string }[]).map(({ key, label }) => (
@@ -458,7 +468,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={cGrid} />
                 <XAxis dataKey="name" stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke={cAxis} fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} />)} cursor={{ stroke: '#475569', strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
+                <Tooltip content={(props) => (<LossConcreteChartTooltip active={props.active} payload={props.payload as readonly { name?: string | number; value?: number | string; color?: string }[]} label={props.label} />)} cursor={{ stroke: cCursor, strokeWidth: 1, strokeDasharray: '4 4' }} wrapperStyle={{ pointerEvents: 'none', zIndex: 50 }} />
                 {DASHBOARD_STATUS_ORDER.map((key) => (
                   <Line key={key} type="monotone" dataKey={DASHBOARD_STATUS_INFO[key].legend}
                     stroke={DASHBOARD_STATUS_INFO[key].color} strokeWidth={2}
@@ -650,7 +660,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                     : 'border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] text-pour-muted hover:text-[color:var(--pour-ink-0)]',
                 )}
               >
-                <Filter size={11} aria-hidden />
+                <AppIcon icon={FilterList} size="xs" sx={{ fontSize: 11 }} />
                 {allSelected ? 'All' : `${selectedCount} / ${allNames.length}`}
               </button>
               {structureDropdownOpen ? (
@@ -888,7 +898,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                   <Cell
                     key={entry.name}
                     fill={filters.supplier ? (filters.supplier === entry.name ? base : cDim) : base}
-                    stroke={filters.supplier === entry.name ? '#fff' : (isDark ? '#1E293B' : '#E2E8F0')}
+                    stroke={filters.supplier === entry.name ? '#fff' : cPieStroke}
                     strokeWidth={filters.supplier === entry.name ? 2 : 1}
                   />
                 );
@@ -942,7 +952,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
           )}
         >
           <h2 className={cn(rq.cardTitle, 'flex items-center gap-2 text-base pour-desktop:text-lg')}>
-            <Layers className="h-5 w-5 shrink-0 text-[color:var(--pour-accent)]" aria-hidden />
+            <AppIcon icon={Layers} size="md" className="text-[color:var(--pour-accent)]" />
             Detailed Records
           </h2>
           <p
@@ -996,17 +1006,18 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                       >
                         <td colSpan={12} className="!py-3">
                           <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-                            <ChevronRight
+                            <AppIcon
+                              icon={ChevronRight}
+                              size="sm"
                               className={cn(
-                                'h-4 w-4 shrink-0 text-pour-muted transition-transform duration-200',
+                                'text-pour-muted transition-transform duration-200',
                                 isExpanded && 'rotate-90',
                               )}
-                              aria-hidden
                             />
                             {isExpanded ? (
-                              <FolderOpen className="h-[18px] w-[18px] shrink-0 text-[color:var(--pour-accent)]" aria-hidden />
+                              <AppIcon icon={FolderOpen} size="sm" sx={{ fontSize: 18 }} className="text-[color:var(--pour-accent)]" />
                             ) : (
-                              <Folder className="h-[18px] w-[18px] shrink-0 text-pour-muted" aria-hidden />
+                              <AppIcon icon={Folder} size="sm" sx={{ fontSize: 18 }} className="text-pour-muted" />
                             )}
                             <StatusBadge statusId={Number(statusKey)} compact />
                             <span className="rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-ink-1)]">
@@ -1110,7 +1121,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
                                 </span>
                               </td>
                               <td className="text-center text-pour-muted transition-colors group-hover:text-[color:var(--pour-accent)]">
-                                <Eye size={16} className="inline" aria-hidden />
+                                <AppIcon icon={Visibility} size="sm" className="inline" />
                                 <span className="sr-only">View details</span>
                               </td>
                             </tr>
@@ -1136,7 +1147,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
             <>
               <DialogHeader className={modal.header}>
                 <DialogTitle className={cn(modal.title, 'flex flex-wrap items-center gap-2')}>
-                  <FileCheck className="h-5 w-5 shrink-0 text-[color:var(--pour-accent)]" aria-hidden />
+                  <AppIcon icon={TaskAlt} size="md" className="text-[color:var(--pour-accent)]" />
                   Request Details
                   <span className="rounded-md bg-[color:var(--pour-accent-muted)] px-2 py-0.5 font-mono text-sm font-semibold text-[color:var(--pour-accent)]">
                     {selectedRow.ID}

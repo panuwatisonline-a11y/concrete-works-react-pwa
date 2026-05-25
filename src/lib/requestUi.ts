@@ -12,14 +12,14 @@ const ink = {
   subtle: 'text-pour-subtle',
 } as const
 
-/** Lucide — ขนาดและ stroke เดียวกันทั้งแอป */
+/** @deprecated ใช้ `<AppIcon size="…" />` แทน — เก็บไว้เฉพาะ className layout */
 export const ICON_STROKE = 1.75
 
 export const icon = {
-  xs: 'h-4 w-4 shrink-0',
-  sm: 'h-[18px] w-[18px] shrink-0',
-  md: 'h-5 w-5 shrink-0',
-  lg: 'h-6 w-6 shrink-0',
+  xs: 'shrink-0',
+  sm: 'shrink-0',
+  md: 'shrink-0',
+  lg: 'shrink-0',
 } as const
 
 /** สเกลตัวอักษร — แนว Figma: เล็กพอดี น้ำหนักเบา อ่านสบาย */

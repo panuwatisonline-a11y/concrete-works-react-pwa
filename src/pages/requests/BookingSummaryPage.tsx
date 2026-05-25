@@ -1,6 +1,9 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { CalendarDays, ClipboardList, Printer } from 'lucide-react'
+import ListAlt from '@mui/icons-material/ListAlt'
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Print from '@mui/icons-material/Print'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { useJobScope } from '@/hooks/useJobScope'
@@ -34,7 +37,7 @@ import {
   BOOKING_SUMMARY_SEARCH_ARIA,
   BOOKING_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
-import { app, icon, ICON_STROKE, rq, surface, tableCompact, type } from '@/lib/requestUi'
+import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
 import { cn, formatDate } from '@/lib/utils'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import type { RequestWithRelations } from '@/types/app.types'
@@ -263,7 +266,7 @@ export function BookingSummaryPage() {
     <div className={rq.page}>
       <header className="space-y-1">
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
-          <ClipboardList className={cn(icon.md, 'text-[color:var(--pour-accent)]')} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={ListAlt} size="md" className="text-[color:var(--pour-accent)]" />
           สรุปรายการจองคอนกรีต
         </h1>
         <p className={rq.sub}>ตารางรายการจองจากคำขอ — เลือกวันเทเพื่อดูรายการในวันนั้น</p>
@@ -273,7 +276,7 @@ export function BookingSummaryPage() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="booking-summary-date" className="flex items-center gap-1.5 text-sm">
-              <CalendarDays className="h-4 w-4 text-[color:var(--pour-accent)]" aria-hidden />
+              <AppIcon icon={CalendarMonth} size="sm" className="text-[color:var(--pour-accent)]" />
               วันเท
             </Label>
             <Input
@@ -302,7 +305,7 @@ export function BookingSummaryPage() {
               }
             }}
           >
-            <Printer className="h-4 w-4" strokeWidth={ICON_STROKE} aria-hidden />
+            <AppIcon icon={Print} size="sm" />
             พิมพ์
           </Button>
         </div>

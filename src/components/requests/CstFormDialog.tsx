@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState, type FocusEvent } from 'react'
 import { toast } from 'sonner'
-import { Printer, Loader2, Plus, Trash2, X } from 'lucide-react'
+import Print from '@mui/icons-material/Print'
+import Add from '@mui/icons-material/Add'
+import Delete from '@mui/icons-material/Delete'
+import Close from '@mui/icons-material/Close'
+import CircularProgress from '@mui/material/CircularProgress'
+import { AppIcon } from '@/components/icons/AppIcon'
 import {
   Dialog,
   DialogContent,
@@ -349,7 +354,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
 
         {loading || !values || age == null ? (
           <div className="flex flex-col items-center justify-center gap-2 py-16">
-            <Loader2 className="h-8 w-8 animate-spin text-[color:var(--pour-accent)]" aria-hidden />
+            <CircularProgress size={32} sx={{ flexShrink: 0, color: 'var(--pour-accent)' }} />
             <p className="text-sm text-pour-muted">กำลังโหลดฟอร์ม…</p>
           </div>
         ) : (
@@ -436,7 +441,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                         aria-label={`ลบชุดที่ ${groupNo}`}
                         onClick={() => handleRemoveGroup(g)}
                       >
-                        <X className="h-4 w-4" strokeWidth={1.75} aria-hidden />
+                        <AppIcon icon={Close} size="sm" />
                       </Button>
                     ) : null}
                   </div>
@@ -719,7 +724,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                   })
                 }}
               >
-                <Plus className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
+                <AppIcon icon={Add} size="sm" />
                 เพิ่มชุดที่ {visibleGroups + 1}
                 <span className="text-pour-subtle">
                   ({visibleGroups}/{groupCount})
@@ -738,7 +743,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
               disabled={saving || printing || loading || deleting}
               onClick={() => setDeleteConfirmOpen(true)}
             >
-              <Trash2 className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
+              <AppIcon icon={Delete} size="sm" />
               ลบผลเทส
             </Button>
           ) : (
@@ -760,9 +765,9 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
               onClick={() => void handlePrint()}
             >
               {printing ? (
-                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                <CircularProgress size={16} sx={{ flexShrink: 0 }} />
               ) : (
-                <Printer className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
+                <AppIcon icon={Print} size="sm" />
               )}
               พิมพ์รายงาน
             </Button>
@@ -771,7 +776,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
               disabled={saving || loading || deleting || !values}
               onClick={() => void handleSave()}
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
+              {saving ? <CircularProgress size={16} sx={{ flexShrink: 0 }} /> : null}
               บันทึก
             </Button>
           </div>

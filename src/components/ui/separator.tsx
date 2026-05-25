@@ -1,23 +1,18 @@
 import * as React from 'react'
-import * as SeparatorPrimitive from '@radix-ui/react-separator'
-import { cn } from '@/lib/utils'
+import Divider from '@mui/material/Divider'
 
 const Separator = React.forwardRef<
-  React.ElementRef<typeof SeparatorPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
->(({ className, orientation = 'horizontal', decorative = true, ...props }, ref) => (
-  <SeparatorPrimitive.Root
+  HTMLHRElement,
+  React.ComponentProps<typeof Divider> & { decorative?: boolean; orientation?: 'horizontal' | 'vertical' }
+>(({ className, orientation = 'horizontal', decorative: _decorative, ...props }, ref) => (
+  <Divider
     ref={ref}
-    decorative={decorative}
+    className={className}
     orientation={orientation}
-    className={cn(
-      'shrink-0 bg-gray-200',
-      orientation === 'horizontal' ? 'h-[1px] w-full' : 'h-full w-[1px]',
-      className
-    )}
+    flexItem={orientation === 'vertical'}
     {...props}
   />
 ))
-Separator.displayName = SeparatorPrimitive.Root.displayName
+Separator.displayName = 'Separator'
 
 export { Separator }

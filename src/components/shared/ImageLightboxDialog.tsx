@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X } from 'lucide-react'
+import Close from '@mui/icons-material/Close'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 
 /** สูงกว่า workflow dialog (z-[270]) — ไม่ให้ lightbox ไปอยู่หลัง modal อัปโหลด Bill */
@@ -72,7 +73,7 @@ export function ImageLightboxDialog({
           onOpenChange(false)
         }}
       >
-        <X className="h-5 w-5" />
+        <AppIcon icon={Close} size="md" />
       </button>
 
       <div

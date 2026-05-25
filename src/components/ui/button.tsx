@@ -1,57 +1,102 @@
 import * as React from 'react'
-import { Slot } from '@radix-ui/react-slot'
-import { cva, type VariantProps } from 'class-variance-authority'
+import MuiButton, { type ButtonProps as MuiButtonProps } from '@mui/material/Button'
 import { cn } from '@/lib/utils'
+import { cva, type VariantProps } from 'class-variance-authority'
 
-const buttonVariants = cva(
-  'pour-interactive select-none inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-xl font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--pour-bg)] disabled:pointer-events-none disabled:opacity-45',
-  {
-    variants: {
-      variant: {
-        default:
-          'bg-[color:var(--pour-accent)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.1),0_3px_12px_rgba(0,0,0,0.08)] hover:bg-[color:var(--pour-accent-hover)]',
-        destructive:
-          'bg-[#dc2626] text-white shadow-sm hover:bg-[#b91c1c]',
-        outline:
-          'border border-[color:var(--glass-border-subtle)] bg-[color:color-mix(in_srgb,var(--glass-bg)_88%,transparent)] text-[color:var(--pour-ink-0)] backdrop-blur-md shadow-none hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--glass-bg-strong)]',
-        secondary:
-          'border border-[color:var(--glass-border-subtle)] bg-[var(--pour-bg-2)] text-[color:var(--pour-ink-0)] shadow-none hover:bg-[var(--pour-line)]',
-        ghost:
-          'text-[color:var(--pour-ink-1)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
-        link:
-          'font-semibold text-[color:var(--pour-accent)] underline-offset-2 hover:text-[color:var(--pour-accent-hover)] hover:underline',
-        warning:
-          'bg-[#d97706] text-white shadow-sm hover:bg-[#b45309]',
-        success:
-          'bg-[#16a34a] text-white shadow-sm hover:bg-[#15803d]',
-      },
-      size: {
-        default: 'h-10 px-4 text-sm',
-        sm: 'h-9 px-3 text-xs',
-        action: 'h-9 min-h-9 px-3.5 text-xs leading-tight',
-        /** Dialog / confirm modals — compact footer actions */
-        modalAction: 'h-8 min-h-8 px-3 text-xs leading-tight',
-        lg: 'h-11 px-6 text-sm',
-        icon: 'h-10 w-10',
-      },
+/** Kept for type-only consumers (e.g. requestQuickActions) */
+const buttonVariants = cva('', {
+  variants: {
+    variant: {
+      default: '',
+      destructive: '',
+      outline: '',
+      secondary: '',
+      ghost: '',
+      link: '',
+      warning: '',
+      success: '',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      default: '',
+      sm: '',
+      action: '',
+      modalAction: '',
+      lg: '',
+      icon: '',
     },
   },
-)
+  defaultVariants: { variant: 'default', size: 'default' },
+})
+
+type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>
+type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>['size']>
+
+const VARIANT_MAP: Record<
+  ButtonVariant,
+  Pick<MuiButtonProps, 'variant' | 'color'> & { sx?: MuiButtonProps['sx'] }
+> = {
+  default: { variant: 'contained', color: 'primary' },
+  destructive: { variant: 'contained', color: 'error' },
+  outline: { variant: 'outlined', color: 'inherit' },
+  secondary: { variant: 'outlined', color: 'inherit' },
+  ghost: { variant: 'text', color: 'inherit' },
+  link: { variant: 'text', color: 'primary', sx: { textDecoration: 'underline', textUnderlineOffset: 2 } },
+  warning: { variant: 'contained', sx: { bgcolor: '#d97706', '&:hover': { bgcolor: '#b45309' } } },
+  success: { variant: 'contained', sx: { bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' } } },
+}
+
+const SIZE_MAP: Record<ButtonSize, MuiButtonProps['size']> = {
+  default: 'medium',
+  sm: 'small',
+  action: 'small',
+  modalAction: 'small',
+  lg: 'large',
+  icon: 'medium',
+}
+
+const SIZE_SX: Record<ButtonSize, MuiButtonProps['sx']> = {
+  default: { minHeight: 40, px: 2 },
+  sm: { minHeight: 36, fontSize: '0.75rem' },
+  action: { minHeight: 36, fontSize: '0.75rem', px: 1.75 },
+  modalAction: { minHeight: 32, fontSize: '0.75rem', px: 1.5 },
+  lg: { minHeight: 44, px: 3 },
+  icon: { minWidth: 40, width: 40, height: 40, p: 0 },
+}
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends Omit<MuiButtonProps, 'variant' | 'color' | 'size'>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : 'button'
-    return <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+  ({ className, variant = 'default', size = 'default', asChild = false, sx, children, ...props }, ref) => {
+    const mapped = VARIANT_MAP[variant ?? 'default']
+    const muiSize = SIZE_MAP[size ?? 'default']
+    const sizeSx = SIZE_SX[size ?? 'default']
+    const { sx: mappedSx, ...mappedProps } = mapped
+
+    if (asChild && React.isValidElement(children)) {
+      const child = children as React.ReactElement<{ className?: string; ref?: React.Ref<HTMLButtonElement> }>
+      return React.cloneElement(child, {
+        ref,
+        className: cn(className, child.props.className),
+        ...props,
+      })
+    }
+
+    return (
+      <MuiButton
+        ref={ref}
+        size={muiSize}
+        className={className}
+        {...mappedProps}
+        sx={[sizeSx, mappedSx, sx] as MuiButtonProps['sx']}
+        {...props}
+      >
+        {children}
+      </MuiButton>
+    )
   },
 )
 Button.displayName = 'Button'

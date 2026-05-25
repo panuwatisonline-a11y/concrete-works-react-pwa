@@ -1,12 +1,15 @@
 import { useNavigate, Link, useLocation } from 'react-router-dom'
-import { Bell, ListFilter, Search } from 'lucide-react'
+import Notifications from '@mui/icons-material/Notifications'
+import FilterList from '@mui/icons-material/FilterList'
+import Search from '@mui/icons-material/Search'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistry } from '@/stores/desktopSearchRegistry'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Input } from '@/components/ui/input'
 import { getDesktopSearchBarConfig } from '@/lib/desktopTopBarSearch'
-import { theme, icon, ICON_STROKE, type } from '@/lib/requestUi'
+import { theme, type } from '@/lib/requestUi'
 import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
 import { cn } from '@/lib/utils'
 
@@ -52,14 +55,13 @@ export function DesktopTopBar() {
       <SuperAdminJobFilter className="shrink-0" />
       <div className="relative flex min-w-0 flex-1 items-center gap-2">
         <div className="relative min-w-0 flex-1">
-          <Search
+          <AppIcon
+            icon={Search}
+            size="sm"
             className={cn(
               'pointer-events-none absolute left-3 top-1/2 -translate-y-1/2',
-              icon.sm,
               inputDisabled ? 'text-[color:var(--pour-ink-3)]' : 'text-[color:var(--pour-ink-0)]',
             )}
-            strokeWidth={ICON_STROKE}
-            aria-hidden
           />
           <Input
             type="search"
@@ -94,7 +96,7 @@ export function DesktopTopBar() {
             )}
             aria-label="เปิดตัวกรองคำขอ"
           >
-            <ListFilter className={icon.sm} strokeWidth={ICON_STROKE} />
+            <AppIcon icon={FilterList} size="sm" />
           </button>
         ) : null}
       </div>
@@ -106,7 +108,7 @@ export function DesktopTopBar() {
           className={cn('h-10 w-10 shrink-0', theme.iconButtonChrome)}
           title="รายการคำขอ"
         >
-          <Bell className={icon.sm} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={Notifications} size="sm" />
         </button>
         <Link
           to="/profile"

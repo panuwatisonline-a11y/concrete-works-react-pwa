@@ -19,7 +19,8 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { formatDate, cn } from '@/lib/utils'
-import { ChevronDown } from 'lucide-react'
+import ExpandMore from '@mui/icons-material/ExpandMore'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { app, theme } from '@/lib/requestUi'
 
 export function AdminDashboard() {
@@ -111,13 +112,13 @@ export function AdminDashboard() {
           onClick={() => setDateFilterOpen((o) => !o)}
           className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--pour-surface-tint)]"
         >
-          <ChevronDown
+          <AppIcon
+            icon={ExpandMore}
+            size="md"
             className={cn(
-              'h-5 w-5 shrink-0 text-pour-muted transition-transform duration-200',
+              'text-pour-muted transition-transform duration-200',
               dateFilterOpen && 'rotate-180',
             )}
-            strokeWidth={2}
-            aria-hidden
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-[color:var(--pour-ink-0)]">ตัวกรองช่วงวันที่</p>

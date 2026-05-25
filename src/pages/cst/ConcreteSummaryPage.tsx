@@ -1,6 +1,9 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { format, startOfMonth } from 'date-fns'
-import { BarChart3, CalendarDays, Printer } from 'lucide-react'
+import BarChart from '@mui/icons-material/BarChart'
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Print from '@mui/icons-material/Print'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
@@ -35,7 +38,7 @@ import {
   CONCRETE_SUMMARY_SEARCH_ARIA,
   CONCRETE_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
-import { app, icon, ICON_STROKE, rq, surface, tableCompact, type } from '@/lib/requestUi'
+import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
 import { todayIsoLocal } from '@/lib/cstListDue'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { cn, formatDate } from '@/lib/utils'
@@ -259,7 +262,7 @@ export function ConcreteSummaryPage() {
     <div className={rq.page}>
       <header className="space-y-1">
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
-          <BarChart3 className={cn(icon.md, 'text-[color:var(--pour-accent)]')} strokeWidth={ICON_STROKE} />
+          <AppIcon icon={BarChart} size="md" className="text-[color:var(--pour-accent)]" />
           Concrete Summary
         </h1>
         <p className={rq.sub}>
@@ -271,7 +274,7 @@ export function ConcreteSummaryPage() {
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="concrete-summary-from" className="flex items-center gap-1.5 text-sm">
-              <CalendarDays className="h-4 w-4 text-[color:var(--pour-accent)]" aria-hidden />
+              <AppIcon icon={CalendarMonth} size="sm" className="text-[color:var(--pour-accent)]" />
               วันเท (เริ่ม)
             </Label>
             <Input
@@ -328,7 +331,7 @@ export function ConcreteSummaryPage() {
                 }
               }}
             >
-              <Printer className="h-4 w-4" strokeWidth={ICON_STROKE} aria-hidden />
+              <AppIcon icon={Print} size="sm" />
               พิมพ์
             </Button>
           </div>

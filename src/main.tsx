@@ -5,7 +5,8 @@ import { applyTheme, readStoredTheme } from '@/lib/theme'
 import './index.css'
 import App from './App.tsx'
 
-applyTheme(readStoredTheme())
+const initialTheme = readStoredTheme()
+applyTheme(initialTheme)
 setupPwaUpdates()
 
 createRoot(document.getElementById('root')!).render(

@@ -16,7 +16,10 @@ import {
   profilePickerOptionsFromProfiles,
 } from '@/components/shared/ProfileIdListMultiSelect'
 import { toast } from 'sonner'
-import { Edit, Trash2, Plus } from 'lucide-react'
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import Add from '@mui/icons-material/Add'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { app, modal, rq, tableCompact } from '@/lib/requestUi'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
@@ -256,7 +259,7 @@ export function InspectorPage() {
         <h1 className={rq.heroTitle}>Inspector</h1>
         {canEdit ? (
           <Button type="button" size="sm" onClick={openAdd}>
-            <Plus className="mr-1.5 h-4 w-4" />
+            <AppIcon icon={Add} size="sm" className="mr-1.5" />
             เพิ่ม Inspector
           </Button>
         ) : null}
@@ -300,10 +303,10 @@ export function InspectorPage() {
                       {canEdit ? (
                         <div className="flex justify-end gap-1">
                           <Button type="button" variant="ghost" size="icon" onClick={() => openEdit(row)}>
-                            <Edit className="h-4 w-4" />
+                            <AppIcon icon={Edit} size="sm" />
                           </Button>
                           <Button type="button" variant="ghost" size="icon" onClick={() => setDeleteId(row.id)}>
-                            <Trash2 className="h-4 w-4 text-rose-600" />
+                            <AppIcon icon={Delete} size="sm" className="text-rose-600" />
                           </Button>
                         </div>
                       ) : (

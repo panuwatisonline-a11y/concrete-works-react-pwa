@@ -7,18 +7,29 @@ import { APP_HOME } from '@/lib/appHome'
 import { auth, theme, BRAND_TAGLINE } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
-import { Truck, Scale, TrendingDown, BarChart3, ClipboardList, CalendarDays, FlaskConical, FileText, Bell, CloudOff } from 'lucide-react'
+import type { SvgIconComponent } from '@mui/icons-material'
+import ListAlt from '@mui/icons-material/ListAlt'
+import LocalShipping from '@mui/icons-material/LocalShipping'
+import CalendarMonth from '@mui/icons-material/CalendarMonth'
+import Scale from '@mui/icons-material/Scale'
+import TrendingDown from '@mui/icons-material/TrendingDown'
+import BarChart from '@mui/icons-material/BarChart'
+import Science from '@mui/icons-material/Science'
+import Description from '@mui/icons-material/Description'
+import Notifications from '@mui/icons-material/Notifications'
+import CloudOff from '@mui/icons-material/CloudOff'
+import { AppIcon } from '@/components/icons/AppIcon'
 
-const features = [
-  { icon: ClipboardList, text: 'จองและจัดการคำขอคอนกรีต' },
-  { icon: Truck, text: 'ติดตามสถานะคอนกรีตแบบ Real-Time' },
-  { icon: CalendarDays, text: 'สรุปการจองและแผนงานเท' },
+const features: { icon: SvgIconComponent; text: string }[] = [
+  { icon: ListAlt, text: 'จองและจัดการคำขอคอนกรีต' },
+  { icon: LocalShipping, text: 'ติดตามสถานะคอนกรีตแบบ Real-Time' },
+  { icon: CalendarMonth, text: 'สรุปการจองและแผนงานเท' },
   { icon: Scale, text: 'Concrete Balance' },
   { icon: TrendingDown, text: 'Loss Concrete' },
-  { icon: BarChart3, text: 'Monthly Concrete Summary' },
-  { icon: FlaskConical, text: 'บันทึกผลทดสอบกำลังอัดคอนกรีตพร้อมรายงาน (CST)' },
-  { icon: FileText, text: 'Checklist ก่อนเทคอนกรีต' },
-  { icon: Bell, text: 'ระบบ Push Notification' },
+  { icon: BarChart, text: 'Monthly Concrete Summary' },
+  { icon: Science, text: 'บันทึกผลทดสอบกำลังอัดคอนกรีตพร้อมรายงาน (CST)' },
+  { icon: Description, text: 'Checklist ก่อนเทคอนกรีต' },
+  { icon: Notifications, text: 'ระบบ Push Notification' },
   { icon: CloudOff, text: 'ระบบ Offline Sync' },
 ]
 
@@ -92,10 +103,10 @@ export function LoginPage() {
               จองคอนกรีต, ติดตามสถานะ, สร้างรายงาน
             </p>
             <div className="space-y-3 pour-wide:space-y-4">
-              {features.map(({ icon: Icon, text }, i) => (
+              {features.map(({ icon: FeatureIcon, text }, i) => (
                 <div key={i} className="flex items-start gap-3 text-[13px] leading-snug text-white/90 pour-wide:text-[14px]">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                    <Icon className="h-4 w-4" strokeWidth={1.75} />
+                    <AppIcon icon={FeatureIcon} size="sm" />
                   </span>
                   <span className="min-w-0 pt-1">{text}</span>
                 </div>

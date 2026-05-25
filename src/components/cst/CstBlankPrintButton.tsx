@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Printer } from 'lucide-react'
+import Print from '@mui/icons-material/Print'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { toast } from 'sonner'
 import { CST_AGE_COLUMN_LABELS } from '@/components/cst/CstAgeColumnCell'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,7 @@ import {
 } from '@/components/ui/searchable-select'
 import { fetchCompressionMachines } from '@/lib/cstData'
 import { localPrintCstBlankReport, normalizeCstTestAges } from '@/lib/cstPrint'
-import { ICON_STROKE, layout } from '@/lib/requestUi'
+import { layout } from '@/lib/requestUi'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { CST_TEST_AGES, type CstTestAge, type RequestWithRelations } from '@/types/app.types'
 import { cn } from '@/lib/utils'
@@ -114,7 +115,7 @@ export function CstBlankPrintButton({ request, className }: CstBlankPrintButtonP
           setOpen(true)
         }}
       >
-        <Printer className="h-3.5 w-3.5 shrink-0" strokeWidth={ICON_STROKE} aria-hidden />
+        <AppIcon icon={Print} size="xs" />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

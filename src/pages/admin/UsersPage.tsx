@@ -32,7 +32,11 @@ import { Navigate } from 'react-router-dom'
 import { APP_HOME } from '@/lib/appHome'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
-import { Edit, Trash2, CheckCircle, XCircle } from 'lucide-react'
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Cancel from '@mui/icons-material/Cancel'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { profileAvatarPreviewUrl, readAuthAvatarUrl, resolveProfileAvatarUrl } from '@/lib/profileAvatar'
 import type { UserStatus } from '@/types/app.types'
 import { adminDeleteProfile, adminUpdateProfile, fetchProfilesForAdmin } from '@/lib/adminProfileRpc'
@@ -475,31 +479,31 @@ export function UsersPage() {
                   {allowManage && u.status === 'pending' && (
                     <>
                       <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                        <CheckCircle className="h-3.5 w-3.5" />
+                        <AppIcon icon={CheckCircle} size="xs" sx={{ fontSize: 14 }} />
                       </Button>
                       <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                        <XCircle className="h-3.5 w-3.5" />
+                        <AppIcon icon={Cancel} size="xs" sx={{ fontSize: 14 }} />
                       </Button>
                     </>
                   )}
                   {allowManage && u.status === 'approved' && (
                     <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50 hover:text-rose-600" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                      <XCircle className="h-3.5 w-3.5" />
+                      <AppIcon icon={Cancel} size="xs" sx={{ fontSize: 14 }} />
                     </Button>
                   )}
                   {allowManage && u.status === 'rejected' && (
                     <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                      <CheckCircle className="h-3.5 w-3.5" />
+                      <AppIcon icon={CheckCircle} size="xs" sx={{ fontSize: 14 }} />
                     </Button>
                   )}
                   {allowManage && (
                     <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                      <Edit className="h-3.5 w-3.5" />
+                      <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                     </Button>
                   )}
                   {allowManage && u.id !== currentProfileId && (
                     <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                      <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                      <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
                     </Button>
                   )}
                 </div>
@@ -585,31 +589,31 @@ export function UsersPage() {
                         {allowManage && u.status === 'pending' && (
                           <>
                             <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                              <CheckCircle className="h-3.5 w-3.5" />
+                              <AppIcon icon={CheckCircle} size="xs" sx={{ fontSize: 14 }} />
                             </Button>
                             <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                              <XCircle className="h-3.5 w-3.5" />
+                              <AppIcon icon={Cancel} size="xs" sx={{ fontSize: 14 }} />
                             </Button>
                           </>
                         )}
                         {allowManage && u.status === 'approved' && (
                           <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-rose-400 hover:bg-rose-50" onClick={() => void setStatus(u.id, 'rejected')} aria-label="ปฏิเสธ">
-                            <XCircle className="h-3.5 w-3.5" />
+                            <AppIcon icon={Cancel} size="xs" sx={{ fontSize: 14 }} />
                           </Button>
                         )}
                         {allowManage && u.status === 'rejected' && (
                           <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-emerald-600 hover:bg-emerald-50" onClick={() => void setStatus(u.id, 'approved')} aria-label="อนุมัติ">
-                            <CheckCircle className="h-3.5 w-3.5" />
+                            <AppIcon icon={CheckCircle} size="xs" sx={{ fontSize: 14 }} />
                           </Button>
                         )}
                         {allowManage && (
                           <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setEditUser(u)} aria-label="แก้ไข">
-                            <Edit className="h-3.5 w-3.5" />
+                            <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                           </Button>
                         )}
                         {allowManage && u.id !== currentProfileId && (
                           <Button type="button" size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteUserId(u.id)} aria-label="ลบ">
-                            <Trash2 className="h-3.5 w-3.5 text-pour-subtle" />
+                            <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
                           </Button>
                         )}
                       </div>

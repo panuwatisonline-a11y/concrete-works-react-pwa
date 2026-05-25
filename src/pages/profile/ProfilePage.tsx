@@ -24,7 +24,8 @@ import { layout, rq } from '@/lib/requestUi'
 import { cn } from '@/lib/utils'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
 import { PushNotificationSettings } from '@/components/profile/PushNotificationSettings'
-import { Pencil } from 'lucide-react'
+import Edit from '@mui/icons-material/Edit'
+import { AppIcon } from '@/components/icons/AppIcon'
 
 const profileSchema = z.object({
   fname: z.string().min(1, 'กรุณาระบุชื่อ'),
@@ -117,7 +118,7 @@ export function ProfilePage() {
               className="gap-1.5 rounded-xl border-[color:var(--pour-surface-border)] text-[color:var(--pour-ink-1)]"
               onClick={() => setEditingProfile(true)}
             >
-              <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+              <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
               แก้ไข
             </Button>
           ) : null

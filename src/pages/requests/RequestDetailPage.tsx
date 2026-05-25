@@ -39,7 +39,9 @@ import {
 } from '@/lib/desktopTopBarSearch'
 import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
-import { Edit, History } from 'lucide-react'
+import Edit from '@mui/icons-material/Edit'
+import History from '@mui/icons-material/History'
+import { AppIcon } from '@/components/icons/AppIcon'
 import type { CstTestAge, RequestWithRelations, RequestLogWithProfile } from '@/types/app.types'
 import { fetchCstByRequestId } from '@/lib/cstData'
 import { CstFormDialog } from '@/components/requests/CstFormDialog'
@@ -245,7 +247,7 @@ export function RequestDetailPage() {
           sid === 1 && isOwner ? (
             <Button variant="outline" size="action" asChild>
               <Link to={`/requests/${id}/edit`}>
-                <Edit className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                <AppIcon icon={Edit} size="sm" />
                 แก้ไข
               </Link>
             </Button>
@@ -497,7 +499,7 @@ export function RequestDetailPage() {
       <Card className={rq.card}>
         <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
           <CardTitle className={cn(rq.cardTitle, 'flex items-center gap-2')}>
-            <History className="h-4 w-4 shrink-0 text-pour-muted" strokeWidth={1.75} aria-hidden />
+            <AppIcon icon={History} size="sm" className="text-pour-muted" />
             History
           </CardTitle>
         </CardHeader>
