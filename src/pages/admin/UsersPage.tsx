@@ -69,6 +69,59 @@ function displayPhone(u: Profile) {
   return p || '-'
 }
 
+type UsersByJobSummaryItem = {
+  jobId: number | null
+  jobName: string
+  total: number
+  pending: number
+  approved: number
+  rejected: number
+}
+
+function UsersByJobSummarySection({ items }: { items: UsersByJobSummaryItem[] }) {
+  return (
+    <section
+      aria-label="จำนวนผู้ใช้แยกตามโครงการ"
+      className="min-w-0 rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/75 p-3 backdrop-blur-sm sm:p-4"
+    >
+      <h2 className="mb-3 text-xs font-medium text-[color:var(--pour-ink-1)] sm:text-sm">
+        จำนวนผู้ใช้แยกตามโครงการ
+      </h2>
+      <ul className="flex min-w-0 flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-3 pour-desktop:grid-cols-2 pour-wide:grid-cols-3">
+        {items.map((s) => (
+          <li
+            key={String(s.jobId ?? 'none')}
+            className="min-w-0 list-none rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]/80 px-3 py-2.5"
+          >
+            <p className="text-sm font-semibold leading-snug text-[color:var(--pour-ink-0)] [overflow-wrap:anywhere] break-words">
+              {s.jobName}
+            </p>
+            <dl className="mt-2.5 grid grid-cols-3 gap-1 rounded-md border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/60 sm:gap-0 sm:divide-x sm:divide-[color:var(--glass-border-subtle)]">
+              <div className="min-w-0 px-1 py-1.5 text-center">
+                <dt className="text-[10px] font-medium leading-tight text-pour-muted">ทั้งหมด</dt>
+                <dd className="mt-0.5 text-sm font-semibold tabular-nums text-[color:var(--pour-ink-0)]">{s.total}</dd>
+              </div>
+              <div className="min-w-0 px-1 py-1.5 text-center">
+                <dt className="text-[10px] font-medium leading-tight text-amber-700">รอ</dt>
+                <dd className="mt-0.5 text-sm font-semibold tabular-nums text-amber-700">{s.pending}</dd>
+              </div>
+              <div className="min-w-0 px-1 py-1.5 text-center">
+                <dt className="text-[10px] font-medium leading-tight text-emerald-700">อนุมัติ</dt>
+                <dd className="mt-0.5 text-sm font-semibold tabular-nums text-emerald-700">{s.approved}</dd>
+              </div>
+            </dl>
+            {s.rejected > 0 ? (
+              <p className="mt-1.5 text-center text-[10px] font-medium text-rose-600">
+                ปฏิเสธ {s.rejected} คน
+              </p>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 function UserProfileAvatar({
   profile,
   className,
@@ -343,22 +396,11 @@ export function UsersPage() {
         </nav>
       </div>
 
+      {superAdminShowsAllJobs && !loading && usersByJobSummary.length > 0 ? (
+        <UsersByJobSummarySection items={usersByJobSummary} />
+      ) : null}
+
       <div className={app.mobileCardStackCompact}>
-        {superAdminShowsAllJobs && !loading && usersByJobSummary.length > 0 && (
-          <div className="rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/75 p-3 backdrop-blur-sm">
-            <p className="mb-2 text-xs font-medium text-[color:var(--pour-ink-1)]">จำนวนผู้ใช้แยกตามโครงการ</p>
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {usersByJobSummary.map((s) => (
-                <div key={String(s.jobId ?? 'none')} className="rounded-lg border border-[color:var(--glass-border-subtle)] bg-white/70 px-3 py-2">
-                  <p className="truncate text-sm font-semibold text-[color:var(--pour-ink-0)]" title={s.jobName}>{s.jobName}</p>
-                  <p className="mt-1 text-xs text-[color:var(--pour-ink-1)]">
-                    ทั้งหมด {s.total} คน · รอ {s.pending} · อนุมัติ {s.approved}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
         {loading ? (
           <div className={rq.dataRowEmpty}>กำลังโหลด…</div>
         ) : filteredUsers.length === 0 ? (
