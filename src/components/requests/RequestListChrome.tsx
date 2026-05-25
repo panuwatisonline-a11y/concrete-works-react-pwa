@@ -123,10 +123,14 @@ export function RequestListPageHeader({
   showCreate?: boolean
 }) {
   return (
-    <header className={cn('flex min-w-0 flex-wrap items-end justify-between gap-4', anim.fadeIn)}>
-      <div className="min-w-0">
+    <header className={cn('flex min-w-0 flex-nowrap items-start justify-between gap-3', anim.fadeIn)}>
+      <div className="min-w-0 flex-1 pr-2">
         <h1 className={type.hero}>{title}</h1>
-        {subtitle ? <p className={cn('mt-1', type.caption)}>{subtitle}</p> : null}
+        {subtitle ? (
+          <p className={cn('mt-1 truncate', type.caption)} title={subtitle}>
+            {subtitle}
+          </p>
+        ) : null}
       </div>
       {showCreate ? (
         <Link

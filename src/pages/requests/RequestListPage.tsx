@@ -911,7 +911,7 @@ export function RequestListPage() {
               ? 'กำลังโหลด…'
               : `รายการทั้งหมด ${grandTotal} รายการ`
             : mobileView === 'calendar'
-              ? 'มุมมองรายเดือนตามวันเท — คลิกวันเพื่อดูรายการ'
+              ? 'แตะวันเพื่อดูรายการ'
               : listSubtitle
         }
         showCreate={canBookConcrete(role)}
