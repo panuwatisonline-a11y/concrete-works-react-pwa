@@ -33,7 +33,8 @@ function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
 
 const tabLinkClass = (isActive: boolean) =>
   cn(
-    'pour-interactive pour-nav-item flex min-w-0 flex-1 basis-0 items-center justify-center rounded-lg px-1 py-2 text-center text-xs font-medium leading-tight transition-colors sm:px-2 sm:text-sm',
+    'pour-interactive pour-nav-item flex min-w-0 flex-1 basis-0 items-center justify-center rounded-lg px-1.5 py-2.5 text-center text-sm font-medium leading-snug transition-colors sm:px-2 sm:text-base',
+    'pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-xs pour-desktop:leading-tight pour-desktop:sm:px-2 pour-desktop:sm:text-sm',
     isActive
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
       : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
@@ -125,9 +126,17 @@ export function RequestListPageHeader({
   return (
     <header className={cn('flex min-w-0 flex-nowrap items-start justify-between gap-3', anim.fadeIn)}>
       <div className="min-w-0 flex-1 pr-2">
-        <h1 className={type.hero}>{title}</h1>
+        <h1 className={cn('text-pour-2xl font-semibold leading-snug tracking-[-0.02em]', 'pour-desktop:text-pour-2xl')}>
+          {title}
+        </h1>
         {subtitle ? (
-          <p className={cn('mt-1 truncate', type.caption)} title={subtitle}>
+          <p
+            className={cn(
+              'mt-1.5 truncate text-pour-base font-normal leading-relaxed text-pour-muted',
+              'pour-desktop:mt-1 pour-desktop:text-pour-sm',
+            )}
+            title={subtitle}
+          >
             {subtitle}
           </p>
         ) : null}
@@ -136,10 +145,10 @@ export function RequestListPageHeader({
         <Link
           to="/requests/new"
           className={cn(
-            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5',
+            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-pour-base font-medium',
+            'pour-desktop:text-pour-base',
             'bg-[color:var(--pour-accent)] text-white shadow-sm',
             'hover:bg-[color:var(--pour-accent-hover)]',
-            type.bodyStrong,
           )}
         >
           <AppIcon icon={Add} size="md" />

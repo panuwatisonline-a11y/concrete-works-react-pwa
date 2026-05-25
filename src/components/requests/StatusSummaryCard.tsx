@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import { cn } from '@/lib/utils'
 import { getStatusRingTheme } from '@/lib/statusRingTheme'
-import { rq, type, anim } from '@/lib/requestUi'
+import { rq, anim } from '@/lib/requestUi'
 
 type StatusSummaryCardProps = {
   statusId: number
@@ -33,12 +33,19 @@ export function StatusSummaryCard({ statusId, statusName, count, onClick }: Stat
       )}
       style={style}
     >
-      <span className="relative z-0 flex w-full items-center justify-between gap-3 px-4 py-3.5">
-        <span className={cn('min-w-0 flex-1', type.body, 'text-[color:var(--pour-ink-0)]')}>{statusName}</span>
+      <span className="relative z-0 flex w-full items-center justify-between gap-3 px-4 py-4 pour-desktop:px-4 pour-desktop:py-3.5">
         <span
           className={cn(
-            'shrink-0 rounded-full px-2.5 py-1 font-pour-mono tabular-nums backdrop-blur-sm',
-            type.bodyStrong,
+            'min-w-0 flex-1 text-pour-md font-normal leading-snug text-[color:var(--pour-ink-0)]',
+            'pour-desktop:text-pour-base pour-desktop:leading-relaxed',
+          )}
+        >
+          {statusName}
+        </span>
+        <span
+          className={cn(
+            'shrink-0 rounded-full px-3 py-1.5 font-pour-mono text-pour-lg font-semibold tabular-nums backdrop-blur-sm',
+            'pour-desktop:px-2.5 pour-desktop:py-1 pour-desktop:text-pour-base pour-desktop:font-medium',
           )}
           style={{
             color: accent.color,

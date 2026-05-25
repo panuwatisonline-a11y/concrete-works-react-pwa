@@ -1,27 +1,26 @@
 /**
- * pour-mobile fix-scale — canvas 390×844
- * ใช้คู่กับ .pour-mobile-fix-scale บน shell (AppLayout)
- * ไม่ทับ pour-desktop (landscape ≥768px)
+ * pour-mobile fix-scale — canvas 1200×2608
+ * ค่า px ใน calc อ้างอิง artboard 1200 กว้าง (เดิมออกแบบที่ 390 → คูณ ~3.08)
  */
 
 @layer components {
   @media (max-width: 767px) {
     .pour-mobile-fix-scale {
-      --pour-m-ref-w: 390;
-      --pour-m-ref-h: 844;
+      --pour-m-ref-w: 1200;
+      --pour-m-ref-h: 2608;
       --pour-m-factor: 0.8;
       --pour-m-font-factor: 0.92;
-      font-size: calc(13 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor));
+      font-size: calc(40 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor));
 
-      --pour-m-inset-x: calc(16 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
-      --pour-m-main-pt: calc(12 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-main-pb: calc(20 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-page-pt: calc(20 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-page-pb: calc(48 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-stack-gap: calc(14 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-card-px: calc(16 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
-      --pour-m-card-py: calc(16 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
-      --pour-m-radius-md: calc(12 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-inset-x: calc(49 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-main-pt: calc(37 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-main-pb: calc(62 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-page-pt: calc(62 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-page-pb: calc(148 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-stack-gap: calc(43 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-card-px: calc(49 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
+      --pour-m-card-py: calc(49 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
+      --pour-m-radius-md: calc(37 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
     }
 
     .pour-mobile-main-scroll {

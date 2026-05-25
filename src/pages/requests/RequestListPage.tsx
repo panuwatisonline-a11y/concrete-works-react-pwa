@@ -922,11 +922,11 @@ export function RequestListPage() {
           />
         </div>
       ) : mobileView === 'summary' ? (
-        <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3">
+        <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3.5">
           {!masterLoaded ? (
-            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>กำลังโหลดสถานะ…</p>
+            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-pour-base', rq.sub)}>กำลังโหลดสถานะ…</p>
           ) : statusRowsForSummary.length === 0 ? (
-            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-sm', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
+            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-pour-base', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
           ) : (
             statusRowsForSummary.map((s, i) => (
               <StaggerItem key={s.id} index={i}>

@@ -2,7 +2,7 @@ import { POUR_MOBILE_REF_HEIGHT, POUR_MOBILE_REF_WIDTH } from '@/lib/pourScaleRe
 
 export { POUR_MOBILE_REF_WIDTH, POUR_MOBILE_REF_HEIGHT }
 
-/** 0.8 = ลด 20% จาก canvas 390×844 */
+/** 0.8 = ลด 20% จาก canvas 1200×2608 */
 export const POUR_MOBILE_UI_FACTOR = 0.8
 
 export function pourMobileVw(px: number): string {
