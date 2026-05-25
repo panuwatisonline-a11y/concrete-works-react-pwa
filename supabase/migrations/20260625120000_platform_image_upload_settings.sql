@@ -3,14 +3,14 @@
 
 CREATE TABLE public.platform_settings (
   id smallint PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  image_upload_provider text NOT NULL DEFAULT 'google_drive'
+  image_upload_provider text NOT NULL DEFAULT 'r2'
     CHECK (image_upload_provider IN ('google_drive', 'r2')),
   updated_at timestamptz NOT NULL DEFAULT now(),
   updated_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL
 );
 
 INSERT INTO public.platform_settings (id, image_upload_provider)
-VALUES (1, 'google_drive')
+VALUES (1, 'r2')
 ON CONFLICT (id) DO NOTHING;
 
 ALTER TABLE public.platform_settings ENABLE ROW LEVEL SECURITY;

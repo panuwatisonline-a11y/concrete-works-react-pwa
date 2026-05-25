@@ -18,8 +18,8 @@ import { Label } from '@/components/ui/label'
 
 export function UploadSettingsPage() {
   const role = useAuthStore((s) => s.role)
-  const [provider, setProvider] = useState<ImageUploadProvider>('google_drive')
-  const [savedProvider, setSavedProvider] = useState<ImageUploadProvider>('google_drive')
+  const [provider, setProvider] = useState<ImageUploadProvider>('r2')
+  const [savedProvider, setSavedProvider] = useState<ImageUploadProvider>('r2')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 

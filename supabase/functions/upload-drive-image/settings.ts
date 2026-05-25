@@ -2,7 +2,7 @@ import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2"
 
 export type ImageUploadProvider = "google_drive" | "r2"
 
-const DEFAULT_PROVIDER: ImageUploadProvider = "google_drive"
+const DEFAULT_PROVIDER: ImageUploadProvider = "r2"
 const PROVIDER_CACHE_TTL_MS = 60_000
 
 let cachedProvider: ImageUploadProvider | null = null
