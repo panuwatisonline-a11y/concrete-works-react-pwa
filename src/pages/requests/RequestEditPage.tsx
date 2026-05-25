@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -38,6 +38,7 @@ import {
 } from '@/lib/mixcodeStrengthOptions'
 import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
 import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
+import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import type { Request } from '@/types/app.types'
 
 const schema = z.object({
@@ -63,6 +64,10 @@ export function RequestEditPage() {
   const [request, setRequest] = useState<Request | null>(null)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const requestRef = useRef<Request | null>(null)
+  const beforeImageRef = useRef<string | null>(null)
+  requestRef.current = request
+  beforeImageRef.current = beforeImage
 
   const { register, control, handleSubmit, reset, watch, setValue, getValues, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
@@ -133,6 +138,12 @@ export function RequestEditPage() {
   useEffect(() => {
     void loadRequest()
   }, [loadRequest])
+
+  useEffect(() => {
+    return () => {
+      purgeOrphanUploadedImage(beforeImageRef.current, requestRef.current?.before_image)
+    }
+  }, [])
 
   useDataSyncOnTables(['Request', '*'], (detail) => {
     if (!id) return

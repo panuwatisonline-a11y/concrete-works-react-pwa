@@ -8,6 +8,7 @@ import { ImageLightboxDialog } from '@/components/shared/ImageLightboxDialog'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
+import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import { cn } from '@/lib/utils'
 import {
   Dialog,
@@ -43,21 +44,30 @@ export function UploadBillConcreteDialog({
   const [saving, setSaving] = useState(false)
   const [replacing, setReplacing] = useState(false)
   const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [savedOnClose, setSavedOnClose] = useState(false)
 
   const trimmedUrl = imageUrl?.trim() || null
+  const persistedUrl = initialUrl?.trim() || null
   const displaySrc = trimmedUrl ? (imageSrcForImgTag(trimmedUrl, 'lightbox') ?? trimmedUrl) : null
   const detailSrc = trimmedUrl ? (imageSrcForImgTag(trimmedUrl, 'detail') ?? trimmedUrl) : null
-  const savedOnOpen = Boolean(initialUrl?.trim())
-  const dirty = trimmedUrl !== (initialUrl?.trim() || null)
+  const savedOnOpen = Boolean(persistedUrl)
+  const dirty = trimmedUrl !== persistedUrl
 
   useEffect(() => {
     if (!open) return
-    const url = initialUrl?.trim() || null
-    setImageUrl(url)
-    setReplacing(!url)
+    setImageUrl(persistedUrl)
+    setReplacing(!persistedUrl)
     setFileUploading(false)
     setLightboxOpen(false)
-  }, [open, requestId, initialUrl])
+    setSavedOnClose(false)
+  }, [open, requestId, initialUrl, persistedUrl])
+
+  function handleOpenChange(next: boolean) {
+    if (!next && !savedOnClose) {
+      purgeOrphanUploadedImage(trimmedUrl, persistedUrl)
+    }
+    onOpenChange(next)
+  }
 
   async function handleSave() {
     if (!trimmedUrl || saving) return
@@ -80,6 +90,7 @@ export function UploadBillConcreteDialog({
         },
       })
       if (!ok) return
+      setSavedOnClose(true)
       setReplacing(false)
       onSuccess?.()
     } catch (e) {
@@ -93,7 +104,7 @@ export function UploadBillConcreteDialog({
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           overlayClassName={overlayClassName}
           className={cn(
@@ -147,7 +158,7 @@ export function UploadBillConcreteDialog({
                   size="modalAction"
                   type="button"
                   className="w-full sm:w-auto"
-                  onClick={() => onOpenChange(false)}
+                  onClick={() => handleOpenChange(false)}
                 >
                   ปิด
                 </Button>
@@ -181,10 +192,11 @@ export function UploadBillConcreteDialog({
                   disabled={saving}
                   onClick={() => {
                     if (savedOnOpen && trimmedUrl) {
+                      purgeOrphanUploadedImage(trimmedUrl, persistedUrl)
                       setReplacing(false)
-                      setImageUrl(initialUrl?.trim() || null)
+                      setImageUrl(persistedUrl)
                     } else {
-                      onOpenChange(false)
+                      handleOpenChange(false)
                     }
                   }}
                 >

@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
+import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import { cn } from '@/lib/utils'
 import {
   Dialog,
@@ -38,12 +39,21 @@ export function UploadBeforePourDialog({
   const [imageUrl, setImageUrl] = useState<string | null>(null)
   const [fileUploading, setFileUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [savedOnClose, setSavedOnClose] = useState(false)
 
   useEffect(() => {
     if (!open) return
     setImageUrl(null)
     setFileUploading(false)
+    setSavedOnClose(false)
   }, [open, requestId])
+
+  function handleOpenChange(next: boolean) {
+    if (!next) {
+      if (!savedOnClose) purgeOrphanUploadedImage(imageUrl, null)
+    }
+    onOpenChange(next)
+  }
 
   async function handleSave() {
     const trimmed = imageUrl?.trim()
@@ -67,6 +77,7 @@ export function UploadBeforePourDialog({
         },
       })
       if (!ok) return
+      setSavedOnClose(true)
       onOpenChange(false)
       onSuccess?.()
     } catch (e) {
@@ -77,7 +88,7 @@ export function UploadBeforePourDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         overlayClassName={overlayClassName}
         className={cn('max-h-[min(92dvh,560px)] max-w-lg overflow-y-auto', dialogContentClassName)}
@@ -98,7 +109,7 @@ export function UploadBeforePourDialog({
           />
         </div>
         <DialogFooter>
-          <Button variant="outline" size="modalAction" type="button" disabled={saving} onClick={() => onOpenChange(false)}>
+          <Button variant="outline" size="modalAction" type="button" disabled={saving} onClick={() => handleOpenChange(false)}>
             ยกเลิก
           </Button>
           <Button

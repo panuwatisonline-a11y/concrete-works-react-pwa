@@ -3,6 +3,10 @@ const DRIVE_MULTIPART_UPLOAD =
   "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id&supportsAllDrives=true"
 const DRIVE_PERMISSION_URL = (fileId: string) =>
   `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}/permissions?supportsAllDrives=true`
+const DRIVE_FILE_URL = (fileId: string) =>
+  `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?supportsAllDrives=true`
+
+const DRIVE_FILE_ID_RE = /^[a-zA-Z0-9_-]{10,100}$/
 
 const DRIVE_FOLDER_ID_RE = /^[a-zA-Z0-9_-]{10,100}$/
 const TOKEN_EXPIRY_BUFFER_MS = 60_000
@@ -216,4 +220,51 @@ export async function uploadImageToGoogleDrive(
 
 export function isGoogleOAuthError(message: string): boolean {
   return message.startsWith("Google OAuth:")
+}
+
+/** ดึง file id จาก thumbnail / file/d / open / uc URL */
+export function extractGoogleDriveFileId(raw: string): string | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+
+  const fileD = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)(?:\/|$|\?)/)
+  if (fileD?.[1] && DRIVE_FILE_ID_RE.test(fileD[1])) return fileD[1]
+
+  try {
+    const u = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`)
+    const host = u.hostname.replace(/^www\./i, "")
+    if (/drive\.google\.com$/i.test(host) || /docs\.google\.com$/i.test(host)) {
+      const id = u.searchParams.get("id")
+      if (id && DRIVE_FILE_ID_RE.test(id)) return id
+    }
+  } catch {
+    /* ignore */
+  }
+
+  if (/google\.com/i.test(trimmed)) {
+    const m = trimmed.match(/[?&]id=([a-zA-Z0-9_-]{10,100})/)
+    if (m?.[1]) return m[1]
+  }
+
+  const guc = trimmed.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/i)
+  if (guc?.[1] && DRIVE_FILE_ID_RE.test(guc[1])) return guc[1]
+
+  return null
+}
+
+/** ลบไฟล์บน Drive (ถังขยะ) — คืน false ถ้า URL ไม่ใช่ Drive */
+export async function deleteGoogleDriveFileByUrl(imageUrl: string): Promise<boolean> {
+  const fileId = extractGoogleDriveFileId(imageUrl)
+  if (!fileId) return false
+
+  const accessToken = await getGoogleAccessToken()
+  const res = await fetch(DRIVE_FILE_URL(fileId), {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+
+  if (res.ok || res.status === 404) return true
+
+  const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } }
+  throw new Error(json?.error?.message ?? `Drive delete failed (${res.status})`)
 }

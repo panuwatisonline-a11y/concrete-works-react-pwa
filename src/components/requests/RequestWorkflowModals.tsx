@@ -34,6 +34,7 @@ import {
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import type { RequestWithRelations } from '@/types/app.types'
 import { canConfirmRequest } from '@/lib/requestQuickActions'
+import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import { modal as uiModal } from '@/lib/requestUi'
 
 /** ชั้น workflow — สูงกว่า dialog ทั่วไป (1300) */
@@ -102,6 +103,12 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
   const [actionBusy, setActionBusy] = useState(false)
   const actionLockRef = useRef(false)
+  const inspectBeforeRef = useRef<string | null>(null)
+  const inspectPersistedRef = useRef<string | null>(null)
+  const completeAfterRef = useRef('')
+  const completePersistedRef = useRef<string | null>(null)
+  inspectBeforeRef.current = inspectBeforeImage
+  completeAfterRef.current = completeData.after_image
 
   const requestRef = useRef(request)
   requestRef.current = request
@@ -152,8 +159,30 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
     if (modal !== 'inspect') return
     const r = requestRef.current
     setInspectData(inspectFormFromRequest(r))
-    setInspectBeforeImage(r.before_image?.trim() || null)
+    const saved = r.before_image?.trim() || null
+    inspectPersistedRef.current = saved
+    setInspectBeforeImage(saved)
   }, [modal, request.id])
+
+  useEffect(() => {
+    if (modal === 'inspect') return
+    purgeOrphanUploadedImage(inspectBeforeRef.current, inspectPersistedRef.current)
+  }, [modal])
+
+  useLayoutEffect(() => {
+    if (modal !== 'complete') return
+    completePersistedRef.current = requestRef.current.after_image?.trim() || null
+    setCompleteData({
+      volume_confirm: '',
+      after_image: '',
+      note: '',
+    })
+  }, [modal, request.id])
+
+  useEffect(() => {
+    if (modal === 'complete') return
+    purgeOrphanUploadedImage(completeAfterRef.current, completePersistedRef.current)
+  }, [modal])
 
   useEffect(() => {
     if (modal !== 'inspect') return

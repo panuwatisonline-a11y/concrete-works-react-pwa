@@ -80,6 +80,50 @@ export function publicUrlForR2Key(publicBase: string, objectKey: string): string
   return `${publicBase}/${encodeObjectKeyForUrl(objectKey)}`
 }
 
+const ALLOWED_OBJECT_KEY = /^(before|after|bill|upload)\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/
+
+export function isAllowedR2ObjectKey(key: string): boolean {
+  return ALLOWED_OBJECT_KEY.test(key)
+}
+
+/** แปลง public URL (pub-*.r2.dev) เป็น object key ใน bucket */
+export function objectKeyFromPublicUrl(imageUrl: string, publicBase: string): string | null {
+  const trimmed = imageUrl.trim()
+  if (!trimmed) return null
+  try {
+    const parsed = new URL(trimmed)
+    const base = new URL(`${normalizeBaseUrl(publicBase)}/`)
+    if (parsed.origin !== base.origin) return null
+    const path = parsed.pathname.replace(/^\//, "")
+    if (!path) return null
+    const key = path.split("/").map((seg) => decodeURIComponent(seg)).join("/")
+    return isAllowedR2ObjectKey(key) ? key : null
+  } catch {
+    return null
+  }
+}
+
+export async function deleteR2ObjectByKey(key: string): Promise<void> {
+  if (!isAllowedR2ObjectKey(key)) {
+    throw new Error("Invalid object key")
+  }
+  const config = readR2Config()
+  const endpoint = `${config.uploadBase}/${encodeObjectKeyForUrl(key)}`
+  const aws = createAwsClient(config)
+  const res = await aws.fetch(endpoint, { method: "DELETE" })
+  if (res.ok || res.status === 404) return
+  const detail = await res.text().catch(() => "")
+  throw new Error(detail ? `R2 delete failed: ${detail}` : `R2 delete failed (${res.status})`)
+}
+
+export async function deleteR2ObjectByPublicUrl(imageUrl: string): Promise<boolean> {
+  const config = readR2Config()
+  const key = objectKeyFromPublicUrl(imageUrl, config.publicBase)
+  if (!key) return false
+  await deleteR2ObjectByKey(key)
+  return true
+}
+
 function createAwsClient(config: R2Config): AwsClient {
   return new AwsClient({
     accessKeyId: config.accessKeyId,

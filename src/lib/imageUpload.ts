@@ -1,4 +1,5 @@
-import { supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
+import { extractGoogleDriveFileId } from '@/lib/driveThumbnail'
+import { supabase, supabaseAnonKey, supabaseUrl } from '@/lib/supabase'
 import { UPLOAD_MAX_BYTES } from '@/lib/compressImage'
 
 export type ImageUploadResult =
@@ -167,4 +168,58 @@ export async function uploadImageFile(opts: {
   formData.append('file', file)
   formData.append('folder', folder)
   return xhrPostFormWithProgress(formData, accessToken, onProgress)
+}
+
+/** URL ที่เก็บบน R2 public bucket */
+export function isR2StoredImageUrl(url: string | null | undefined): boolean {
+  const s = url?.trim()
+  if (!s) return false
+  try {
+    const host = new URL(s).hostname.toLowerCase()
+    return host.endsWith('.r2.dev') || host.includes('r2.cloudflarestorage.com')
+  } catch {
+    return false
+  }
+}
+
+/** URL ที่ชี้ไป Google Drive (thumbnail / file / open) */
+export function isGoogleDriveStoredImageUrl(url: string | null | undefined): boolean {
+  const s = url?.trim()
+  if (!s) return false
+  return extractGoogleDriveFileId(s) != null
+}
+
+export function isDeletableStoredImageUrl(url: string | null | undefined): boolean {
+  return isR2StoredImageUrl(url) || isGoogleDriveStoredImageUrl(url)
+}
+
+/**
+ * ลบรูปบน R2 หรือ Drive เมื่อผู้ใช้ลบหรือแทนที่รูป (ไม่บล็อก UI · ไม่แจ้ง error ถ้าล้ม)
+ */
+export function deleteStoredImage(url: string | null | undefined): void {
+  const trimmed = url?.trim()
+  if (!trimmed || !isDeletableStoredImageUrl(trimmed)) return
+
+  void (async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) return
+
+    try {
+      const res = await fetch(edgeFunctionUrl(), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: supabaseAnonKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'delete', url: trimmed }),
+      })
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string }
+        console.warn('deleteStoredImage:', body.error ?? res.status)
+      }
+    } catch (e) {
+      console.warn('deleteStoredImage:', e)
+    }
+  })()
 }

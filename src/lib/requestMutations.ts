@@ -1,7 +1,30 @@
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
 import { insertJobIdFromAuth } from '@/lib/jobScopeQueries'
+import {
+  collectRequestImageUrls,
+  deleteReplacedRequestImages,
+  deleteStoredImages,
+  REQUEST_IMAGE_FIELDS,
+  type RequestImageRow,
+} from '@/lib/requestImageCleanup'
 import { supabase } from '@/lib/supabase'
 import type { OfflineMutation } from '@/lib/offline/types'
+
+const REQUEST_IMAGE_SELECT = REQUEST_IMAGE_FIELDS.join(', ')
+
+async function fetchRequestImages(requestId: string): Promise<RequestImageRow | null> {
+  const { data, error } = await supabase
+    .from('Request')
+    .select(REQUEST_IMAGE_SELECT)
+    .eq('id', requestId)
+    .maybeSingle()
+  if (error || !data) return null
+  return data as RequestImageRow
+}
+
+function patchTouchesImageFields(patch: Record<string, unknown>): boolean {
+  return REQUEST_IMAGE_FIELDS.some((f) => f in patch)
+}
 
 export type MutationResult =
   | { ok: true; requestId?: string }
@@ -41,10 +64,16 @@ export async function runInspectMutation(
     inspected_at: new Date().toISOString(),
   }
   const corrections = payload.corrections as Record<string, unknown> | undefined
+  const oldRow = corrections?.before_image !== undefined
+    ? await fetchRequestImages(requestId)
+    : null
   if (corrections) Object.assign(patch, corrections)
 
   const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
   if (error) return { ok: false, message: error.message }
+  if (oldRow && corrections?.before_image !== undefined) {
+    deleteReplacedRequestImages(oldRow, { ...oldRow, ...corrections }, ['before_image'])
+  }
   const log = await logAction(requestId, 2, 'inspected', userId, payload.note as string | undefined)
   return log
 }
@@ -136,11 +165,18 @@ export async function runCompleteMutation(
     confirmed_at: new Date().toISOString(),
     volume_confirm: payload.volume_confirm,
   }
-  for (const k of ['volume_actual', 'strength', 'after_image', 'eslip_url', 'checksheet_url'] as const) {
+  const imageKeys = ['after_image', 'eslip_url', 'checksheet_url'] as const
+  const touchesImages = imageKeys.some((k) => payload[k] !== undefined)
+  const oldRow = touchesImages ? await fetchRequestImages(requestId) : null
+
+  for (const k of ['volume_actual', 'strength', ...imageKeys] as const) {
     if (payload[k] !== undefined) patch[k] = payload[k]
   }
   const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
   if (error) return { ok: false, message: error.message }
+  if (oldRow) {
+    deleteReplacedRequestImages(oldRow, { ...oldRow, ...patch }, [...imageKeys])
+  }
   return logAction(requestId, 8, 'completed', userId, payload.note as string | undefined)
 }
 
@@ -149,6 +185,9 @@ export async function runCancelMutation(
   userId: string | undefined,
   payload: Record<string, unknown>,
 ): Promise<MutationResult> {
+  const oldRow = await fetchRequestImages(requestId)
+  const urlsToDelete = collectRequestImageUrls(oldRow ?? undefined)
+
   const { error } = await supabase
     .from('Request')
     .update({
@@ -156,9 +195,14 @@ export async function runCancelMutation(
       cancelled_by: userId,
       cancelled_at: new Date().toISOString(),
       reason_cancel: String(payload.reason ?? ''),
+      before_image: null,
+      after_image: null,
+      eslip_url: null,
+      checksheet_url: null,
     })
     .eq('id', requestId)
   if (error) return { ok: false, message: error.message }
+  deleteStoredImages(urlsToDelete)
   return logAction(requestId, 7, 'cancelled', userId, String(payload.reason ?? ''))
 }
 
@@ -167,8 +211,12 @@ export async function runPatchImageMutation(
   field: 'before_image' | 'eslip_url',
   url: string,
 ): Promise<MutationResult> {
+  const oldRow = await fetchRequestImages(requestId)
   const { error } = await supabase.from('Request').update({ [field]: url }).eq('id', requestId)
   if (error) return { ok: false, message: error.message }
+  if (oldRow) {
+    deleteReplacedRequestImages(oldRow, { ...oldRow, [field]: url }, [field])
+  }
   return { ok: true }
 }
 
@@ -195,8 +243,12 @@ export async function runUpdateRequestMutation(
   payload: Record<string, unknown>,
 ): Promise<MutationResult> {
   const patch = payload.patch as Record<string, unknown>
+  const oldRow = patchTouchesImageFields(patch) ? await fetchRequestImages(requestId) : null
   const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
   if (error) return { ok: false, message: error.message }
+  if (oldRow) {
+    deleteReplacedRequestImages(oldRow, { ...oldRow, ...patch })
+  }
   return { ok: true }
 }
 

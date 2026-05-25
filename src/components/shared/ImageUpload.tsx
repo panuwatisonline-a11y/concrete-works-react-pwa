@@ -6,7 +6,7 @@ import { AppIcon } from '@/components/icons/AppIcon'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 import { compressImage, UPLOAD_MAX_BYTES } from '@/lib/compressImage'
-import { uploadImageFile } from '@/lib/imageUpload'
+import { deleteStoredImage, uploadImageFile } from '@/lib/imageUpload'
 import { warmUploadEdgeFunction } from '@/lib/warmUploadEdge'
 import { imageSrcForImgTag } from '@/lib/driveThumbnail'
 import type { DriveUploadCategory } from '@/lib/driveUploadCategory'
@@ -152,6 +152,7 @@ export function ImageUpload({
         return
       }
       onChange(result.url)
+      if (previousUrl) deleteStoredImage(previousUrl)
     } finally {
       setUploading(false)
       setUploadPhase(null)
@@ -215,7 +216,11 @@ export function ImageUpload({
             <button
               type="button"
               aria-label="ลบรูป"
-              onClick={() => onChange(null)}
+              onClick={() => {
+                const toDelete = typeof value === 'string' ? value.trim() : ''
+                onChange(null)
+                if (toDelete) deleteStoredImage(toDelete)
+              }}
               className="absolute -right-2 -top-2 rounded-full bg-zinc-900 p-1 text-white hover:bg-zinc-800"
             >
               <AppIcon icon={Close} size="xs" sx={{ fontSize: 12 }} />

@@ -1,13 +1,22 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts"
 import { createClient, type SupabaseClient } from "jsr:@supabase/supabase-js@2"
-import { uploadImageToGoogleDrive, isGoogleOAuthError } from "./drive.ts"
-import { createR2PresignedPutUrl, uploadBytesToR2 } from "./r2.ts"
+import {
+  deleteGoogleDriveFileByUrl,
+  isGoogleOAuthError,
+  uploadImageToGoogleDrive,
+} from "./drive.ts"
+import {
+  createR2PresignedPutUrl,
+  deleteR2ObjectByPublicUrl,
+  uploadBytesToR2,
+} from "./r2.ts"
 import { createServiceRoleClient, resolveImageUploadProvider } from "./settings.ts"
 
 /**
  * อัปโหลดรูป — Google Drive หรือ Cloudflare R2
  * - POST multipart: proxy ผ่าน Edge (Drive หรือ R2 fallback)
  * - POST JSON { action: "presign", ... }: presigned PUT ตรงไป R2 (เร็วกว่า)
+ * - POST JSON { action: "delete", url }: ลบรูปบน R2 หรือ Google Drive เมื่อผู้ใช้ลบ/เปลี่ยนรูป
  */
 
 export const MAX_BYTES = 10 * 1024 * 1024
@@ -18,12 +27,13 @@ const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 }
 
-type PresignBody = {
+type JsonBody = {
   action?: string
   folder?: string
   mime?: string
   fileName?: string
   fileSize?: number
+  url?: string
 }
 
 function jsonResponse(body: Record<string, unknown>, status: number): Response {
@@ -45,19 +55,40 @@ async function requireUser(supabase: SupabaseClient) {
   return user
 }
 
-async function handlePresign(req: Request, supabase: SupabaseClient): Promise<Response> {
+async function handleDelete(body: JsonBody): Promise<Response> {
+  const imageUrl = String(body.url ?? "").trim()
+  if (!imageUrl) {
+    return jsonResponse({ error: "Missing url" }, 400)
+  }
+
+  if (await deleteR2ObjectByPublicUrl(imageUrl)) {
+    return jsonResponse({ ok: true, deleted: true, provider: "r2" }, 200)
+  }
+
+  if (await deleteGoogleDriveFileByUrl(imageUrl)) {
+    return jsonResponse({ ok: true, deleted: true, provider: "google_drive" }, 200)
+  }
+
+  return jsonResponse({ error: "Not a deletable R2 or Google Drive image URL" }, 400)
+}
+
+async function handleJson(req: Request, supabase: SupabaseClient): Promise<Response> {
   const user = await requireUser(supabase)
   if (!user) return jsonResponse({ error: "Unauthorized" }, 401)
 
-  let body: PresignBody
+  let body: JsonBody
   try {
-    body = (await req.json()) as PresignBody
+    body = (await req.json()) as JsonBody
   } catch {
     return jsonResponse({ error: "Invalid JSON body" }, 400)
   }
 
   if (body.action === "warm") {
     return jsonResponse({ ok: true }, 200)
+  }
+
+  if (body.action === "delete") {
+    return await handleDelete(body)
   }
 
   if (body.action !== "presign") {
@@ -167,7 +198,7 @@ Deno.serve(async (req) => {
   try {
     const contentType = req.headers.get("content-type") ?? ""
     if (contentType.includes("application/json")) {
-      return await handlePresign(req, supabase)
+      return await handleJson(req, supabase)
     }
     return await handleMultipart(req, supabase)
   } catch (e) {

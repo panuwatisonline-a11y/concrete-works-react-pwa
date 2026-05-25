@@ -26,6 +26,7 @@ import { APP_HOME } from '@/lib/appHome'
 import { canBookConcrete } from '@/lib/permissions'
 import { structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
+import { deleteStoredImage } from '@/lib/imageUpload'
 import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
 import { layout, rq } from '@/lib/requestUi'
 import { scrollToFirstInvalidFormField } from '@/lib/formScrollToError'
@@ -192,9 +193,21 @@ export function RequestNewPage() {
   const [showStepErrors, setShowStepErrors] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const submitLockRef = useRef(false)
+  const submittedRef = useRef(false)
+  const beforeImageRef = useRef<string | null>(null)
   const [beforeImage, setBeforeImage] = useState<string | null>(null)
   const [beforeImageUploading, setBeforeImageUploading] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
+
+  beforeImageRef.current = beforeImage
+
+  useEffect(() => {
+    return () => {
+      if (!submittedRef.current && beforeImageRef.current?.trim()) {
+        deleteStoredImage(beforeImageRef.current)
+      }
+    }
+  }, [])
 
   const { control, register, handleSubmit, watch, setValue, getValues, reset, trigger, clearErrors, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -397,6 +410,8 @@ export function RequestNewPage() {
       })
 
       if (!ok) return
+
+      submittedRef.current = true
 
       const client = clients.find((c) => c.id === row.client_id)
       const location = locations.find((l) => l.id === row.location_id)
