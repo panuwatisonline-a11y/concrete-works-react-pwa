@@ -51,7 +51,7 @@ export function DesktopTopBar() {
     <div
       className={cn(
         'pour-pc-topbar hidden w-full min-w-0 max-w-full',
-        'pour-desktop:grid',
+        'pour-desktop:flex pour-desktop:flex-row pour-desktop:flex-nowrap pour-desktop:items-center',
         theme.headerBar,
         pourPcUi.topbar,
       )}

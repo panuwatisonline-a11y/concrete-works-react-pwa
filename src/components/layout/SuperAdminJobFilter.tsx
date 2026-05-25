@@ -28,29 +28,31 @@ export function SuperAdminJobFilter({
   return (
     <div
       className={cn(
-        isMobile ? 'flex w-full flex-col gap-2' : 'pour-pc-topbar-job flex min-w-0 flex-row items-center',
+        isMobile ? 'flex w-full flex-col gap-2' : 'pour-pc-topbar-job',
         className,
       )}
     >
       <span className={cn(type.caption, 'shrink-0 text-pour-subtle', !isMobile && 'sr-only')}>
         {isMobile ? 'โครงการ' : 'โครงการ'}
       </span>
-      <SearchableSelect
-        value={value}
-        onValueChange={(v) => {
-          setSuperAdminJobFilter(v === 'all' ? 'all' : Number.parseInt(v, 10))
-          void reloadMasterData()
-        }}
-        placeholder="เลือกโครงการ"
-        options={[
-          { value: 'all', label: 'ทุกโครงการ' },
-          ...mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name),
-        ]}
-        triggerClassName={cn(
-          isMobile ? 'h-9 w-full min-h-9 text-sm' : 'w-full min-w-0 max-w-full',
-        )}
-        listClassName="max-h-[min(50dvh,18rem)]"
-      />
+      <div className={cn(!isMobile && 'pour-pc-topbar-job-select min-w-0 flex-1')}>
+        <SearchableSelect
+          value={value}
+          onValueChange={(v) => {
+            setSuperAdminJobFilter(v === 'all' ? 'all' : Number.parseInt(v, 10))
+            void reloadMasterData()
+          }}
+          placeholder="เลือกโครงการ"
+          options={[
+            { value: 'all', label: 'ทุกโครงการ' },
+            ...mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name),
+          ]}
+          triggerClassName={cn(
+            isMobile ? 'h-9 w-full min-h-9 text-sm' : 'pour-pc-topbar-job-trigger w-full min-w-0',
+          )}
+          listClassName="max-h-[min(50dvh,18rem)]"
+        />
+      </div>
     </div>
   )
 }
