@@ -1,6 +1,7 @@
 ﻿import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { useResizableTableColumns } from '@/hooks/useResizableTableColumns'
 import { ResizableTableToolbar } from '@/components/shared/ResizableTableToolbar'
+import { TableClampText } from '@/components/shared/TableClampText'
 import type { ResizableTableColumnConfig } from '@/lib/resizableTableColumns'
 import { canEditMasterData } from '@/lib/permissions'
 import { useAuthStore } from '@/stores/authStore'
@@ -59,6 +60,13 @@ interface CrudTableProps<T extends { id: number }> {
 
 function renderCell<T>(col: Column<T>, row: T) {
   return col.render ? col.render(row) : String((row as Record<string, unknown>)[String(col.key)] ?? '-')
+}
+
+function renderDesktopCell<T>(col: Column<T>, row: T) {
+  const value = renderCell(col, row)
+  if (col.render) return value
+  const text = String(value)
+  return <TableClampText text={text} />
 }
 
 export function CrudTable<T extends { id: number }>({
@@ -320,8 +328,8 @@ export function CrudTable<T extends { id: number }>({
                     ) : null}
                     <tr>
                       {effectiveColumns.map((col) => (
-                        <td key={String(col.key)} className="min-w-0 break-words text-[color:var(--pour-ink-1)]">
-                          {renderCell(col, row)}
+                        <td key={String(col.key)} className="min-w-0 text-[color:var(--pour-ink-1)]">
+                          {renderDesktopCell(col, row)}
                         </td>
                       ))}
                       <td className={pourPcUi.colActions}>

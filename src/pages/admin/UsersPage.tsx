@@ -19,6 +19,7 @@ import { formatDate, cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { adminDataRow, app, modal, rq, tableCompact } from '@/lib/requestUi'
 import { ResizableTableToolbar } from '@/components/shared/ResizableTableToolbar'
+import { TableClampText } from '@/components/shared/TableClampText'
 import { useResizableTableColumns } from '@/hooks/useResizableTableColumns'
 import type { ResizableTableColumnConfig } from '@/lib/resizableTableColumns'
 import { pourPcUi } from '@/lib/pourPcScale'
@@ -596,16 +597,24 @@ export function UsersPage() {
                           sessionAvatarUrl={sessionAvatarUrl}
                           onPreview={openAvatarPreview}
                         />
-                        <span className="min-w-0 break-words">{userDisplayName(u)}</span>
+                        <TableClampText text={userDisplayName(u)} />
                       </div>
                     </td>
-                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{clientLabel(u)}</td>
-                    <td className="min-w-0 break-words font-mono tabular-nums">{u.employee_id ?? '-'}</td>
-                    <td className={cn('min-w-0 font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]', pourPcUi.tdNowrap)}>
-                      {displayPhone(u)}
+                    <td className="min-w-0 text-[color:var(--pour-ink-1)]">
+                      <TableClampText text={clientLabel(u)} />
                     </td>
-                    <td className="min-w-0 break-words text-[color:var(--pour-ink-1)]">{jobLabel(u)}</td>
-                    <td className={cn('min-w-0 text-xs text-pour-muted', pourPcUi.tdNowrap)}>{formatDate(u.created_at)}</td>
+                    <td className="min-w-0 font-mono tabular-nums">
+                      <TableClampText text={u.employee_id ?? '-'} />
+                    </td>
+                    <td className="min-w-0 font-mono text-xs tabular-nums text-[color:var(--pour-ink-1)]">
+                      <TableClampText text={displayPhone(u)} />
+                    </td>
+                    <td className="min-w-0 text-[color:var(--pour-ink-1)]">
+                      <TableClampText text={jobLabel(u)} />
+                    </td>
+                    <td className="min-w-0 text-xs text-pour-muted">
+                      <TableClampText text={formatDate(u.created_at)} />
+                    </td>
                     <td className="min-w-0">
                       <Badge variant={ROLE_COLORS[u.role] as 'default' | 'secondary' | 'destructive'} className="text-xs">
                         {roleDisplayLabel(u.role)}

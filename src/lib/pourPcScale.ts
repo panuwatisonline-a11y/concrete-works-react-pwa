@@ -63,10 +63,10 @@ export const pourPcUi = {
   colActions: 'pour-pc-no-shrink pour-pc-col-actions',
   /** หลายปุ่ม (Users) */
   colActionsWide: 'pour-pc-no-shrink pour-pc-col-actions pour-pc-col-actions--wide',
-  /** คอลัมน์สั้น (เบอร์ / วันที่) — บรรทัดเดียว + ellipsis */
-  tdNowrap: 'pour-pc-td-nowrap',
-  /** ข้อความในตาราง — คู่กับ TableClampText */
+  /** ข้อความในตาราง — บรรทัดเดียว (คู่กับ TableClampText) */
   clampText: 'pour-pc-clamp-text',
+  /** @deprecated ใช้ clampText — คอลัมน์ข้อมูลบีบบรรทัดเดียวจาก CSS ตารางแล้ว */
+  tdNowrap: 'pour-pc-td-nowrap',
 } as const
 
 export function usePourPcScale() {

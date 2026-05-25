@@ -136,61 +136,41 @@
       padding-right: calc(16 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
-    /* ข้อมูล — ขึ้นบรรทัดใหม่ได้ (ไม่บีบเป็นบรรทัดเดียว) ตารางกว้างคงที่ด้วย table-layout:fixed */
-    .pour-pc-fix-scale .pour-table-shell > table tbody td:not(.pour-pc-no-shrink):not(.pour-pc-td-nowrap),
-    .pour-pc-fix-scale table.pour-pc-app-table tbody td:not(.pour-pc-no-shrink):not(.pour-pc-td-nowrap) {
-      max-width: 0;
-      min-width: 0 !important;
-      overflow: visible;
-      white-space: normal;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      vertical-align: top;
-      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
-    }
-
-    .pour-pc-fix-scale .pour-table-shell > table tbody td.pour-pc-td-nowrap,
-    .pour-pc-fix-scale table.pour-pc-app-table tbody td.pour-pc-td-nowrap {
+    /* ข้อมูล — บรรทัดเดียว + ellipsis (ขยายคอลัมน์เพื่ออ่านเต็ม) */
+    .pour-pc-fix-scale .pour-table-shell > table tbody td:not(.pour-pc-no-shrink),
+    .pour-pc-fix-scale table.pour-pc-app-table tbody td:not(.pour-pc-no-shrink) {
       max-width: 0;
       min-width: 0 !important;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       vertical-align: middle;
+      padding: calc(8 * 100vh / var(--pour-pc-ref-h) * var(--pour-pc-factor)) calc(10 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      font-size: calc(12 * 100vw / var(--pour-pc-ref-w) * var(--pour-pc-factor) * var(--pour-pc-font-factor));
     }
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:first-child:not(.pour-pc-no-shrink) .flex,
     .pour-pc-fix-scale table.pour-pc-app-table tbody td:first-child:not(.pour-pc-no-shrink) .flex {
       min-width: 0;
-      align-items: flex-start;
+      align-items: center;
     }
 
-    /* clamp ในเซลล์ — โฮเวอร์ดูเต็มผ่าน TableClampText (ไม่มี resize คอลัมน์) */
-    .pour-pc-clamp-text {
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
+    .pour-pc-clamp-text,
+    .pour-pc-td-ellipsis {
+      display: block;
+      min-width: 0;
+      max-width: 100%;
       overflow: hidden;
-      white-space: normal;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
-
-    .pour-pc-clamp-text--2 {
-      -webkit-line-clamp: 2;
-    }
-
-    .pour-pc-clamp-text--3 {
-      -webkit-line-clamp: 3;
-    }
-
-    .pour-pc-clamp-text--4 {
-      -webkit-line-clamp: 4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:first-child:not(.pour-pc-no-shrink) .flex > :last-child,
     .pour-pc-fix-scale table.pour-pc-app-table tbody td:first-child:not(.pour-pc-no-shrink) .flex > :last-child {
       min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .pour-pc-fix-scale .pour-table-shell > table tbody td:first-child,
