@@ -10,7 +10,12 @@
       --pour-m-ref-h: 2608;
       --pour-m-factor: 0.8;
       --pour-m-font-factor: 0.92;
-      font-size: calc(40 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor));
+      /* rem อ่านง่ายบนจอแคบ (~390–430px) — artboard 1200 ใช้กับ spacing เท่านั้น */
+      font-size: clamp(
+        13px,
+        calc(52 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor) * var(--pour-m-font-factor)),
+        16px
+      );
 
       --pour-m-inset-x: calc(49 * 100vw / var(--pour-m-ref-w) * var(--pour-m-factor));
       --pour-m-main-pt: calc(37 * 100vh / var(--pour-m-ref-h) * var(--pour-m-factor));
@@ -36,6 +41,23 @@
     .pour-mobile-fix-scale .pour-mobile-inset-x {
       padding-left: var(--pour-m-inset-x);
       padding-right: var(--pour-m-inset-x);
+    }
+
+    .pour-mobile-fix-scale .pour-request-list-page {
+      padding-top: 1.125rem;
+      padding-bottom: 2.5rem;
+    }
+
+    .pour-mobile-fix-scale .pour-request-summary-card {
+      border-radius: 1rem;
+    }
+
+    .pour-mobile-fix-scale .pour-request-summary-card > span {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 0.75rem;
+      padding: 0.75rem 0.875rem;
     }
   }
 }

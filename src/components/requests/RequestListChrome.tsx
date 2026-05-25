@@ -124,16 +124,22 @@ export function RequestListPageHeader({
   showCreate?: boolean
 }) {
   return (
-    <header className={cn('flex min-w-0 flex-nowrap items-start justify-between gap-3', anim.fadeIn)}>
-      <div className="min-w-0 flex-1 pr-2">
-        <h1 className={cn('text-pour-2xl font-semibold leading-snug tracking-[-0.02em]', 'pour-desktop:text-pour-2xl')}>
+    <header
+      className={cn(
+        'flex min-w-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between',
+        'pour-desktop:flex-row pour-desktop:gap-3',
+        anim.fadeIn,
+      )}
+    >
+      <div className="min-w-0 flex-1">
+        <h1 className="text-pour-xl font-semibold leading-snug tracking-[-0.02em] text-[color:var(--pour-ink-0)] pour-desktop:text-pour-2xl">
           {title}
         </h1>
         {subtitle ? (
           <p
             className={cn(
-              'mt-1.5 truncate text-pour-base font-normal leading-relaxed text-pour-muted',
-              'pour-desktop:mt-1 pour-desktop:text-pour-sm',
+              'mt-1 truncate text-pour-sm leading-relaxed text-pour-muted',
+              'pour-desktop:text-pour-sm',
             )}
             title={subtitle}
           >
@@ -145,13 +151,14 @@ export function RequestListPageHeader({
         <Link
           to="/requests/new"
           className={cn(
-            'pour-interactive inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-pour-base font-medium',
-            'pour-desktop:text-pour-base',
+            'pour-interactive inline-flex w-full shrink-0 items-center justify-center gap-1.5 rounded-lg px-3 py-2.5 text-pour-sm font-semibold sm:w-auto',
             'bg-[color:var(--pour-accent)] text-white shadow-sm',
             'hover:bg-[color:var(--pour-accent-hover)]',
+            'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:text-pour-base pour-desktop:font-medium',
           )}
         >
-          <AppIcon icon={Add} size="md" />
+          <AppIcon icon={Add} size="sm" className="pour-desktop:hidden" />
+          <AppIcon icon={Add} size="md" className="hidden pour-desktop:block" />
           เพิ่มรายการจอง
         </Link>
       ) : null}

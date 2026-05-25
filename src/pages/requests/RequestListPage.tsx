@@ -885,7 +885,7 @@ export function RequestListPage() {
   )
 
   return (
-    <div className={cn(rq.page, 'flex flex-col')}>
+    <div className={cn(rq.page, 'pour-request-list-page flex flex-col')}>
       <RequestListPageHeader
         title={
           mobileView === 'summary'
@@ -906,7 +906,7 @@ export function RequestListPage() {
         showCreate={canBookConcrete(role)}
       />
 
-      <div className="mt-5">
+      <div className="mt-4 pour-desktop:mt-5">
         <RequestListTabs
           layoutMode={mobileView === 'latest' ? listLayout : undefined}
           onLayoutModeChange={mobileView === 'latest' ? persistListLayout : undefined}
@@ -922,7 +922,7 @@ export function RequestListPage() {
           />
         </div>
       ) : mobileView === 'summary' ? (
-        <div className="mt-6 grid w-full min-w-0 grid-cols-1 gap-3.5">
+        <div className="mt-4 grid w-full min-w-0 grid-cols-1 gap-2.5 pour-desktop:mt-6 pour-desktop:gap-3">
           {!masterLoaded ? (
             <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-pour-base', rq.sub)}>กำลังโหลดสถานะ…</p>
           ) : statusRowsForSummary.length === 0 ? (
