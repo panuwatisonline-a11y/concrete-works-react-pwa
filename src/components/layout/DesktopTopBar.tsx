@@ -9,13 +9,13 @@ import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import { useDesktopSearchRegistry } from '@/stores/desktopSearchRegistry'
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Input } from '@/components/ui/input'
-import { getDesktopSearchBarConfig } from '@/lib/desktopTopBarSearch'
-import { theme, type } from '@/lib/requestUi'
+import { getDesktopSearchBarConfig, topBarPlaceholder } from '@/lib/desktopTopBarSearch'
+import { theme } from '@/lib/requestUi'
 import { pourPcUi } from '@/lib/pourPcScale'
 import { SuperAdminJobFilter } from '@/components/layout/SuperAdminJobFilter'
 import { cn } from '@/lib/utils'
 
-/** Desktop-only top strip: wide search + actions (matches dashboard ref layout). */
+/** Desktop-only top strip: job filter (optional) + search + actions */
 export function DesktopTopBar() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -31,7 +31,7 @@ export function DesktopTopBar() {
   const fallback = getDesktopSearchBarConfig(pathname)
   const bridged = active != null
 
-  const placeholder = bridged ? active.placeholder : fallback.placeholder
+  const placeholder = topBarPlaceholder(bridged ? active.placeholder : fallback.placeholder)
   const ariaLabel = bridged ? active.ariaLabel : fallback.ariaLabel
   const inputDisabled = bridged ? false : fallback.inputDisabled
   const showFilter = bridged ? active.showRequestFilterButton : fallback.showRequestFilterButton
@@ -50,19 +50,21 @@ export function DesktopTopBar() {
   return (
     <div
       className={cn(
-        'hidden shrink-0 items-center pour-desktop:flex pour-desktop:shrink-0',
+        'pour-pc-topbar hidden w-full min-w-0 max-w-full',
+        'pour-desktop:grid',
         theme.headerBar,
         pourPcUi.topbar,
       )}
     >
-      <SuperAdminJobFilter className="shrink-0" />
-      <div className="relative flex min-w-0 flex-1 items-center gap-2">
-        <div className="relative min-w-0 flex-1">
+      <SuperAdminJobFilter />
+
+      <div className="pour-pc-topbar-search">
+        <div className="pour-pc-topbar-search-field">
           <AppIcon
             icon={Search}
             size="sm"
             className={cn(
-              'pointer-events-none absolute left-3 top-1/2 -translate-y-1/2',
+              'pour-pc-topbar-search-icon pointer-events-none absolute top-1/2 z-0 -translate-y-1/2',
               inputDisabled ? 'text-[color:var(--pour-ink-3)]' : 'text-[color:var(--pour-ink-0)]',
             )}
           />
@@ -78,8 +80,7 @@ export function DesktopTopBar() {
               if (e.key === 'Enter') navigate('/requests?view=latest')
             }}
             className={cn(
-              'pour-input-glass h-10 w-full pl-10 pr-3',
-              type.body,
+              'pour-input-glass w-full min-w-0 text-[color:var(--pour-ink-1)]',
               'placeholder:font-normal placeholder:text-[color:var(--pour-ink-3)]',
               inputDisabled && 'cursor-not-allowed opacity-50',
             )}
@@ -92,8 +93,7 @@ export function DesktopTopBar() {
             onClick={openFiltersDialog}
             title="ตัวกรองสถานะและอื่นๆ"
             className={cn(
-              'pour-glass flex h-10 shrink-0 items-center justify-center rounded-xl px-3',
-              type.body,
+              'pour-pc-topbar-search-filter pour-glass flex shrink-0 items-center justify-center rounded-xl',
               'text-[color:var(--pour-ink-2)] transition hover:border-[color:var(--glass-edge)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)]',
             )}
             aria-label="เปิดตัวกรองคำขอ"
@@ -103,11 +103,11 @@ export function DesktopTopBar() {
         ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
+      <div className="pour-pc-topbar-actions">
         <button
           type="button"
           onClick={() => navigate('/requests?view=latest')}
-          className={cn('h-10 w-10 shrink-0', theme.iconButtonChrome)}
+          className={cn('h-10 shrink-0', theme.iconButtonChrome)}
           title="รายการคำขอ"
         >
           <AppIcon icon={Notifications} size="sm" />

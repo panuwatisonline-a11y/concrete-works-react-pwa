@@ -631,6 +631,13 @@
     padding-bottom: 0;
   }
 
+  /* topbar กำหนด padding ซ้ายเอง — อย่าให้ MUI default ชนไอคนค้นหา */
+  .pour-pc-topbar-search .pour-input-glass .MuiInputBase-input,
+  .pour-pc-topbar-search .pour-input-glass .MuiOutlinedInput-input {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
   button[role='combobox'],
   .pour-form-picker,
   .pour-form-fields [role='combobox'] {

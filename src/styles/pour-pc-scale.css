@@ -42,15 +42,162 @@
       --pour-pc-radius-md: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       --pour-pc-radius-lg: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       --pour-pc-control-h: calc(40 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
-      --pour-pc-topbar-py: calc(16 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      --pour-pc-topbar-py: calc(12 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
       --pour-pc-topbar-px: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
       --pour-pc-topbar-px-wide: calc(32 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-topbar-gap: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      /* ช่องไอคอนค้นหา (AppIcon sm = 1.125rem) + ระยะก่อนข้อความ/placeholder */
+      --pour-pc-topbar-icon-inset: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-topbar-icon-size: 1.125rem;
+      --pour-pc-topbar-icon-gap: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      --pour-pc-topbar-input-pl: calc(
+        var(--pour-pc-topbar-icon-inset) + var(--pour-pc-topbar-icon-size) + var(--pour-pc-topbar-icon-gap)
+      );
+      --pour-pc-topbar-input-pr: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
     }
 
-    /* ── Chrome: top bar, main scroll, content frame ── */
+    /* ── Chrome: top bar — grid ไม่ล้น: โครงการ | ค้นหา (1fr) | ปุ่มขวา ── */
     .pour-pc-topbar {
-      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      padding: var(--pour-pc-topbar-py) var(--pour-pc-topbar-px);
+      box-sizing: border-box;
+      display: grid;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      align-items: center;
+      column-gap: var(--pour-pc-topbar-gap);
+      padding-block: var(--pour-pc-topbar-py);
+      padding-inline: var(--pour-pc-topbar-px);
+      overflow: hidden;
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .pour-pc-topbar:has(.pour-pc-topbar-job) {
+      grid-template-columns:
+        minmax(9rem, 11rem)
+        minmax(0, 1fr)
+        auto;
+    }
+
+    .pour-pc-topbar-job {
+      min-width: 0;
+      max-width: 11rem;
+      padding-right: var(--pour-pc-topbar-gap);
+      border-right: 1px solid var(--pour-line);
+    }
+
+    .pour-pc-topbar-job [role='combobox'] {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      height: var(--pour-pc-control-h) !important;
+      min-height: var(--pour-pc-control-h) !important;
+      padding-block: 0 !important;
+      padding-inline: calc(10 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor))
+        calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor)) !important;
+      gap: calc(4 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      font-size: var(--pour-pc-type-sm) !important;
+      line-height: 1.25;
+      font-weight: 500;
+    }
+
+    .pour-pc-topbar-job [role='combobox'] > span:first-child {
+      line-height: 1.25;
+    }
+
+    .pour-pc-topbar-search {
+      display: flex;
+      min-width: 0;
+      max-width: 100%;
+      align-items: center;
+      gap: var(--pour-pc-topbar-gap);
+      padding-left: calc(4 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      overflow: hidden;
+    }
+
+    .pour-pc-topbar:has(.pour-pc-topbar-job) .pour-pc-topbar-search {
+      padding-left: 0;
+    }
+
+    .pour-pc-topbar-search-field {
+      position: relative;
+      height: var(--pour-pc-control-h);
+      min-width: 0;
+      flex: 1 1 auto;
+      max-width: 100%;
+    }
+
+    .pour-pc-topbar-search-icon {
+      left: var(--pour-pc-topbar-icon-inset);
+      width: var(--pour-pc-topbar-icon-size);
+      height: var(--pour-pc-topbar-icon-size);
+      font-size: var(--pour-pc-topbar-icon-size) !important;
+    }
+
+    .pour-pc-topbar-search-icon svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    .pour-pc-topbar-search .pour-input-glass.MuiFormControl-root {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+      margin: 0;
+    }
+
+    .pour-pc-topbar-search .MuiOutlinedInput-root {
+      height: var(--pour-pc-control-h);
+      min-height: var(--pour-pc-control-h);
+      align-items: center;
+    }
+
+    .pour-pc-topbar-search .MuiInputBase-root,
+    .pour-pc-topbar-search .MuiInputBase-input {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .pour-pc-topbar-search .MuiInputBase-input,
+    .pour-pc-topbar-search .MuiOutlinedInput-input,
+    .pour-pc-topbar-search input {
+      box-sizing: border-box;
+      height: var(--pour-pc-control-h);
+      padding-block: 0 !important;
+      padding-left: var(--pour-pc-topbar-input-pl) !important;
+      padding-right: var(--pour-pc-topbar-input-pr) !important;
+      font-size: var(--pour-pc-type-base);
+      line-height: 1.35;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pour-pc-topbar-search .MuiInputBase-input::placeholder,
+    .pour-pc-topbar-search input::placeholder {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pour-pc-topbar-search-filter,
+    .pour-pc-topbar-actions .h-10 {
+      box-sizing: border-box;
+      width: var(--pour-pc-control-h);
+      height: var(--pour-pc-control-h);
+      min-height: var(--pour-pc-control-h);
+      flex-shrink: 0;
+    }
+
+    .pour-pc-topbar-search-filter {
+      flex: 0 0 auto;
+    }
+
+    .pour-pc-topbar-actions {
+      display: flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: calc(8 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      padding-left: var(--pour-pc-topbar-gap);
+      border-left: 1px solid var(--pour-line);
     }
 
     @media ((orientation: landscape) and (min-width: 1280px)) {

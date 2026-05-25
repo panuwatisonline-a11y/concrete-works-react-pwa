@@ -2,7 +2,6 @@ import { useMasterDataStore } from '@/stores/masterDataStore'
 import { useAuthStore } from '@/stores/authStore'
 import { mapSearchableOptions, SearchableSelect } from '@/components/ui/searchable-select'
 import { isSuperAdmin } from '@/lib/permissions'
-import { resolveJobName } from '@/lib/jobScopeDisplay'
 import { useJobScope } from '@/hooks/useJobScope'
 import { reloadMasterData } from '@/lib/reloadMasterData'
 import { type } from '@/lib/requestUi'
@@ -29,13 +28,12 @@ export function SuperAdminJobFilter({
   return (
     <div
       className={cn(
-        'flex flex-col gap-1',
-        isMobile ? 'w-full' : 'sm:flex-row sm:items-center sm:gap-2',
+        isMobile ? 'flex w-full flex-col gap-2' : 'pour-pc-topbar-job flex min-w-0 flex-row items-center',
         className,
       )}
     >
-      <span className={cn(type.caption, 'shrink-0 text-pour-subtle')}>
-        {isMobile ? 'โครงการ' : 'โครงการ:'}
+      <span className={cn(type.caption, 'shrink-0 text-pour-subtle', !isMobile && 'sr-only')}>
+        {isMobile ? 'โครงการ' : 'โครงการ'}
       </span>
       <SearchableSelect
         value={value}
@@ -48,18 +46,11 @@ export function SuperAdminJobFilter({
           { value: 'all', label: 'ทุกโครงการ' },
           ...mapSearchableOptions(jobs, (j) => String(j.id), (j) => j.job_name),
         ]}
-        triggerClassName={cn(isMobile && 'h-9 w-full min-h-9 text-sm')}
+        triggerClassName={cn(
+          isMobile ? 'h-9 w-full min-h-9 text-sm' : 'w-full min-w-0 max-w-full',
+        )}
         listClassName="max-h-[min(50dvh,18rem)]"
       />
-      {superAdminJobFilter === 'all' ? (
-        <span className={cn(type.caption, 'text-amber-700 dark:text-amber-400/90')}>
-          มุมมองรวม — แสดงโครงการในรายการ
-        </span>
-      ) : !isMobile ? (
-        <span className={cn(type.caption, 'text-pour-subtle')}>
-          {resolveJobName(superAdminJobFilter, jobs)}
-        </span>
-      ) : null}
     </div>
   )
 }
