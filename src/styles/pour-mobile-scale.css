@@ -50,6 +50,7 @@
 
     .pour-mobile-fix-scale .pour-request-summary-card {
       border-radius: 0.75rem;
+      min-height: 3.5rem;
     }
 
     .pour-mobile-fix-scale .pour-request-summary-card > span {
@@ -58,7 +59,7 @@
       align-items: center;
       column-gap: 0.5rem;
       padding: 0.5rem 0.625rem;
-      min-height: 2.5rem;
+      min-height: 3.5rem;
     }
   }
 }
