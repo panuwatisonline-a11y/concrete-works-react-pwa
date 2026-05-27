@@ -1,6 +1,8 @@
 import type { CSSProperties } from 'react'
+import { AppIcon } from '@/components/icons/AppIcon'
 import { cn } from '@/lib/utils'
 import { getStatusRingTheme } from '@/lib/statusRingTheme'
+import { getStatusIcon } from '@/lib/statusIcons'
 import { rq, anim } from '@/lib/requestUi'
 
 type StatusSummaryCardProps = {
@@ -13,6 +15,7 @@ type StatusSummaryCardProps = {
 /** การ์ดสรุปสถานะ — liquid glass + เส้นขอบบาง 1px กระพริบเบาตามสีสถานะ */
 export function StatusSummaryCard({ statusId, statusName, count, onClick }: StatusSummaryCardProps) {
   const accent = getStatusRingTheme(statusId)
+  const StatusIcon = getStatusIcon(statusId)
 
   const style = {
     '--status-accent': accent.color,
@@ -37,12 +40,25 @@ export function StatusSummaryCard({ statusId, statusName, count, onClick }: Stat
       <span className="relative z-0 w-full pour-desktop:flex pour-desktop:items-center pour-desktop:justify-between pour-desktop:gap-3 pour-desktop:px-4 pour-desktop:py-3.5">
         <span
           className={cn(
-            'min-w-0 text-pour-base font-medium leading-snug text-[color:var(--pour-ink-0)]',
-            'line-clamp-2 pour-desktop:line-clamp-none pour-desktop:flex-1',
-            'pour-desktop:text-pour-base pour-desktop:font-normal pour-desktop:leading-relaxed',
+            'flex min-w-0 items-start gap-2 pour-desktop:flex-1',
+            'max-md:gap-1.5',
           )}
         >
-          {statusName}
+          <AppIcon
+            icon={StatusIcon}
+            size="xs"
+            className="mt-0.5 shrink-0 opacity-90"
+            sx={{ color: accent.color }}
+          />
+          <span
+            className={cn(
+              'min-w-0 text-pour-base font-medium leading-snug text-[color:var(--pour-ink-0)]',
+              'line-clamp-2 pour-desktop:line-clamp-none',
+              'pour-desktop:text-pour-base pour-desktop:font-normal pour-desktop:leading-relaxed',
+            )}
+          >
+            {statusName}
+          </span>
         </span>
         <span
           className={cn(

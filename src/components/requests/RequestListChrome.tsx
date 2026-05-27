@@ -4,6 +4,7 @@ import ListIcon from '@mui/icons-material/List'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { useFilterStore } from '@/stores/filterStore'
 import { anim } from '@/lib/requestUi'
+import { REQUEST_LIST_TAB_ICONS, AddCircle } from '@/lib/statusIcons'
 import { cn } from '@/lib/utils'
 
 type ListTab = 'summary' | 'latest' | 'mine' | 'calendar'
@@ -34,7 +35,7 @@ const tabLinkClass = (isActive: boolean) =>
   cn(
     'pour-interactive pour-nav-item flex min-h-8 min-w-0 flex-1 basis-0 items-center justify-center rounded-md px-0.5 py-1 text-center text-pour-xs font-medium leading-none transition-colors',
     'line-clamp-1 max-w-full truncate',
-    'pour-desktop:min-h-0 pour-desktop:rounded-lg pour-desktop:px-1 pour-desktop:py-2 pour-desktop:text-pour-md pour-desktop:leading-tight pour-desktop:line-clamp-none pour-desktop:whitespace-normal',
+    'pour-desktop:min-h-0 pour-desktop:gap-1 pour-desktop:rounded-lg pour-desktop:px-2 pour-desktop:py-2 pour-desktop:text-pour-md pour-desktop:leading-tight pour-desktop:line-clamp-none pour-desktop:whitespace-normal',
     isActive
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
       : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
@@ -67,8 +68,14 @@ export function RequestListTabs({
               }}
               className={tabLinkClass(isActive)}
               aria-current={isActive ? 'page' : undefined}
+              title={tab.label}
             >
-              {tab.label}
+              <AppIcon
+                icon={REQUEST_LIST_TAB_ICONS[tab.id]}
+                size="xs"
+                className="hidden shrink-0 pour-desktop:block"
+              />
+              <span className="min-w-0 truncate pour-desktop:line-clamp-2">{tab.label}</span>
             </Link>
           )
         })}
@@ -145,9 +152,7 @@ export function RequestListPageHeader({
               'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:py-2.5 pour-desktop:text-pour-base',
             )}
           >
-            <span className="text-[1.15em] font-semibold leading-none" aria-hidden>
-              +
-            </span>
+            <AppIcon icon={AddCircle} size="xs" className="opacity-95" />
             <span>เพิ่มรายการจอง</span>
           </Link>
         ) : null}
