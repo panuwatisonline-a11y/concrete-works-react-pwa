@@ -36,6 +36,7 @@ import {
 import type { InspectorBookerScope } from '@/lib/inspectorScope'
 import { useInspectorBookerScope } from '@/hooks/useInspectorBookerScope'
 import { useJobScope } from '@/hooks/useJobScope'
+import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
 import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import { canBookConcrete } from '@/lib/permissions'
 import { getRequestListQuickActions, type RequestListActionItem } from '@/lib/requestQuickActions'
@@ -58,14 +59,14 @@ import AccountBalance from '@mui/icons-material/AccountBalance'
 import Tag from '@mui/icons-material/Tag'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { AppIcon } from '@/components/icons/AppIcon'
-import type { RequestWithRelations } from '@/types/app.types'
+import type { Job, RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestBookingCalendar } from '@/components/requests/RequestBookingCalendar'
 import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
-import { JobScopeBadge } from '@/components/shared/JobScopeBadge'
 import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
+import { resolveJobName } from '@/lib/jobScopeDisplay'
 import { rq, theme, type, anim } from '@/lib/requestUi'
 
 const LIST_LAYOUT_KEY = 'cw-request-list-layout'
@@ -120,6 +121,36 @@ function buildGroupedRequestSections(requests: RequestWithRelations[]): RequestF
     const last = chunks[chunks.length - 1]
     if (!last || last.dateKey !== dk) {
       chunks.push({ dateKey: dk, heading, items: [r] })
+    } else {
+      last.items.push(r)
+    }
+  }
+  let start = 0
+  return chunks.map((s) => {
+    const row: RequestFeedSection = { ...s, staggerStart: start }
+    start += s.items.length
+    return row
+  })
+}
+
+function buildGroupedRequestSectionsByJob(
+  requests: RequestWithRelations[],
+  jobs: readonly Job[],
+): RequestFeedSection[] {
+  const sorted = [...requests].sort((a, b) => {
+    const jobNameA = resolveJobName(a.job_id, jobs)
+    const jobNameB = resolveJobName(b.job_id, jobs)
+    const byJob = jobNameA.localeCompare(jobNameB, 'th')
+    if (byJob !== 0) return byJob
+    return compareRequestsForGroupedFeed(a, b)
+  })
+  const chunks: Omit<RequestFeedSection, 'staggerStart'>[] = []
+  for (const r of sorted) {
+    const groupKey = `job-${r.job_id ?? 'none'}`
+    const heading = resolveJobName(r.job_id, jobs)
+    const last = chunks[chunks.length - 1]
+    if (!last || last.dateKey !== groupKey) {
+      chunks.push({ dateKey: groupKey, heading, items: [r] })
     } else {
       last.items.push(r)
     }
@@ -381,7 +412,6 @@ function RequestFeedCard({
               )}
               <div className="absolute right-2.5 top-2.5 flex flex-col items-end gap-1">
                 <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0 shadow-sm" />
-                <JobScopeBadge jobId={r.job_id} />
                 {nonSystemBooking ? <NonSystemBookingBadge /> : null}
               </div>
             </div>
@@ -490,7 +520,6 @@ function RequestFeedCard({
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <StatusBadge statusId={r.status_id} size="sm" compact className="shrink-0" />
-                  <JobScopeBadge jobId={r.job_id} />
                 </div>
               </div>
             </div>
@@ -557,13 +586,14 @@ export function RequestListPage() {
   const { user, profile, role } = useAuthStore()
   const { bookerScope } = useInspectorBookerScope()
   const { queryJobScope } = useJobScope()
+  const superAdminShowsAllJobs = useSuperAdminShowsAllJobs()
   const location = useLocation()
   const isDesktop = usePourDesktop()
   const { filter, setFilter } = useFilterStore()
   const filterKey = JSON.stringify(filter)
   const isFirstFilterEffect = useRef(true)
   const skipReturnRefresh = useRef(true)
-  const { statuses, isLoaded: masterLoaded } = useMasterDataStore()
+  const { statuses, jobs, isLoaded: masterLoaded } = useMasterDataStore()
   const [searchParams, setSearchParams] = useSearchParams()
   const viewParam = searchParams.get('view')
   const mobileView =
@@ -849,7 +879,13 @@ export function RequestListPage() {
     [statusCounts],
   )
 
-  const feedSections = useMemo(() => buildGroupedRequestSections(requests), [requests])
+  const feedSections = useMemo(
+    () =>
+      superAdminShowsAllJobs
+        ? buildGroupedRequestSectionsByJob(requests, jobs)
+        : buildGroupedRequestSections(requests),
+    [requests, jobs, superAdminShowsAllJobs],
+  )
 
   const listContentReady =
     mobileView === 'summary'

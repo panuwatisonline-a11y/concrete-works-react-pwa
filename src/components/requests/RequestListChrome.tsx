@@ -33,8 +33,8 @@ function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
 
 const tabLinkClass = (isActive: boolean) =>
   cn(
-    'pour-interactive pour-nav-item flex min-h-8 min-w-0 flex-1 basis-0 items-center justify-center rounded-md px-0.5 py-1 text-center text-pour-xs font-medium leading-none transition-colors',
-    'line-clamp-1 max-w-full truncate',
+    'pour-interactive pour-nav-item flex min-h-8 min-w-0 max-md:flex-1 max-md:basis-0 items-center justify-center rounded-md px-0.5 py-1 text-center text-pour-xs font-medium leading-none transition-colors',
+    'max-w-full',
     'pour-desktop:min-h-0 pour-desktop:gap-1 pour-desktop:rounded-lg pour-desktop:px-2 pour-desktop:py-2 pour-desktop:text-pour-md pour-desktop:leading-tight pour-desktop:line-clamp-none pour-desktop:whitespace-normal',
     isActive
       ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
@@ -56,7 +56,10 @@ export function RequestListTabs({
 
   return (
     <div className="pour-request-list-tabs flex flex-nowrap items-stretch gap-1 border-b border-[color:var(--pour-line)] pb-2 max-md:gap-0.5 pour-desktop:gap-2 pour-desktop:pb-3">
-      <nav aria-label="มุมมองรายการ" className="flex min-w-0 flex-1 items-stretch gap-0.5 pour-desktop:gap-1">
+      <nav
+        aria-label="มุมมองรายการ"
+        className="flex min-w-0 flex-1 items-stretch gap-0.5 pour-desktop:flex-none pour-desktop:gap-1"
+      >
         {TABS.map((tab) => {
           const isActive = active === tab.id
           return (
@@ -75,7 +78,9 @@ export function RequestListTabs({
                 size="xs"
                 className="hidden shrink-0 pour-desktop:block"
               />
-              <span className="min-w-0 truncate pour-desktop:line-clamp-2">{tab.label}</span>
+              <span className="block min-w-0 w-full text-center leading-tight line-clamp-1 truncate pour-desktop:w-auto pour-desktop:text-left pour-desktop:line-clamp-2">
+                {tab.label}
+              </span>
             </Link>
           )
         })}
@@ -145,11 +150,11 @@ export function RequestListPageHeader({
           <Link
             to="/requests/new"
             className={cn(
-              'pour-interactive inline-flex w-auto shrink-0 items-center justify-center gap-1 rounded-lg px-2.5 py-1.5',
+              'pour-interactive inline-flex w-auto shrink-0 items-center justify-center gap-1 rounded-lg px-2.5 py-2.5',
               'text-pour-sm font-medium leading-none whitespace-nowrap',
               'bg-[color:var(--pour-accent)] text-white shadow-sm',
               'hover:bg-[color:var(--pour-accent-hover)]',
-              'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:py-2.5 pour-desktop:text-pour-base',
+              'pour-desktop:gap-2 pour-desktop:px-4 pour-desktop:py-3.5 pour-desktop:text-pour-base',
             )}
           >
             <AppIcon icon={AddCircle} size="xs" className="opacity-95" />
