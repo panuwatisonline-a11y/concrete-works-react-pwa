@@ -502,8 +502,8 @@
     .pour-pc-kpi-grid {
       display: grid;
       grid-template-columns: repeat(1, minmax(0, 1fr));
-      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(12 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 768px) {
@@ -527,8 +527,8 @@
     .pour-pc-trend-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 1024px) {
@@ -540,8 +540,8 @@
     .pour-pc-filter-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      gap: calc(24 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
-      margin-bottom: calc(32 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
+      gap: calc(16 * var(--pour-pc-cap-vw) / var(--pour-pc-ref-w) * var(--pour-pc-factor));
+      margin-bottom: calc(24 * var(--pour-pc-cap-vh) / var(--pour-pc-ref-h) * var(--pour-pc-factor));
     }
 
     @media (min-width: 1024px) {

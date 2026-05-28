@@ -23,10 +23,10 @@ export const ROLE_LABELS: Record<UserRole | 'manager', string> = {
   super_admin: 'Super Admin',
   admin: 'Admin',
   user: 'User',
-  inspector: 'Inspector',
+  inspector: 'Inspector (QC)',
   document: 'Document',
   engineer: 'Engineer',
-  manager: 'Inspector',
+  manager: 'Inspector (QC)',
 }
 
 export const ASSIGNABLE_ROLES: UserRole[] = [

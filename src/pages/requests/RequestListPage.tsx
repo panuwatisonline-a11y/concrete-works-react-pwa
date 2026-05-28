@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
+import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { flushOfflineMutationQueue } from '@/lib/offline/flush'
 import {
@@ -51,9 +51,13 @@ import type { Job, RequestWithRelations } from '@/types/app.types'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestBookingCalendar } from '@/components/requests/RequestBookingCalendar'
-import { RequestListPageHeader, RequestListTabs } from '@/components/requests/RequestListChrome'
+import {
+  RequestListFeedToolbar,
+  RequestListPageHeader,
+  RequestListTabs,
+} from '@/components/requests/RequestListChrome'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
-import { isNonSystemBookingRequest } from '@/lib/nonSystemBooking'
+import { isNonSystemBookingRequest, remarksForDisplay } from '@/lib/nonSystemBooking'
 import { resolveJobName } from '@/lib/jobScopeDisplay'
 import { rq, theme, type, anim } from '@/lib/requestUi'
 
@@ -323,11 +327,15 @@ function RequestFeedCard({
 }) {
   const [thumbFailed, setThumbFailed] = useState(false)
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null)
+  const [gridDetailsExpanded, setGridDetailsExpanded] = useState(false)
   const rawThumb = r.after_image?.trim() || r.before_image?.trim() || null
   const thumbUrl = imageSrcForImgTag(rawThumb, 'card')
   useEffect(() => {
     setThumbFailed(false)
   }, [r.id, thumbUrl])
+  useEffect(() => {
+    setGridDetailsExpanded(false)
+  }, [r.id])
   const navigate = useNavigate()
   const { user, role } = useAuthStore()
   const quickActions = getRequestListQuickActions({
@@ -373,22 +381,34 @@ function RequestFeedCard({
           ? { label: 'Request volume (cu.m)', value: `${formatVolumeNumber(r.volume_request)} cu.m` }
           : null
 
-  const castingLine = [formatDate(r.casting_date), formatTime(r.request_time)].filter((x) => x && x !== '-').join(' ')
-  const metaLine = client ?? locationLine ?? mixLine ?? concrete ?? '—'
-  const editedLine = castingLine || (r.booked_at ? formatDateTime(r.booked_at) : '—')
-  const scheduleDateValue = r.postpone_date ? formatDate(r.postpone_date) : r.casting_date ? formatDate(r.casting_date) : null
-  const volumeDetailLabel =
-    r.volume_confirm != null ? 'Confirm volume' : r.volume_actual != null ? 'Actual Volume' : r.volume_request != null ? 'Request Volume' : 'Volume'
+  const castingDatePart = r.casting_date ? formatDate(r.casting_date) : null
+  const requestTimePart = r.request_time ? formatTime(r.request_time) : null
+  const castingDateTimeValue =
+    castingDatePart && castingDatePart !== '-' && requestTimePart && requestTimePart !== '-'
+      ? `${castingDatePart} | ${requestTimePart}`
+      : castingDatePart && castingDatePart !== '-'
+        ? castingDatePart
+        : requestTimePart && requestTimePart !== '-'
+          ? requestTimePart
+          : null
 
-  const footerDetails = [
-    { label: 'Date', value: scheduleDateValue },
+  const feedDetailRows = [
+    { label: 'Casting date', value: castingDateTimeValue },
+    { label: 'User Group', value: client },
+    { label: 'ABC', value: abc },
+    { label: 'WBS', value: wbs },
     { label: 'Concrete Works', value: concrete },
     { label: 'Structure', value: structure !== '-' ? structure : null },
     { label: 'Location', value: locationLine },
-    { label: 'Structure No.', value: structureNoDetail },
+    { label: 'Structure No.', value: structureNoDetail ?? '—' },
     { label: 'Mix code', value: mixLine },
-    { label: volumeDetailLabel, value: volumeFeed?.value ?? null },
-  ].filter((d) => d.value != null && d.value !== '')
+    { label: 'Volume', value: volumeFeed?.value ?? null },
+    {
+      label: 'จำนวนตัวอย่าง',
+      value: r.sample_qty != null ? `${r.sample_qty} ก้อน` : null,
+    },
+    { label: 'หมายเหตุ', value: remarksForDisplay(r.remarks) ?? '—' },
+  ].filter((d) => d.value != null && d.value !== '' && d.value !== '-')
 
   if (variant === 'grid') {
     return (
@@ -414,24 +434,54 @@ function RequestFeedCard({
                 {nonSystemBooking ? <NonSystemBookingBadge /> : null}
               </div>
             </div>
-            <div className="pour-file-card-footer px-3.5 py-3">
+          </Link>
+          <div className="pour-file-card-footer px-3.5 py-3">
+            <Link to={`/requests/${r.id}`} className="pour-interactive block outline-none">
               <p className={cn(type.bodyStrong, 'leading-tight break-words')}>Request by · {bookerDisplay}</p>
-              {footerDetails.length > 0 ? (
-                <div className={cn('mt-2 space-y-0.5', type.caption)}>
-                  {footerDetails.map((detail) => (
-                    <p key={detail.label} className="leading-snug break-words text-[color:var(--pour-ink-2)]">
-                      <span className="text-[color:var(--pour-ink-3)]">{detail.label}:</span> {detail.value}
-                    </p>
-                  ))}
-                </div>
-              ) : null}
               {nonSystemBooking ? (
                 <p className="mt-1.5">
                   <NonSystemBookingBadge />
                 </p>
               ) : null}
-            </div>
-          </Link>
+            </Link>
+            {feedDetailRows.length > 0 ? (
+              <div className="mt-2">
+                <div className="relative">
+                  <div
+                    className={cn(
+                      'space-y-0.5',
+                      type.caption,
+                      !gridDetailsExpanded && 'max-h-[4.25rem] overflow-hidden',
+                    )}
+                  >
+                    {feedDetailRows.map((detail) => (
+                      <p key={detail.label} className="leading-snug break-words text-[color:var(--pour-ink-2)]">
+                        <span className="text-[color:var(--pour-ink-3)]">{detail.label}:</span> {detail.value}
+                      </p>
+                    ))}
+                  </div>
+                  {!gridDetailsExpanded ? (
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-9 bg-gradient-to-t from-[color:var(--glass-bg)] via-[color:var(--glass-bg)]/90 to-transparent"
+                      aria-hidden
+                    />
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  className="pour-interactive mt-1.5 text-pour-xs font-semibold text-[color:var(--pour-accent-hover)] hover:underline"
+                  aria-expanded={gridDetailsExpanded}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setGridDetailsExpanded((open) => !open)
+                  }}
+                >
+                  {gridDetailsExpanded ? 'Hide details' : 'Show details'}
+                </button>
+              </div>
+            ) : null}
+          </div>
           {quickActions.length > 0 ? (
             <RequestActionBar
               layout="strip"
@@ -503,7 +553,6 @@ function RequestFeedCard({
                     <p className={cn(type.bodyStrong, 'leading-tight')}>{formatDateTime(r.booked_at)}</p>
                   ) : null}
                   <p className={cn('mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
-                    <span className={cn('shrink-0', type.caption)}>{nonSystemBooking ? 'บันทึกโดย' : 'จองโดย'}</span>
                     <span className={cn('min-w-0', type.bodyStrong)}>{bookerDisplay}</span>
                     {nonSystemBooking ? <NonSystemBookingBadge /> : null}
                     {isMyBooking ? (
@@ -522,30 +571,12 @@ function RequestFeedCard({
         </div>
 
         <Link to={`/requests/${r.id}`} className="pour-interactive block">
-          <div className="grid grid-cols-1 gap-y-2.5 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3 max-[767px]:border-t-0 max-[767px]:bg-transparent max-[767px]:gap-y-1 max-[767px]:px-4 max-[767px]:pt-0 max-[767px]:pb-2.5">
-            <FeedDetailRow label="Structure" value={structure !== '-' ? structure : null} />
-            <FeedDetailRow label="Structure No." value={structureNoDetail} />
-            <FeedDetailRow label="User Group" value={client} />
-            <FeedDetailRow label="Location" value={locationLine} />
-            <FeedDetailRow label="งานคอนกรีต" value={concrete} />
-            <FeedDetailRow label="วันเท / เวลา" value={castingLine || null} />
-            <FeedDetailRow label="Mix Code" value={mixLine} />
-            {volumeFeed ? (
-              <FeedDetailRow label={volumeFeed.label} value={volumeFeed.value} />
-            ) : null}
-            {r.sample_qty != null && (
-              <FeedDetailRow label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
-            )}
-            <FeedDetailRow label="ABC" value={abc} />
-            <FeedDetailRow label="WBS" value={wbs} />
-            {r.remarks?.trim() ? (
-              <div className={cn('rounded-lg bg-[color:var(--pour-bg-2)] px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
-                <span className="text-pour-subtle">หมายเหตุ </span>
-                {r.remarks}
-              </div>
-            ) : null}
+          <div className="grid grid-cols-1 gap-y-2.5 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 max-[767px]:border-t-0 max-[767px]:bg-transparent max-[767px]:gap-y-1 max-[767px]:px-4 max-[767px]:pt-0 max-[767px]:pb-2.5">
+            {feedDetailRows.map((detail) => (
+              <FeedDetailRow key={detail.label} label={detail.label} value={detail.value} />
+            ))}
             {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-              <div className={cn('rounded-lg border border-amber-700/50 bg-amber-950/40 px-3 py-2.5 leading-relaxed text-amber-200 pour-wide:col-span-2', type.detail)}>
+              <div className={cn('rounded-lg border border-amber-700/50 bg-amber-950/40 px-3 py-2.5 leading-relaxed text-amber-200', type.detail)}>
                 {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
                 {r.reason_postpone ? <p className="mt-0.5 text-amber-300/90">{r.reason_postpone}</p> : null}
               </div>
@@ -943,10 +974,7 @@ export function RequestListPage() {
       />
 
       <div className="mt-2.5 max-md:mt-0 pour-desktop:mt-5">
-        <RequestListTabs
-          layoutMode={mobileView === 'latest' ? listLayout : undefined}
-          onLayoutModeChange={mobileView === 'latest' ? persistListLayout : undefined}
-        />
+        <RequestListTabs />
       </div>
 
       {mobileView === 'calendar' ? (
@@ -981,8 +1009,9 @@ export function RequestListPage() {
           )}
         </div>
       ) : (
-        <div id="request-filters" className="mt-6 space-y-4">
-          {feedBody}
+        <div id="request-filters" className="mt-4 flex flex-col gap-4 max-md:mt-3 pour-desktop:mt-5">
+          <RequestListFeedToolbar layoutMode={listLayout} onLayoutModeChange={persistListLayout} />
+          <div className="min-w-0 space-y-4">{feedBody}</div>
           {pagination}
         </div>
       )}

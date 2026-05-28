@@ -10,6 +10,29 @@ export function getPwaServiceWorkerRegistration(): ServiceWorkerRegistration | u
   return pwaRegistration
 }
 
+/** User-triggered fast path to apply latest build immediately. */
+export async function refreshToLatestVersion(): Promise<void> {
+  try {
+    await pwaRegistration?.update()
+  } catch {
+    // ignore and continue to reload fallback
+  }
+  if (reloadSwFn && !isAuthCallbackUrl()) {
+    try {
+      await Promise.race([
+        reloadSwFn(true),
+        new Promise((_, reject) =>
+          window.setTimeout(() => reject(new Error('SW reload timeout')), 5000),
+        ),
+      ])
+      return
+    } catch {
+      // fallback below
+    }
+  }
+  window.location.reload()
+}
+
 function tryApplyPwaReload() {
   if (!reloadSwFn) return
   if (isAuthCallbackUrl()) {

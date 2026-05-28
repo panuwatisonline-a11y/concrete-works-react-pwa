@@ -9,7 +9,7 @@ import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
 import { createJobScopeGroupBy, jobScopeColumn, rowHasJobScope, type JobScopedRow } from '@/lib/jobScopeDisplay'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ConfirmModal } from './ConfirmModal'
 import Edit from '@mui/icons-material/Edit'
 import Delete from '@mui/icons-material/Delete'
@@ -48,6 +48,8 @@ interface CrudTableProps<T extends { id: number }> {
   loading?: boolean
   /** ใช้ใน accordion — ไม่แสดงหัวข้อซ้ำ มีแค่ปุ่มเพิ่ม */
   embedded?: boolean
+  /** แสดงตารางเป็นหลักทุกขนาดจอ (ซ่อนการ์ดมือถือ) */
+  preferTableOnMobile?: boolean
   /** เมื่อกำหนด จัดกลุ่มแถวในตารางเดสก์ท็อปและการ์ดมือถือตามผลจาก `groupKey` */
   groupBy?: CrudTableGroupBy<T>
   /** เรียงแถวภายในกลุ่มเดียวกัน (ใช้หลัง `compareGroups`) */
@@ -80,6 +82,7 @@ export function CrudTable<T extends { id: number }>({
   canDelete,
   loading,
   embedded = false,
+  preferTableOnMobile = true,
   groupBy,
   sortWithinGroup,
   jobScopeView = 'auto',
@@ -220,56 +223,58 @@ export function CrudTable<T extends { id: number }>({
         </div>
       )}
 
-      <div className={app.mobileCardStackCompact}>
-        {loading || displayRows.length === 0 ? (
-          emptyState
-        ) : (
-          displayRows.map((row, i) => {
-            const showGroup =
-              effectiveGroupBy &&
-              (i === 0 || effectiveGroupBy.groupKey(displayRows[i - 1]!) !== effectiveGroupBy.groupKey(row))
-            const gKey = effectiveGroupBy?.groupKey(row) ?? ''
-            return (
-              <Fragment key={row.id}>
-                {showGroup ? (
-                  <div
-                    className={cn(
-                      'rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-3 py-1.5 text-xs text-[color:var(--pour-ink-0)] backdrop-blur-sm',
-                      i > 0 && 'mt-2',
-                    )}
-                  >
-                    {effectiveGroupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
-                  </div>
-                ) : null}
-                <div className={adminDataRow.card}>
-                  <dl className={adminDataRow.fields}>
-                    {effectiveColumns.map((col) => (
-                      <div key={String(col.key)}>
-                        <dt className={adminDataRow.label}>{col.label}</dt>
-                        <dd className={cn(adminDataRow.value, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                  <div className={adminDataRow.actions}>
-                    {!readOnly ? (
-                      <>
-                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
-                          <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
-                        </Button>
-                        {(!canDelete || canDelete(row)) && (
-                          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
-                            <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
+      {!preferTableOnMobile ? (
+        <div className={app.mobileCardStackCompact}>
+          {loading || displayRows.length === 0 ? (
+            emptyState
+          ) : (
+            displayRows.map((row, i) => {
+              const showGroup =
+                effectiveGroupBy &&
+                (i === 0 || effectiveGroupBy.groupKey(displayRows[i - 1]!) !== effectiveGroupBy.groupKey(row))
+              const gKey = effectiveGroupBy?.groupKey(row) ?? ''
+              return (
+                <Fragment key={row.id}>
+                  {showGroup ? (
+                    <div
+                      className={cn(
+                        'rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/80 px-3 py-1.5 text-xs text-[color:var(--pour-ink-0)] backdrop-blur-sm',
+                        i > 0 && 'mt-2',
+                      )}
+                    >
+                      {effectiveGroupBy!.renderGroupHeading(gKey, groupRowCounts.get(gKey) ?? 0)}
+                    </div>
+                  ) : null}
+                  <div className={adminDataRow.card}>
+                    <dl className={adminDataRow.fields}>
+                      {effectiveColumns.map((col) => (
+                        <div key={String(col.key)}>
+                          <dt className={adminDataRow.label}>{col.label}</dt>
+                          <dd className={cn(adminDataRow.value, 'mt-px min-w-0 break-words')}>{renderCell(col, row)}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <div className={adminDataRow.actions}>
+                      {!readOnly ? (
+                        <>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => openEdit(row)}>
+                            <AppIcon icon={Edit} size="xs" sx={{ fontSize: 14 }} />
                           </Button>
-                        )}
-                      </>
-                    ) : null}
+                          {(!canDelete || canDelete(row)) && (
+                            <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg" onClick={() => setDeleteId(row.id)}>
+                              <AppIcon icon={Delete} size="xs" sx={{ fontSize: 14 }} className="text-pour-subtle" />
+                            </Button>
+                          )}
+                        </>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              </Fragment>
-            )
-          })
-        )}
-      </div>
+                </Fragment>
+              )
+            })
+          )}
+        </div>
+      ) : null}
 
       <ResizableTableToolbar
         onReset={tableResize.resetWidths}
@@ -277,11 +282,17 @@ export function CrudTable<T extends { id: number }>({
       />
       <div
         className={cn(
-          embedded ? app.tableWrapNested : app.tableWrapDesktop,
+          preferTableOnMobile ? app.tableWrap : embedded ? app.tableWrapNested : app.tableWrapDesktop,
           app.tableWrapResizable,
         )}
       >
-        <table className={cn(tableCompact.table, pourPcUi.tableResizable)}>
+        <table
+          className={cn(
+            tableCompact.table,
+            pourPcUi.tableResizable,
+            preferTableOnMobile && 'min-w-0 pour-desktop:min-w-[36rem]',
+          )}
+        >
           {tableResize.colGroup}
           <thead className={tableCompact.head}>
             <tr>
@@ -368,17 +379,16 @@ export function CrudTable<T extends { id: number }>({
             }
           }}
         >
-          <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
-            <DialogHeader className={modal.header}>
-              <DialogTitle className={cn(modal.title, 'break-words')}>
+          <DialogContent className={cn(modal.lg, 'max-h-[min(92dvh,720px)] overflow-y-auto')}>
+            <DialogHeader>
+              <DialogTitle className={cn(rq.cardTitle, 'break-words')}>
                 {editItem ? 'แก้ไข' : 'เพิ่ม'} {title}
               </DialogTitle>
             </DialogHeader>
-            <div className={modal.body}>
+            <div className="min-w-0 pt-1">
               {editItem != null && (
-                <div className="mb-5 rounded-lg border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg)]/70 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-pour-subtle">ID</p>
-                  <p className="font-mono text-base tabular-nums text-[color:var(--pour-ink-1)]">{editItem.id}</p>
+                <div className="mb-3 text-xs text-pour-muted">
+                  ID: <span className="font-mono tabular-nums text-[color:var(--pour-ink-1)]">{editItem.id}</span>
                 </div>
               )}
               <div className="min-w-0">
@@ -389,24 +399,22 @@ export function CrudTable<T extends { id: number }>({
                 )}
               </div>
             </div>
-            <DialogFooter className={modal.footer}>
+            <div className="flex flex-col-reverse gap-2 pt-4 sm:flex-row sm:justify-end">
               <Button
                 variant="outline"
                 size="modalAction"
-                className="rounded-xl border-[color:var(--glass-border-subtle)]"
                 onClick={() => setModalOpen(false)}
               >
                 ยกเลิก
               </Button>
               <Button
                 size="modalAction"
-                className="rounded-xl shadow-sm shadow-[color:var(--pour-accent)]/20"
                 onClick={handleSave}
                 disabled={saving}
               >
                 {saving ? 'กำลังบันทึก...' : 'บันทึก'}
               </Button>
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
       ) : null}

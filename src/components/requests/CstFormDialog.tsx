@@ -313,7 +313,7 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
       onOpenChange(false)
     } catch (e) {
       console.error('CST delete:', e)
-      toast.error('ลบผลเทสไม่สำเร็จ')
+      toast.error(e instanceof Error ? e.message : 'ลบผลเทสไม่สำเร็จ')
     } finally {
       setDeleting(false)
     }
@@ -365,11 +365,11 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                 <Label>Report No.</Label>
                 <Input
                   value={values.report_no}
-                  onChange={(e) => setValues((v) => v && { ...v, report_no: e.target.value })}
+                  readOnly
                   placeholder={`เช่น ${cstReportNoPrefix(age)}000001`}
                 />
                 <p className="text-xs text-pour-subtle">
-                  สร้างอัตโนมัติเมื่อบันทึกครั้งแรกของคำขอเท — ลำดับเลขเดียวกันทุกอายุ (R1, R3, R7… ตามวันทดสอบ)
+                  ออกเลขอัตโนมัติจากระบบเท่านั้น — ไม่สามารถแก้ไขจากฟอร์มได้
                 </p>
               </div>
               <div className={layout.formField}>
@@ -466,7 +466,10 @@ export function CstFormDialog({ request, age, open, onOpenChange, onSaved }: Cst
                         {rows.map((row, ri) => {
                           const idx = startIdx + ri
                           return (
-                            <tr key={idx} className="border-b border-[#f3f4f6] last:border-0">
+                            <tr
+                              key={idx}
+                              className="border-b border-[color:var(--glass-border-subtle)] last:border-0"
+                            >
                               <td className="py-2 pr-2 tabular-nums text-pour-subtle">{idx + 1}</td>
                               <td className="py-2 pr-2">
                                 <Input

@@ -147,7 +147,7 @@ export async function replaceInspectorMembers(
 ): Promise<void> {
   const scopedInspector = await ensureScopedInspector(inspectorId)
   if (!scopedInspector) {
-    throw new Error('ไม่พบสาย Inspector ใน job scope ปัจจุบัน')
+    throw new Error('ไม่พบสาย Inspector (QC) ใน job scope ปัจจุบัน')
   }
 
   const { error: delErr } = await supabase

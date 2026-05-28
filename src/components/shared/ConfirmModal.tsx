@@ -4,7 +4,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { modal } from '@/lib/requestUi'
+import { modal, modalForm } from '@/lib/requestUi'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
@@ -57,18 +57,20 @@ export function ConfirmModal({
     <Dialog open={open} onOpenChange={(o) => { if (!o) { setNote(''); onClose() } }}>
       <DialogContent
         overlayClassName={overlayClassName}
-        className={cn(modal.md, dialogContentClassName)}
+        className={cn(modal.md, modal.shell, dialogContentClassName)}
       >
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+        <DialogHeader className={modal.header}>
+          <DialogTitle className={modal.title}>{title}</DialogTitle>
+          {description ? <DialogDescription>{description}</DialogDescription> : null}
         </DialogHeader>
 
-        {showNote && (
-          <div className="space-y-2">
+        {showNote ? (
+          <div className={modal.body}>
+            <div className={modalForm.stack}>
+            <div className={modalForm.field}>
             <Label htmlFor="confirm-note">
               {noteLabel}
-              {noteRequired && <span className="ml-1 text-zinc-600">*</span>}
+              {noteRequired ? <span className="ml-1 text-zinc-600">*</span> : null}
             </Label>
             <Textarea
               id="confirm-note"
@@ -77,10 +79,12 @@ export function ConfirmModal({
               placeholder={noteRequired ? 'กรุณาระบุ...' : 'ไม่บังคับ...'}
               rows={3}
             />
+            </div>
+            </div>
           </div>
-        )}
+        ) : null}
 
-        <DialogFooter>
+        <DialogFooter className={modal.footer}>
           <Button variant="outline" size="modalAction" onClick={onClose} disabled={busy}>
             ยกเลิก
           </Button>

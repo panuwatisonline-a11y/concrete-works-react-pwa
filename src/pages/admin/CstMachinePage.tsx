@@ -111,7 +111,7 @@ export function CstMachinePage() {
     <div className={app.pageAdmin}>
       <h1 className={rq.heroTitle}>CST Machine</h1>
       <CrudTable<CompressionMachine>
-        title="เครื่องอัดคอนกรีต (Compression Machine)"
+        title="เครื่องทดสอบกำลังอัดคอนกรีต (Compression Machine)"
         data={filtered}
         loading={loading}
         columns={[

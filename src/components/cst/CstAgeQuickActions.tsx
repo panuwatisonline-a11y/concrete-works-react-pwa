@@ -31,7 +31,11 @@ export function CstAgeQuickActions({
   return (
     <div
       className={cn(
-        grid ? 'grid grid-cols-5 gap-1.5' : compact ? 'flex flex-wrap gap-0.5' : rq.actions.buttonRow,
+        grid
+          ? 'grid grid-cols-5 gap-1 min-[360px]:gap-1.5'
+          : compact
+            ? 'flex flex-wrap gap-0.5'
+            : rq.actions.buttonRow,
         className,
       )}
     >
@@ -47,7 +51,7 @@ export function CstAgeQuickActions({
             className={cn(
               'tabular-nums font-semibold',
               dense && 'h-6 min-h-6 px-1.5 text-pour-xs',
-              grid && 'h-9 min-h-9 w-full justify-center px-0 text-xs',
+              grid && 'h-9 min-h-9 !min-w-0 w-full justify-center px-0 text-xs',
               emphasize &&
                 'border-[color:var(--pour-accent)] bg-[var(--pour-accent-muted)] ring-2 ring-[color:var(--pour-accent-ring)] ring-offset-1',
             )}

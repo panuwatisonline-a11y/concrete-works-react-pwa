@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo, type ReactNode } from 'react'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { toast } from 'sonner'
@@ -48,6 +48,26 @@ import { CstFormDialog } from '@/components/requests/CstFormDialog'
 import { CstAgeQuickActions } from '@/components/cst/CstAgeQuickActions'
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
 import { isNonSystemBookingRequest, remarksForDisplay } from '@/lib/nonSystemBooking'
+
+type RequestDetailField = {
+  id: string
+  label: string
+  value: ReactNode
+  stacked?: boolean
+}
+
+function RequestDetailFields({ fields }: { fields: RequestDetailField[] }) {
+  return (
+    <>
+      {fields.map((row) => (
+        <div key={row.id} className={cn(rq.detailRow, row.stacked && 'sm:flex-col sm:items-stretch')}>
+          <span className={cn(rq.detailLabel, row.stacked && 'sm:w-full')}>{row.label}</span>
+          <span className={cn(rq.value, row.stacked && 'sm:min-w-0')}>{row.value}</span>
+        </div>
+      ))}
+    </>
+  )
+}
 
 export function RequestDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -235,19 +255,123 @@ export function RequestDetailPage() {
   const remarksDisplay = remarksForDisplay(request.remarks)
 
   const mx = request.mixcode as { mixcode: string; strength: number | null; slump: string | null; strength_type: string | null } | null
+  const structureName = (request.structure as { structure_name: string } | null)?.structure_name?.trim() || null
+  const structureNo = request.structure_no?.trim() || null
+  const loc = request.location as { full_location: string | null; location1: string } | null
+  const locationDisplay = loc?.full_location ?? loc?.location1 ?? null
+
+  const castingDatePart = request.casting_date ? formatDate(request.casting_date) : null
+  const requestTimePart = request.request_time ? formatTime(request.request_time) : null
+  const castingDateTime =
+    castingDatePart && castingDatePart !== '-' && requestTimePart && requestTimePart !== '-'
+      ? `${castingDatePart} | ${requestTimePart}`
+      : castingDatePart && castingDatePart !== '-'
+        ? castingDatePart
+        : requestTimePart && requestTimePart !== '-'
+          ? requestTimePart
+          : '-'
+
+  const jobInfoFields: RequestDetailField[] = [
+    {
+      id: 'req-id',
+      label: 'รหัสคำขอ',
+      stacked: true,
+      value: (
+        <span className="min-w-0">
+          <span className="font-mono font-semibold text-[color:var(--pour-ink-1)]">{shortId(request.id)}</span>
+          <span className="mt-1 block break-all font-mono text-pour-2xs leading-snug text-pour-subtle">{request.id}</span>
+        </span>
+      ),
+    },
+    { id: 'casting', label: 'Casting date', value: castingDateTime },
+    {
+      id: 'client',
+      label: 'User Group',
+      value: (request.client as { client_name: string } | null)?.client_name ?? '-',
+    },
+    { id: 'abc', label: 'ABC', value: (request.abc_code as { full_abc: string | null } | null)?.full_abc ?? '-' },
+    { id: 'wbs', label: 'WBS', value: (request.wbs_code as { full_wbs: string | null } | null)?.full_wbs ?? '-' },
+    {
+      id: 'cw',
+      label: 'Concrete Works',
+      value: (request.concrete_work as { concrete_work: string } | null)?.concrete_work ?? '-',
+    },
+    { id: 'structure', label: 'Structure', value: structureName ?? '-' },
+    { id: 'location', label: 'Location', value: locationDisplay ?? '-', stacked: true },
+    { id: 'structure-no', label: 'Structure No.', value: structureNo ?? '—', stacked: true },
+  ]
+
+  const pourInfoFields: RequestDetailField[] = [
+    { id: 'mixcode', label: 'Mix code', value: mx?.mixcode ?? '-' },
+    {
+      id: 'strength',
+      label: 'กำลังอัด',
+      value: mx ? `${mx.strength} ${mx.strength_type ?? ''}`.trim() : '-',
+    },
+    { id: 'slump', label: 'Slump', value: mx?.slump ?? '-' },
+    {
+      id: 'dwg-strength',
+      label: DWG_STRENGTH_FIELD_LABEL,
+      value:
+        request.strength != null
+          ? mixcodeStrengthLabelForOptionValue(
+              mixcodeStrengthOptionValueForStoredStrength(request.strength, mixcodes),
+              mixcodes,
+            ) ?? String(request.strength)
+          : '-',
+    },
+    { id: 'vol-req', label: 'Request Volume (cu.m)', value: formatVolumeCuM(request.volume_request) },
+    { id: 'vol-dwg', label: 'DWG volume (cu.m)', value: formatVolumeCuM(request.volume_dwg) },
+    { id: 'vol-actual', label: 'Actual volume (cu.m)', value: formatVolumeCuM(request.volume_actual) },
+    ...(sid === 8
+      ? ([
+          {
+            id: 'vol-confirm',
+            label: 'Confirmed volume (cu.m)',
+            value: formatVolumeCuM(request.volume_confirm),
+          },
+          {
+            id: 'vol-loss',
+            label: 'Volume loss (cu.m)',
+            value: formatVolumeCuM(request.volume_loss),
+          },
+          {
+            id: 'pct-loss',
+            label: '% Loss',
+            value:
+              request.pct_loss != null && !Number.isNaN(request.pct_loss)
+                ? `${formatPercentNumber(request.pct_loss)}%`
+                : '-',
+          },
+        ] satisfies RequestDetailField[])
+      : []),
+    {
+      id: 'sample',
+      label: 'จำนวนตัวอย่าง',
+      value: request.sample_qty != null ? `${request.sample_qty} ก้อน` : '-',
+    },
+    {
+      id: 'remarks',
+      label: 'หมายเหตุ',
+      value: remarksDisplay ?? '—',
+      stacked: true,
+    },
+  ]
 
   return (
-    <div className={rq.page}>
+    <div className={rq.pageDetail}>
       <RequestScreenHeader
+        titleLayout="inline"
         onBack={() => navigate(-1)}
         title={
-          <span className="flex flex-wrap items-center gap-2">
-            <span className="font-pour-mono text-base font-bold tracking-tight text-[color:var(--pour-ink-1)] pour-desktop:text-lg">{shortId(request.id)}</span>
-            <StatusBadge statusId={sid} size="lg" />
+          <span className="flex min-w-0 flex-nowrap items-center gap-2">
+            <span className="shrink-0 font-pour-mono font-bold tracking-tight text-[color:var(--pour-ink-1)] pour-desktop:text-lg">
+              {shortId(request.id)}
+            </span>
+            <StatusBadge statusId={sid} size="sm" compact className="shrink-0" />
             {nonSystemBooking ? <NonSystemBookingBadge /> : null}
           </span>
         }
-        subtitle={<>วันเท {formatDate(request.casting_date)} · {formatTime(request.request_time)}</>}
         right={
           sid === 1 && isOwner ? (
             <Button variant="outline" size="action" asChild>
@@ -266,6 +390,7 @@ export function RequestDetailPage() {
         ([6, 7].includes(sid) && isOwner) ||
         canPrintChecklistBeforePour(sid)) && (
         <RequestActionBar
+          dense
           items={getRequestListQuickActions({
             requestId: request.id,
             statusId: sid,
@@ -311,77 +436,22 @@ export function RequestDetailPage() {
       )}
 
       {/* Sections */}
-      <div className="grid min-w-0 gap-4 pour-desktop:grid-cols-2">
+      <div className={rq.detailGrid}>
         <Card className={rq.card}>
-          <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
+          <CardHeader className={rq.detailCardHeader}>
             <CardTitle className={rq.cardTitle}>ข้อมูลงาน</CardTitle>
           </CardHeader>
-          <CardContent className={cn(rq.cardContent, 'space-y-1.5')}>
-            {[
-              {
-                id: 'req-id',
-                label: 'รหัสคำขอ',
-                value: (
-                  <span className="min-w-0">
-                    <span className="font-mono font-semibold text-[color:var(--pour-ink-1)]">{shortId(request.id)}</span>
-                    <span className="mt-1 block break-all font-mono text-pour-2xs leading-snug text-pour-subtle">{request.id}</span>
-                  </span>
-                ),
-              },
-              { id: 'client', label: 'User Group', value: (request.client as { client_name: string } | null)?.client_name },
-              { id: 'location', label: 'Location', value: (request.location as { full_location: string | null } | null)?.full_location },
-              { id: 'cw', label: 'Concrete Work', value: (request.concrete_work as { concrete_work: string } | null)?.concrete_work },
-              {
-                id: 'structure',
-                label: 'Structure',
-                value: `${(request.structure as { structure_name: string } | null)?.structure_name ?? '-'} ${request.structure_no ? `(${request.structure_no})` : ''}`,
-              },
-              { id: 'abc', label: 'ABC Code', value: (request.abc_code as { full_abc: string | null } | null)?.full_abc },
-              { id: 'wbs', label: 'WBS Code', value: (request.wbs_code as { full_wbs: string | null } | null)?.full_wbs },
-            ].map((row) => (
-              <div key={row.id} className={rq.detailRow}>
-                <span className={rq.detailLabel}>{row.label}</span>
-                <span className={rq.value}>{row.value ?? '-'}</span>
-              </div>
-            ))}
+          <CardContent className={cn(rq.detailCardContent, rq.detailFields)}>
+            <RequestDetailFields fields={jobInfoFields} />
           </CardContent>
         </Card>
 
         <Card className={rq.card}>
-          <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
+          <CardHeader className={rq.detailCardHeader}>
             <CardTitle className={rq.cardTitle}>ข้อมูลการเท</CardTitle>
           </CardHeader>
-          <CardContent className={cn(rq.cardContent, 'space-y-1.5')}>
-            {[
-              ['วันเท', formatDate(request.casting_date)],
-              ['เวลา', formatTime(request.request_time)],
-              ['Mixcode', mx?.mixcode],
-              ['กำลังอัด', mx ? `${mx.strength} ${mx.strength_type}` : '-'],
-              [
-                DWG_STRENGTH_FIELD_LABEL,
-                request.strength != null
-                  ? mixcodeStrengthLabelForOptionValue(
-                      mixcodeStrengthOptionValueForStoredStrength(request.strength, mixcodes),
-                      mixcodes,
-                    ) ?? String(request.strength)
-                  : '-',
-              ],
-              ['Slump', mx?.slump],
-              ['Request Volume (cu.m)', formatVolumeCuM(request.volume_request)],
-              ['DWG volume (cu.m)', formatVolumeCuM(request.volume_dwg)],
-              ['Actual volume (cu.m)', formatVolumeCuM(request.volume_actual)],
-              ...(sid === 8 ? [
-                ['Confirmed volume (cu.m)', formatVolumeCuM(request.volume_confirm)],
-                ['Volume loss (cu.m)', formatVolumeCuM(request.volume_loss)],
-                ['% Loss', request.pct_loss != null && !Number.isNaN(request.pct_loss) ? `${formatPercentNumber(request.pct_loss)}%` : '-'],
-              ] : []),
-              ['จำนวนตัวอย่าง', request.sample_qty ? `${request.sample_qty} ก้อน` : '-'],
-            ].map(([label, value]) => (
-              <div key={label} className={rq.detailRow}>
-                <span className={rq.detailLabel}>{label}</span>
-                <span className={rq.value}>{value ?? '-'}</span>
-              </div>
-            ))}
+          <CardContent className={cn(rq.detailCardContent, rq.detailFields)}>
+            <RequestDetailFields fields={pourInfoFields} />
           </CardContent>
         </Card>
       </div>
@@ -389,32 +459,46 @@ export function RequestDetailPage() {
       {/* Images */}
       {(request.before_image || request.after_image || request.eslip_url || request.checksheet_url) && (
         <Card className={rq.card}>
-          <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
+          <CardHeader className={rq.detailCardHeader}>
             <CardTitle className={rq.cardTitle}>รูปภาพ & ไฟล์</CardTitle>
           </CardHeader>
-          <CardContent className={cn(rq.cardContent, 'space-y-5')}>
+          <CardContent className={cn(rq.detailCardContent, rq.detailImagesContent)}>
             {(request.before_image || request.after_image) && (
               <div
                 className={cn(
-                  'grid w-full gap-5',
-                  request.before_image && request.after_image && 'sm:grid-cols-2 sm:items-stretch sm:gap-6',
+                  'grid w-full gap-3',
+                  request.before_image &&
+                    request.after_image &&
+                    'grid-cols-2 items-stretch gap-2 sm:gap-3',
                 )}
               >
                 {request.before_image && (
                   <div className="flex min-h-0 min-w-0 flex-col">
-                    <p className={cn('mb-1.5', rq.label)}>ก่อนเท</p>
+                    <p className={cn('mb-1', rq.label, request.after_image && 'text-center')}>ก่อนเท</p>
                     <button
                       type="button"
                       className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
                       aria-label={request.after_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปก่อนเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span
+                        className={cn(
+                          'flex w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-1.5 shadow-sm sm:p-2',
+                          request.after_image
+                            ? 'min-h-[7.5rem] sm:min-h-[11rem]'
+                            : 'min-h-[9.5rem] sm:min-h-[11rem]',
+                        )}
+                      >
                         <img
                           src={imageSrcForImgTag(request.before_image, 'detail') ?? request.before_image}
                           alt=""
                           referrerPolicy="no-referrer"
-                          className="max-h-44 w-auto max-w-full object-contain object-center pointer-events-none sm:max-h-52"
+                          className={cn(
+                            'w-auto max-w-full object-contain object-center pointer-events-none',
+                            request.after_image
+                              ? 'max-h-32 sm:max-h-52'
+                              : 'max-h-44 sm:max-h-52',
+                          )}
                         />
                       </span>
                     </button>
@@ -422,19 +506,31 @@ export function RequestDetailPage() {
                 )}
                 {request.after_image && (
                   <div className="flex min-h-0 min-w-0 flex-col">
-                    <p className={cn('mb-1.5', rq.label)}>หลังเท</p>
+                    <p className={cn('mb-1', rq.label, request.before_image && 'text-center')}>หลังเท</p>
                     <button
                       type="button"
                       className="group flex min-h-0 w-full flex-1 rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
                       aria-label={request.before_image?.trim() ? 'ขยายรูปก่อนเทและหลังเท' : 'ขยายรูปหลังเท'}
                       onClick={openPourImagesLightbox}
                     >
-                      <span className="flex min-h-[9.5rem] w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
+                      <span
+                        className={cn(
+                          'flex w-full flex-1 items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-1.5 shadow-sm sm:p-2',
+                          request.before_image
+                            ? 'min-h-[7.5rem] sm:min-h-[11rem]'
+                            : 'min-h-[9.5rem] sm:min-h-[11rem]',
+                        )}
+                      >
                         <img
                           src={imageSrcForImgTag(request.after_image, 'detail') ?? request.after_image}
                           alt=""
                           referrerPolicy="no-referrer"
-                          className="max-h-44 w-auto max-w-full object-contain object-center pointer-events-none sm:max-h-52"
+                          className={cn(
+                            'w-auto max-w-full object-contain object-center pointer-events-none',
+                            request.before_image
+                              ? 'max-h-32 sm:max-h-52'
+                              : 'max-h-44 sm:max-h-52',
+                          )}
                         />
                       </span>
                     </button>
@@ -443,8 +539,8 @@ export function RequestDetailPage() {
               </div>
             )}
             {request.eslip_url?.trim() ? (
-              <div className="border-t border-[color:var(--pour-surface-border)]/70 pt-4">
-                <p className={cn('mb-1.5', rq.label)}>Bill Concrete (E-Slip)</p>
+              <div className="border-t border-[color:var(--pour-surface-border)]/70 pt-3">
+                <p className={cn('mb-1.5', rq.label)}>Bill Concrete</p>
                 <button
                   type="button"
                   className="group flex min-h-0 w-full max-w-md rounded-xl p-0 text-left outline-none ring-offset-2 transition hover:opacity-[0.97] focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/40 cursor-zoom-in"
@@ -473,7 +569,7 @@ export function RequestDetailPage() {
               </div>
             ) : null}
             {request.checksheet_url ? (
-              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[color:var(--pour-surface-border)]/70 pt-4">
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[color:var(--pour-surface-border)]/70 pt-3">
                 <a href={request.checksheet_url} target="_blank" rel="noreferrer" className={rq.link}>Checksheet</a>
               </div>
             ) : null}
@@ -489,26 +585,15 @@ export function RequestDetailPage() {
         </Card>
       ) : null}
 
-      {remarksDisplay ? (
-        <Card className={rq.card}>
-          <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
-            <CardTitle className={rq.cardTitle}>หมายเหตุ</CardTitle>
-          </CardHeader>
-          <CardContent className={rq.cardContent}>
-            <p className="whitespace-pre-wrap rounded-xl bg-[color:var(--pour-bg-2)] px-3 py-2.5 text-sm leading-relaxed text-[color:var(--pour-ink-1)] ring-1 ring-[color:var(--pour-surface-border)]/80">{remarksDisplay}</p>
-          </CardContent>
-        </Card>
-      ) : null}
-
       {/* History */}
       <Card className={rq.card}>
-        <CardHeader className={cn(rq.cardHeader, 'space-y-0')}>
+        <CardHeader className={rq.detailCardHeader}>
           <CardTitle className={cn(rq.cardTitle, 'flex items-center gap-2')}>
             <AppIcon icon={History} size="sm" className="text-pour-muted" />
             History
           </CardTitle>
         </CardHeader>
-        <CardContent className={cn(rq.cardContent, 'space-y-4')}>
+        <CardContent className={cn(rq.detailCardContent, 'space-y-3')}>
           {filteredLogs.length === 0 ? (
             <p className="text-sm text-pour-muted">ไม่พบรายการที่ตรงกับคำค้น</p>
           ) : (

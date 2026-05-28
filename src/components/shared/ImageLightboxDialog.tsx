@@ -87,8 +87,10 @@ export function ImageLightboxDialog({
             className="flex min-h-0 min-w-0 flex-1 flex-col items-center"
           >
             {slides.length > 1 ? (
-              <figcaption className="mb-2 shrink-0 text-center text-xs font-medium text-white/90 sm:text-sm">
-                {item.label}
+              <figcaption className="mb-2 flex shrink-0 justify-center sm:mb-2.5">
+                <span className="rounded-full bg-white/14 px-4 py-1.5 text-sm font-semibold tracking-wide text-white shadow-[0_1px_12px_rgba(0,0,0,0.35)] ring-1 ring-white/25 backdrop-blur-sm sm:px-5 sm:py-2 sm:text-base">
+                  {item.label}
+                </span>
               </figcaption>
             ) : null}
             <div className="flex min-h-0 w-full flex-1 items-center justify-center">

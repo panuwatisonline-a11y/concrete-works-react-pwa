@@ -41,14 +41,8 @@ const tabLinkClass = (isActive: boolean) =>
       : 'text-[color:var(--pour-ink-2)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
   )
 
-/** Figma-style tab strip + optional grid/list toggle for request list views */
-export function RequestListTabs({
-  layoutMode,
-  onLayoutModeChange,
-}: {
-  layoutMode?: 'grid' | 'list'
-  onLayoutModeChange?: (mode: 'grid' | 'list') => void
-}) {
+/** Figma-style tab strip for request list views */
+export function RequestListTabs() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const resetFilter = useFilterStore((s) => s.resetFilter)
@@ -85,43 +79,68 @@ export function RequestListTabs({
           )
         })}
       </nav>
+    </div>
+  )
+}
 
-      {layoutMode && onLayoutModeChange ? (
-        <div
-          className="flex shrink-0 self-center items-center gap-0.5 rounded-lg border border-[color:var(--pour-line)] p-0.5"
-          role="group"
-          aria-label="สลับมุมมอง"
-        >
-          <button
-            type="button"
-            title="มุมมองตาราง"
-            aria-label="มุมมองตาราง"
-            className={cn(
-              'pour-interactive pour-nav-item flex h-8 w-8 items-center justify-center rounded-md',
-              layoutMode === 'grid'
-                ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
-                : 'text-[color:var(--pour-ink-3)] hover:text-[color:var(--pour-ink-0)]',
-            )}
-            onClick={() => onLayoutModeChange('grid')}
-          >
-            <AppIcon icon={GridView} size="xs" />
-          </button>
-          <button
-            type="button"
-            title="มุมมองรายการ"
-            aria-label="มุมมองรายการ"
-            className={cn(
-              'pour-interactive pour-nav-item flex h-8 w-8 items-center justify-center rounded-md',
-              layoutMode === 'list'
-                ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
-                : 'text-[color:var(--pour-ink-3)] hover:text-[color:var(--pour-ink-0)]',
-            )}
-            onClick={() => onLayoutModeChange('list')}
-          >
-            <AppIcon icon={ListIcon} size="xs" />
-          </button>
-        </div>
-      ) : null}
+const layoutToggleBtnClass = (active: boolean) =>
+  cn(
+    'pour-interactive flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
+    active
+      ? 'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)]'
+      : 'text-[color:var(--pour-ink-3)] hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
+  )
+
+/** Grid/list toggle — inline toolbar control (not dialog chrome) */
+export function RequestListLayoutToggle({
+  layoutMode,
+  onLayoutModeChange,
+}: {
+  layoutMode: 'grid' | 'list'
+  onLayoutModeChange: (mode: 'grid' | 'list') => void
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-0.5" role="group" aria-label="สลับมุมมอง">
+      <button
+        type="button"
+        title="มุมมองตาราง"
+        aria-label="มุมมองตาราง"
+        aria-pressed={layoutMode === 'grid'}
+        className={layoutToggleBtnClass(layoutMode === 'grid')}
+        onClick={() => onLayoutModeChange('grid')}
+      >
+        <AppIcon icon={GridView} size="xs" />
+      </button>
+      <button
+        type="button"
+        title="มุมมองรายการ"
+        aria-label="มุมมองรายการ"
+        aria-pressed={layoutMode === 'list'}
+        className={layoutToggleBtnClass(layoutMode === 'list')}
+        onClick={() => onLayoutModeChange('list')}
+      >
+        <AppIcon icon={ListIcon} size="xs" />
+      </button>
+    </div>
+  )
+}
+
+/** Toolbar row above grouped feed — separated from accordion section cards */
+export function RequestListFeedToolbar({
+  layoutMode,
+  onLayoutModeChange,
+}: {
+  layoutMode: 'grid' | 'list'
+  onLayoutModeChange: (mode: 'grid' | 'list') => void
+}) {
+  return (
+    <div
+      role="toolbar"
+      aria-label="ตัวเลือกรายการ"
+      className="flex min-w-0 items-center justify-between gap-3 border-b border-[color:var(--pour-line)] pb-2.5 max-md:pb-2"
+    >
+      <span className="text-pour-xs font-medium uppercase tracking-wide text-pour-subtle">มุมมอง</span>
+      <RequestListLayoutToggle layoutMode={layoutMode} onLayoutModeChange={onLayoutModeChange} />
     </div>
   )
 }

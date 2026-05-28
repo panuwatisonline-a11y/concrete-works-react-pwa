@@ -1,4 +1,4 @@
-﻿import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
@@ -6,7 +6,6 @@ import { supabase } from '@/lib/supabase'
 import { AdminDashboardContent } from '@/components/dashboard/AdminDashboardContent'
 import {
   EMPTY_DASHBOARD_FILTERS,
-  filterDashboardRows,
   mapDashboardRows,
   type DashboardFilters,
 } from '@/lib/dashboardRecordMapper'
@@ -54,19 +53,9 @@ export function AdminDashboard() {
     [rows, filterDateFrom, filterDateTo],
   )
 
-  const chartFilteredRows = useMemo(
-    () => filterDashboardRows(dateFilteredRows, filters),
-    [dateFilteredRows, filters],
-  )
-
   const chartRecords = useMemo(
     () => (loading ? [] : mapDashboardRows(dateFilteredRows)),
     [dateFilteredRows, loading],
-  )
-
-  const tableRecords = useMemo(
-    () => (loading ? [] : mapDashboardRows(chartFilteredRows)),
-    [chartFilteredRows, loading],
   )
 
   const toggleFilter = useCallback((key: keyof DashboardFilters, value: string) => {
@@ -197,7 +186,6 @@ export function AdminDashboard() {
       ) : (
         <AdminDashboardContent
           chartData={chartRecords}
-          tableData={tableRecords}
           filters={filters}
           toggleFilter={toggleFilter}
         />

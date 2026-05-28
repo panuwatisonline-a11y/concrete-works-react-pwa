@@ -354,6 +354,47 @@
     -webkit-tap-highlight-color: transparent;
   }
 
+  @media (max-width: 767px) {
+    :root,
+    html[data-theme='dark'] {
+      /* Mobile minimal — shadow แทน border ให้ดู premium */
+      --glass-bg-strong: var(--glass-bg);
+      --glass-bg-muted: color-mix(in srgb, var(--glass-bg) 96%, var(--pour-bg) 4%);
+      --glass-edge: var(--glass-border-subtle);
+      --glass-shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.22), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+      --glass-shadow: 0 2px 10px rgba(0, 0, 0, 0.28), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+    }
+
+    html[data-theme='light'] {
+      --glass-bg-strong: var(--glass-bg);
+      --glass-bg-muted: color-mix(in srgb, var(--glass-bg) 96%, var(--pour-bg) 4%);
+      --glass-edge: var(--glass-border-subtle);
+      --glass-shadow-sm: 0 1px 5px rgba(30, 58, 95, 0.09), 0 0 0 0.5px rgba(30, 58, 95, 0.06);
+      --glass-shadow: 0 2px 10px rgba(30, 58, 95, 0.11), 0 0 0 0.5px rgba(30, 58, 95, 0.07);
+    }
+
+    html[data-theme='green'] {
+      --glass-bg-strong: var(--glass-bg);
+      --glass-bg-muted: color-mix(in srgb, var(--glass-bg) 96%, var(--pour-bg) 4%);
+      --glass-edge: var(--glass-border-subtle);
+      --glass-shadow-sm: 0 1px 5px rgba(45, 74, 66, 0.09), 0 0 0 0.5px rgba(45, 74, 66, 0.06);
+      --glass-shadow: 0 2px 10px rgba(45, 74, 66, 0.11), 0 0 0 0.5px rgba(45, 74, 66, 0.07);
+    }
+
+    html[data-theme='pink'] {
+      --glass-bg-strong: var(--glass-bg);
+      --glass-bg-muted: color-mix(in srgb, var(--glass-bg) 96%, var(--pour-bg) 4%);
+      --glass-edge: var(--glass-border-subtle);
+      --glass-shadow-sm: 0 1px 5px rgba(77, 51, 68, 0.09), 0 0 0 0.5px rgba(77, 51, 68, 0.06);
+      --glass-shadow: 0 2px 10px rgba(77, 51, 68, 0.11), 0 0 0 0.5px rgba(77, 51, 68, 0.07);
+    }
+
+    body {
+      letter-spacing: 0.005em;
+      text-rendering: optimizeLegibility;
+    }
+  }
+
   #root {
     height: 100%;
     height: 100dvh;
@@ -472,6 +513,10 @@
   .pour-date-input::-webkit-datetime-edit-meridiem-field {
     padding: 0;
     line-height: 1.25;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
   }
 
   .pour-date-input::-webkit-date-and-time-value {
@@ -1030,6 +1075,31 @@
     border: 1px solid var(--glass-border-subtle);
     background: var(--glass-bg);
     box-shadow: var(--glass-shadow-sm);
+  }
+
+  @media (max-width: 767px) {
+    .pour-glass,
+    .pour-glass-strong,
+    .pour-glass-muted,
+    .pour-surface-panel {
+      background: var(--glass-bg);
+      border-color: transparent;
+      box-shadow: var(--glass-shadow-sm);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+
+    /* ชั้นย่อยใน card/surface: ลดเส้นแบ่งซ้อนบนมือถือ */
+    .pour-glass > .border-t,
+    .pour-glass > .border-b,
+    .pour-glass-strong > .border-t,
+    .pour-glass-strong > .border-b,
+    .pour-glass-muted > .border-t,
+    .pour-glass-muted > .border-b,
+    .pour-surface-panel > .border-t,
+    .pour-surface-panel > .border-b {
+      border-color: transparent;
+    }
   }
 
   .pour-empty-state {

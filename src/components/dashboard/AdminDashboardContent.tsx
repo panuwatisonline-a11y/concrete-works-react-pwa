@@ -1,4 +1,4 @@
-import { Fragment, useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell,
@@ -8,16 +8,11 @@ import Engineering from '@mui/icons-material/Engineering';
 import TaskAlt from '@mui/icons-material/TaskAlt';
 import Warning from '@mui/icons-material/Warning';
 import Layers from '@mui/icons-material/Layers';
-import ChevronRight from '@mui/icons-material/ChevronRight';
 import FilterList from '@mui/icons-material/FilterList';
 import Timeline from '@mui/icons-material/Timeline';
 import TrendingUp from '@mui/icons-material/TrendingUp';
-import Visibility from '@mui/icons-material/Visibility';
-import FolderOpen from '@mui/icons-material/FolderOpen';
-import Folder from '@mui/icons-material/Folder';
 import { AppIcon } from '@/components/icons/AppIcon';
 import { LossConcreteChartTooltip } from '@/components/loss-concrete/LossConcreteChartTooltip';
-import { StatusBadge } from '@/components/shared/StatusBadge';
 import { DashboardKpiBox } from '@/components/dashboard/DashboardKpiBox';
 import { DashboardChartBox } from '@/components/dashboard/DashboardChartBox';
 import {
@@ -41,22 +36,12 @@ import {
   type DashboardFilters,
 } from '@/lib/dashboardRecordMapper';
 import { useChartColors } from '@/lib/chartTheme';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { app, frame, glass, modal, rq, tableCompact, type } from '@/lib/requestUi';
+import { type } from '@/lib/requestUi';
 import { cn } from '@/lib/utils';
-
-const dashTable = {
-  table: cn(tableCompact.table, 'pour-pc-dash-table pour-pc-app-table'),
-  head: tableCompact.head,
-  body: tableCompact.body,
-} as const;
 
 interface AdminDashboardContentProps {
   /** ชุดข้อมูลเต็มตามช่วงวันที่ — ใช้ KPI และทุกกราฟ */
   chartData: DashboardConcreteRecord[];
-  /** ชุดข้อมูลหลังกรองจากกราฟ — ใช้ตารางรายละเอียด */
-  tableData: DashboardConcreteRecord[];
   filters: DashboardFilters;
   toggleFilter: (key: keyof DashboardFilters, value: string) => void;
 }
@@ -69,7 +54,7 @@ interface KeyInfo {
   name: string;
 }
 
-export function AdminDashboardContent({ chartData, tableData, filters, toggleFilter }: AdminDashboardContentProps) {
+export function AdminDashboardContent({ chartData, filters, toggleFilter }: AdminDashboardContentProps) {
   const {
     grid: cGrid,
     axis: cAxis,
@@ -91,9 +76,6 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
   const [hiddenStructures,       setHiddenStructures]       = useState<Set<string>>(new Set());
   const [structureDropdownOpen,  setStructureDropdownOpen]  = useState<boolean>(false);
   const structureDropdownRef = useRef<HTMLDivElement>(null);
-  const [expandedGroups,  setExpandedGroups]  = useState<Record<string, boolean>>({});
-  const [selectedRow,     setSelectedRow]     = useState<DashboardConcreteRecord | null>(null);
-
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (structureDropdownRef.current && !structureDropdownRef.current.contains(e.target as Node)) {
@@ -104,40 +86,10 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  useEffect(() => {
-    if (filters.status) {
-      setExpandedGroups((prev) => ({ ...prev, [filters.status as string]: true }));
-    }
-  }, [filters.status]);
-
-  const toggleGroup = useCallback((status: string) => {
-    setExpandedGroups((prev) => ({ ...prev, [status]: !prev[status] }));
-  }, []);
-
   const chartViewData = useMemo(() => {
     if (hiddenStructures.size === 0) return chartData;
     return chartData.filter((item) => !hiddenStructures.has((String(item.Structure || '')).trim()));
   }, [chartData, hiddenStructures]);
-
-  const tableViewData = useMemo(() => {
-    if (hiddenStructures.size === 0) return tableData;
-    return tableData.filter((item) => !hiddenStructures.has((String(item.Structure || '')).trim()));
-  }, [tableData, hiddenStructures]);
-
-  const sortedData = useMemo(
-    () => [...tableViewData].sort((a, b) => b.Timestamp - a.Timestamp),
-    [tableViewData],
-  );
-
-  const groupedData = useMemo<Record<string, DashboardConcreteRecord[]>>(() => {
-    const groups: Record<string, DashboardConcreteRecord[]> = {};
-    sortedData.forEach((item) => {
-      const s = item['Current Status'];
-      if (!groups[s]) groups[s] = [];
-      groups[s].push(item);
-    });
-    return groups;
-  }, [sortedData]);
 
   const kpis = useMemo(() => {
     let totalReq = 0, totalDwg = 0, compConf = 0, compDwg = 0, lossConc = 0;
@@ -410,7 +362,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
   return (
     <>
       {/* ── KPI CARDS ── */}
-      <div className="grid grid-cols-1 gap-4 mb-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 pour-desktop:pour-pc-kpi-grid">
+      <div className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 pour-desktop:mb-6 pour-desktop:pour-pc-kpi-grid">
         <DashboardKpiBox title="Total Requests"    value={kpis.count}        unit="Items" icon={<AppIcon icon={TaskAlt} size="md" />}    color="from-blue-600 to-cyan-500" />
         <DashboardKpiBox title="Request Volume"    value={kpis.requestVol}   unit="m³"    icon={<AppIcon icon={Layers} size="md" />}       color="from-indigo-600 to-violet-500" />
         <DashboardKpiBox title="DWG. Volume"       value={kpis.dwgVol}       unit="m³"    icon={<AppIcon icon={Timeline} size="md" />}     color="from-slate-600 to-slate-400" />
@@ -426,7 +378,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       </div>
 
       {/* ── TREND CHARTS ── */}
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 pour-desktop:pour-pc-trend-grid">
+      <div className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-2 pour-desktop:mb-6 pour-desktop:pour-pc-trend-grid">
 
         <div className="pour-pc-trend-card border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] rounded-2xl p-6 shadow-lg backdrop-blur-sm">
           <div className="pour-pc-trend-card__head flex flex-wrap items-center justify-between gap-3 mb-5">
@@ -514,7 +466,7 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
       </div>
 
       {/* ── FILTER CHARTS — สูงสุด 2 คอลัมน์บนจอใหญ่ เพื่อไม่บีบกราฟ ── */}
-      <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8 pour-desktop:pour-pc-filter-grid">
+      <div className="mb-5 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5 pour-desktop:mb-6 pour-desktop:pour-pc-filter-grid">
 
         {/* 1. Status */}
         <DashboardChartBox
@@ -978,317 +930,6 @@ export function AdminDashboardContent({ chartData, tableData, filters, toggleFil
 
       </div>
 
-      {/* ── Detailed records table ── */}
-      <section
-        className={cn(
-          glass.surface,
-          'pour-pc-records-section overflow-hidden rounded-[14px] shadow-[var(--glass-shadow-sm)]',
-        )}
-        aria-label="Detailed records"
-      >
-        <div
-          className={cn(
-            rq.cardHeader,
-            'pour-pc-records-head flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between',
-          )}
-        >
-          <h2 className={cn(rq.cardTitle, 'pour-pc-records-head__title flex items-center gap-2 text-base pour-desktop:text-lg')}>
-            <AppIcon icon={Layers} size="md" className="text-[color:var(--pour-accent)]" />
-            Detailed Records
-          </h2>
-          <p
-            className={cn(
-              type.caption,
-              'pour-pc-records-count inline-flex items-center gap-1.5 rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] px-3 py-1.5 tabular-nums',
-            )}
-          >
-            Total
-            <strong className="font-semibold text-[color:var(--pour-ink-0)]">{tableData.length}</strong>
-            items
-          </p>
-        </div>
-
-        <div className={cn(app.tableWrap, 'pour-pc-dash-table-wrap')}>
-          <table className={dashTable.table}>
-            <thead className={dashTable.head}>
-              <tr>
-                <th>Date</th>
-                <th>Request By</th>
-                <th>Concrete Works</th>
-                <th>Structure</th>
-                <th>Location</th>
-                <th>Strength</th>
-                <th className="text-right">DWG Vol.</th>
-                <th className="text-right">Confirm Vol.</th>
-                <th className="text-right">Loss (m³)</th>
-                <th className="text-right">Loss (%DWG)</th>
-                <th>Supplier</th>
-                <th className={cn('text-center', pourPcUi.colActions)}>Detail</th>
-              </tr>
-            </thead>
-            <tbody className={dashTable.body}>
-              {Object.keys(groupedData).length === 0 ? (
-                <tr>
-                  <td colSpan={12} className={tableCompact.emptyCell}>
-                    No matching records found
-                  </td>
-                </tr>
-              ) : (
-                DASHBOARD_STATUS_ORDER.filter((k) => groupedData[k]).map((statusKey) => {
-                  const items = groupedData[statusKey];
-                  const isExpanded = expandedGroups[statusKey];
-                  const statusColor = DASHBOARD_STATUS_INFO[statusKey]?.color || 'var(--pour-line)';
-
-                  return (
-                    <Fragment key={`group-${statusKey}`}>
-                      <tr
-                        onClick={() => toggleGroup(statusKey)}
-                        className="pour-pc-group-row cursor-pointer bg-[color:var(--pour-surface-tint)] transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]"
-                      >
-                        <td colSpan={12} className="!py-3">
-                          <div className="pour-pc-group-inner flex flex-wrap items-center gap-2.5 sm:gap-3">
-                            <AppIcon
-                              icon={ChevronRight}
-                              size="sm"
-                              className={cn(
-                                'text-pour-muted transition-transform duration-200',
-                                isExpanded && 'rotate-90',
-                              )}
-                            />
-                            {isExpanded ? (
-                              <AppIcon icon={FolderOpen} size="sm" sx={{ fontSize: chartIconSm }} className="text-[color:var(--pour-accent)]" />
-                            ) : (
-                              <AppIcon icon={Folder} size="sm" sx={{ fontSize: chartIconSm }} className="text-pour-muted" />
-                            )}
-                            <StatusBadge statusId={Number(statusKey)} compact />
-                            <span className="pour-pc-group-badge rounded-full border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg-muted)] px-2.5 py-0.5 text-xs font-semibold tabular-nums text-[color:var(--pour-ink-1)]">
-                              {items.length} {items.length === 1 ? 'Item' : 'Items'}
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {isExpanded
-                        ? items.map((row) => (
-                            <tr
-                              key={row.ID}
-                              onClick={() => setSelectedRow(row)}
-                              className="group cursor-pointer transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]/60"
-                              style={{ boxShadow: `inset ${pc.pxW(3)}px 0 0 0 ${statusColor}` }}
-                            >
-                              <td className="whitespace-nowrap font-medium text-[color:var(--pour-ink-0)]">
-                                {row['Casting date']}
-                              </td>
-                              <td>
-                                <span
-                                  className={cn(
-                                    filters.staff === row['Request by'] &&
-                                      'font-semibold text-[color:var(--pour-accent)]',
-                                  )}
-                                >
-                                  {row['Request by']}
-                                </span>
-                              </td>
-                              <td>{row['Concrete Works']}</td>
-                              <td>
-                                <span
-                                  className={cn(
-                                    filters.structure === row.Structure &&
-                                      'font-semibold text-emerald-600 dark:text-emerald-400',
-                                  )}
-                                >
-                                  {row.Structure}
-                                </span>
-                              </td>
-                              <td className="truncate">{row.Location}</td>
-                              <td className="font-medium">{row.Strength}</td>
-                              <td className="text-right font-mono tabular-nums text-pour-muted">
-                                {parseFloat(String(row['DWG. Volume'])).toFixed(2)}
-                              </td>
-                              <td className="text-right font-mono font-semibold tabular-nums text-[color:var(--pour-ink-0)]">
-                                {row['Current Status'] === DASHBOARD_COMPLETE_STATUS ? (
-                                  parseFloat(String(row['Confirm Volume'])).toFixed(2)
-                                ) : (
-                                  <span className="text-pour-subtle">—</span>
-                                )}
-                              </td>
-                              <td className="text-right font-mono font-semibold tabular-nums">
-                                {row['Current Status'] === DASHBOARD_COMPLETE_STATUS &&
-                                row['Loss Concrete'] !== null ? (
-                                  <span
-                                    className={cn(
-                                      parseFloat(String(row['Loss Concrete'])) < 0
-                                        ? 'text-rose-600 dark:text-rose-400'
-                                        : 'text-[color:var(--pour-ink-0)]',
-                                    )}
-                                  >
-                                    {parseFloat(String(row['Loss Concrete'])).toFixed(2)}
-                                  </span>
-                                ) : (
-                                  <span className="text-pour-subtle">—</span>
-                                )}
-                              </td>
-                              <td className="text-right font-mono font-semibold tabular-nums">
-                                {row['Current Status'] === DASHBOARD_COMPLETE_STATUS &&
-                                row['Loss Concrete'] !== null ? (
-                                  (() => {
-                                    const lossNum = parseFloat(String(row['Loss Concrete']));
-                                    const dwgNum = parseFloat(String(row['DWG. Volume']));
-                                    const pct = dwgNum > 0 ? (lossNum / dwgNum * 100).toFixed(2) : '—';
-                                    return (
-                                      <span
-                                        className={cn(
-                                          lossNum < 0
-                                            ? 'text-rose-600 dark:text-rose-400'
-                                            : 'text-[color:var(--pour-ink-0)]',
-                                        )}
-                                      >
-                                        {pct}%
-                                      </span>
-                                    );
-                                  })()
-                                ) : (
-                                  <span className="text-pour-subtle">—</span>
-                                )}
-                              </td>
-                              <td>
-                                <span
-                                  className={cn(
-                                    filters.supplier === row.Supplier &&
-                                      'font-semibold text-[color:var(--pour-accent)]',
-                                  )}
-                                >
-                                  {row.Supplier}
-                                </span>
-                              </td>
-                              <td
-                                className={cn(
-                                  pourPcUi.colActions,
-                                  'text-center text-pour-muted transition-colors group-hover:text-[color:var(--pour-accent)]',
-                                )}
-                              >
-                                <AppIcon icon={Visibility} size="sm" className="inline" />
-                                <span className="sr-only">View details</span>
-                              </td>
-                            </tr>
-                          ))
-                        : null}
-                    </Fragment>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <Dialog
-        open={!!selectedRow}
-        onOpenChange={(open) => {
-          if (!open) setSelectedRow(null);
-        }}
-      >
-        <DialogContent className={cn(modal.lg, modal.shell, 'border-[color:var(--glass-border-subtle)]')}>
-          {selectedRow ? (
-            <>
-              <DialogHeader className={modal.header}>
-                <DialogTitle className={cn(modal.title, 'flex flex-wrap items-center gap-2')}>
-                  <AppIcon icon={TaskAlt} size="md" className="text-[color:var(--pour-accent)]" />
-                  Request Details
-                  <span className="rounded-md bg-[color:var(--pour-accent-muted)] px-2 py-0.5 font-mono text-sm font-semibold text-[color:var(--pour-accent)]">
-                    {selectedRow.ID}
-                  </span>
-                </DialogTitle>
-              </DialogHeader>
-
-              <div className={modal.body}>
-                <div
-                  className={cn(
-                    frame.insetPanel,
-                    'mb-5 flex items-center justify-between gap-3 px-4 py-3',
-                  )}
-                >
-                  <span className={type.bodyStrong}>Current Status</span>
-                  <StatusBadge statusId={Number(selectedRow['Current Status'])} />
-                </div>
-
-                <div className="grid grid-cols-1 gap-x-8 gap-y-4 md:grid-cols-2">
-                  {[
-                    { key: 'Casting date', label: 'Date' },
-                    { key: 'Request by', label: 'Request by' },
-                    { key: 'Concrete Works', label: 'Concrete Works' },
-                    { key: 'Structure', label: 'Structure' },
-                    { key: 'Location', label: 'Location' },
-                    { key: 'Structure No. or Grid Line', label: 'Structure No. / Grid Line' },
-                    { key: 'Strength', label: 'Strength' },
-                    { key: 'DWG. Volume', label: 'DWG Volume (m³)' },
-                    { key: 'Confirm Volume', label: 'Confirm Volume (m³)' },
-                    { key: 'Loss Concrete', label: 'Loss Concrete (m³)' },
-                    { key: 'Supplier', label: 'Supplier' },
-                    { key: 'Mix code', label: 'Mix Code' },
-                    { key: 'Slump', label: 'Slump' },
-                  ].map(({ key, label }) => {
-                    const rowFields = selectedRow as DashboardConcreteRecord & Record<string, unknown>;
-                    const isComplete = selectedRow['Current Status'] === DASHBOARD_COMPLETE_STATUS;
-
-                    if ((key === 'Confirm Volume' || key === 'Loss Concrete') && !isComplete) {
-                      return (
-                        <div
-                          key={key}
-                          className="border-b border-[color:var(--glass-border-subtle)] pb-3"
-                        >
-                          <p className={cn(rq.label, 'mb-1')}>{label}</p>
-                          <p className="text-sm text-pour-muted">— (Not completed)</p>
-                        </div>
-                      );
-                    }
-
-                    if (key === 'Loss Concrete' && isComplete) {
-                      const lossNum = parseFloat(String(rowFields[key]));
-                      const isNeg = lossNum < 0;
-                      const badge = isNeg ? ' (Surplus)' : lossNum > 0 ? ' (Over)' : ' (Exact)';
-                      return (
-                        <div
-                          key={key}
-                          className="border-b border-[color:var(--glass-border-subtle)] pb-3"
-                        >
-                          <p className={cn(rq.label, 'mb-1')}>{label}</p>
-                          <p
-                            className={cn(
-                              'text-sm font-semibold tabular-nums',
-                              isNeg ? 'text-rose-600 dark:text-rose-400' : 'text-[color:var(--pour-ink-0)]',
-                            )}
-                          >
-                            {String(rowFields[key])} m³
-                            <span className="text-xs font-normal text-pour-muted">{badge}</span>
-                          </p>
-                        </div>
-                      );
-                    }
-
-                    const val = rowFields[key] ?? '—';
-                    return (
-                      <div
-                        key={key}
-                        className="border-b border-[color:var(--glass-border-subtle)] pb-3"
-                      >
-                        <p className={cn(rq.label, 'mb-1')}>{label}</p>
-                        <p className={cn(rq.value, 'text-sm')}>{String(val) || '—'}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <DialogFooter className={modal.footer}>
-                <Button type="button" variant="outline" onClick={() => setSelectedRow(null)}>
-                  Close
-                </Button>
-              </DialogFooter>
-            </>
-          ) : null}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

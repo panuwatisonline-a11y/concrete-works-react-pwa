@@ -8,6 +8,7 @@ import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
 import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import { cn } from '@/lib/utils'
+import { modal, modalForm } from '@/lib/requestUi'
 import {
   Dialog,
   DialogContent,
@@ -91,15 +92,17 @@ export function UploadBeforePourDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         overlayClassName={overlayClassName}
-        className={cn('max-h-[min(92dvh,560px)] max-w-lg overflow-y-auto', dialogContentClassName)}
+        className={cn(modal.md, modal.shell, dialogContentClassName)}
       >
-        <DialogHeader>
-          <DialogTitle>อัปโหลดรูปก่อนเท</DialogTitle>
+        <DialogHeader className={modal.header}>
+          <DialogTitle className={modal.title}>อัปโหลดรูปก่อนเท</DialogTitle>
           <DialogDescription className="text-left">
             แนบรูปภาพบริเวณงานก่อนเทคอนกรีต — บันทึกเมื่ออัปโหลดเสร็จและได้ลิงก์จากระบบ
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className={modal.body}>
+          <div className={modalForm.stack}>
+          <div className={modalForm.field}>
           <ImageUpload
             value={imageUrl ?? undefined}
             onChange={setImageUrl}
@@ -107,8 +110,10 @@ export function UploadBeforePourDialog({
             folder="before"
             label="อัปโหลดรูปก่อนเท"
           />
+          </div>
+          </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className={modal.footer}>
           <Button variant="outline" size="modalAction" type="button" disabled={saving} onClick={() => handleOpenChange(false)}>
             ยกเลิก
           </Button>

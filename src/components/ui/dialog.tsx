@@ -75,12 +75,18 @@ const DialogContent = React.forwardRef<
     const { open, onOpenChange } = React.useContext(DialogContext)
     if (!open) return null
 
+    const usesModalShell = /\bmodal\.shell\b/.test(`${className ?? ''} ${dialogContentClassName ?? ''}`)
     const paperClass = stripLegacyPaperZClass(
-      cn('grid gap-4 p-5 sm:p-6', className, dialogContentClassName),
+      cn(
+        usesModalShell ? 'flex flex-col gap-0 p-0' : 'grid gap-4 p-5 sm:p-6',
+        className,
+        dialogContentClassName,
+      ),
     )
     const z = resolveDialogZIndex(overlayClassName, paperClass)
     const layer = dialogLayerValue(z)
-    const usesFlexShell = /\bmodal\.shell\b/.test(paperClass) || /\bflex\b.*\bflex-col\b/.test(paperClass)
+    const usesFlexShell =
+      usesModalShell || /\bflex\b.*\bflex-col\b/.test(paperClass)
 
     return (
       <DialogLayerContext.Provider value={layer}>
@@ -134,7 +140,7 @@ DialogHeader.displayName = 'DialogHeader'
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <DialogActions
     className={cn(
-      '!flex flex-col-reverse gap-3 border-t border-[color:var(--mui-palette-divider)] pt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:pt-6',
+      '!flex flex-col-reverse gap-3 pt-3 sm:flex-row sm:items-center sm:justify-end sm:gap-3 sm:pt-4',
       '[&>button]:w-full sm:[&>button]:w-auto',
       className,
     )}

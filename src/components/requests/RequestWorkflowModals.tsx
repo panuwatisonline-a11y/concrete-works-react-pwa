@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { ConfirmModal } from '@/components/shared/ConfirmModal'
 import { ImageUpload } from '@/components/shared/ImageUpload'
@@ -23,26 +23,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { MixcodePicker } from '@/components/requests/MixcodePicker'
+import { RequestModalFormSection, RequestModalSummary } from '@/components/requests/RequestModalSummary'
 import { useMasterDataStore } from '@/stores/masterDataStore'
-import {
-  formatDate,
-  formatTime,
-  shortId,
-  cn,
-  formatVolumeCuM,
-} from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { parseStructureListTokens, structureListsIntersect, structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import type { RequestWithRelations } from '@/types/app.types'
 import { canConfirmRequest } from '@/lib/requestQuickActions'
 import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
-import { modal as uiModal } from '@/lib/requestUi'
+import { modal as uiModal, modalForm } from '@/lib/requestUi'
 
 /** ชั้น workflow — สูงกว่า dialog ทั่วไป (1300) */
 const WF_OVERLAY = 'z-[260]'
 /** confirm ทับ dialog workflow ชั้นเดียวกัน */
 const WF_CONFIRM_OVERLAY = 'z-[280]'
 const WF_CONTENT = undefined
-const WF_SCROLL = 'max-h-[min(92dvh,800px)] overflow-y-auto'
+const WF_SHELL_LG = cn(uiModal.lg, uiModal.shell, WF_CONTENT)
+const WF_SHELL_MD = cn(uiModal.md, uiModal.shell, WF_CONTENT)
 
 function inspectFormFromRequest(r: RequestWithRelations) {
   return {
@@ -115,13 +111,6 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
   const missingEslipForComplete =
     request.status_id === 4 && !canConfirmRequest(request.status_id, request.eslip_url)
-
-  const mx = request.mixcode as {
-    mixcode: string
-    strength: number | null
-    slump: string | null
-    strength_type: string | null
-  } | null
 
   const selectedCWInspect = useMemo(
     () => concreteWorks.find((cw) => String(cw.id) === inspectData.concrete_work_id),
@@ -344,18 +333,16 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
       {modal === 'inspect' ? (
       <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent
-          overlayClassName={WF_OVERLAY}
-          className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
-        >
-          <DialogHeader>
-            <DialogTitle>ตรวจสอบและแก้ไขข้อมูลงาน</DialogTitle>
+        <DialogContent overlayClassName={WF_OVERLAY} className={WF_SHELL_LG}>
+          <DialogHeader className={uiModal.header}>
+            <DialogTitle className={uiModal.title}>ตรวจสอบและแก้ไขข้อมูลงาน</DialogTitle>
             <DialogDescription className="text-left">
               ตรวจทานข้อมูลที่ผู้จองกรอก แก้ไขได้หากไม่ตรงก่อนยืนยันการตรวจสอบ
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
+          <div className={uiModal.body}>
+            <div className={modalForm.stack}>
+            <div className={modalForm.field}>
               <Label>Location *</Label>
               <SearchableSelect
                 value={inspectData.location_id}
@@ -369,7 +356,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 )}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>Concrete work *</Label>
               <SearchableSelect
                 value={inspectData.concrete_work_id}
@@ -384,7 +371,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>Structure *</Label>
               <SearchableSelect
                 value={inspectData.structure_id}
@@ -398,7 +385,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 )}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>Structure number</Label>
               <Input
                 value={inspectData.structure_no}
@@ -406,7 +393,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 placeholder="เช่น A1, ชั้น 3"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>Mixcode *</Label>
               <MixcodePicker
                 value={inspectData.mixcode_id}
@@ -415,7 +402,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 emptyMessage="ไม่มี Mixcode ที่ตรงกับงานคอนกรีตและโครงสร้างที่เลือก — ลองเปลี่ยน Structure"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>Request Volume (cu.m) *</Label>
               <Input
                 type="number"
@@ -424,7 +411,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 onChange={(e) => setInspectData((p) => ({ ...p, volume_request: e.target.value }))}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>
                 รูปก่อนเท
                 {!request?.before_image?.trim() ? <span className="text-rose-600"> *</span> : null}
@@ -440,7 +427,7 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 <p className="text-xs text-pour-muted">ผู้จองยังไม่แนบรูป — ต้องอัปโหลดในนี้ก่อนยืนยันตรวจสอบ</p>
               ) : null}
             </div>
-            <div className="space-y-1.5">
+            <div className={modalForm.field}>
               <Label>หมายเหตุ</Label>
               <Textarea
                 value={inspectData.note}
@@ -449,8 +436,9 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
                 placeholder="ไม่บังคับ..."
               />
             </div>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={uiModal.footer}>
             <Button variant="outline" size="modalAction" onClick={onClose} disabled={actionBusy}>ยกเลิก</Button>
             <Button
               size="modalAction"
@@ -470,87 +458,39 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
       {modal === 'confirmOrder' ? (
       <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent
-          overlayClassName={WF_OVERLAY}
-          className={cn(uiModal.lg, 'max-h-[min(92dvh,800px)] overflow-y-auto', WF_CONTENT)}
-        >
-          <DialogHeader>
-            <DialogTitle>ยืนยันการสั่งเทคอนกรีต</DialogTitle>
+        <DialogContent overlayClassName={WF_OVERLAY} className={WF_SHELL_LG}>
+          <DialogHeader className={uiModal.header}>
+            <DialogTitle className={uiModal.title}>ยืนยันการสั่งเทคอนกรีต</DialogTitle>
             <DialogDescription className="text-left">
               ตรวจทานปริมาณก่อนสั่งเท ระบุ Actual volume (cu.m) ตามที่สั่งผลิต/เทจริง
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="rounded-xl border border-(--glass-border-subtle) bg-(--glass-bg-muted) px-4 py-3">
-              <p className="text-pour-xs font-semibold uppercase tracking-wide text-pour-muted">สรุปคำขอ</p>
-              <dl className="mt-2 space-y-2 text-sm">
-                {(() => {
-                  const client = (request.client as { client_name: string } | null)?.client_name
-                  const loc = request.location as { full_location: string | null; location1?: string } | null
-                  const locationLine = loc?.full_location ?? loc?.location1 ?? null
-                  const cw = (request.concrete_work as { concrete_work: string } | null)?.concrete_work
-                  const structureName = (request.structure as { structure_name: string } | null)?.structure_name
-                  const structureLine = [structureName, request.structure_no?.trim() ? `(${request.structure_no})` : null].filter(Boolean).join(' ')
-                  const castingLine = [formatDate(request.casting_date), formatTime(request.request_time)].filter((x) => x && x !== '-').join(' · ')
-                  const strengthSlump = mx
-                    ? [mx.strength != null ? `${mx.strength} ${mx.strength_type ?? ''}`.trim() : null, mx.slump].filter(Boolean).join(' · ') || null
-                    : null
-                  const abcWbs = [
-                    (request.abc_code as { full_abc: string | null } | null)?.full_abc?.trim(),
-                    (request.wbs_code as { full_wbs: string | null } | null)?.full_wbs?.trim(),
-                  ].filter(Boolean).join(' · ') || null
-
-                  const core: { label: string; value: ReactNode }[] = [
-                    { label: 'รหัสคำขอ', value: <span className="font-mono font-semibold">{shortId(request.id)}</span> },
-                    { label: 'User Group', value: client ?? '—' },
-                    { label: 'Location', value: locationLine ?? '—' },
-                    { label: 'งานคอนกรีต', value: cw ?? '—' },
-                    { label: 'Structure', value: structureLine || '—' },
-                    { label: 'วันเท / เวลา', value: castingLine || '—' },
-                    { label: 'Mixcode', value: mx?.mixcode ?? '—' },
-                    { label: 'กำลังอัด / Slump', value: strengthSlump ?? '—' },
-                    {
-                      label: 'Request volume (cu.m)',
-                      value: formatVolumeCuM(request.volume_request, '—'),
-                    },
-                  ]
-                  const extra: { label: string; value: ReactNode }[] = []
-                  if (request.volume_dwg != null) {
-                    extra.push({ label: 'DWG volume (cu.m)', value: formatVolumeCuM(request.volume_dwg, '—') })
-                  }
-                  if (abcWbs) extra.push({ label: 'ABC / WBS', value: abcWbs })
-                  if (request.sample_qty != null) extra.push({ label: 'จำนวนตัวอย่าง', value: `${request.sample_qty} ก้อน` })
-                  if (request.remarks?.trim()) extra.push({ label: 'หมายเหตุผู้จอง', value: request.remarks.trim() })
-
-                  return [...core, ...extra].map((row) => (
-                    <div key={row.label} className="min-w-0 border-b border-(--glass-border-subtle) pb-2 last:border-0 last:pb-0">
-                      <dt className="text-pour-xs font-medium leading-tight text-pour-muted">{row.label}</dt>
-                      <dd className="mt-0.5 break-words text-pour-base font-medium leading-snug text-[color:var(--pour-ink-0)]">{row.value}</dd>
-                    </div>
-                  ))
-                })()}
-              </dl>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Actual volume (cu.m) *</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={confirmOrderData.volume_actual}
-                onChange={(e) => setConfirmOrderData((p) => ({ ...p, volume_actual: e.target.value }))}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>หมายเหตุ</Label>
-              <Textarea
-                value={confirmOrderData.note}
-                onChange={(e) => setConfirmOrderData((p) => ({ ...p, note: e.target.value }))}
-                rows={2}
-                placeholder="ไม่บังคับ..."
-              />
+          <div className={uiModal.body}>
+            <div className={modalForm.stack}>
+              <RequestModalSummary request={request} />
+              <RequestModalFormSection>
+                <div className={modalForm.field}>
+                  <Label>Actual volume (cu.m) *</Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={confirmOrderData.volume_actual}
+                    onChange={(e) => setConfirmOrderData((p) => ({ ...p, volume_actual: e.target.value }))}
+                  />
+                </div>
+                <div className={modalForm.field}>
+                  <Label>หมายเหตุ</Label>
+                  <Textarea
+                    value={confirmOrderData.note}
+                    onChange={(e) => setConfirmOrderData((p) => ({ ...p, note: e.target.value }))}
+                    rows={2}
+                    placeholder="ไม่บังคับ..."
+                  />
+                </div>
+              </RequestModalFormSection>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={uiModal.footer}>
             <Button variant="outline" size="modalAction" onClick={onClose} disabled={actionBusy}>ยกเลิก</Button>
             <Button size="modalAction" disabled={actionBusy} onClick={() => void handleConfirmOrder()}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'ยืนยันสั่งเท'}
@@ -606,13 +546,19 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
       {modal === 'reject' ? (
       <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_SCROLL, WF_CONTENT)}>
-          <DialogHeader><DialogTitle>ระบุเหตุผล Reject</DialogTitle></DialogHeader>
-          <div className="space-y-2">
+        <DialogContent overlayClassName={WF_OVERLAY} className={WF_SHELL_MD}>
+          <DialogHeader className={uiModal.header}>
+            <DialogTitle className={uiModal.title}>ระบุเหตุผล Reject</DialogTitle>
+          </DialogHeader>
+          <div className={uiModal.body}>
+            <div className={modalForm.stack}>
+            <div className={modalForm.field}>
             <Label>เหตุผล <span className="text-zinc-600">*</span></Label>
             <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} rows={3} placeholder="กรุณาระบุ..." />
+            </div>
+            </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={uiModal.footer}>
             <Button variant="outline" size="modalAction" onClick={onClose} disabled={actionBusy}>ยกเลิก</Button>
             <Button variant="destructive" size="modalAction" disabled={actionBusy || !rejectReason.trim()} onClick={() => void handleAction('reject')}>
               {actionBusy ? 'กำลังดำเนินการ...' : 'Reject'}
@@ -624,23 +570,30 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
       {modal === 'postpone' ? (
       <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.md, WF_SCROLL, WF_CONTENT)}>
-          <DialogHeader><DialogTitle>เลื่อนวันเทคอนกรีต</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <Label>วันที่ใหม่ *</Label>
-              <Input type="date" value={postponeData.date} onChange={(e) => setPostponeData((p) => ({ ...p, date: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>เวลา *</Label>
-              <Input type="time" value={postponeData.time} onChange={(e) => setPostponeData((p) => ({ ...p, time: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>เหตุผล *</Label>
-              <Textarea value={postponeData.reason} onChange={(e) => setPostponeData((p) => ({ ...p, reason: e.target.value }))} rows={2} />
+        <DialogContent overlayClassName={WF_OVERLAY} className={WF_SHELL_MD}>
+          <DialogHeader className={uiModal.header}>
+            <DialogTitle className={uiModal.title}>เลื่อนวันเทคอนกรีต</DialogTitle>
+          </DialogHeader>
+          <div className={uiModal.body}>
+            <div className={modalForm.stack}>
+              <RequestModalSummary request={request} />
+              <RequestModalFormSection>
+                <div className={modalForm.field}>
+                  <Label>วันที่ใหม่ *</Label>
+                  <Input type="date" value={postponeData.date} onChange={(e) => setPostponeData((p) => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div className={modalForm.field}>
+                  <Label>เวลา *</Label>
+                  <Input type="time" value={postponeData.time} onChange={(e) => setPostponeData((p) => ({ ...p, time: e.target.value }))} />
+                </div>
+                <div className={modalForm.field}>
+                  <Label>เหตุผล *</Label>
+                  <Textarea value={postponeData.reason} onChange={(e) => setPostponeData((p) => ({ ...p, reason: e.target.value }))} rows={2} />
+                </div>
+              </RequestModalFormSection>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={uiModal.footer}>
             <Button variant="outline" size="modalAction" onClick={onClose} disabled={actionBusy}>ยกเลิก</Button>
             <Button
               variant="warning"
@@ -657,34 +610,41 @@ export function RequestWorkflowModals({ request, modal, onClose, onCompleted }: 
 
       {modal === 'complete' ? (
       <Dialog open onOpenChange={(o) => { if (!o) onClose() }}>
-        <DialogContent overlayClassName={WF_OVERLAY} className={cn(uiModal.lg, WF_SCROLL, WF_CONTENT)}>
-          <DialogHeader><DialogTitle>Confirm รายการ & ดำเนินการ</DialogTitle></DialogHeader>
-          <div className="space-y-4">
-            {missingEslipForComplete ? (
-              <p className="rounded-lg border border-amber-200/80 bg-amber-50/90 px-3 py-2 text-sm text-amber-900">
-                กรุณาอัปโหลด Bill Concrete ก่อน Confirm รายการ
-              </p>
-            ) : null}
-            <div className="space-y-1.5">
-              <Label>Confirmed volume (cu.m) *</Label>
-              <Input type="number" step="0.01" value={completeData.volume_confirm} onChange={(e) => setCompleteData((p) => ({ ...p, volume_confirm: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>รูปหลังเท *</Label>
-              <ImageUpload
-                value={completeData.after_image}
-                onChange={(url) => setCompleteData((p) => ({ ...p, after_image: url ?? '' }))}
-                onUploadingChange={setCompleteAfterUploading}
-                folder="after"
-              />
-              <p className="text-xs text-pour-muted">ต้องอัปโหลดรูปให้ครบ และรอให้ระบบรับลิงก์ก่อนกด Confirm</p>
-            </div>
-            <div className="space-y-1.5">
-              <Label>หมายเหตุ</Label>
-              <Textarea value={completeData.note} onChange={(e) => setCompleteData((p) => ({ ...p, note: e.target.value }))} rows={2} />
+        <DialogContent overlayClassName={WF_OVERLAY} className={WF_SHELL_LG}>
+          <DialogHeader className={uiModal.header}>
+            <DialogTitle className={uiModal.title}>Confirm รายการ & ดำเนินการ</DialogTitle>
+          </DialogHeader>
+          <div className={uiModal.body}>
+            <div className={modalForm.stack}>
+              <RequestModalSummary request={request} />
+              <RequestModalFormSection>
+                {missingEslipForComplete ? (
+                  <p className="rounded-lg border border-amber-200/80 bg-amber-50/90 px-3 py-2.5 text-sm leading-relaxed text-amber-900">
+                    กรุณาอัปโหลด Bill Concrete ก่อน Confirm รายการ
+                  </p>
+                ) : null}
+                <div className={modalForm.field}>
+                  <Label>Confirmed volume (cu.m) *</Label>
+                  <Input type="number" step="0.01" value={completeData.volume_confirm} onChange={(e) => setCompleteData((p) => ({ ...p, volume_confirm: e.target.value }))} />
+                </div>
+                <div className={modalForm.field}>
+                  <Label>รูปหลังเท *</Label>
+                  <ImageUpload
+                    value={completeData.after_image}
+                    onChange={(url) => setCompleteData((p) => ({ ...p, after_image: url ?? '' }))}
+                    onUploadingChange={setCompleteAfterUploading}
+                    folder="after"
+                  />
+                  <p className="text-xs text-pour-muted">ต้องอัปโหลดรูปให้ครบ และรอให้ระบบรับลิงก์ก่อนกด Confirm</p>
+                </div>
+                <div className={modalForm.field}>
+                  <Label>หมายเหตุ</Label>
+                  <Textarea value={completeData.note} onChange={(e) => setCompleteData((p) => ({ ...p, note: e.target.value }))} rows={2} />
+                </div>
+              </RequestModalFormSection>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={uiModal.footer}>
             <Button variant="outline" size="modalAction" onClick={onClose} disabled={actionBusy}>ยกเลิก</Button>
             <Button
               variant="success"

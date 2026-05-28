@@ -11,6 +11,8 @@ type RequestActionBarProps = {
   items: RequestListActionItem[]
   onItemClick: (item: RequestListActionItem, e: MouseEvent<HTMLButtonElement>) => void
   layout?: 'panel' | 'strip'
+  /** หน้ารายละเอียด — ลด padding/gap ในการ์ดปุ่ม */
+  dense?: boolean
   className?: string
   children?: ReactNode
 }
@@ -55,6 +57,7 @@ export function RequestActionBar({
   items,
   onItemClick,
   layout = 'panel',
+  dense = false,
   className,
   children,
 }: RequestActionBarProps) {
@@ -71,7 +74,7 @@ export function RequestActionBar({
 
   return (
     <Card id="request-actions" className={cn(rq.card, className)}>
-      <CardContent className={rq.actions.panelBody}>
+      <CardContent className={dense ? rq.actions.panelBodyDense : rq.actions.panelBody}>
         {items.length > 0 ? <ActionButtons items={items} onItemClick={onItemClick} /> : null}
         {children}
       </CardContent>

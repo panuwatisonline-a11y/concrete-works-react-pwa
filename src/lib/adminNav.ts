@@ -37,7 +37,7 @@ export const adminConsoleNavLinks: AdminNavItem[] = [
   { to: '/admin/wbs-code', label: 'WBS', icon: AccountTree },
   { to: '/admin/jobs', label: 'Jobs', icon: Work },
   { to: '/admin/client', label: 'User Group', icon: Business },
-  { to: '/admin/inspector', label: 'Inspector', icon: VerifiedUser },
+  { to: '/admin/inspector', label: 'Inspector (QC)', icon: VerifiedUser },
   { to: '/admin/users', label: 'User Settings', icon: People },
   { to: '/admin/upload-settings', label: 'Upload Settings', icon: CloudUpload },
 ]

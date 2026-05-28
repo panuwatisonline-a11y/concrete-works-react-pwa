@@ -165,8 +165,13 @@ export async function upsertCstRecord(
 
 /** ลบบันทึกผล CST ตาม id */
 export async function deleteCstRecord(id: string): Promise<void> {
-  const { error } = await applyScopeToQuery(supabase.from('CST').delete()).eq('id', id)
+  const { data, error } = await applyScopeToQuery(
+    supabase.from('CST').delete().eq('id', id).select('id').maybeSingle(),
+  )
   if (error) throw error
+  if (!data) {
+    throw new Error('ไม่พบรายการที่ต้องการลบ หรือไม่มีสิทธิ์ลบรายการนี้')
+  }
 }
 
 /** จำนวนคำขอเท (ref) ที่มี CST และ Active Casting Date >= 2026-01-01 */

@@ -266,9 +266,7 @@ export function ConcreteSummaryPage() {
           <AppIcon icon={BarChart} size="md" className="text-[color:var(--pour-accent)]" />
           Concrete Summary
         </h1>
-        <p className={rq.sub}>
-          สรุปผลความแข็งคอนกรีตจาก CST — รายการที่เทเสร็จแล้ว (Complete) ตามช่วงวันเทและโครงสร้าง
-        </p>
+        <p className={rq.sub}>สรุปรายการและผลทดสอบกำลังอัดคอนกรีต (CST)</p>
       </header>
 
       <div className="mt-5 space-y-3 rounded-2xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--pour-bg-2)]/40 px-4 py-3 sm:px-5">

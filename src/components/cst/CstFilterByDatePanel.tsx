@@ -88,7 +88,7 @@ function CstFilterTable({
           <CstFilterMobileCard key={r.id} r={r} onRowClick={onRowClick} />
         ))}
       </div>
-      <div className={cn(app.tableWrapNested, 'mt-0')}>
+      <div className={cn(app.tableWrapNested, 'mt-0 hidden pour-desktop:block')}>
         <table className={filterTableCompact.table}>
           <thead className={filterTableCompact.head}>
             <tr>

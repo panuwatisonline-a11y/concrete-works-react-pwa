@@ -10,6 +10,7 @@ import { ImageUpload } from '@/components/shared/ImageUpload'
 import { Button } from '@/components/ui/button'
 import { purgeOrphanUploadedImage } from '@/lib/requestImageCleanup'
 import { cn } from '@/lib/utils'
+import { modal, modalForm } from '@/lib/requestUi'
 import {
   Dialog,
   DialogContent,
@@ -107,20 +108,18 @@ export function UploadBillConcreteDialog({
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent
           overlayClassName={overlayClassName}
-          className={cn(
-            showViewer ? 'max-h-[min(92dvh,900px)] max-w-3xl overflow-y-auto' : 'max-h-[min(92dvh,560px)] max-w-lg overflow-y-auto',
-            dialogContentClassName,
-          )}
+          className={cn(modal.shell, showViewer ? modal.xl : modal.md, dialogContentClassName)}
         >
-          <DialogHeader>
-            <DialogTitle>{showViewer ? 'Bill Concrete' : 'อัปโหลด Bill Concrete'}</DialogTitle>
+          <DialogHeader className={modal.header}>
+            <DialogTitle className={modal.title}>{showViewer ? 'Bill Concrete' : 'อัปโหลด Bill Concrete'}</DialogTitle>
             <DialogDescription className="text-left">
               {showViewer
                 ? 'แตะรูปเพื่อขยายเต็มจอ — หรือกดเปลี่ยนรูปหากต้องการอัปโหลดใหม่'
-                : 'แนบรูปใบสั่ง/บิลคอนกรีต — บันทึกลิงก์ไปที่ E-Slip ของรายการนี้'}
+                : 'แนบรูปใบสั่ง/บิลคอนกรีต — บันทึกลิงก์ไปที่รายการนี้'}
             </DialogDescription>
           </DialogHeader>
 
+          <div className={modal.body}>
           {showViewer && detailSrc ? (
             <button
               type="button"
@@ -139,7 +138,8 @@ export function UploadBillConcreteDialog({
               <p className="mt-2 text-center text-xs text-pour-muted">แตะรูปเพื่อดูขนาดใหญ่</p>
             </button>
           ) : (
-            <div className="space-y-4">
+            <div className={modalForm.stack}>
+            <div className={modalForm.field}>
               <ImageUpload
                 value={imageUrl ?? undefined}
                 onChange={setImageUrl}
@@ -148,9 +148,11 @@ export function UploadBillConcreteDialog({
                 label="อัปโหลด Bill Concrete"
               />
             </div>
+            </div>
           )}
+          </div>
 
-          <DialogFooter className={cn(showViewer && 'flex-col gap-2 sm:flex-row sm:justify-end')}>
+          <DialogFooter className={modal.footer}>
             {showViewer ? (
               <>
                 <Button

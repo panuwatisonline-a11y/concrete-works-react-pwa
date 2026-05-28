@@ -92,6 +92,7 @@ type CstViewComputedFields = {
 export type CstViewRow = {
   id: string | null
   request_id: string | null
+  job_id: number | null
   file: string | null
   report_no: string | null
   test_date: string | null

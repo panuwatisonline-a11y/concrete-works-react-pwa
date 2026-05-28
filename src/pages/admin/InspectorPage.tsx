@@ -73,8 +73,8 @@ export function InspectorPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null)
 
   useDesktopSearchRegistration({
-    placeholder: 'ค้นหาชื่อ Inspector, สมาชิก…',
-    ariaLabel: 'ค้นหาในตาราง Inspector',
+    placeholder: 'ค้นหาชื่อ Inspector (QC), สมาชิก…',
+    ariaLabel: 'ค้นหาในตาราง Inspector (QC)',
     showRequestFilterButton: false,
     search: q,
     onSearchChange: setQ,
@@ -120,7 +120,7 @@ export function InspectorPage() {
         .from('Inspector_Member')
         .select('inspector_id, profile_id')
       if (memErr) {
-        toast.error('โหลดสมาชิก Inspector ไม่สำเร็จ')
+        toast.error('โหลดสมาชิก Inspector (QC) ไม่สำเร็จ')
         return
       }
 
@@ -201,7 +201,7 @@ export function InspectorPage() {
   async function handleSave() {
     const primaryId = primaryProfileId.trim()
     if (!primaryId) {
-      toast.error('กรุณาเลือก Inspector (คนหนึ่ง)')
+      toast.error('กรุณาเลือก Inspector (QC) (คนหนึ่ง)')
       return
     }
     const prof = profileOptions.find((p) => p.id === primaryId)
@@ -214,7 +214,7 @@ export function InspectorPage() {
         (inspectorNameKey(r.inspector_name) === inspectorNameKey(inspectorName) && r.id !== editRow?.id),
     )
     if (dup) {
-      toast.error('คนนี้เป็นหัวสาย Inspector อยู่แล้ว')
+      toast.error('คนนี้เป็นหัวสาย Inspector (QC) อยู่แล้ว')
       return
     }
 
@@ -235,9 +235,9 @@ export function InspectorPage() {
           primary_profile_id: primaryId,
         })
         if (error) throw error
-        if (!data) throw new Error('เพิ่ม Inspector ไม่สำเร็จ')
+        if (!data) throw new Error('เพิ่ม Inspector (QC) ไม่สำเร็จ')
         await replaceInspectorMembers(data.id, profileIds)
-        toast.success('เพิ่ม Inspector แล้ว')
+        toast.success('เพิ่ม Inspector (QC) แล้ว')
       }
       setModalOpen(false)
       await load({ background: true })
@@ -263,24 +263,20 @@ export function InspectorPage() {
   return (
     <div className={app.pageAdmin}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h1 className={rq.heroTitle}>Inspector</h1>
+        <h1 className={rq.heroTitle}>Inspector (QC) และ Site Operation (Foreman)</h1>
         {canEdit ? (
           <Button type="button" size="sm" onClick={openAdd}>
             <AppIcon icon={Add} size="sm" className="mr-1.5" />
-            เพิ่ม Inspector
+            เพิ่ม Inspector (QC)
           </Button>
         ) : null}
       </div>
-
-      <p className="mb-4 text-sm text-pour-muted">
-        ช่องแรกเลือกหัวสาย (role Inspector — อนุมัติคำขอของสายนี้) ช่องสองเลือกคนจองใน list (หลายคน) — เลือกหัวสายซ้ำใน list ได้ถ้าทำงานแทนหรือควบพื้นที่
-      </p>
 
       {loading ? (
         <p className="text-sm text-pour-muted">กำลังโหลด…</p>
       ) : filtered.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[color:var(--glass-border-subtle)] px-4 py-10 text-center text-sm text-pour-muted">
-          {q.trim() ? 'ไม่พบรายการ' : 'ยังไม่มี Inspector — กดเพิ่มเพื่อเริ่มต้น'}
+          {q.trim() ? 'ไม่พบรายการ' : 'ยังไม่มี Inspector (QC) — กดเพิ่มเพื่อเริ่มต้น'}
         </p>
       ) : (
         <>
@@ -289,8 +285,8 @@ export function InspectorPage() {
               <thead className={tableCompact.head}>
                 <tr>
                   {showJobColumn ? <th>โครงการ</th> : null}
-                  <th>หัวสาย (Inspector)</th>
-                  <th>สมาชิกใน list</th>
+                  <th>หัวสาย (Inspector QC)</th>
+                  <th>Site Operation (Foreman)</th>
                   <th>จำนวน</th>
                   <th className={cn('text-right', pourPcUi.colActions)}>จัดการ</th>
                 </tr>
@@ -359,11 +355,13 @@ export function InspectorPage() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className={cn(modal.shell, modal.lg, 'rounded-2xl border-[color:var(--glass-border-subtle)]')}>
           <DialogHeader className={modal.header}>
-            <DialogTitle className={modal.title}>{editRow ? 'แก้ไข Inspector' : 'เพิ่ม Inspector'}</DialogTitle>
+            <DialogTitle className={modal.title}>
+              {editRow ? 'แก้ไข Inspector (QC)' : 'เพิ่ม Inspector (QC)'}
+            </DialogTitle>
           </DialogHeader>
           <div className={cn(modal.body, 'space-y-4')}>
             <div className="space-y-1.5">
-              <Label>Inspector (เลือกคนหนึ่ง) *</Label>
+              <Label>Inspector (QC) — เลือกคนหนึ่ง *</Label>
               {loading && profileOptions.length === 0 ? (
                 <p className="text-sm text-pour-muted">กำลังโหลดรายชื่อ…</p>
               ) : pickerOptions.length === 0 ? (
@@ -380,10 +378,7 @@ export function InspectorPage() {
               )}
             </div>
             <div className="space-y-1.5">
-              <Label>คนใน list (เลือกได้หลายคน)</Label>
-              <p className="text-xs text-pour-muted">
-                เลือกหัวสายซ้ำใน list ได้ — กรณีทำงานแทนหรือควบพื้นที่
-              </p>
+              <Label>Site Operation (Foreman) — เลือกได้หลายคน</Label>
               {loading && profileOptions.length === 0 ? (
                 <p className="text-sm text-pour-muted">กำลังโหลดรายชื่อ…</p>
               ) : pickerOptions.length === 0 ? (
@@ -396,7 +391,7 @@ export function InspectorPage() {
                   onChange={setMemberIdsValue}
                   options={pickerOptions}
                   highlightIds={primaryProfileId ? [primaryProfileId] : []}
-                  placeholder="เลือกสมาชิกใน list"
+                  placeholder="เลือก Site Operation (Foreman)"
                 />
               )}
             </div>
@@ -416,7 +411,7 @@ export function InspectorPage() {
         open={deleteId != null}
         onClose={() => setDeleteId(null)}
         onConfirm={() => void confirmDelete()}
-        title="ลบ Inspector?"
+        title="ลบ Inspector (QC)?"
         description="สมาชิกใน list จะถูกลบ — หัวสายและคนใน list ต้องกำหนดใหม่ถ้าสร้างสายใหม่"
         confirmLabel="ลบ"
         confirmVariant="destructive"

@@ -8,18 +8,18 @@
     :root {
       --pour-m-type-ref-w: 390;
 
-      --pour-m-type-2xs: round(nearest, calc(10 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-xs: round(nearest, calc(11 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-sm: round(nearest, calc(12 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-base: round(nearest, calc(14 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-md: round(nearest, calc(13 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-lg: round(nearest, calc(15 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-xl: round(nearest, calc(17 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-title: round(nearest, calc(17 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-2xl: round(nearest, calc(18 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-3xl: round(nearest, calc(20 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-display: round(nearest, calc(22 * 100vw / var(--pour-m-type-ref-w)), 1px);
-      --pour-m-type-html: round(nearest, calc(15 * 100vw / var(--pour-m-type-ref-w)), 1px);
+      --pour-m-type-2xs: clamp(10px, calc(10 * 100vw / var(--pour-m-type-ref-w)), 11px);
+      --pour-m-type-xs: clamp(11px, calc(11 * 100vw / var(--pour-m-type-ref-w)), 12px);
+      --pour-m-type-sm: clamp(12px, calc(12 * 100vw / var(--pour-m-type-ref-w)), 13px);
+      --pour-m-type-base: clamp(14px, calc(14 * 100vw / var(--pour-m-type-ref-w)), 15px);
+      --pour-m-type-md: clamp(14px, calc(14 * 100vw / var(--pour-m-type-ref-w)), 15px);
+      --pour-m-type-lg: clamp(15px, calc(15 * 100vw / var(--pour-m-type-ref-w)), 16px);
+      --pour-m-type-xl: clamp(17px, calc(17 * 100vw / var(--pour-m-type-ref-w)), 18px);
+      --pour-m-type-title: clamp(17px, calc(17 * 100vw / var(--pour-m-type-ref-w)), 18px);
+      --pour-m-type-2xl: clamp(18px, calc(18 * 100vw / var(--pour-m-type-ref-w)), 19px);
+      --pour-m-type-3xl: clamp(20px, calc(20 * 100vw / var(--pour-m-type-ref-w)), 21px);
+      --pour-m-type-display: clamp(22px, calc(22 * 100vw / var(--pour-m-type-ref-w)), 24px);
+      --pour-m-type-html: clamp(15px, calc(15 * 100vw / var(--pour-m-type-ref-w)), 16px);
     }
   }
 }

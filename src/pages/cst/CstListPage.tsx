@@ -162,29 +162,29 @@ function CstMobileCard({
         className="w-full cursor-pointer text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent-ring)] focus-visible:ring-inset"
         onClick={onInfoClick}
       >
-        <div className="flex items-start justify-between gap-2 border-b border-[color:var(--glass-border-subtle)] px-3 py-2">
+        <div className="flex items-start justify-between gap-2 px-4 pb-2 pt-4">
           <div className="min-w-0">
-            <p className="text-sm font-semibold leading-tight">{f.structure ?? f.location ?? '—'}</p>
-            <p className="mt-px text-pour-2xs text-pour-muted">{f.castingDate}</p>
+            <p className="text-sm font-semibold leading-snug">{f.structure ?? f.location ?? '—'}</p>
+            <p className="mt-0.5 text-pour-xs text-pour-muted">{f.castingDate}</p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
             <StatusBadge statusId={r.status_id} size="sm" compact />
             {nonSystemBooking ? <NonSystemBookingBadge /> : null}
           </div>
         </div>
-        <div className="grid grid-cols-[minmax(5.25rem,auto)_1fr] gap-x-2 gap-y-0.5 px-3 py-2">
+        <div className="grid grid-cols-[minmax(5.75rem,auto)_1fr] gap-x-3 gap-y-1 px-4 pb-3 pt-1">
           {rows.map(([label, value]) =>
             value ? (
               <Fragment key={label}>
-                <span className="text-pour-2xs font-semibold text-pour-muted">{label}</span>
+                <span className="text-pour-xs font-medium text-pour-muted">{label}</span>
                 <span className="min-w-0 font-medium">{value}</span>
               </Fragment>
             ) : null,
           )}
         </div>
       </button>
-      <div className="border-t border-[color:var(--glass-border)] bg-[color:var(--pour-bg-2)]/50 px-4 py-3">
-        <p className={cn(rq.actions.sectionLabel, 'mb-2 text-pour-2xs')}>บันทึกผล CST</p>
+      <div className="border-t border-[color:var(--glass-border-subtle)]/50 px-4 py-3.5">
+        <p className={cn(rq.actions.sectionLabel, 'mb-2.5 text-pour-xs')}>บันทึกผล CST</p>
         <CstAgeQuickActions
           savedAges={savedAges}
           onAgeClick={onAgeClick}
@@ -195,7 +195,7 @@ function CstMobileCard({
         />
         <Link
           to={`/requests/${r.id}`}
-          className={cn(rq.link, 'mt-2 inline-flex items-center gap-0.5 text-pour-2xs')}
+          className={cn(rq.link, 'mt-2.5 inline-flex items-center gap-0.5 text-pour-xs')}
         >
           รายละเอียด
           <AppIcon icon={OpenInNew} size="xs" sx={{ fontSize: 12 }} />
@@ -220,7 +220,7 @@ function CstListContent({
 }) {
   return (
     <>
-      <div className="space-y-2 pour-desktop:hidden">
+      <div className="space-y-3 pour-desktop:hidden">
         {requests.map((r) => {
           const savedAges = savedAgesFor(r.id)
           const emphasizeAges = cstAgesDueToday(r, savedAges)
@@ -238,7 +238,7 @@ function CstListContent({
         })}
       </div>
 
-      <div className={cn(app.tableWrapNested, 'mt-0')}>
+      <div className={cn(app.tableWrapNested, 'mt-0 hidden pour-desktop:block')}>
         <table className={cstTableCompact.table}>
           <thead className={cstTableCompact.head}>
             <tr>
@@ -490,16 +490,11 @@ export function CstListPage() {
 
   return (
     <div className={cn(rq.page, 'flex flex-col')}>
-      <header className="space-y-1">
+      <header>
         <h1 className={cn(rq.heroTitle, 'flex items-center gap-2')}>
           <AppIcon icon={Science} size="md" className="text-[color:var(--pour-accent)]" />
-          CST — กำลังอัดคอนกรีต
+          CST — Compressive Strength Test
         </h1>
-        <p className={rq.sub}>
-          {tab === 'list'
-            ? 'กลุ่ม “ต้องบันทึกวันนี้” ดึงจากทั้งระบบ · “รายการทั้งหมด” ตามตัวกรองและแบ่งหน้า'
-            : 'เลือกวันทดสอบ — แยกกลุ่ม 1, 3, 7, 14, 28 วัน · ตัวกรองวันเทและค้นหาใช้ร่วมกับแท็บรายการ'}
-        </p>
       </header>
 
       <div className="mt-5">

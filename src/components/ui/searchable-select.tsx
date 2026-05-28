@@ -180,7 +180,7 @@ export function SearchableSelect({
           onKeyDown={onTriggerKeyDown}
           className={cn(
             glass.picker,
-            'flex h-10 min-w-0 max-w-full w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2 pr-3 text-left text-sm font-medium',
+            'flex h-10 min-w-0 max-w-full w-full items-center justify-between gap-2 rounded-xl px-3.5 py-2 pr-3 text-left text-sm font-normal',
             !selected && 'text-[color:var(--pour-ink-3)]',
             disabled && 'cursor-not-allowed opacity-50',
             triggerClassName,

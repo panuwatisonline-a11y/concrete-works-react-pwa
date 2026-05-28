@@ -38,7 +38,7 @@
 
       --text-xs: var(--pour-m-type-xs);
       --text-sm: var(--pour-m-type-sm);
-      --text-base: var(--pour-m-type-lg);
+      --text-base: var(--pour-m-type-base);
       --text-lg: var(--pour-m-type-xl);
       --text-xl: var(--pour-m-type-2xl);
       --text-2xl: var(--pour-m-type-title);
