@@ -42,10 +42,10 @@ export function MixcodePicker({
   function strengthCellToneClass(m: MixedCode): string {
     if (!dwgParts || m.strength == null) return ''
     if (m.strength > dwgParts.strength) {
-      return 'bg-orange-500/8 text-orange-100 ring-1 ring-inset ring-orange-300/20'
+      return 'bg-orange-500/10 text-[color:var(--pour-ink-0)] ring-1 ring-inset ring-orange-500/35'
     }
     if (m.strength === dwgParts.strength) {
-      return 'bg-emerald-500/8 text-emerald-100 ring-1 ring-inset ring-emerald-300/20'
+      return 'bg-emerald-500/10 text-[color:var(--pour-ink-0)] ring-1 ring-inset ring-emerald-500/35'
     }
     return ''
   }
