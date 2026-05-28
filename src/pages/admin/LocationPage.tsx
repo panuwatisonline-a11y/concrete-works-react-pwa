@@ -139,7 +139,7 @@ export function LocationPage() {
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)' : 'เกิดข้อผิดพลาด')
     return false
   }
 

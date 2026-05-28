@@ -257,7 +257,7 @@ export function AbcCodePage() {
                     await refreshSegmentsAndMaster()
                     return
                   }
-                  toast.error(error.code === '23505' ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
+                  toast.error(error.message.includes('23505') ? `รหัสนี้มีอยู่แล้วใน ${key}` : 'เกิดข้อผิดพลาด')
                   return false
                 }}
                 onDelete={async (id) => {
@@ -364,7 +364,7 @@ export function AbcCodePage() {
               await refreshCombosAndMaster()
               return
             }
-            toast.error(error.code === '23505' ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+            toast.error(error.message.includes('23505') ? 'ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
             return false
           }}
           onDelete={async (id) => {

@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
+import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
 import { StructureListMultiSelect } from '@/components/shared/StructureListMultiSelect'

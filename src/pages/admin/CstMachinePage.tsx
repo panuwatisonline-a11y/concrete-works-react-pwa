@@ -244,7 +244,7 @@ export function CstMachinePage() {
           const { error } = await deleteScopedRowById('Compression Machine', id)
           if (error) {
             toast.error(
-              error.code === '23503'
+              error.message.includes('23503')
                 ? 'ไม่สามารถลบได้ — มีผลทดสอบ CST อ้างอิงเครื่องนี้อยู่'
                 : 'ไม่สามารถลบได้',
             )

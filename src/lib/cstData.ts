@@ -177,8 +177,8 @@ export async function countCstUniqueRefsSinceCastingEpoch(): Promise<number> {
   const refIds = [
     ...new Set(
       (cstRows ?? [])
-        .map((r) => (r as { ref?: string | null }).ref)
-        .filter((id): id is string => Boolean(id)),
+        .map((r: { ref?: string | null }) => r.ref)
+        .filter((id: string | null | undefined): id is string => Boolean(id)),
     ),
   ]
   if (!refIds.length) return 0

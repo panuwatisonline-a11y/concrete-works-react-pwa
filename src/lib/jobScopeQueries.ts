@@ -99,7 +99,7 @@ export async function updateScopedRowById<T extends Record<string, unknown>>(
   patch: T,
 ): Promise<{ error: Error | null }> {
   const scope = currentScope()
-  let query = supabase.from(table).update(patch).eq('id', id)
+  let query = supabase.from(table).update(patch as never).eq('id', id)
   query = applyJobScope(query, scope)
   const { error } = await query
   return { error: error ? new Error(error.message) : null }

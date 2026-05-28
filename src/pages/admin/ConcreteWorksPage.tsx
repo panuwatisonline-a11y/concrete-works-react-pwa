@@ -128,7 +128,7 @@ export function ConcreteWorksPage() {
       await refreshAfterAdminMutation(load)
       return
     }
-    toast.error(error.code === '23505' ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
+    toast.error(error.message.includes('23505') ? 'ประเภทงานคอนกรีตนี้มีอยู่แล้ว' : 'เกิดข้อผิดพลาด')
     return false
   }
 

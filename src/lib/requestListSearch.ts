@@ -67,7 +67,8 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(requestOrParts.join(',')),
     )
-      .then(({ data, error }) => {
+      .then((res: any) => {
+        const { data, error } = res as { data: { id: string }[] | null; error: { message: string } | null }
         if (error) console.error('request search (Request):', error.message)
         else add(data)
       }),
@@ -81,12 +82,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .ilike('client_name', pat),
     )
-      .then(async ({ data: clients, error }) => {
+      .then(async (res: any) => {
+        const { data: clients, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (Client):', error.message)
           return
         }
-        const refIds = clients?.map((c) => c.id) ?? []
+        const refIds = clients?.map((c: { id: number }) => c.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -106,12 +108,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(`full_location.ilike.${qv},location1.ilike.${qv}`),
     )
-      .then(async ({ data: locs, error }) => {
+      .then(async (res: any) => {
+        const { data: locs, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (Location):', error.message)
           return
         }
-        const refIds = locs?.map((l) => l.id) ?? []
+        const refIds = locs?.map((l: { id: number }) => l.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -131,12 +134,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .ilike('concrete_work', pat),
     )
-      .then(async ({ data: rows, error }) => {
+      .then(async (res: any) => {
+        const { data: rows, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (Concrete Works):', error.message)
           return
         }
-        const refIds = rows?.map((r) => r.id) ?? []
+        const refIds = rows?.map((r: { id: number }) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -156,12 +160,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .ilike('structure_name', pat),
     )
-      .then(async ({ data: rows, error }) => {
+      .then(async (res: any) => {
+        const { data: rows, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (Structure):', error.message)
           return
         }
-        const refIds = rows?.map((r) => r.id) ?? []
+        const refIds = rows?.map((r: { id: number }) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -183,12 +188,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(mixOrParts.join(',')),
     )
-      .then(async ({ data: rows, error }) => {
+      .then(async (res: any) => {
+        const { data: rows, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (Mixed Code):', error.message)
           return
         }
-        const refIds = rows?.map((r) => r.id) ?? []
+        const refIds = rows?.map((r: { id: number }) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -208,12 +214,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(`full_abc.ilike.${qv},description.ilike.${qv}`),
     )
-      .then(async ({ data: rows, error }) => {
+      .then(async (res: any) => {
+        const { data: rows, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (ABC Code):', error.message)
           return
         }
-        const refIds = rows?.map((r) => r.id) ?? []
+        const refIds = rows?.map((r: { id: number }) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -233,12 +240,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(`full_wbs.ilike.${qv},description.ilike.${qv}`),
     )
-      .then(async ({ data: rows, error }) => {
+      .then(async (res: any) => {
+        const { data: rows, error } = res as { data: { id: number }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (WBS Code):', error.message)
           return
         }
-        const refIds = rows?.map((r) => r.id) ?? []
+        const refIds = rows?.map((r: { id: number }) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
@@ -258,12 +266,13 @@ export async function collectRequestIdsMatchingSearch(
       .select('id')
       .or(`fname.ilike.${qv},lname.ilike.${qv},employee_id.ilike.${qv}`),
     )
-      .then(async ({ data: profs, error }) => {
+      .then(async (res: any) => {
+        const { data: profs, error } = res as { data: { id: string }[] | null; error: { message: string } | null }
         if (error) {
           console.error('request search (profiles):', error.message)
           return
         }
-        const uuids = profs?.map((p) => p.id) ?? []
+        const uuids = profs?.map((p: { id: string }) => p.id) ?? []
         await forEachChunk(uuids, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
           const { data, error: e2 } = await applyScopeToQuery(
