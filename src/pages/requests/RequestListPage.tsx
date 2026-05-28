@@ -45,18 +45,6 @@ import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { toast } from 'sonner'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
-import type { SvgIconComponent } from '@mui/icons-material'
-import Business from '@mui/icons-material/Business'
-import Place from '@mui/icons-material/Place'
-import WaterDrop from '@mui/icons-material/WaterDrop'
-import Straighten from '@mui/icons-material/Straighten'
-import Description from '@mui/icons-material/Description'
-import Layers from '@mui/icons-material/Layers'
-import AccountTree from '@mui/icons-material/AccountTree'
-import Science from '@mui/icons-material/Science'
-import CalendarMonth from '@mui/icons-material/CalendarMonth'
-import AccountBalance from '@mui/icons-material/AccountBalance'
-import Tag from '@mui/icons-material/Tag'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { AppIcon } from '@/components/icons/AppIcon'
 import type { Job, RequestWithRelations } from '@/types/app.types'
@@ -197,7 +185,7 @@ function RequestGroupedFeedBody({
   }, [sections])
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 max-[767px]:space-y-3">
       {sections.map((section) => {
         const isOpen = openMap[section.dateKey] ?? false
         const headingId = `feed-section-h-${section.dateKey}`
@@ -205,7 +193,7 @@ function RequestGroupedFeedBody({
         return (
           <section
             key={section.dateKey}
-            className="overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)]"
+            className="overflow-hidden rounded-xl border border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] max-[767px]:rounded-none max-[767px]:border-0 max-[767px]:bg-transparent"
             aria-label={section.heading}
           >
             <button
@@ -213,6 +201,10 @@ function RequestGroupedFeedBody({
               id={headingId}
               className={cn(
                 'pour-interactive flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-[color:var(--pour-nav-hover-bg)]',
+                'max-[767px]:rounded-2xl max-[767px]:border-0 max-[767px]:shadow-[var(--glass-shadow-sm)]',
+                isOpen
+                  ? 'max-[767px]:bg-[color:var(--glass-bg)]'
+                  : 'max-[767px]:bg-[color:var(--glass-bg-muted)]',
               )}
               aria-expanded={isOpen}
               aria-controls={panelId}
@@ -243,7 +235,7 @@ function RequestGroupedFeedBody({
                 id={panelId}
                 role="region"
                 aria-labelledby={headingId}
-                className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-3 pt-3 sm:px-4"
+                className="border-t border-[color:var(--glass-border-subtle)] px-3 pb-3 pt-3 sm:px-4 max-[767px]:mt-2 max-[767px]:border-t-0 max-[767px]:px-0"
               >
                 <div
                   className={cn(
@@ -274,22 +266,17 @@ function RequestGroupedFeedBody({
 }
 
 function FeedDetailRow({
-  icon: IconComp,
   label,
   value,
 }: {
-  icon: SvgIconComponent
   label: string
   value: ReactNode
 }) {
   if (value == null || value === '' || value === '-') return null
   return (
-    <div className={cn('flex gap-2.5', type.detail)}>
-      <AppIcon icon={IconComp} size="sm" className="mt-0.5 text-pour-subtle" />
-      <div className="min-w-0 flex-1">
-        <span className={type.caption}>{label}</span>
-        <span className={cn('ml-1.5', type.bodyStrong)}>{value}</span>
-      </div>
+    <div className={cn(type.detail)}>
+      <span className={type.caption}>{label}</span>
+      <span className={cn('ml-1.5', type.bodyStrong)}>{value}</span>
     </div>
   )
 }
@@ -356,7 +343,6 @@ function RequestFeedCard({
 
   const structureNameRaw = (r.structure as { structure_name: string } | null)?.structure_name?.trim() ?? ''
   const structure = structureNameRaw || '-'
-  const structureDetailName = structureNameRaw || null
   const structureNoDetail = r.structure_no?.trim() || null
   const initial = (structureNameRaw || structureNoDetail || '?').slice(0, 1).toUpperCase()
   const client = (r.client as { client_name: string } | null)?.client_name
@@ -369,8 +355,8 @@ function RequestFeedCard({
         .filter(Boolean)
         .join(' · ')
     : null
-  const wbs = (r.wbs_code as { full_wbs: string | null } | null)?.full_wbs
-  const abc = (r.abc_code as { full_abc: string | null } | null)?.full_abc
+  const wbs = (r.wbs_code as { full_wbs: string | null } | null)?.full_wbs ?? null
+  const abc = (r.abc_code as { full_abc: string | null } | null)?.full_abc ?? null
   const booker = r.booked_by_profile as { fname: string | null; lname: string | null; employee_id?: string | null } | null | undefined
   const bookerName = booker ? [booker.fname, booker.lname].filter(Boolean).join(' ') : null
   const bookerEmp = booker?.employee_id?.trim() || null
@@ -390,6 +376,19 @@ function RequestFeedCard({
   const castingLine = [formatDate(r.casting_date), formatTime(r.request_time)].filter((x) => x && x !== '-').join(' ')
   const metaLine = client ?? locationLine ?? mixLine ?? concrete ?? '—'
   const editedLine = castingLine || (r.booked_at ? formatDateTime(r.booked_at) : '—')
+  const scheduleDateValue = r.postpone_date ? formatDate(r.postpone_date) : r.casting_date ? formatDate(r.casting_date) : null
+  const volumeDetailLabel =
+    r.volume_confirm != null ? 'Confirm volume' : r.volume_actual != null ? 'Actual Volume' : r.volume_request != null ? 'Request Volume' : 'Volume'
+
+  const footerDetails = [
+    { label: 'Date', value: scheduleDateValue },
+    { label: 'Concrete Works', value: concrete },
+    { label: 'Structure', value: structure !== '-' ? structure : null },
+    { label: 'Location', value: locationLine },
+    { label: 'Structure No.', value: structureNoDetail },
+    { label: 'Mix code', value: mixLine },
+    { label: volumeDetailLabel, value: volumeFeed?.value ?? null },
+  ].filter((d) => d.value != null && d.value !== '')
 
   if (variant === 'grid') {
     return (
@@ -416,19 +415,21 @@ function RequestFeedCard({
               </div>
             </div>
             <div className="pour-file-card-footer px-3.5 py-3">
-              <p className={cn(type.bodyStrong, 'truncate leading-tight')}>
-                {structure}
-                {structureNoDetail ? (
-                  <span className={cn(type.caption, 'font-normal')}> · {structureNoDetail}</span>
-                ) : null}
-              </p>
-              <p className={cn('mt-1 truncate', type.caption)}>{metaLine}</p>
+              <p className={cn(type.bodyStrong, 'leading-tight break-words')}>Request by · {bookerDisplay}</p>
+              {footerDetails.length > 0 ? (
+                <div className={cn('mt-2 space-y-0.5', type.caption)}>
+                  {footerDetails.map((detail) => (
+                    <p key={detail.label} className="leading-snug break-words text-[color:var(--pour-ink-2)]">
+                      <span className="text-[color:var(--pour-ink-3)]">{detail.label}:</span> {detail.value}
+                    </p>
+                  ))}
+                </div>
+              ) : null}
               {nonSystemBooking ? (
                 <p className="mt-1.5">
                   <NonSystemBookingBadge />
                 </p>
               ) : null}
-              <p className={cn('mt-1.5 text-[color:var(--pour-ink-3)]', type.caption)}>แก้ไขล่าสุด · {editedLine}</p>
             </div>
           </Link>
           {quickActions.length > 0 ? (
@@ -454,7 +455,7 @@ function RequestFeedCard({
           'transition hover:border-[color:var(--glass-edge)] hover:shadow-[var(--glass-shadow-sm)]',
         )}
       >
-        <div className="flex gap-3 px-4 pt-4 pb-2 pour-desktop:gap-3 pour-desktop:px-5 pour-desktop:pt-5 pour-desktop:pb-3">
+        <div className="flex gap-2.5 px-4 pt-2.5 pb-1.5 pour-desktop:gap-3 pour-desktop:px-5 pour-desktop:pt-5 pour-desktop:pb-3">
           {thumbUrl && !thumbFailed ? (
             <button
               type="button"
@@ -474,7 +475,7 @@ function RequestFeedCard({
                     loading="lazy"
                     decoding="async"
                     onError={() => setThumbFailed(true)}
-                    className="h-9 w-9 rounded-full object-cover pour-desktop:h-11 pour-desktop:w-11"
+                    className="h-8 w-8 rounded-full object-cover pour-desktop:h-11 pour-desktop:w-11"
                   />
                 </div>
               </div>
@@ -488,7 +489,7 @@ function RequestFeedCard({
               <div className="shrink-0 pt-px pour-desktop:pt-0.5">
                 <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
                   <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[1.5px] pour-desktop:p-[2px]">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#525252] to-[#262626] text-sm font-bold text-white pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#525252] to-[#262626] text-sm font-bold text-white pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
                       {initial}
                     </div>
                   </div>
@@ -498,16 +499,10 @@ function RequestFeedCard({
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className={cn(type.bodyStrong, 'leading-tight')}>
-                    {structure}
-                    {structureNoDetail ? (
-                      <span className={cn(type.caption, 'font-normal')}> · {structureNoDetail}</span>
-                    ) : null}
-                  </p>
                   {r.booked_at ? (
-                    <p className={cn('mt-0.5 pour-desktop:mt-1', type.caption)}>{formatDateTime(r.booked_at)}</p>
+                    <p className={cn(type.bodyStrong, 'leading-tight')}>{formatDateTime(r.booked_at)}</p>
                   ) : null}
-                  <p className={cn('mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
+                  <p className={cn('mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 leading-snug', type.caption)}>
                     <span className={cn('shrink-0', type.caption)}>{nonSystemBooking ? 'บันทึกโดย' : 'จองโดย'}</span>
                     <span className={cn('min-w-0', type.bodyStrong)}>{bookerDisplay}</span>
                     {nonSystemBooking ? <NonSystemBookingBadge /> : null}
@@ -527,22 +522,22 @@ function RequestFeedCard({
         </div>
 
         <Link to={`/requests/${r.id}`} className="pour-interactive block">
-          <div className="grid grid-cols-1 gap-y-2 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3">
-            <FeedDetailRow icon={Business} label="User Group" value={client} />
-            <FeedDetailRow icon={Place} label="Location" value={locationLine} />
-            <FeedDetailRow icon={Layers} label="งานคอนกรีต" value={concrete} />
-            <FeedDetailRow icon={AccountBalance} label="Structure" value={structureDetailName} />
-            <FeedDetailRow icon={Tag} label="Structure No." value={structureNoDetail} />
-            <FeedDetailRow icon={CalendarMonth} label="วันเท / เวลา" value={castingLine || null} />
-            <FeedDetailRow icon={WaterDrop} label="Mix Code" value={mixLine} />
+          <div className="grid grid-cols-1 gap-y-2.5 border-t border-[color:var(--glass-border-subtle)] bg-[color:var(--glass-bg-muted)] px-4 py-3 pour-desktop:gap-y-2.5 pour-desktop:px-5 pour-desktop:py-4 pour-wide:grid-cols-2 pour-wide:gap-x-8 pour-wide:gap-y-3 max-[767px]:border-t-0 max-[767px]:bg-transparent max-[767px]:gap-y-1 max-[767px]:px-4 max-[767px]:pt-0 max-[767px]:pb-2.5">
+            <FeedDetailRow label="Structure" value={structure !== '-' ? structure : null} />
+            <FeedDetailRow label="Structure No." value={structureNoDetail} />
+            <FeedDetailRow label="User Group" value={client} />
+            <FeedDetailRow label="Location" value={locationLine} />
+            <FeedDetailRow label="งานคอนกรีต" value={concrete} />
+            <FeedDetailRow label="วันเท / เวลา" value={castingLine || null} />
+            <FeedDetailRow label="Mix Code" value={mixLine} />
             {volumeFeed ? (
-              <FeedDetailRow icon={Straighten} label={volumeFeed.label} value={volumeFeed.value} />
+              <FeedDetailRow label={volumeFeed.label} value={volumeFeed.value} />
             ) : null}
             {r.sample_qty != null && (
-              <FeedDetailRow icon={Science} label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
+              <FeedDetailRow label="ตัวอย่าง" value={`${r.sample_qty} ก้อน`} />
             )}
-            <FeedDetailRow icon={Description} label="ABC" value={abc} />
-            <FeedDetailRow icon={AccountTree} label="WBS" value={wbs} />
+            <FeedDetailRow label="ABC" value={abc} />
+            <FeedDetailRow label="WBS" value={wbs} />
             {r.remarks?.trim() ? (
               <div className={cn('rounded-lg bg-[color:var(--pour-bg-2)] px-3 py-2.5 leading-relaxed ring-1 ring-[color:var(--glass-border)] pour-desktop:px-3.5 pour-desktop:py-3 pour-wide:col-span-2', type.detail)}>
                 <span className="text-pour-subtle">หมายเหตุ </span>
@@ -558,17 +553,17 @@ function RequestFeedCard({
           </div>
         </Link>
 
-      {quickActions.length > 0 ? (
-        <RequestActionBar
-          layout="strip"
-          items={quickActions}
-          onItemClick={(a, e) => {
-            e.stopPropagation()
-            handleFeedQuickAction(a, r, navigate, onOpenWorkflow)
-          }}
-        />
-      ) : null}
-    </div>
+        {quickActions.length > 0 ? (
+          <RequestActionBar
+            layout="strip"
+            items={quickActions}
+            onItemClick={(a, e) => {
+              e.stopPropagation()
+              handleFeedQuickAction(a, r, navigate, onOpenWorkflow)
+            }}
+          />
+        ) : null}
+      </div>
 
       <ImageLightboxDialog
         open={lightboxSrc != null}
