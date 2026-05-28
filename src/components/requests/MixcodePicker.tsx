@@ -39,6 +39,17 @@ export function MixcodePicker({
     return label
   }
 
+  function strengthCellToneClass(m: MixedCode): string {
+    if (!dwgParts || m.strength == null) return ''
+    if (m.strength > dwgParts.strength) {
+      return 'bg-orange-500/8 text-orange-100 ring-1 ring-inset ring-orange-300/20'
+    }
+    if (m.strength === dwgParts.strength) {
+      return 'bg-emerald-500/8 text-emerald-100 ring-1 ring-inset ring-emerald-300/20'
+    }
+    return ''
+  }
+
   return (
     <div className="min-w-0 space-y-2">
       <div
@@ -47,18 +58,30 @@ export function MixcodePicker({
           disabled && 'pointer-events-none opacity-50',
         )}
       >
-        <div className="pour-scroll-x max-h-[min(45svh,380px)] overflow-y-auto overscroll-contain">
-          <table className={cn('w-full table-fixed border-collapse text-left text-sm', pourPcUi.table)}>
+        <div className="pour-scroll-x max-h-[min(42svh,340px)] overflow-y-auto overscroll-contain">
+          <table
+            className={cn(
+              'w-full table-auto max-[430px]:table-fixed border-collapse text-left text-sm max-[430px]:text-[10.5px]',
+              pourPcUi.table,
+            )}
+          >
+            <colgroup>
+              <col className="w-[6%] max-[430px]:w-[7%]" />
+              <col className="w-[27%] max-[430px]:w-[27%]" />
+              <col className="w-[22%] max-[430px]:w-[22%]" />
+              <col className="w-[18%] max-[430px]:w-[18%]" />
+              <col className="w-[27%] max-[430px]:w-[26%]" />
+            </colgroup>
             <thead className="sticky top-0 z-[1] border-b border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] text-pour-2xs font-medium uppercase leading-tight tracking-wide text-pour-muted sm:text-xs">
               <tr>
                 <th
-                  className={cn(pourPcUi.colNarrow, 'px-1 py-2 font-medium sm:px-2')}
+                  className={cn(pourPcUi.colNarrow, 'px-0.5 py-1.5 font-medium max-[430px]:px-0.5 max-[430px]:py-1 sm:px-1')}
                   aria-label="เลือก"
                 />
-                <th className="w-[26%] px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Mixcode</th>
-                <th className="w-[22%] px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Strength</th>
-                <th className="w-[24%] px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Slump</th>
-                <th className="px-1.5 py-2 font-medium sm:px-2 sm:py-2.5">Supplier</th>
+                <th className="px-1.5 py-1.5 font-medium whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 sm:px-2 sm:py-2.5">Mixcode</th>
+                <th className="px-1.5 py-1.5 font-medium whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 sm:px-2 sm:py-2.5">Strength</th>
+                <th className="px-1.5 py-1.5 font-medium whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 sm:px-2 sm:py-2.5">Slump</th>
+                <th className="px-1.5 py-1.5 font-medium whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 sm:px-2 sm:py-2.5">Supplier</th>
               </tr>
             </thead>
             <tbody className="text-[color:var(--pour-ink-0)]">
@@ -91,23 +114,30 @@ export function MixcodePicker({
                         on && 'bg-[color:var(--pour-accent-muted)]/40',
                       )}
                     >
-                      <td className={cn(pourPcUi.colNarrow, 'px-1 py-2 align-middle text-center sm:px-2 sm:py-2.5')}>
+                      <td className={cn(pourPcUi.colNarrow, 'px-0.5 py-1.5 align-middle text-center max-[430px]:px-0.5 max-[430px]:py-1 sm:px-1 sm:py-2.5')}>
                         {on ? (
-                          <AppIcon icon={Check} size="sm" className="mx-auto text-[color:var(--pour-accent)]" />
+                          <AppIcon icon={Check} size="sm" className="mx-auto scale-90 text-[color:var(--pour-accent)] max-[430px]:scale-75" />
                         ) : (
-                          <span className="mx-auto block h-4 w-4 shrink-0" aria-hidden />
+                          <span className="mx-auto block h-3.5 w-3.5 shrink-0 max-[430px]:h-3 max-[430px]:w-3" aria-hidden />
                         )}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-pour-base font-medium leading-snug sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="px-1.5 py-1.5 align-middle text-pour-base font-medium leading-tight whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 max-[430px]:text-[10.5px] sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.mixcode}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-pour-sm leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
-                        {strengthCellLabel(m)}
+                      <td className="px-1.5 py-1.5 align-middle text-pour-sm leading-tight text-[color:var(--pour-ink-1)] whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 max-[430px]:text-[10.5px] sm:px-2 sm:py-2.5 sm:text-sm">
+                        <span
+                          className={cn(
+                            'inline-flex max-w-full items-center rounded-md px-1.5 py-0.5 text-[0.95em] max-[430px]:px-1 max-[430px]:py-0',
+                            strengthCellToneClass(m),
+                          )}
+                        >
+                          {strengthCellLabel(m)}
+                        </span>
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-pour-sm leading-snug text-[color:var(--pour-ink-1)] sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="px-1.5 py-1.5 align-middle text-pour-sm leading-tight text-[color:var(--pour-ink-1)] whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 max-[430px]:text-[10.5px] sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.slump ?? '—'}
                       </td>
-                      <td className="break-words px-1.5 py-2 align-middle text-pour-sm leading-snug text-pour-muted sm:px-2 sm:py-2.5 sm:text-sm">
+                      <td className="px-1.5 py-1.5 align-middle text-pour-sm leading-tight text-pour-muted whitespace-nowrap max-[430px]:px-1 max-[430px]:py-1 max-[430px]:text-[10.5px] sm:px-2 sm:py-2.5 sm:text-sm">
                         {m.supplier ?? '—'}
                       </td>
                     </tr>
