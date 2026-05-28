@@ -77,3 +77,41 @@ export async function insertScopedRowReturning<T extends Record<string, unknown>
     error: error ? new Error(error.message) : null,
   }
 }
+
+export async function fetchScopedRowById<T>(
+  table: string,
+  id: string | number,
+  columns = '*',
+): Promise<{ data: T | null; error: Error | null }> {
+  const scope = currentScope()
+  let query = supabase.from(table).select(columns).eq('id', id)
+  query = applyJobScope(query, scope)
+  const { data, error } = await query.maybeSingle()
+  return {
+    data: (data as T | null) ?? null,
+    error: error ? new Error(error.message) : null,
+  }
+}
+
+export async function updateScopedRowById<T extends Record<string, unknown>>(
+  table: string,
+  id: string | number,
+  patch: T,
+): Promise<{ error: Error | null }> {
+  const scope = currentScope()
+  let query = supabase.from(table).update(patch).eq('id', id)
+  query = applyJobScope(query, scope)
+  const { error } = await query
+  return { error: error ? new Error(error.message) : null }
+}
+
+export async function deleteScopedRowById(
+  table: string,
+  id: string | number,
+): Promise<{ error: Error | null }> {
+  const scope = currentScope()
+  let query = supabase.from(table).delete().eq('id', id)
+  query = applyJobScope(query, scope)
+  const { error } = await query
+  return { error: error ? new Error(error.message) : null }
+}

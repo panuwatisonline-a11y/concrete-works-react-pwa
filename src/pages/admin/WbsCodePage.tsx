@@ -3,7 +3,6 @@ import OpenInNew from '@mui/icons-material/OpenInNew'
 import Description from '@mui/icons-material/Description'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
-import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
@@ -17,7 +16,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
-import { insertScopedRow, scopedSelect } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, insertScopedRow, scopedSelect, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { WbsCode, WbsSegment } from '@/types/app.types'
 
@@ -250,10 +249,10 @@ export function WbsCodePage() {
                     return false
                   }
                   const descTrim = String(item.description ?? '').trim()
-                  const { error } = await supabase.from(key).update({
+                  const { error } = await updateScopedRowById(key, item.id, {
                     code_name: code,
                     description: descTrim === '' ? null : descTrim,
-                  }).eq('id', item.id)
+                  })
                   if (!error) {
                     toast.success('บันทึกสำเร็จ')
                     await refreshSegmentsAndMaster()
@@ -263,7 +262,7 @@ export function WbsCodePage() {
                   return false
                 }}
                 onDelete={async (id) => {
-                  const { error } = await supabase.from(key).delete().eq('id', id)
+                  const { error } = await deleteScopedRowById(key, id)
                   if (!error) {
                     toast.success('ลบสำเร็จ')
                     await refreshSegmentsAndMaster()
@@ -365,7 +364,7 @@ export function WbsCodePage() {
               toast.error('ชุด WBS หรือ Full WBS นี้มีอยู่แล้ว')
               return false
             }
-            const { error } = await supabase.from('WBS Code').update(payload).eq('id', item.id)
+            const { error } = await updateScopedRowById('WBS Code', item.id, payload)
             if (!error) {
               toast.success('บันทึกสำเร็จ')
               await refreshCombosAndMaster()
@@ -375,7 +374,7 @@ export function WbsCodePage() {
             return false
           }}
           onDelete={async (id) => {
-            const { error } = await supabase.from('WBS Code').delete().eq('id', id)
+            const { error } = await deleteScopedRowById('WBS Code', id)
             if (!error) {
               toast.success('ลบสำเร็จ')
               await refreshCombosAndMaster()

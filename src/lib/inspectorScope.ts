@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
-import { parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
+import { scopedSelect } from '@/lib/jobScopeQueries'
+import { parseStructureListTokens } from '@/lib/structureListTokens'
 import { isInspectorRole, normalizeRole, ROLE_LABELS } from '@/lib/permissions'
 import type { Profile } from '@/types/app.types'
 
@@ -88,24 +89,31 @@ export type InspectorBookerScope = Set<string> | null
 
 /** สายที่ profile นี้เป็นหัวสาย (primary) */
 export async function fetchInspectorLineIdsForPrimary(profileId: string): Promise<number[]> {
-  const { data, error } = await supabase
-    .from('Inspector')
-    .select('id')
-    .eq('primary_profile_id', profileId)
+  const { data, error } = await scopedSelect('Inspector', 'id').eq('primary_profile_id', profileId)
   if (error) throw error
-  return (data ?? []).map((r) => r.id)
+  return (data ?? []).map((r: { id: number }) => r.id)
+}
+
+async function ensureScopedInspector(inspectorId: number): Promise<{ primary_profile_id: string | null } | null> {
+  const { data, error } = await scopedSelect('Inspector', 'id, primary_profile_id')
+    .eq('id', inspectorId)
+    .maybeSingle()
+  if (error) throw error
+  return (data as { primary_profile_id: string | null } | null) ?? null
 }
 
 export async function fetchBookerIdsForInspector(inspectorId: number): Promise<Set<string>> {
-  const [membersRes, inspRes] = await Promise.all([
-    supabase.from('Inspector_Member').select('profile_id').eq('inspector_id', inspectorId),
-    supabase.from('Inspector').select('primary_profile_id').eq('id', inspectorId).maybeSingle(),
-  ])
-  if (membersRes.error) throw membersRes.error
-  if (inspRes.error) throw inspRes.error
+  const scopedInspector = await ensureScopedInspector(inspectorId)
+  if (!scopedInspector) return new Set()
 
-  const ids = new Set((membersRes.data ?? []).map((r) => r.profile_id))
-  const primary = inspRes.data?.primary_profile_id
+  const { data: members, error: membersErr } = await supabase
+    .from('Inspector_Member')
+    .select('profile_id')
+    .eq('inspector_id', inspectorId)
+  if (membersErr) throw membersErr
+
+  const ids = new Set((members ?? []).map((r) => r.profile_id))
+  const primary = scopedInspector.primary_profile_id
   if (primary) ids.add(primary)
   return ids
 }
@@ -137,6 +145,11 @@ export async function replaceInspectorMembers(
   inspectorId: number,
   profileIds: string[],
 ): Promise<void> {
+  const scopedInspector = await ensureScopedInspector(inspectorId)
+  if (!scopedInspector) {
+    throw new Error('ไม่พบสาย Inspector ใน job scope ปัจจุบัน')
+  }
+
   const { error: delErr } = await supabase
     .from('Inspector_Member')
     .delete()

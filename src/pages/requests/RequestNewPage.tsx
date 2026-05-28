@@ -6,8 +6,7 @@ import { z } from 'zod'
 import { runOrQueueMutation } from '@/lib/offline/actions'
 import { cacheRequestDetail } from '@/lib/offline/cache'
 import { runCreateRequestMutation } from '@/lib/requestMutations'
-import { insertJobIdFromAuth } from '@/lib/jobScopeQueries'
-import { supabase } from '@/lib/supabase'
+import { fetchScopedRowById, insertJobIdFromAuth } from '@/lib/jobScopeQueries'
 import type { RequestWithRelations } from '@/types/app.types'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -281,9 +280,27 @@ export function RequestNewPage() {
     if (!cloneId || !user?.id) return
     let cancelled = false
     void (async () => {
-      const { data, error } = await supabase
-        .from('Request')
-        .select(`
+      const { data, error } = await fetchScopedRowById<{
+        id: string
+        status_id: number
+        booked_by: string | null
+        client_id: number | null
+        location_id: number | null
+        concrete_work_id: number | null
+        structure_id: number | null
+        structure_no: string | null
+        abc_code_id: number | null
+        wbs_code_id: number | null
+        casting_date: string | null
+        request_time: string | null
+        mixcode_id: number | null
+        volume_request: number | null
+        strength: number | null
+        volume_dwg: number | null
+        sample_qty: number | null
+        remarks: string | null
+        before_image: string | null
+      }>('Request', cloneId, `
           id,
           status_id,
           booked_by,
@@ -304,8 +321,6 @@ export function RequestNewPage() {
           remarks,
           before_image
         `)
-        .eq('id', cloneId)
-        .single()
 
       if (cancelled) return
       if (error || !data) {

@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,7 +9,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, fetchScopedRows, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { LocationItem } from '@/types/app.types'
 
@@ -129,12 +128,12 @@ export function LocationPage() {
       toast.error('ที่ตั้งนี้มีอยู่แล้ว (Full location ซ้ำ)')
       return false
     }
-    const { error } = await supabase.from('Location').update({
+    const { error } = await updateScopedRowById('Location', item.id, {
       location1: l1,
       location2: loc2,
       location3: loc3,
       description: desc === '' ? null : desc,
-    }).eq('id', item.id)
+    })
     if (!error) {
       toast.success('บันทึกสำเร็จ')
       await refreshAfterAdminMutation(load)
@@ -145,7 +144,7 @@ export function LocationPage() {
   }
 
   async function onDelete(id: number) {
-    const { error } = await supabase.from('Location').delete().eq('id', id)
+    const { error } = await deleteScopedRowById('Location', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
       await refreshAfterAdminMutation(load)

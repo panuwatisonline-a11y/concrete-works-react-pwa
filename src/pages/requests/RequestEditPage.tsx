@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { runOrQueueMutation } from '@/lib/offline/actions'
 import { runUpdateRequestMutation } from '@/lib/requestMutations'
-import { supabase } from '@/lib/supabase'
+import { fetchScopedRowById } from '@/lib/jobScopeQueries'
 import { useAuthStore } from '@/stores/authStore'
 import { useFilterStore } from '@/stores/filterStore'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
@@ -113,9 +113,9 @@ export function RequestEditPage() {
 
   const loadRequest = useCallback(async () => {
     if (!id) return
-    const { data } = await supabase.from('Request').select('*').eq('id', id).single()
+    const { data } = await fetchScopedRowById<Request>('Request', id, '*')
     if (!data) return
-    const r = data as Request
+    const r = data
     if (r.status_id !== 1 || r.booked_by !== user?.id) {
       navigate(`/requests/${id}`)
       return

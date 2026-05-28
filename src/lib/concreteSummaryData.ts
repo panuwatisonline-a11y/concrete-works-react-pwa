@@ -72,7 +72,9 @@ export async function fetchCstViewsByRequestIds(requestIds: string[]): Promise<C
   const all: CstViewRow[] = []
   for (let i = 0; i < requestIds.length; i += CST_VIEW_CHUNK) {
     const chunk = requestIds.slice(i, i + CST_VIEW_CHUNK)
-    const { data, error } = await supabase.from('CST_View').select('*').in('request_id', chunk)
+    const { data, error } = await applyScopeToQuery(
+      supabase.from('CST_View').select('*').in('request_id', chunk),
+    )
     if (error) throw error
     all.push(...((data ?? []) as CstViewRow[]))
   }

@@ -1,8 +1,8 @@
-import { withInsertJobId } from '@/lib/jobScopeQueries'
+import { fetchScopedRowById, withInsertJobId } from '@/lib/jobScopeQueries'
 import { supabase } from '@/lib/supabase'
 
 async function requestJobId(requestId: string): Promise<number | null> {
-  const { data, error } = await supabase.from('Request').select('job_id').eq('id', requestId).maybeSingle()
+  const { data, error } = await fetchScopedRowById<{ job_id: number | null }>('Request', requestId, 'job_id')
   if (error || !data?.job_id) return null
   return data.job_id as number
 }

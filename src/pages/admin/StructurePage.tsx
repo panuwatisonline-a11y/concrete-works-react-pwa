@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -10,7 +9,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, fetchScopedRows, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { Structure } from '@/types/app.types'
 
@@ -92,7 +91,7 @@ export function StructurePage() {
       toast.error('ชื่อโครงสร้างนี้มีอยู่แล้ว')
       return false
     }
-    const { error } = await supabase.from('Structure').update({ structure_name: name }).eq('id', item.id)
+    const { error } = await updateScopedRowById('Structure', item.id, { structure_name: name })
     if (!error) {
       toast.success('บันทึกสำเร็จ')
       await refreshAfterAdminMutation(load)
@@ -103,7 +102,7 @@ export function StructurePage() {
   }
 
   async function onDelete(id: number) {
-    const { error } = await supabase.from('Structure').delete().eq('id', id)
+    const { error } = await deleteScopedRowById('Structure', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
       await refreshAfterAdminMutation(load)

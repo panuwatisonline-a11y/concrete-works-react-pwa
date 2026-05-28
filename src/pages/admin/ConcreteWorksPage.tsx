@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { StructureListMultiSelect } from '@/components/shared/StructureListMultiSelect'
 import { Input } from '@/components/ui/input'
@@ -11,7 +10,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, fetchScopedRows, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import { parseStructureListTokens, STRUCTURE_LIST_JOIN } from '@/lib/structureListTokens'
 import type { ConcreteWork, Structure } from '@/types/app.types'
@@ -120,10 +119,10 @@ export function ConcreteWorksPage() {
       return false
     }
     const structure_list = sanitizeStructureListForSave(item.structure_list)
-    const { error } = await supabase.from('Concrete Works').update({
+    const { error } = await updateScopedRowById('Concrete Works', item.id, {
       concrete_work: name,
       structure_list,
-    }).eq('id', item.id)
+    })
     if (!error) {
       toast.success('บันทึกสำเร็จ')
       await refreshAfterAdminMutation(load)
@@ -134,7 +133,7 @@ export function ConcreteWorksPage() {
   }
 
   async function onDelete(id: number) {
-    const { error } = await supabase.from('Concrete Works').delete().eq('id', id)
+    const { error } = await deleteScopedRowById('Concrete Works', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
       await refreshAfterAdminMutation(load)

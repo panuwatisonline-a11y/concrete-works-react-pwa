@@ -1,3 +1,4 @@
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -7,9 +8,11 @@ export async function setRequestBookingOk(
   requestId: string,
   bookingOk: boolean | null,
 ): Promise<void> {
-  const { error } = await supabase
-    .from('Request')
-    .update({ booking_ok: bookingOk })
+  const { error } = await applyScopeToQuery(
+    supabase
+      .from('Request')
+      .update({ booking_ok: bookingOk }),
+  )
     .eq('id', requestId)
   if (error) throw error
 }

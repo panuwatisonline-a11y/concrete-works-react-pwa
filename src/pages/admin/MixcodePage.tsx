@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
 import { StructureListMultiSelect } from '@/components/shared/StructureListMultiSelect'
@@ -15,7 +14,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, fetchScopedRows, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import {
   buildMixcodeBalanceRows,
@@ -201,19 +200,16 @@ export function MixcodePage() {
   }
 
   async function onEdit(item: MixedCode) {
-    const { error } = await supabase
-      .from('Mixed Code')
-      .update({
-        mixcode: item.mixcode,
-        supplier: item.supplier,
-        strength: item.strength,
-        strength_type: item.strength_type,
-        sample_type: item.sample_type,
-        slump: item.slump,
-        structure_list: item.structure_list?.trim() ? item.structure_list.trim() : null,
-        qty: item.qty,
-      })
-      .eq('id', item.id)
+    const { error } = await updateScopedRowById('Mixed Code', item.id, {
+      mixcode: item.mixcode,
+      supplier: item.supplier,
+      strength: item.strength,
+      strength_type: item.strength_type,
+      sample_type: item.sample_type,
+      slump: item.slump,
+      structure_list: item.structure_list?.trim() ? item.structure_list.trim() : null,
+      qty: item.qty,
+    })
     if (!error) {
       toast.success('บันทึกสำเร็จ')
       await refreshAfterAdminMutation(load)
@@ -221,7 +217,7 @@ export function MixcodePage() {
   }
 
   async function onDelete(id: number) {
-    const { error } = await supabase.from('Mixed Code').delete().eq('id', id)
+    const { error } = await deleteScopedRowById('Mixed Code', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
       await refreshAfterAdminMutation(load)

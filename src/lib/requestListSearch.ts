@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { applyScopeToQuery } from '@/lib/jobScopeQueries'
 
 /**
  * Free-text search for Request list: normalize user input.
@@ -60,10 +61,12 @@ export async function collectRequestIdsMatchingSearch(
     requestOrParts.push(`strength.eq.${q}`)
   }
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Request')
       .select('id')
-      .or(requestOrParts.join(','))
+      .or(requestOrParts.join(',')),
+    )
       .then(({ data, error }) => {
         if (error) console.error('request search (Request):', error.message)
         else add(data)
@@ -72,10 +75,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- Client → client_id ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Client')
       .select('id')
-      .ilike('client_name', pat)
+      .ilike('client_name', pat),
+    )
       .then(async ({ data: clients, error }) => {
         if (error) {
           console.error('request search (Client):', error.message)
@@ -84,7 +89,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = clients?.map((c) => c.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('client_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('client_id', chunk)
           if (e2) console.error('request search (Request by client_id):', e2.message)
           else add(data)
         })
@@ -93,10 +100,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- Location ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Location')
       .select('id')
-      .or(`full_location.ilike.${qv},location1.ilike.${qv}`)
+      .or(`full_location.ilike.${qv},location1.ilike.${qv}`),
+    )
       .then(async ({ data: locs, error }) => {
         if (error) {
           console.error('request search (Location):', error.message)
@@ -105,7 +114,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = locs?.map((l) => l.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('location_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('location_id', chunk)
           if (e2) console.error('request search (Request by location_id):', e2.message)
           else add(data)
         })
@@ -114,10 +125,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- Concrete Works ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Concrete Works')
       .select('id')
-      .ilike('concrete_work', pat)
+      .ilike('concrete_work', pat),
+    )
       .then(async ({ data: rows, error }) => {
         if (error) {
           console.error('request search (Concrete Works):', error.message)
@@ -126,7 +139,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = rows?.map((r) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('concrete_work_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('concrete_work_id', chunk)
           if (e2) console.error('request search (Request by concrete_work_id):', e2.message)
           else add(data)
         })
@@ -135,10 +150,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- Structure ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Structure')
       .select('id')
-      .ilike('structure_name', pat)
+      .ilike('structure_name', pat),
+    )
       .then(async ({ data: rows, error }) => {
         if (error) {
           console.error('request search (Structure):', error.message)
@@ -147,7 +164,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = rows?.map((r) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('structure_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('structure_id', chunk)
           if (e2) console.error('request search (Request by structure_id):', e2.message)
           else add(data)
         })
@@ -158,10 +177,12 @@ export async function collectRequestIdsMatchingSearch(
   const mixOrParts = [`mixcode.ilike.${qv}`, `strength_type.ilike.${qv}`, `slump.ilike.${qv}`]
   if (isDigits) mixOrParts.push(`strength.eq.${q}`)
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('Mixed Code')
       .select('id')
-      .or(mixOrParts.join(','))
+      .or(mixOrParts.join(',')),
+    )
       .then(async ({ data: rows, error }) => {
         if (error) {
           console.error('request search (Mixed Code):', error.message)
@@ -170,7 +191,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = rows?.map((r) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('mixcode_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('mixcode_id', chunk)
           if (e2) console.error('request search (Request by mixcode_id):', e2.message)
           else add(data)
         })
@@ -179,10 +202,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- ABC Code ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('ABC Code')
       .select('id')
-      .or(`full_abc.ilike.${qv},description.ilike.${qv}`)
+      .or(`full_abc.ilike.${qv},description.ilike.${qv}`),
+    )
       .then(async ({ data: rows, error }) => {
         if (error) {
           console.error('request search (ABC Code):', error.message)
@@ -191,7 +216,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = rows?.map((r) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('abc_code_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('abc_code_id', chunk)
           if (e2) console.error('request search (Request by abc_code_id):', e2.message)
           else add(data)
         })
@@ -200,10 +227,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- WBS Code ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('WBS Code')
       .select('id')
-      .or(`full_wbs.ilike.${qv},description.ilike.${qv}`)
+      .or(`full_wbs.ilike.${qv},description.ilike.${qv}`),
+    )
       .then(async ({ data: rows, error }) => {
         if (error) {
           console.error('request search (WBS Code):', error.message)
@@ -212,7 +241,9 @@ export async function collectRequestIdsMatchingSearch(
         const refIds = rows?.map((r) => r.id) ?? []
         await forEachChunk(refIds, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('wbs_code_id', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('wbs_code_id', chunk)
           if (e2) console.error('request search (Request by wbs_code_id):', e2.message)
           else add(data)
         })
@@ -221,10 +252,12 @@ export async function collectRequestIdsMatchingSearch(
 
   // --- Booker (profiles) ---
   tasks.push(
-    supabase
+    applyScopeToQuery(
+      supabase
       .from('profiles')
       .select('id')
-      .or(`fname.ilike.${qv},lname.ilike.${qv},employee_id.ilike.${qv}`)
+      .or(`fname.ilike.${qv},lname.ilike.${qv},employee_id.ilike.${qv}`),
+    )
       .then(async ({ data: profs, error }) => {
         if (error) {
           console.error('request search (profiles):', error.message)
@@ -233,7 +266,9 @@ export async function collectRequestIdsMatchingSearch(
         const uuids = profs?.map((p) => p.id) ?? []
         await forEachChunk(uuids, IN_CHUNK, async (chunk) => {
           if (chunk.length === 0) return
-          const { data, error: e2 } = await supabase.from('Request').select('id').in('booked_by', chunk)
+          const { data, error: e2 } = await applyScopeToQuery(
+            supabase.from('Request').select('id'),
+          ).in('booked_by', chunk)
           if (e2) console.error('request search (Request by booked_by):', e2.message)
           else add(data)
         })

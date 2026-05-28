@@ -38,7 +38,13 @@ import {
   type InspectorWithMembers,
 } from '@/lib/inspectorScope'
 import { canEditMasterData } from '@/lib/permissions'
-import { applyScopeToQuery, insertScopedRowReturning, scopedSelect } from '@/lib/jobScopeQueries'
+import {
+  applyScopeToQuery,
+  deleteScopedRowById,
+  insertScopedRowReturning,
+  scopedSelect,
+  updateScopedRowById,
+} from '@/lib/jobScopeQueries'
 import { resolveJobName } from '@/lib/jobScopeDisplay'
 import { useSuperAdminShowsAllJobs } from '@/hooks/useSuperAdminShowsAllJobs'
 import { useMasterDataStore } from '@/stores/masterDataStore'
@@ -216,10 +222,10 @@ export function InspectorPage() {
     setSaving(true)
     try {
       if (editRow) {
-        const { error } = await supabase
-          .from('Inspector')
-          .update({ inspector_name: inspectorName, primary_profile_id: primaryId })
-          .eq('id', editRow.id)
+        const { error } = await updateScopedRowById('Inspector', editRow.id, {
+          inspector_name: inspectorName,
+          primary_profile_id: primaryId,
+        })
         if (error) throw error
         await replaceInspectorMembers(editRow.id, profileIds)
         toast.success('บันทึกแล้ว')
@@ -244,7 +250,7 @@ export function InspectorPage() {
 
   async function confirmDelete() {
     if (deleteId == null) return
-    const { error } = await supabase.from('Inspector').delete().eq('id', deleteId)
+    const { error } = await deleteScopedRowById('Inspector', deleteId)
     setDeleteId(null)
     if (error) {
       toast.error('ไม่สามารถลบได้ — อาจมีผู้ใช้ผูกสายนี้อยู่')

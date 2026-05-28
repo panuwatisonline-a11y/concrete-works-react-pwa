@@ -13,8 +13,8 @@ import {
   defaultCstTestDateIso,
 } from '@/lib/cstForm'
 import { fetchCompressionMachineById, fetchCstViewByRequestAndAge } from '@/lib/cstData'
+import { fetchScopedRowById } from '@/lib/jobScopeQueries'
 import { injectPreviewScreenStyles } from '@/lib/localPrintChecklist'
-import { supabase } from '@/lib/supabase'
 import { formatDate, shortId } from '@/lib/utils'
 import {
   CST_TEST_AGES,
@@ -71,14 +71,14 @@ export function warmCstReportTemplateCache(): void {
 }
 
 export async function fetchRequestForCstPrint(requestId: string): Promise<RequestWithRelations> {
-  const { data, error } = await supabase
-    .from('Request')
-    .select(REQUEST_FOR_CST_PRINT_SELECT)
-    .eq('id', requestId)
-    .single()
+  const { data, error } = await fetchScopedRowById<RequestWithRelations>(
+    'Request',
+    requestId,
+    REQUEST_FOR_CST_PRINT_SELECT,
+  )
   if (error) throw error
   if (!data) throw new Error('ไม่พบคำขอ')
-  return data as RequestWithRelations
+  return data
 }
 
 export async function buildCstReportHtml(

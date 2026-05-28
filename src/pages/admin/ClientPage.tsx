@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,7 +10,7 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { fetchScopedRows, insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, fetchScopedRows, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 
 function clientNameKey(name: string | null | undefined) {
@@ -88,7 +87,7 @@ export function ClientPage() {
       toast.error('ชื่อบริษัทนี้มีอยู่แล้ว')
       return false
     }
-    const { error } = await supabase.from('Client').update({ client_name: name }).eq('id', item.id)
+    const { error } = await updateScopedRowById('Client', item.id, { client_name: name })
     if (!error) {
       toast.success('บันทึกสำเร็จ')
       await refreshAfterAdminMutation(load)
@@ -99,7 +98,7 @@ export function ClientPage() {
   }
 
   async function onDelete(id: number) {
-    const { error } = await supabase.from('Client').delete().eq('id', id)
+    const { error } = await deleteScopedRowById('Client', id)
     if (!error) {
       toast.success('ลบสำเร็จ')
       await refreshAfterAdminMutation(load)

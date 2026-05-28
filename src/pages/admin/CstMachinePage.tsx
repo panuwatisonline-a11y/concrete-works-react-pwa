@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
-import { supabase } from '@/lib/supabase'
 import { fetchCompressionMachines } from '@/lib/cstData'
 import {
   CST_MACHINE_DECIMAL_PLACES,
@@ -13,7 +12,7 @@ const CST_MACHINE_NUM_STEP = (10 ** -CST_MACHINE_DECIMAL_PLACES).toFixed(
   CST_MACHINE_DECIMAL_PLACES,
 )
 import { refreshAfterAdminMutation, type AdminTableLoadOptions } from '@/lib/adminTableRefresh'
-import { insertScopedRow } from '@/lib/jobScopeQueries'
+import { deleteScopedRowById, insertScopedRow, updateScopedRowById } from '@/lib/jobScopeQueries'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -233,7 +232,7 @@ export function CstMachinePage() {
             toast.error('ชื่อเครื่องนี้มีอยู่แล้ว')
             return false
           }
-          const { error } = await supabase.from('Compression Machine').update(payload).eq('id', item.id)
+          const { error } = await updateScopedRowById('Compression Machine', item.id, payload)
           if (error) {
             toast.error('เกิดข้อผิดพลาด')
             return false
@@ -242,7 +241,7 @@ export function CstMachinePage() {
           await refreshAfterAdminMutation(load)
         }}
         onDelete={async (id) => {
-          const { error } = await supabase.from('Compression Machine').delete().eq('id', id)
+          const { error } = await deleteScopedRowById('Compression Machine', id)
           if (error) {
             toast.error(
               error.code === '23503'

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { applyScopeToQuery, fetchScopedRowById } from '@/lib/jobScopeQueries'
 import type { RequestLogWithProfile, RequestWithRelations } from '@/types/app.types'
 
 export const REQUEST_LIST_SELECT = `
@@ -28,19 +29,15 @@ export const REQUEST_DETAIL_SELECT = `
 `
 
 export async function fetchRequestById(id: string): Promise<RequestWithRelations | null> {
-  const { data, error } = await supabase
-    .from('Request')
-    .select(REQUEST_DETAIL_SELECT)
-    .eq('id', id)
-    .single()
+  const { data, error } = await fetchScopedRowById<RequestWithRelations>('Request', id, REQUEST_DETAIL_SELECT)
   if (error || !data) return null
-  return data as RequestWithRelations
+  return data
 }
 
 export async function fetchRequestLogs(requestId: string): Promise<RequestLogWithProfile[]> {
-  const { data, error } = await supabase
-    .from('Request_Log')
-    .select(`*, profile:profiles!action_by(fname, lname)`)
+  const { data, error } = await applyScopeToQuery(
+    supabase.from('Request_Log').select(`*, profile:profiles!action_by(fname, lname)`),
+  )
     .eq('request_id', requestId)
     .order('created_at', { ascending: false })
   if (error) return []

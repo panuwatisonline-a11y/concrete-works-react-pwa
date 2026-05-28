@@ -1,5 +1,5 @@
 import { ensureBookedRequestLog } from '@/lib/requestLogService'
-import { insertJobIdFromAuth } from '@/lib/jobScopeQueries'
+import { applyScopeToQuery, fetchScopedRowById, insertJobIdFromAuth } from '@/lib/jobScopeQueries'
 import {
   collectRequestImageUrls,
   deleteReplacedRequestImages,
@@ -13,13 +13,14 @@ import type { OfflineMutation } from '@/lib/offline/types'
 const REQUEST_IMAGE_SELECT = REQUEST_IMAGE_FIELDS.join(', ')
 
 async function fetchRequestImages(requestId: string): Promise<RequestImageRow | null> {
-  const { data, error } = await supabase
-    .from('Request')
-    .select(REQUEST_IMAGE_SELECT)
-    .eq('id', requestId)
-    .maybeSingle()
+  const { data, error } = await fetchScopedRowById<RequestImageRow>('Request', requestId, REQUEST_IMAGE_SELECT)
   if (error || !data) return null
-  return data as RequestImageRow
+  return data
+}
+
+async function updateScopedRequest(requestId: string, patch: Record<string, unknown>) {
+  const { error } = await applyScopeToQuery(supabase.from('Request').update(patch)).eq('id', requestId)
+  return error
 }
 
 function patchTouchesImageFields(patch: Record<string, unknown>): boolean {
@@ -38,7 +39,7 @@ async function logAction(
   note?: string,
   extra?: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { data: reqRow } = await supabase.from('Request').select('job_id').eq('id', requestId).maybeSingle()
+  const { data: reqRow } = await fetchScopedRowById<{ job_id: number | null }>('Request', requestId, 'job_id')
   const jobId = (reqRow?.job_id as number | null | undefined) ?? insertJobIdFromAuth()
   const { error } = await supabase.from('Request_Log').insert({
     request_id: requestId,
@@ -69,7 +70,7 @@ export async function runInspectMutation(
     : null
   if (corrections) Object.assign(patch, corrections)
 
-  const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
+  const error = await updateScopedRequest(requestId, patch)
   if (error) return { ok: false, message: error.message }
   if (oldRow && corrections?.before_image !== undefined) {
     deleteReplacedRequestImages(oldRow, { ...oldRow, ...corrections }, ['before_image'])
@@ -84,10 +85,11 @@ export async function runApproveMutation(
   payload: Record<string, unknown>,
   action = 'approved',
 ): Promise<MutationResult> {
-  const { error } = await supabase
-    .from('Request')
-    .update({ status_id: 3, approved_by: userId, approved_at: new Date().toISOString() })
-    .eq('id', requestId)
+  const error = await updateScopedRequest(requestId, {
+    status_id: 3,
+    approved_by: userId,
+    approved_at: new Date().toISOString(),
+  })
   if (error) return { ok: false, message: error.message }
   return logAction(requestId, 3, action, userId, payload.note as string | undefined)
 }
@@ -97,15 +99,12 @@ export async function runRejectMutation(
   userId: string | undefined,
   payload: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { error } = await supabase
-    .from('Request')
-    .update({
-      status_id: 6,
-      rejected_by: userId,
-      rejected_at: new Date().toISOString(),
-      reason_reject: String(payload.reason ?? ''),
-    })
-    .eq('id', requestId)
+  const error = await updateScopedRequest(requestId, {
+    status_id: 6,
+    rejected_by: userId,
+    rejected_at: new Date().toISOString(),
+    reason_reject: String(payload.reason ?? ''),
+  })
   if (error) return { ok: false, message: error.message }
   return logAction(requestId, 6, 'rejected', userId, String(payload.reason ?? ''))
 }
@@ -115,17 +114,14 @@ export async function runPostponeMutation(
   userId: string | undefined,
   payload: Record<string, unknown>,
 ): Promise<MutationResult> {
-  const { error } = await supabase
-    .from('Request')
-    .update({
-      status_id: 5,
-      postponed_by: userId,
-      postponed_at: new Date().toISOString(),
-      postpone_date: payload.date,
-      postpone_time: payload.time,
-      reason_postpone: payload.reason,
-    })
-    .eq('id', requestId)
+  const error = await updateScopedRequest(requestId, {
+    status_id: 5,
+    postponed_by: userId,
+    postponed_at: new Date().toISOString(),
+    postpone_date: payload.date,
+    postpone_time: payload.time,
+    reason_postpone: payload.reason,
+  })
   if (error) return { ok: false, message: error.message }
   return logAction(requestId, 5, 'postponed', userId, String(payload.reason ?? ''), {
     postpone_date: payload.date,
@@ -139,17 +135,14 @@ export async function runConfirmOrderMutation(
   payload: Record<string, unknown>,
 ): Promise<MutationResult> {
   const volumeActual = payload.volumeActual
-  const { error } = await supabase
-    .from('Request')
-    .update({
-      status_id: 4,
-      confirmed_by: userId,
-      confirmed_at: new Date().toISOString(),
-      ...(volumeActual != null && !Number.isNaN(Number(volumeActual))
-        ? { volume_actual: Number(volumeActual) }
-        : {}),
-    })
-    .eq('id', requestId)
+  const error = await updateScopedRequest(requestId, {
+    status_id: 4,
+    confirmed_by: userId,
+    confirmed_at: new Date().toISOString(),
+    ...(volumeActual != null && !Number.isNaN(Number(volumeActual))
+      ? { volume_actual: Number(volumeActual) }
+      : {}),
+  })
   if (error) return { ok: false, message: error.message }
   return logAction(requestId, 4, 'order_confirmed', userId, payload.note as string | undefined)
 }
@@ -172,7 +165,7 @@ export async function runCompleteMutation(
   for (const k of ['volume_actual', 'strength', ...imageKeys] as const) {
     if (payload[k] !== undefined) patch[k] = payload[k]
   }
-  const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
+  const error = await updateScopedRequest(requestId, patch)
   if (error) return { ok: false, message: error.message }
   if (oldRow) {
     deleteReplacedRequestImages(oldRow, { ...oldRow, ...patch }, [...imageKeys])
@@ -188,19 +181,16 @@ export async function runCancelMutation(
   const oldRow = await fetchRequestImages(requestId)
   const urlsToDelete = collectRequestImageUrls(oldRow ?? undefined)
 
-  const { error } = await supabase
-    .from('Request')
-    .update({
-      status_id: 7,
-      cancelled_by: userId,
-      cancelled_at: new Date().toISOString(),
-      reason_cancel: String(payload.reason ?? ''),
-      before_image: null,
-      after_image: null,
-      eslip_url: null,
-      checksheet_url: null,
-    })
-    .eq('id', requestId)
+  const error = await updateScopedRequest(requestId, {
+    status_id: 7,
+    cancelled_by: userId,
+    cancelled_at: new Date().toISOString(),
+    reason_cancel: String(payload.reason ?? ''),
+    before_image: null,
+    after_image: null,
+    eslip_url: null,
+    checksheet_url: null,
+  })
   if (error) return { ok: false, message: error.message }
   deleteStoredImages(urlsToDelete)
   return logAction(requestId, 7, 'cancelled', userId, String(payload.reason ?? ''))
@@ -212,7 +202,7 @@ export async function runPatchImageMutation(
   url: string,
 ): Promise<MutationResult> {
   const oldRow = await fetchRequestImages(requestId)
-  const { error } = await supabase.from('Request').update({ [field]: url }).eq('id', requestId)
+  const error = await updateScopedRequest(requestId, { [field]: url })
   if (error) return { ok: false, message: error.message }
   if (oldRow) {
     deleteReplacedRequestImages(oldRow, { ...oldRow, [field]: url }, [field])
@@ -244,7 +234,7 @@ export async function runUpdateRequestMutation(
 ): Promise<MutationResult> {
   const patch = payload.patch as Record<string, unknown>
   const oldRow = patchTouchesImageFields(patch) ? await fetchRequestImages(requestId) : null
-  const { error } = await supabase.from('Request').update(patch).eq('id', requestId)
+  const error = await updateScopedRequest(requestId, patch)
   if (error) return { ok: false, message: error.message }
   if (oldRow) {
     deleteReplacedRequestImages(oldRow, { ...oldRow, ...patch })

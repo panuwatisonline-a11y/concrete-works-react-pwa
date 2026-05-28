@@ -4,10 +4,9 @@ import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { toast } from 'sonner'
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom'
 import { cacheRequestDetail, getCachedRequestDetail } from '@/lib/offline/cache'
-import { fetchRequestById, fetchRequestLogs, REQUEST_DETAIL_SELECT } from '@/lib/requestQueries'
+import { fetchRequestById, fetchRequestLogs } from '@/lib/requestQueries'
 import { isFullyOnline } from '@/stores/connectivityStore'
 import { useConnectivityStore } from '@/stores/connectivityStore'
-import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { useMasterDataStore } from '@/stores/masterDataStore'
 import {
@@ -136,16 +135,7 @@ export function RequestDetailPage() {
 
     try {
       const [req, logData, cstRows] = await Promise.all([
-        fetchRequestById(id).then(async (r) => {
-          if (r) return r
-          const { data, error: reqErr } = await supabase
-            .from('Request')
-            .select(REQUEST_DETAIL_SELECT)
-            .eq('id', id)
-            .single()
-          if (reqErr) throw reqErr
-          return data as RequestWithRelations
-        }),
+        fetchRequestById(id),
         fetchRequestLogs(id),
         fetchCstByRequestId(id).catch(() => []),
       ])

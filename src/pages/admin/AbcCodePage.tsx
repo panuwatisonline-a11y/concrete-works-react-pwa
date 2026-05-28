@@ -3,7 +3,6 @@ import OpenInNew from '@mui/icons-material/OpenInNew'
 import Description from '@mui/icons-material/Description'
 import { AppIcon } from '@/components/icons/AppIcon'
 import { useDataSyncOnTables } from '@/hooks/useDataSyncOnTables'
-import { supabase } from '@/lib/supabase'
 import { AdminSegmentAccordion } from '@/components/admin/AdminSegmentAccordion'
 import { CrudTable } from '@/components/shared/CrudTable'
 import { PourUnderlineTabs } from '@/components/shared/PourUnderlineTabs'
@@ -17,7 +16,13 @@ import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistrati
 import { usePullToRefreshOnLoad } from '@/hooks/usePullToRefreshOnLoad'
 import { useScopedPageLoad } from '@/hooks/useScopedPageLoad'
 import { reloadMasterData } from '@/lib/reloadMasterData'
-import { fetchScopedRows, insertScopedRow, scopedSelect } from '@/lib/jobScopeQueries'
+import {
+  deleteScopedRowById,
+  fetchScopedRows,
+  insertScopedRow,
+  scopedSelect,
+  updateScopedRowById,
+} from '@/lib/jobScopeQueries'
 import { filterTableRows } from '@/lib/tableClientFilter'
 import type { AbcCode, AbcCodeSegment } from '@/types/app.types'
 
@@ -243,10 +248,10 @@ export function AbcCodePage() {
                     return false
                   }
                   const descTrim = String(item.description ?? '').trim()
-                  const { error } = await supabase.from(key).update({
+                  const { error } = await updateScopedRowById(key, item.id, {
                     code_name: code,
                     description: descTrim === '' ? null : descTrim,
-                  }).eq('id', item.id)
+                  })
                   if (!error) {
                     toast.success('บันทึกสำเร็จ')
                     await refreshSegmentsAndMaster()
@@ -256,7 +261,7 @@ export function AbcCodePage() {
                   return false
                 }}
                 onDelete={async (id) => {
-                  const { error } = await supabase.from(key).delete().eq('id', id)
+                  const { error } = await deleteScopedRowById(key, id)
                   if (!error) {
                     toast.success('ลบสำเร็จ')
                     await refreshSegmentsAndMaster()
@@ -353,7 +358,7 @@ export function AbcCodePage() {
               toast.error('ชุด ABC Code หรือ Full ABC นี้มีอยู่แล้ว')
               return false
             }
-            const { error } = await supabase.from('ABC Code').update(payload).eq('id', item.id)
+            const { error } = await updateScopedRowById('ABC Code', item.id, payload)
             if (!error) {
               toast.success('บันทึกสำเร็จ')
               await refreshCombosAndMaster()
@@ -363,7 +368,7 @@ export function AbcCodePage() {
             return false
           }}
           onDelete={async (id) => {
-            const { error } = await supabase.from('ABC Code').delete().eq('id', id)
+            const { error } = await deleteScopedRowById('ABC Code', id)
             if (!error) {
               toast.success('ลบสำเร็จ')
               await refreshCombosAndMaster()

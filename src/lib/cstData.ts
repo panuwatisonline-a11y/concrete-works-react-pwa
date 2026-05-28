@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { scopedSelect } from '@/lib/jobScopeQueries'
+import { applyScopeToQuery, fetchScopedRowById, scopedSelect, withInsertJobId } from '@/lib/jobScopeQueries'
 import { activeCastingDateIso } from '@/lib/activeCastingDate'
 import {
   CST_REPORT_NO_CASTING_FROM,
@@ -22,15 +22,15 @@ export async function fetchCompressionMachines(): Promise<CompressionMachine[]> 
 }
 
 export async function fetchCompressionMachineById(id: number): Promise<CompressionMachine> {
-  const { data, error } = await supabase
-    .from('Compression Machine')
-    .select(COMPRESSION_MACHINE_SELECT)
-    .eq('id', id)
-    .single()
+  const { data, error } = await fetchScopedRowById<CompressionMachine>(
+    'Compression Machine',
+    id,
+    COMPRESSION_MACHINE_SELECT,
+  )
 
   if (error) throw error
   if (!data) throw new Error('ไม่พบเครื่องอัดที่เลือก')
-  return data as CompressionMachine
+  return data
 }
 
 const CST_REF_CHUNK = 180
@@ -44,7 +44,7 @@ export async function fetchCstAgesByRequestIds(
 
   for (let i = 0; i < requestIds.length; i += CST_REF_CHUNK) {
     const chunk = requestIds.slice(i, i + CST_REF_CHUNK)
-    const { data, error } = await supabase.from('CST').select('ref, age').in('ref', chunk)
+    const { data, error } = await applyScopeToQuery(supabase.from('CST').select('ref, age')).in('ref', chunk)
     if (error) throw error
     for (const row of data ?? []) {
       const ref = (row as { ref?: string | null }).ref
@@ -67,11 +67,13 @@ export async function fetchCstAgesByRequestIds(
 
 /** รายการ CST ของคำขอเท (ทุกอายุ) */
 export async function fetchCstByRequestId(requestId: string): Promise<CstRecord[]> {
-  const { data, error } = await supabase
+  const { data, error } = await applyScopeToQuery(
+    supabase
     .from('CST')
     .select('*')
     .eq('ref', requestId)
-    .order('age')
+    .order('age'),
+  )
 
   if (error) throw error
   return (data ?? []) as CstRecord[]
@@ -82,12 +84,14 @@ export async function fetchCstByRequestAndAge(
   requestId: string,
   age: number,
 ): Promise<CstRecord | null> {
-  const { data, error } = await supabase
+  const { data, error } = await applyScopeToQuery(
+    supabase
     .from('CST')
     .select('*')
     .eq('ref', requestId)
     .eq('age', age)
-    .maybeSingle()
+    .maybeSingle(),
+  )
 
   if (error) throw error
   return (data as CstRecord | null) ?? null
@@ -95,18 +99,22 @@ export async function fetchCstByRequestAndAge(
 
 /** ผล CST พร้อมคำนวณ (ksc, density, adj) จาก `CST_View` */
 export async function fetchCstViewByRequestId(requestId: string): Promise<CstViewRow[]> {
-  const { data, error } = await supabase
+  const { data, error } = await applyScopeToQuery(
+    supabase
     .from('CST_View')
     .select('*')
     .eq('request_id', requestId)
-    .order('age')
+    .order('age'),
+  )
 
   if (error) throw error
   return (data ?? []) as CstViewRow[]
 }
 
 export async function fetchCstViewById(cstId: string): Promise<CstViewRow | null> {
-  const { data, error } = await supabase.from('CST_View').select('*').eq('id', cstId).maybeSingle()
+  const { data, error } = await applyScopeToQuery(
+    supabase.from('CST_View').select('*').eq('id', cstId),
+  ).maybeSingle()
 
   if (error) throw error
   return (data as CstViewRow | null) ?? null
@@ -116,12 +124,14 @@ export async function fetchCstViewByRequestAndAge(
   requestId: string,
   age: number,
 ): Promise<CstViewRow | null> {
-  const { data, error } = await supabase
+  const { data, error } = await applyScopeToQuery(
+    supabase
     .from('CST_View')
     .select('*')
     .eq('request_id', requestId)
     .eq('age', age)
-    .maybeSingle()
+    .maybeSingle(),
+  )
 
   if (error) throw error
   return (data as CstViewRow | null) ?? null
@@ -132,19 +142,21 @@ export async function upsertCstRecord(
   existingId?: string,
 ): Promise<CstRecord> {
   if (existingId) {
-    const { data, error } = await supabase
+    const { data, error } = await applyScopeToQuery(
+      supabase
       .from('CST')
       .update(values)
       .eq('id', existingId)
       .select('*')
-      .single()
+      .single(),
+    )
     if (error) throw error
     return data as CstRecord
   }
 
   const { data, error } = await supabase
     .from('CST')
-    .insert({ ...values, created_at: new Date().toISOString() })
+    .insert(withInsertJobId({ ...values, created_at: new Date().toISOString() }))
     .select('*')
     .single()
   if (error) throw error
@@ -153,13 +165,13 @@ export async function upsertCstRecord(
 
 /** ลบบันทึกผล CST ตาม id */
 export async function deleteCstRecord(id: string): Promise<void> {
-  const { error } = await supabase.from('CST').delete().eq('id', id)
+  const { error } = await applyScopeToQuery(supabase.from('CST').delete()).eq('id', id)
   if (error) throw error
 }
 
 /** จำนวนคำขอเท (ref) ที่มี CST และ Active Casting Date >= 2026-01-01 */
 export async function countCstUniqueRefsSinceCastingEpoch(): Promise<number> {
-  const { data: cstRows, error } = await supabase.from('CST').select('ref')
+  const { data: cstRows, error } = await applyScopeToQuery(supabase.from('CST').select('ref'))
   if (error) throw error
 
   const refIds = [
@@ -171,10 +183,12 @@ export async function countCstUniqueRefsSinceCastingEpoch(): Promise<number> {
   ]
   if (!refIds.length) return 0
 
-  const { data: requests, error: reqErr } = await supabase
+  const { data: requests, error: reqErr } = await applyScopeToQuery(
+    supabase
     .from('Request')
     .select('id, casting_date, postpone_date')
-    .in('id', refIds)
+    .in('id', refIds),
+  )
 
   if (reqErr) throw reqErr
 

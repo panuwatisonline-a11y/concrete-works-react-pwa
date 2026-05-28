@@ -3,7 +3,7 @@ import {
   loadChecklistBeforePourTemplate,
   checklistTemplateDataFromRequest,
 } from '@/lib/checklistBeforePourTemplate'
-import { supabase } from '@/lib/supabase'
+import { fetchScopedRowById } from '@/lib/jobScopeQueries'
 import { shortId } from '@/lib/utils'
 import type { RequestWithRelations } from '@/types/app.types'
 import { injectChecklistDocumentStyles } from '@/lib/localPrintChecklist'
@@ -31,14 +31,14 @@ export function warmChecklistTemplateCache(): void {
 }
 
 export async function fetchRequestForChecklist(requestId: string): Promise<RequestWithRelations> {
-  const { data, error } = await supabase
-    .from('Request')
-    .select(REQUEST_FOR_CHECKLIST_SELECT)
-    .eq('id', requestId)
-    .single()
+  const { data, error } = await fetchScopedRowById<RequestWithRelations>(
+    'Request',
+    requestId,
+    REQUEST_FOR_CHECKLIST_SELECT,
+  )
   if (error) throw error
   if (!data) throw new Error('ไม่พบคำขอ')
-  return data as RequestWithRelations
+  return data
 }
 
 export async function loadChecklistPreviewForRequest(
