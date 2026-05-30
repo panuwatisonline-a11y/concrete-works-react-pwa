@@ -11,6 +11,9 @@ import { useJobScope } from '@/hooks/useJobScope'
 import { useDesktopSearchRegistration } from '@/hooks/useDesktopSearchRegistration'
 import { useDataSyncRefetch } from '@/hooks/useDataSyncRefetch'
 import { usePullToRefreshRegistration } from '@/hooks/usePullToRefreshRegistration'
+import { useResizableTableColumns } from '@/hooks/useResizableTableColumns'
+import { ResizableTableToolbar } from '@/components/shared/ResizableTableToolbar'
+import { TableClampText } from '@/components/shared/TableClampText'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,6 +41,7 @@ import {
   CONCRETE_SUMMARY_SEARCH_ARIA,
   CONCRETE_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
+import type { ResizableTableColumnConfig } from '@/lib/resizableTableColumns'
 import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
 import { pourPcUi } from '@/lib/pourPcScale'
 import { todayIsoLocal } from '@/lib/cstListDue'
@@ -46,30 +50,59 @@ import { cn, formatDate } from '@/lib/utils'
 import type { CstViewRow } from '@/types/database.cst.types'
 import type { RequestWithRelations } from '@/types/app.types'
 
-const summaryTh = {
-  item: cn('text-center', pourPcUi.colNarrow),
-  date: 'whitespace-nowrap',
-  work: '',
-  structure: '',
-  location: '',
-  structureNo: '',
-  supplier: '',
-  slump: cn('text-center', pourPcUi.colNarrow),
-  mix: '',
-  req: cn('text-center', pourPcUi.colNarrow),
-  avg: cn('text-center tabular-nums', pourPcUi.colAge),
-  result: cn('text-center whitespace-nowrap', pourPcUi.colNarrow),
+const CONCRETE_SUMMARY_RESIZE_TABLE_ID = 'concrete-summary-v3'
+
+/** ค่าเริ่มต้นตรง pour-pc-col-* (52 / 118 / 76 / 100) + คอลัมน์ข้อความสมดุล */
+const CONCRETE_SUMMARY_RESIZE_COLUMNS: ResizableTableColumnConfig[] = [
+  { id: 'item', defaultWidth: 52, minWidth: 44, maxWidth: 80 },
+  { id: 'date', defaultWidth: 118, minWidth: 96, maxWidth: 160 },
+  { id: 'work', defaultWidth: 96, minWidth: 72 },
+  { id: 'structure', defaultWidth: 96, minWidth: 72 },
+  { id: 'location', defaultWidth: 96, minWidth: 72 },
+  { id: 'structureNo', defaultWidth: 88, minWidth: 72 },
+  { id: 'supplier', defaultWidth: 96, minWidth: 72 },
+  { id: 'slump', defaultWidth: 52, minWidth: 44, maxWidth: 80 },
+  { id: 'mix', defaultWidth: 88, minWidth: 72 },
+  { id: 'req', defaultWidth: 52, minWidth: 44, maxWidth: 120 },
+  ...CONCRETE_SUMMARY_TEST_AGES.map(
+    (age): ResizableTableColumnConfig => ({
+      id: `avg${age}`,
+      defaultWidth: 76,
+      minWidth: 64,
+      maxWidth: 120,
+    }),
+  ),
+  { id: 'result', defaultWidth: 100, minWidth: 96, maxWidth: 200 },
+]
+
+const summaryAgeCol = 'summary-age-col'
+
+const summaryCell = {
+  item: 'text-center tabular-nums text-pour-muted',
+  date: 'tabular-nums whitespace-nowrap',
+  slump: 'text-center tabular-nums',
+  req: 'text-center tabular-nums whitespace-nowrap',
+  avg: cn('text-center tabular-nums whitespace-nowrap', summaryAgeCol),
+  result: cn('summary-result-col text-center whitespace-nowrap font-medium'),
 } as const
 
 const summaryTable = {
-  table: cn(tableCompact.table, 'min-w-0'),
+  table: cn(tableCompact.table, pourPcUi.tableResizable),
   head: cn(
     tableCompact.head,
     '[&_th]:px-1.5 [&_th]:py-2 sm:[&_th]:px-2',
-    '[&_th]:whitespace-normal [&_th]:break-words [&_th]:align-bottom',
+    '[&_th]:whitespace-normal [&_th]:break-words [&_th]:align-middle',
     '[&_th]:text-pour-2xs [&_th]:leading-tight sm:[&_th]:text-pour-xs',
+    `[&_th.${summaryAgeCol}]:px-1 [&_th.${summaryAgeCol}]:text-center [&_th.${summaryAgeCol}]:normal-case`,
+    `[&_th.${summaryAgeCol}]:bg-[color:var(--pour-bg-2)]/60`,
+    '[&_th.summary-result-col]:bg-[color:var(--pour-bg-2)]/40',
   ),
-  body: cn(tableCompact.body, '[&_td]:px-1.5 sm:[&_td]:px-2'),
+  body: cn(
+    tableCompact.body,
+    '[&_td]:px-1.5 sm:[&_td]:px-2',
+    `[&_td.${summaryAgeCol}]:px-1 [&_td.${summaryAgeCol}]:bg-[color:var(--pour-bg-2)]/30`,
+    '[&_td.summary-result-col]:bg-[color:var(--pour-bg-2)]/20',
+  ),
 } as const
 
 const ALL_STRUCTURES = 'all'
@@ -81,6 +114,12 @@ function defaultSummaryDateFrom(): string {
 function displayCell(v: string | null | undefined): string {
   if (v == null || v === '') return '—'
   return v
+}
+
+function summaryResultTone(result: string): string {
+  if (result.startsWith('ผ่าน')) return 'text-emerald-700 dark:text-emerald-400'
+  if (result.startsWith('ไม่ผ่าน')) return 'text-rose-700 dark:text-rose-400'
+  return 'text-[color:var(--pour-ink-1)]'
 }
 
 function ConcreteSummaryMobileCard({
@@ -238,6 +277,11 @@ export function ConcreteSummaryPage() {
     [filtered],
   )
 
+  const summaryTableResize = useResizableTableColumns(
+    CONCRETE_SUMMARY_RESIZE_TABLE_ID,
+    CONCRETE_SUMMARY_RESIZE_COLUMNS,
+  )
+
   const dateRangeLabel = useMemo(() => {
     const a = dateFrom.trim() ? formatDate(`${dateFrom.trim()}T12:00:00`) : '—'
     const b = dateTo.trim() ? formatDate(`${dateTo.trim()}T12:00:00`) : '—'
@@ -369,62 +413,91 @@ export function ConcreteSummaryPage() {
                 return <ConcreteSummaryMobileCard key={r.id} itemNo={i + 1} fields={fields} />
               })}
             </div>
-            <div className={cn(app.tableWrap, 'hidden pour-desktop:block')}>
-              <table className={summaryTable.table}>
-                <thead className={summaryTable.head}>
-                  <tr>
-                    <th className={summaryTh.item}>Item</th>
-                    <th className={summaryTh.date}>Casting Date</th>
-                    <th className={summaryTh.work}>Concrete Works</th>
-                    <th className={summaryTh.structure}>Structure</th>
-                    <th className={summaryTh.location}>Location</th>
-                    <th className={summaryTh.structureNo}>Structure No.</th>
-                    <th className={summaryTh.supplier}>Supplier</th>
-                    <th className={summaryTh.slump}>Slump</th>
-                    <th className={summaryTh.mix}>Mix Code</th>
-                    <th className={summaryTh.req}>Req. Strength</th>
-                    {CONCRETE_SUMMARY_TEST_AGES.map((age) => (
-                      <th key={age} className={cn(summaryTh.avg, 'tabular-nums')}>
-                        {CONCRETE_SUMMARY_AVG_LABELS[age]}
-                      </th>
-                    ))}
-                    <th className={summaryTh.result}>Result</th>
-                  </tr>
-                </thead>
-                <tbody className={summaryTable.body}>
-                  {sorted.map((r, i) => {
-                    const views = cstByRequest.get(r.id)
-                    const f = buildConcreteSummaryRowFields(r, views)
-                    return (
-                      <tr key={r.id}>
-                        <td className={cn(summaryTh.item, 'text-pour-muted')}>{i + 1}</td>
-                        <td className={cn(summaryTh.date, 'tabular-nums')}>{f.castingDate}</td>
-                        <td className={summaryTh.work}>{displayCell(f.concrete)}</td>
-                        <td className={summaryTh.structure}>{displayCell(f.structure)}</td>
-                        <td className={cn(summaryTh.location, 'break-words')}>{displayCell(f.location)}</td>
-                        <td className={cn(summaryTh.structureNo, 'break-words')}>
-                          {displayCell(f.structureNo)}
-                        </td>
-                        <td className={summaryTh.supplier}>{displayCell(f.supplier)}</td>
-                        <td className={summaryTh.slump}>{displayCell(f.slump)}</td>
-                        <td className={summaryTh.mix}>{displayCell(f.mixCode)}</td>
-                        <td className={cn(summaryTh.req, 'whitespace-nowrap tabular-nums')}>
-                          {displayCell(f.reqStrength)}
-                        </td>
-                        {CONCRETE_SUMMARY_TEST_AGES.map((age) => (
-                          <td key={age} className={cn(summaryTh.avg, 'tabular-nums whitespace-nowrap')}>
-                            {f.avgByAge[age]}
+            <section className="hidden min-w-0 pour-desktop:block">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                <p className="min-w-0 text-pour-xs leading-snug text-pour-muted">
+                  ลากขอบหัวคอลัมน์เพื่อปรับความกว้าง · ดับเบิลคลิกที่ขอบเพื่อรีเซ็ตคอลัมน์นั้น
+                </p>
+                <ResizableTableToolbar onReset={summaryTableResize.resetWidths} className="shrink-0" />
+              </div>
+              <div className={cn(app.tableWrap, app.tableWrapResizable)}>
+                <table className={summaryTable.table}>
+                  {summaryTableResize.colGroup}
+                  <thead className={summaryTable.head}>
+                    <tr>
+                      {summaryTableResize.renderHeadCell('item', 'Item', {
+                        className: cn('font-medium', summaryCell.item),
+                      })}
+                      {summaryTableResize.renderHeadCell('date', 'Casting Date', {
+                        className: cn('font-medium', summaryCell.date),
+                      })}
+                      {summaryTableResize.renderHeadCell('work', 'Concrete Works', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('structure', 'Structure', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('location', 'Location', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('structureNo', 'Structure No.', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('supplier', 'Supplier', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('slump', 'Slump', {
+                        className: cn('font-medium', summaryCell.slump),
+                      })}
+                      {summaryTableResize.renderHeadCell('mix', 'Mix Code', { className: 'font-medium' })}
+                      {summaryTableResize.renderHeadCell('req', 'Req. Strength', {
+                        className: cn('font-medium', summaryCell.req),
+                      })}
+                      {CONCRETE_SUMMARY_TEST_AGES.map((age) =>
+                        summaryTableResize.renderHeadCell(
+                          `avg${age}`,
+                          CONCRETE_SUMMARY_AVG_LABELS[age],
+                          { className: cn('font-medium', summaryCell.avg) },
+                        ),
+                      )}
+                      {summaryTableResize.renderHeadCell('result', 'Result', {
+                        className: cn('font-medium', summaryCell.result),
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody className={summaryTable.body}>
+                    {sorted.map((r, i) => {
+                      const views = cstByRequest.get(r.id)
+                      const f = buildConcreteSummaryRowFields(r, views)
+                      return (
+                        <tr key={r.id}>
+                          <td className={cn('min-w-0', summaryCell.item)}>{i + 1}</td>
+                          <td className={cn('min-w-0', summaryCell.date)}>{f.castingDate}</td>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.concrete)} />
                           </td>
-                        ))}
-                        <td className={cn(summaryTh.result, 'whitespace-nowrap font-medium')}>
-                          {f.result}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.structure)} />
+                          </td>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.location)} />
+                          </td>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.structureNo)} />
+                          </td>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.supplier)} />
+                          </td>
+                          <td className={cn('min-w-0', summaryCell.slump)}>{displayCell(f.slump)}</td>
+                          <td className="min-w-0">
+                            <TableClampText text={displayCell(f.mixCode)} />
+                          </td>
+                          <td className={cn('min-w-0', summaryCell.req)}>{displayCell(f.reqStrength)}</td>
+                          {CONCRETE_SUMMARY_TEST_AGES.map((age) => (
+                            <td key={age} className={cn('min-w-0', summaryCell.avg)}>
+                              {f.avgByAge[age]}
+                            </td>
+                          ))}
+                          <td className={cn('min-w-0', summaryCell.result)}>
+                            <TableClampText text={f.result} className={summaryResultTone(f.result)} />
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </>
         )}
       </div>

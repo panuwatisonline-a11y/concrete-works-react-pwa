@@ -418,6 +418,17 @@
       max-width: none;
     }
 
+    /* หัวตาราง resizable — ไม่บีบ max-width:0 (มี handle ลากขอบ) */
+    .pour-pc-fix-scale table.pour-table-resizable thead th {
+      max-width: none !important;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    .pour-pc-fix-scale table.pour-table-resizable tbody td {
+      max-width: none;
+    }
+
     .pour-pc-fix-scale .pour-pc-col-actions .flex,
     .pour-pc-fix-scale .pour-pc-col-toggle .flex,
     .pour-pc-fix-scale .pour-pc-col-lead .flex,
