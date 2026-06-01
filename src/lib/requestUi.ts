@@ -346,6 +346,10 @@ export const rq = {
 } as const
 
 /** Surfaces & states — ใช้แทน bg-[color:var(--glass-bg)] / hex ซ้ำๆ ทั้งแอป */
+export const field = {
+  error: 'pour-field-error',
+} as const
+
 export const surface = {
   panel: 'pour-surface-panel',
   chart: cn(
@@ -353,6 +357,9 @@ export const surface = {
   ),
   inset: 'rounded-lg bg-[color:var(--pour-bg-2)] ring-1 ring-[color:var(--glass-border-subtle)]',
   empty: 'pour-empty-state',
+  error: 'pour-surface-error px-4 py-8 text-center text-sm',
+  postpone: 'pour-postpone-callout',
+  notice: 'pour-notice-surface',
   tabActive:
     'bg-[color:var(--pour-nav-active-bg)] text-[color:var(--pour-ink-0)] shadow-sm ring-1 ring-[color:var(--pour-line)]',
   tabIdle: 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',

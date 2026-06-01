@@ -37,6 +37,9 @@ import {
   BOOKING_SUMMARY_SEARCH_ARIA,
   BOOKING_SUMMARY_SEARCH_PLACEHOLDER,
 } from '@/lib/desktopTopBarSearch'
+import { PageLoadError } from '@/components/shared/PageLoadError'
+import { PageLoadingStatus } from '@/components/shared/PageLoadingStatus'
+import { useInfiniteRenderLimit } from '@/hooks/useInfiniteRenderLimit'
 import { app, rq, surface, tableCompact, type } from '@/lib/requestUi'
 import { pourPcUi } from '@/lib/pourPcScale'
 import { cn, formatDate } from '@/lib/utils'
@@ -48,6 +51,9 @@ const summaryTable = {
   head: tableCompact.head,
   body: tableCompact.body,
 } as const
+
+const BOOKING_SUMMARY_RENDER_INITIAL = 60
+const BOOKING_SUMMARY_RENDER_STEP = 60
 
 function cellDisplay(f: BookingSummaryRowFields, key: keyof BookingSummaryRowFields): string {
   const v = f[key]
@@ -212,7 +218,7 @@ export function BookingSummaryPage() {
         setRequests((list) =>
           list.map((r) => (r.id === requestId ? { ...r, booking_ok: rollback } : r)),
         )
-        const msg = e instanceof Error ? e.message : 'บันทึก Accept/No ไม่สำเร็จ'
+        const msg = e instanceof Error ? e.message : 'บันทึก ยอมรับ/ไม่ผ่าน ไม่สำเร็จ'
         toast.error(msg)
       } finally {
         setSavingBookingOkId(null)
@@ -251,6 +257,20 @@ export function BookingSummaryPage() {
     if (n === countFrom) return `${n} รายการ`
     return `${n} รายการ (จาก ${countFrom} รายการ)`
   }, [filtered.length, countFrom])
+
+  const renderResetKey = `${castingDateIso}|${supplierFilter}|${debouncedSearch}|${requests.length}`
+  const { renderLimit, setRenderLimit, sentinelRef, hiddenCount: hiddenRowCount } =
+    useInfiniteRenderLimit(
+      filtered.length,
+      BOOKING_SUMMARY_RENDER_INITIAL,
+      BOOKING_SUMMARY_RENDER_STEP,
+      renderResetKey,
+    )
+
+  const visibleRows = useMemo(
+    () => filtered.slice(0, renderLimit),
+    [filtered, renderLimit],
+  )
 
   const supplierFilterLabel = useMemo(() => {
     if (!supplierFilter) return null
@@ -328,16 +348,11 @@ export function BookingSummaryPage() {
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6" aria-busy={loading || undefined}>
         {loading && requests.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className={rq.spinner} />
-            <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
-          </div>
+          <PageLoadingStatus message="กำลังโหลดรายการจอง…" />
         ) : error && requests.length === 0 ? (
-          <p className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-200">
-            {error}
-          </p>
+          <PageLoadError message={error} onRetry={() => void loadData()} />
         ) : filtered.length === 0 ? (
           <p className={cn(surface.empty, 'py-16 text-center text-sm')}>
             {requests.length === 0
@@ -347,15 +362,16 @@ export function BookingSummaryPage() {
         ) : (
           <>
             <div className="space-y-2 pour-desktop:hidden">
-              {filtered.map((r, i) => (
-                <BookingSummaryMobileCard
-                  key={r.id}
-                  itemNo={i + 1}
-                  r={r}
-                  canEdit={canEditBookingOk}
-                  saving={savingBookingOkId === r.id}
-                  onBookingOkChange={(next) => void handleBookingOkChange(r.id, next)}
-                />
+              {visibleRows.map((r, i) => (
+                <div key={r.id} className="pour-list-perf-row pour-list-perf-row--grid">
+                  <BookingSummaryMobileCard
+                    itemNo={i + 1}
+                    r={r}
+                    canEdit={canEditBookingOk}
+                    saving={savingBookingOkId === r.id}
+                    onBookingOkChange={(next) => void handleBookingOkChange(r.id, next)}
+                  />
+                </div>
               ))}
             </div>
             <div className={cn(app.tableWrap, 'hidden pour-desktop:block')}>
@@ -366,14 +382,14 @@ export function BookingSummaryPage() {
                     {BOOKING_SUMMARY_COLUMNS.map((col) => (
                       <th key={col.key}>{col.label}</th>
                     ))}
-                    <th className={cn(pourPcUi.colToggle, 'text-center')}>Accept/No</th>
+                    <th className={cn(pourPcUi.colToggle, 'text-center')}>ยอมรับ/ไม่ผ่าน</th>
                   </tr>
                 </thead>
                 <tbody className={summaryTable.body}>
-                  {filtered.map((r, i) => {
+                  {visibleRows.map((r, i) => {
                     const f = getBookingSummaryRowFields(r)
                     return (
-                      <tr key={r.id}>
+                      <tr key={r.id} className="pour-list-perf-row pour-list-perf-row--table">
                         <td className={cn(pourPcUi.colNarrow, 'text-center tabular-nums text-pour-muted')}>
                           {i + 1}
                         </td>
@@ -402,6 +418,23 @@ export function BookingSummaryPage() {
                 </tbody>
               </table>
             </div>
+            {hiddenRowCount > 0 ? (
+              <>
+                <div ref={sentinelRef} className="h-px w-full" aria-hidden />
+                <div className="mt-4 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="max-md:min-h-11 rounded-xl border-[color:var(--pour-surface-border)]"
+                    onClick={() =>
+                      setRenderLimit((n) => Math.min(n + BOOKING_SUMMARY_RENDER_STEP, filtered.length))
+                    }
+                  >
+                    แสดงเพิ่ม ({hiddenRowCount} รายการ)
+                  </Button>
+                </div>
+              </>
+            ) : null}
           </>
         )}
       </div>

@@ -107,6 +107,14 @@
     --chart-cursor: #737373;
     --chart-pie-stroke: #262626;
     --chart-tooltip-cursor: rgba(24, 160, 251, 0.14);
+    --pour-warning-bg: rgba(245, 158, 11, 0.14);
+    --pour-warning-border: rgba(251, 191, 36, 0.42);
+    --pour-warning-ink: #fcd34d;
+    --pour-warning-ink-muted: #fbbf24;
+    --pour-booking-ok-active-bg: hsl(142 64% 38%);
+    --pour-booking-ok-active-ink: #ffffff;
+    --pour-booking-no-active-bg: hsl(var(--destructive));
+    --pour-booking-no-active-ink: hsl(var(--destructive-foreground));
     --pour-mobile-header-h: 0px;
   }
 
@@ -159,6 +167,14 @@
     --chart-cursor: #8aa3b8;
     --chart-pie-stroke: #ffffff;
     --chart-tooltip-cursor: rgba(24, 160, 251, 0.1);
+    --pour-warning-bg: rgba(217, 119, 6, 0.1);
+    --pour-warning-border: rgba(180, 83, 9, 0.32);
+    --pour-warning-ink: #b45309;
+    --pour-warning-ink-muted: #d97706;
+    --pour-booking-ok-active-bg: hsl(142 58% 34%);
+    --pour-booking-ok-active-ink: #ffffff;
+    --pour-booking-no-active-bg: hsl(var(--destructive));
+    --pour-booking-no-active-ink: hsl(var(--destructive-foreground));
 
     --background: 210 40% 98%;
     --foreground: 215 45% 25%;
@@ -228,6 +244,14 @@
     --chart-cursor: #8fa89c;
     --chart-pie-stroke: #f8fdfb;
     --chart-tooltip-cursor: rgba(91, 184, 154, 0.12);
+    --pour-warning-bg: rgba(217, 119, 6, 0.12);
+    --pour-warning-border: rgba(180, 83, 9, 0.3);
+    --pour-warning-ink: #b45309;
+    --pour-warning-ink-muted: #d97706;
+    --pour-booking-ok-active-bg: hsl(158 42% 38%);
+    --pour-booking-ok-active-ink: #ffffff;
+    --pour-booking-no-active-bg: hsl(var(--destructive));
+    --pour-booking-no-active-ink: hsl(var(--destructive-foreground));
 
     --background: 158 45% 97%;
     --foreground: 160 25% 28%;
@@ -297,6 +321,14 @@
     --chart-cursor: #A8959F;
     --chart-pie-stroke: #FFFAFC;
     --chart-tooltip-cursor: rgba(232, 140, 173, 0.12);
+    --pour-warning-bg: rgba(217, 119, 6, 0.1);
+    --pour-warning-border: rgba(180, 83, 9, 0.28);
+    --pour-warning-ink: #b45309;
+    --pour-warning-ink-muted: #d97706;
+    --pour-booking-ok-active-bg: hsl(142 58% 34%);
+    --pour-booking-ok-active-ink: #ffffff;
+    --pour-booking-no-active-bg: hsl(var(--destructive));
+    --pour-booking-no-active-ink: hsl(var(--destructive-foreground));
 
     --background: 340 60% 98%;
     --foreground: 330 22% 28%;
@@ -480,6 +512,71 @@
 
   .text-pour-subtle {
     color: var(--pour-ink-3);
+  }
+
+  .pour-field-error {
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: hsl(var(--destructive));
+  }
+
+  .pour-surface-error {
+    border-radius: 1rem;
+    border: 1px solid color-mix(in srgb, hsl(var(--destructive)) 38%, var(--pour-line));
+    background: color-mix(in srgb, hsl(var(--destructive)) 12%, var(--glass-bg));
+    color: hsl(var(--destructive));
+  }
+
+  .pour-postpone-callout {
+    border-radius: 0.5rem;
+    border: 1px solid var(--pour-warning-border);
+    background: var(--pour-warning-bg);
+    color: var(--pour-warning-ink);
+  }
+
+  .pour-postpone-callout p + p {
+    color: var(--pour-warning-ink-muted);
+  }
+
+  .pour-notice-surface {
+    border: 1px solid var(--pour-warning-border);
+    background: var(--pour-warning-bg);
+    color: var(--pour-warning-ink);
+  }
+
+  .pour-booking-toggle-btn {
+    color: var(--pour-ink-3);
+  }
+
+  .pour-booking-toggle-btn:hover:not(:disabled) {
+    background: var(--pour-nav-hover-bg);
+    color: var(--pour-ink-0);
+  }
+
+  .pour-booking-toggle-btn--ok-active {
+    background: var(--pour-booking-ok-active-bg);
+    color: var(--pour-booking-ok-active-ink);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+  }
+
+  .pour-booking-toggle-btn--no-active {
+    background: var(--pour-booking-no-active-bg);
+    color: var(--pour-booking-no-active-ink);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+  }
+
+  /** ลดงาน layout รายการนอกจอ — ใช้กับการ์ด feed / แถวตารางยาว */
+  .pour-list-perf-row {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 7.5rem;
+  }
+
+  .pour-list-perf-row--grid {
+    contain-intrinsic-size: auto 14rem;
+  }
+
+  .pour-list-perf-row--table {
+    contain-intrinsic-size: auto 2.75rem;
   }
 
   /** กันข้อความ/ตารางล้นกรอบ — ใช้กับคอลัมน์ flex/grid และ wrapper ตาราง */

@@ -27,6 +27,7 @@ import { structureHasCompatibleMixcode } from '@/lib/structureListTokens'
 import { validateMixcodeForBooking } from '@/lib/mixcodeBookingFilter'
 import { deleteStoredImage } from '@/lib/imageUpload'
 import { useBookingMixcodePicker } from '@/hooks/useBookingMixcodePicker'
+import { fieldWrapClass, FieldErrorMessage } from '@/lib/formFieldUi'
 import { layout, rq } from '@/lib/requestUi'
 import { scrollToFirstInvalidFormField } from '@/lib/formScrollToError'
 import { RequestScreenHeader } from '@/components/requests/RequestScreenHeader'
@@ -86,13 +87,6 @@ const STEP_VALIDATE_FIELDS: Record<number, Array<keyof FormData>> = {
   1: ['casting_date', 'request_time', 'strength', 'mixcode_id', 'volume_request'],
 }
 
-function fieldWrapClass(message?: string) {
-  return cn(
-    'space-y-1.5 rounded-xl transition-shadow',
-    message && 'ring-2 ring-rose-500/35 ring-offset-2 ring-offset-[color:var(--pour-bg)]',
-  )
-}
-
 function withFieldRevalidate<TFieldName extends keyof FormData>(
   name: TFieldName,
   field: ControllerRenderProps<FormData, TFieldName>,
@@ -108,13 +102,33 @@ function withFieldRevalidate<TFieldName extends keyof FormData>(
   }
 }
 
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null
-  return <p data-field-error className="text-xs text-rose-600">{message}</p>
+const REQUEST_NEW_FIELD_PREFIX = 'request-new'
+
+function requestNewFieldId(name: keyof FormData) {
+  return `${REQUEST_NEW_FIELD_PREFIX}-${name}`
+}
+
+function requestNewErrorId(name: keyof FormData) {
+  return `${REQUEST_NEW_FIELD_PREFIX}-${name}-error`
+}
+
+function requestNewLabelId(name: keyof FormData) {
+  return `${REQUEST_NEW_FIELD_PREFIX}-${name}-label`
+}
+
+function fieldA11y(name: keyof FormData, err?: string) {
+  const errorId = requestNewErrorId(name)
+  return {
+    fieldId: requestNewFieldId(name),
+    labelId: requestNewLabelId(name),
+    errorId,
+    describedBy: err ? errorId : undefined,
+    invalid: Boolean(err),
+  }
 }
 
 const STEP_BAR_SHELL = cn(
-  'pour-contain w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-3 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-inset ring-white/70',
+  'pour-contain w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] px-3 py-3 shadow-sm shadow-black/[0.04] ring-1 ring-inset ring-[color:var(--glass-border-subtle)]',
 )
 
 function RequestStepCircle({ index, step }: { index: number; step: number }) {
@@ -169,6 +183,7 @@ function RequestNewStepBar({ step }: { step: number }) {
                 'ml-2 min-w-0 flex-1 basis-0 truncate text-xs leading-tight',
                 i === step ? 'font-semibold text-[color:var(--pour-ink-0)]' : 'text-pour-subtle',
               )}
+              aria-current={i === step ? 'step' : undefined}
             >
               {label}
             </span>
@@ -502,95 +517,157 @@ export function RequestNewPage() {
     if (s === 0) return (
       <div className="space-y-4">
         <div data-form-field="client_id" className={fieldWrapClass(visibleFieldError('client_id'))}>
-          <Label>User Group *</Label>
-          <Controller name="client_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value}
-              onValueChange={withFieldRevalidate('client_id', field, trigger)}
-              placeholder="เลือก User Group"
-              aria-invalid={Boolean(visibleFieldError('client_id'))}
-              options={mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name)}
-            />
-          )} />
-          <FieldError message={visibleFieldError('client_id')} />
+          {(() => {
+            const a11y = fieldA11y('client_id', visibleFieldError('client_id'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>User Group *</Label>
+                <Controller
+                  name="client_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SearchableSelect
+                      id={a11y.fieldId}
+                      value={field.value}
+                      onValueChange={withFieldRevalidate('client_id', field, trigger)}
+                      placeholder="เลือก User Group"
+                      aria-invalid={a11y.invalid}
+                      aria-describedby={a11y.describedBy}
+                      options={mapSearchableOptions(clients, (c) => String(c.id), (c) => c.client_name)}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('client_id')} />
+              </>
+            )
+          })()}
         </div>
 
         <div className="space-y-1.5">
-          <Label>ABC Code</Label>
-          <Controller name="abc_code_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value ?? ''}
-              onValueChange={field.onChange}
-              placeholder="เลือก ABC Code"
-              options={mapSearchableOptions(abcCodes, (c) => String(c.id), (c) => c.full_abc ?? '')}
-            />
-          )} />
+          <Label htmlFor={requestNewFieldId('abc_code_id')}>ABC Code</Label>
+          <Controller
+            name="abc_code_id"
+            control={control}
+            render={({ field }) => (
+              <SearchableSelect
+                id={requestNewFieldId('abc_code_id')}
+                value={field.value ?? ''}
+                onValueChange={field.onChange}
+                placeholder="เลือก ABC Code"
+                options={mapSearchableOptions(abcCodes, (c) => String(c.id), (c) => c.full_abc ?? '')}
+              />
+            )}
+          />
         </div>
 
         <div className="space-y-1.5">
-          <Label>WBS Code</Label>
-          <Controller name="wbs_code_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value ?? ''}
-              onValueChange={field.onChange}
-              placeholder="เลือก WBS Code"
-              options={mapSearchableOptions(wbsCodes, (w) => String(w.id), (w) => w.full_wbs ?? '')}
-            />
-          )} />
+          <Label htmlFor={requestNewFieldId('wbs_code_id')}>WBS Code</Label>
+          <Controller
+            name="wbs_code_id"
+            control={control}
+            render={({ field }) => (
+              <SearchableSelect
+                id={requestNewFieldId('wbs_code_id')}
+                value={field.value ?? ''}
+                onValueChange={field.onChange}
+                placeholder="เลือก WBS Code"
+                options={mapSearchableOptions(wbsCodes, (w) => String(w.id), (w) => w.full_wbs ?? '')}
+              />
+            )}
+          />
         </div>
 
         <div data-form-field="concrete_work_id" className={fieldWrapClass(visibleFieldError('concrete_work_id'))}>
-          <Label>Concrete Work *</Label>
-          <Controller name="concrete_work_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value}
-              onValueChange={withFieldRevalidate('concrete_work_id', field, trigger, () => {
-                setValue('structure_id', '', { shouldValidate: false })
-                clearErrors('structure_id')
-              })}
-              placeholder="เลือก Concrete Work"
-              aria-invalid={Boolean(visibleFieldError('concrete_work_id'))}
-              options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
-            />
-          )} />
-          <FieldError message={visibleFieldError('concrete_work_id')} />
+          {(() => {
+            const a11y = fieldA11y('concrete_work_id', visibleFieldError('concrete_work_id'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>Concrete Work *</Label>
+                <Controller
+                  name="concrete_work_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SearchableSelect
+                      id={a11y.fieldId}
+                      value={field.value}
+                      onValueChange={withFieldRevalidate('concrete_work_id', field, trigger, () => {
+                        setValue('structure_id', '', { shouldValidate: false })
+                        clearErrors('structure_id')
+                      })}
+                      placeholder="เลือก Concrete Work"
+                      aria-invalid={a11y.invalid}
+                      aria-describedby={a11y.describedBy}
+                      options={mapSearchableOptions(concreteWorks, (cw) => String(cw.id), (cw) => cw.concrete_work)}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('concrete_work_id')} />
+              </>
+            )
+          })()}
         </div>
 
         <div data-form-field="structure_id" className={fieldWrapClass(visibleFieldError('structure_id'))}>
-          <Label>Structure *</Label>
-          <Controller name="structure_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value}
-              onValueChange={withFieldRevalidate('structure_id', field, trigger)}
-              placeholder="เลือก Structure"
-              aria-invalid={Boolean(visibleFieldError('structure_id'))}
-              options={mapSearchableOptions(filteredStructures, (s) => String(s.id), (s) => s.structure_name)}
-            />
-          )} />
-          <FieldError message={visibleFieldError('structure_id')} />
+          {(() => {
+            const a11y = fieldA11y('structure_id', visibleFieldError('structure_id'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>Structure *</Label>
+                <Controller
+                  name="structure_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SearchableSelect
+                      id={a11y.fieldId}
+                      value={field.value}
+                      onValueChange={withFieldRevalidate('structure_id', field, trigger)}
+                      placeholder="เลือก Structure"
+                      aria-invalid={a11y.invalid}
+                      aria-describedby={a11y.describedBy}
+                      options={mapSearchableOptions(filteredStructures, (s) => String(s.id), (s) => s.structure_name)}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('structure_id')} />
+              </>
+            )
+          })()}
         </div>
 
         <div data-form-field="location_id" className={fieldWrapClass(visibleFieldError('location_id'))}>
-          <Label>Location *</Label>
-          <Controller name="location_id" control={control} render={({ field }) => (
-            <SearchableSelect
-              value={field.value}
-              onValueChange={withFieldRevalidate('location_id', field, trigger)}
-              placeholder="เลือก Location"
-              aria-invalid={Boolean(visibleFieldError('location_id'))}
-              options={mapSearchableOptions(
-                locations,
-                (l) => String(l.id),
-                (l) => l.full_location ?? l.location1,
-              )}
-            />
-          )} />
-          <FieldError message={visibleFieldError('location_id')} />
+          {(() => {
+            const a11y = fieldA11y('location_id', visibleFieldError('location_id'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>Location *</Label>
+                <Controller
+                  name="location_id"
+                  control={control}
+                  render={({ field }) => (
+                    <SearchableSelect
+                      id={a11y.fieldId}
+                      value={field.value}
+                      onValueChange={withFieldRevalidate('location_id', field, trigger)}
+                      placeholder="เลือก Location"
+                      aria-invalid={a11y.invalid}
+                      aria-describedby={a11y.describedBy}
+                      options={mapSearchableOptions(
+                        locations,
+                        (l) => String(l.id),
+                        (l) => l.full_location ?? l.location1,
+                      )}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('location_id')} />
+              </>
+            )
+          })()}
         </div>
 
         <div className="space-y-1.5">
-          <Label>Structure No.</Label>
-          <Input placeholder="C-001" {...register('structure_no')} />
+          <Label htmlFor={requestNewFieldId('structure_no')}>Structure No.</Label>
+          <Input id={requestNewFieldId('structure_no')} placeholder="C-001" {...register('structure_no')} />
         </div>
       </div>
     )
@@ -599,68 +676,137 @@ export function RequestNewPage() {
       <div className="space-y-4">
         <div className={layout.formGrid2}>
           <div data-form-field="casting_date" className={fieldWrapClass(visibleFieldError('casting_date'))}>
-            <Label>วันเท *</Label>
-            <Input type="date" aria-invalid={Boolean(visibleFieldError('casting_date'))} {...register('casting_date', { onChange: () => { void trigger('casting_date') } })} />
-            <FieldError message={visibleFieldError('casting_date')} />
+            {(() => {
+              const a11y = fieldA11y('casting_date', visibleFieldError('casting_date'))
+              return (
+                <>
+                  <Label htmlFor={a11y.fieldId}>วันเท *</Label>
+                  <Input
+                    id={a11y.fieldId}
+                    type="date"
+                    aria-invalid={a11y.invalid}
+                    aria-describedby={a11y.describedBy}
+                    {...register('casting_date', { onChange: () => { void trigger('casting_date') } })}
+                  />
+                  <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('casting_date')} />
+                </>
+              )
+            })()}
           </div>
           <div data-form-field="request_time" className={fieldWrapClass(visibleFieldError('request_time'))}>
-            <Label>เวลา *</Label>
-            <Input type="time" aria-invalid={Boolean(visibleFieldError('request_time'))} {...register('request_time', { onChange: () => { void trigger('request_time') } })} />
-            <FieldError message={visibleFieldError('request_time')} />
+            {(() => {
+              const a11y = fieldA11y('request_time', visibleFieldError('request_time'))
+              return (
+                <>
+                  <Label htmlFor={a11y.fieldId}>เวลา *</Label>
+                  <Input
+                    id={a11y.fieldId}
+                    type="time"
+                    aria-invalid={a11y.invalid}
+                    aria-describedby={a11y.describedBy}
+                    {...register('request_time', { onChange: () => { void trigger('request_time') } })}
+                  />
+                  <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('request_time')} />
+                </>
+              )
+            })()}
           </div>
         </div>
 
         <div data-form-field="strength" className={fieldWrapClass(visibleFieldError('strength'))}>
-          <Label>{DWG_STRENGTH_FIELD_LABEL} *</Label>
-          <Controller
-            name="strength"
-            control={control}
-            render={({ field }) => (
-              <RequireStrengthSelect value={field.value} onChange={withFieldRevalidate('strength', field, trigger)} mixcodes={scopeMixcodes} />
-            )}
-          />
-          <FieldError message={visibleFieldError('strength')} />
+          {(() => {
+            const a11y = fieldA11y('strength', visibleFieldError('strength'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>
+                  {DWG_STRENGTH_FIELD_LABEL} *
+                </Label>
+                <Controller
+                  name="strength"
+                  control={control}
+                  render={({ field }) => (
+                    <RequireStrengthSelect
+                      id={a11y.fieldId}
+                      value={field.value}
+                      onChange={withFieldRevalidate('strength', field, trigger)}
+                      mixcodes={scopeMixcodes}
+                      aria-invalid={a11y.invalid}
+                      aria-describedby={a11y.describedBy}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('strength')} />
+              </>
+            )
+          })()}
         </div>
 
         <div data-form-field="mixcode_id" className={fieldWrapClass(visibleFieldError('mixcode_id'))}>
-          <Label>Mixcode *</Label>
-          <Controller
-            name="mixcode_id"
-            control={control}
-            render={({ field }) => (
-              <MixcodePicker
-                value={field.value}
-                onChange={withFieldRevalidate('mixcode_id', field, trigger)}
-                mixcodes={pickerMixcodes}
-                disabled={mixcodePickerLocked}
-                dwgStrengthOption={watchStrength}
-                emptyMessage={pickerEmptyMessage}
-              />
-            )}
-          />
-          <FieldError message={visibleFieldError('mixcode_id')} />
+          {(() => {
+            const a11y = fieldA11y('mixcode_id', visibleFieldError('mixcode_id'))
+            return (
+              <>
+                <Label id={a11y.labelId} htmlFor={a11y.fieldId}>
+                  Mixcode *
+                </Label>
+                <Controller
+                  name="mixcode_id"
+                  control={control}
+                  render={({ field }) => (
+                    <MixcodePicker
+                      id={a11y.fieldId}
+                      aria-labelledby={a11y.labelId}
+                      aria-describedby={a11y.describedBy}
+                      aria-invalid={a11y.invalid}
+                      value={field.value}
+                      onChange={withFieldRevalidate('mixcode_id', field, trigger)}
+                      mixcodes={pickerMixcodes}
+                      disabled={mixcodePickerLocked}
+                      dwgStrengthOption={watchStrength}
+                      emptyMessage={pickerEmptyMessage}
+                    />
+                  )}
+                />
+                <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('mixcode_id')} />
+              </>
+            )
+          })()}
         </div>
 
         <div className={layout.formGrid2}>
           <div className="space-y-1.5">
-            <Label>DWG volume (cu.m)</Label>
-            <Input type="number" step="0.01" {...register('volume_dwg')} />
+            <Label htmlFor={requestNewFieldId('volume_dwg')}>DWG volume (cu.m)</Label>
+            <Input id={requestNewFieldId('volume_dwg')} type="number" step="0.01" {...register('volume_dwg')} />
           </div>
           <div data-form-field="volume_request" className={fieldWrapClass(visibleFieldError('volume_request'))}>
-            <Label>Request Volume (cu.m) *</Label>
-            <Input type="number" step="0.01" aria-invalid={Boolean(visibleFieldError('volume_request'))} {...register('volume_request', { onChange: () => { void trigger('volume_request') } })} />
-            <FieldError message={visibleFieldError('volume_request')} />
+            {(() => {
+              const a11y = fieldA11y('volume_request', visibleFieldError('volume_request'))
+              return (
+                <>
+                  <Label htmlFor={a11y.fieldId}>Request Volume (cu.m) *</Label>
+                  <Input
+                    id={a11y.fieldId}
+                    type="number"
+                    step="0.01"
+                    aria-invalid={a11y.invalid}
+                    aria-describedby={a11y.describedBy}
+                    {...register('volume_request', { onChange: () => { void trigger('volume_request') } })}
+                  />
+                  <FieldErrorMessage id={a11y.errorId} message={visibleFieldError('volume_request')} />
+                </>
+              )
+            })()}
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <Label>จำนวนตัวอย่าง (ก้อน)</Label>
-          <Input type="number" {...register('sample_qty')} />
+          <Label htmlFor={requestNewFieldId('sample_qty')}>จำนวนตัวอย่าง (ก้อน)</Label>
+          <Input id={requestNewFieldId('sample_qty')} type="number" {...register('sample_qty')} />
         </div>
 
         <div className="space-y-1.5">
-          <Label>หมายเหตุ</Label>
-          <Textarea rows={3} {...register('remarks')} />
+          <Label htmlFor={requestNewFieldId('remarks')}>หมายเหตุ</Label>
+          <Textarea id={requestNewFieldId('remarks')} rows={3} {...register('remarks')} />
         </div>
       </div>
     )
@@ -674,7 +820,7 @@ export function RequestNewPage() {
     return (
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <Label>รูปก่อนเท</Label>
+          <Label id={requestNewLabelId('before_image')}>รูปก่อนเท</Label>
           <ImageUpload
             value={beforeImage ?? undefined}
             onChange={(url) => setBeforeImage(url)}

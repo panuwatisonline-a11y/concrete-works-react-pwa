@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
+import { memo, useEffect, useState, useCallback, useMemo, useRef, type ReactNode } from 'react'
 import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { flushOfflineMutationQueue } from '@/lib/offline/flush'
 import {
@@ -48,6 +48,7 @@ import { useRequestOverlayStore } from '@/stores/requestOverlayStore'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { AppIcon } from '@/components/icons/AppIcon'
 import type { Job, RequestWithRelations } from '@/types/app.types'
+import { PageLoadingStatus } from '@/components/shared/PageLoadingStatus'
 import { StaggerItem } from '@/components/motion/StaggerItem'
 import { StatusSummaryCard } from '@/components/requests/StatusSummaryCard'
 import { RequestBookingCalendar } from '@/components/requests/RequestBookingCalendar'
@@ -59,7 +60,7 @@ import {
 import { NonSystemBookingBadge } from '@/components/requests/NonSystemBookingBadge'
 import { isNonSystemBookingRequest, remarksForDisplay } from '@/lib/nonSystemBooking'
 import { resolveJobName } from '@/lib/jobScopeDisplay'
-import { rq, theme, type, anim } from '@/lib/requestUi'
+import { rq, surface, theme, type, anim } from '@/lib/requestUi'
 
 const LIST_LAYOUT_KEY = 'cw-request-list-layout'
 
@@ -76,6 +77,8 @@ const listEmptyClass = cn(
 )
 
 const PAGE_SIZE = 20
+/** เปิด stagger animation เฉพาะเมื่อจำนวนการ์ดที่แสดงไม่เกินค่านี้ */
+const FEED_STAGGER_MAX_ITEMS = 12
 
 type RequestFeedSection = {
   dateKey: string
@@ -188,6 +191,16 @@ function RequestGroupedFeedBody({
     })
   }, [sections])
 
+  const visibleItemCount = useMemo(
+    () =>
+      sections.reduce(
+        (n, s) => n + ((openMap[s.dateKey] ?? false) ? s.items.length : 0),
+        0,
+      ),
+    [sections, openMap],
+  )
+  const animateStagger = visibleItemCount <= FEED_STAGGER_MAX_ITEMS
+
   return (
     <div className="space-y-3 max-[767px]:space-y-3">
       {sections.map((section) => {
@@ -249,7 +262,15 @@ function RequestGroupedFeedBody({
                   )}
                 >
                   {section.items.map((r, i) => (
-                    <StaggerItem key={r.id} index={section.staggerStart + i}>
+                    <StaggerItem
+                      key={r.id}
+                      index={section.staggerStart + i}
+                      animate={animateStagger}
+                      className={cn(
+                        'pour-list-perf-row',
+                        layoutMode === 'grid' && 'pour-list-perf-row--grid',
+                      )}
+                    >
                       <RequestFeedCard
                         r={r}
                         variant={layoutMode}
@@ -312,7 +333,27 @@ function handleFeedQuickAction(
   onOpenWorkflow(r, a.modal)
 }
 
-function RequestFeedCard({
+function requestFeedCardPropsEqual(
+  prev: {
+    r: RequestWithRelations
+    variant?: 'grid' | 'list'
+    bookerScope: InspectorBookerScope
+  },
+  next: typeof prev,
+) {
+  return (
+    prev.r.id === next.r.id &&
+    prev.r.status_id === next.r.status_id &&
+    prev.r.booked_at === next.r.booked_at &&
+    prev.r.before_image === next.r.before_image &&
+    prev.r.after_image === next.r.after_image &&
+    prev.r.booking_ok === next.r.booking_ok &&
+    prev.variant === next.variant &&
+    prev.bookerScope === next.bookerScope
+  )
+}
+
+const RequestFeedCard = memo(function RequestFeedCard({
   r,
   variant = 'list',
   onRequestUpdated,
@@ -419,7 +460,7 @@ function RequestFeedCard({
               {thumbUrl && !thumbFailed ? (
                 <img
                   src={thumbUrl}
-                  alt=""
+                  alt={`รูปคำขอ ${bookerDisplay}`}
                   referrerPolicy="no-referrer"
                   loading="lazy"
                   decoding="async"
@@ -460,12 +501,6 @@ function RequestFeedCard({
                       </p>
                     ))}
                   </div>
-                  {!gridDetailsExpanded ? (
-                    <div
-                      className="pointer-events-none absolute inset-x-0 bottom-0 h-9 bg-gradient-to-t from-[color:var(--glass-bg)] via-[color:var(--glass-bg)]/90 to-transparent"
-                      aria-hidden
-                    />
-                  ) : null}
                 </div>
                 <button
                   type="button"
@@ -477,7 +512,7 @@ function RequestFeedCard({
                     setGridDetailsExpanded((open) => !open)
                   }}
                 >
-                  {gridDetailsExpanded ? 'Hide details' : 'Show details'}
+                  {gridDetailsExpanded ? 'ซ่อนรายละเอียด' : 'แสดงรายละเอียด'}
                 </button>
               </div>
             ) : null}
@@ -509,18 +544,18 @@ function RequestFeedCard({
           {thumbUrl && !thumbFailed ? (
             <button
               type="button"
-              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/45 pour-desktop:pt-0.5"
+              className="shrink-0 cursor-zoom-in rounded-full pt-px text-left outline-none ring-offset-2 transition hover:opacity-95 focus-visible:ring-2 focus-visible:ring-[color:var(--pour-accent)]/45 max-md:flex max-md:min-h-11 max-md:min-w-11 max-md:items-center max-md:justify-center pour-desktop:pt-0.5"
               aria-label="ขยายรูป"
               onClick={() => {
                 const src = imageSrcForImgTag(rawThumb, 'lightbox')
                 if (src) setLightboxSrc(src)
               }}
             >
-              <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
+              <div className="rounded-full ring-1 ring-[color:var(--glass-border-subtle)] p-[1.5px] pour-desktop:p-[2px]">
                 <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[1.5px] pour-desktop:p-[2px]">
                   <img
                     src={thumbUrl}
-                    alt=""
+                    alt={`รูปคำขอ ${bookerDisplay}`}
                     referrerPolicy="no-referrer"
                     loading="lazy"
                     decoding="async"
@@ -537,9 +572,9 @@ function RequestFeedCard({
           >
             {(!thumbUrl || thumbFailed) && (
               <div className="shrink-0 pt-px pour-desktop:pt-0.5">
-                <div className="rounded-full bg-gradient-to-tr from-neutral-400 via-neutral-600 to-neutral-900 p-[1.5px] shadow-sm pour-desktop:p-[2px]">
+                <div className="rounded-full ring-1 ring-[color:var(--glass-border-subtle)] p-[1.5px] pour-desktop:p-[2px]">
                   <div className="rounded-full bg-[color:var(--glass-bg-strong)] p-[1.5px] pour-desktop:p-[2px]">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#525252] to-[#262626] text-sm font-bold text-white pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[color:var(--pour-bg-2)] text-sm font-bold text-[color:var(--pour-ink-0)] pour-desktop:h-11 pour-desktop:w-11 pour-desktop:text-base">
                       {initial}
                     </div>
                   </div>
@@ -576,9 +611,9 @@ function RequestFeedCard({
               <FeedDetailRow key={detail.label} label={detail.label} value={detail.value} />
             ))}
             {r.status_id === 5 && (r.postpone_date || r.reason_postpone) ? (
-              <div className={cn('rounded-lg border border-amber-700/50 bg-amber-950/40 px-3 py-2.5 leading-relaxed text-amber-200', type.detail)}>
+              <div className={cn(surface.postpone, 'px-3 py-2.5 leading-relaxed', type.detail)}>
                 {r.postpone_date ? <p>เลื่อนเป็น {formatDate(r.postpone_date)} {r.postpone_time ? formatTime(r.postpone_time) : ''}</p> : null}
-                {r.reason_postpone ? <p className="mt-0.5 text-amber-300/90">{r.reason_postpone}</p> : null}
+                {r.reason_postpone ? <p className="mt-0.5">{r.reason_postpone}</p> : null}
               </div>
             ) : null}
           </div>
@@ -606,7 +641,7 @@ function RequestFeedCard({
       />
     </>
   )
-}
+}, requestFeedCardPropsEqual)
 
 export function RequestListPage() {
   const { user, profile, role } = useAuthStore()
@@ -924,16 +959,27 @@ export function RequestListPage() {
   const listTitle = scopeMine ? 'รายการของฉัน' : 'รายการคำขอ'
   const listSubtitle = loading ? 'กำลังโหลด…' : `${total} รายการ`
 
+  const paginationBtnClass = 'max-md:min-h-11 max-md:px-4'
   const pagination = total > PAGE_SIZE ? (
     <div className="mt-4 flex items-center justify-center gap-2 border-t border-[color:var(--pour-line)] pt-4">
-      <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>ก่อนหน้า</Button>
+      <Button variant="outline" size="sm" className={paginationBtnClass} disabled={page === 0} onClick={() => setPage(page - 1)}>
+        ก่อนหน้า
+      </Button>
       <span className={type.caption}>หน้า {page + 1} / {Math.ceil(total / PAGE_SIZE)}</span>
-      <Button variant="outline" size="sm" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>ถัดไป</Button>
+      <Button
+        variant="outline"
+        size="sm"
+        className={paginationBtnClass}
+        disabled={(page + 1) * PAGE_SIZE >= total}
+        onClick={() => setPage(page + 1)}
+      >
+        ถัดไป
+      </Button>
     </div>
   ) : null
 
   const feedBody = loading ? (
-    <p className={listEmptyClass}>กำลังโหลด…</p>
+    <PageLoadingStatus className="py-16" message="กำลังโหลดรายการ…" />
   ) : requests.length === 0 ? (
     <p className={listEmptyClass}>ไม่พบรายการ</p>
   ) : (
@@ -988,7 +1034,7 @@ export function RequestListPage() {
       ) : mobileView === 'summary' ? (
         <div className="mt-2.5 grid w-full min-w-0 grid-cols-1 gap-2 max-md:mt-0 pour-desktop:mt-6 pour-desktop:gap-3">
           {!masterLoaded ? (
-            <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-pour-base', rq.sub)}>กำลังโหลดสถานะ…</p>
+            <PageLoadingStatus className="col-span-full py-8" message="กำลังโหลดสถานะ…" />
           ) : statusRowsForSummary.length === 0 ? (
             <p className={cn(rq.cardMuted, 'col-span-full py-8 text-center text-pour-base', rq.sub)}>ไม่พบข้อมูลสถานะในระบบ</p>
           ) : (

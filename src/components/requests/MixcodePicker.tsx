@@ -13,6 +13,10 @@ export function MixcodePicker({
   disabled,
   emptyMessage,
   dwgStrengthOption,
+  id,
+  'aria-labelledby': ariaLabelledBy,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
 }: {
   value: string
   onChange: (mixcodeId: string) => void
@@ -22,6 +26,10 @@ export function MixcodePicker({
   emptyMessage?: string
   /** ค่า Select DWG Strength — ใช้แสดง hint เมื่อ Mixcode สูงกว่าแบบ */
   dwgStrengthOption?: string
+  id?: string
+  'aria-labelledby'?: string
+  'aria-describedby'?: string
+  'aria-invalid'?: boolean
 }) {
   const selected = value ? mixcodes.find((m) => String(m.id) === value) : undefined
   const emptyLabel = emptyMessage ?? 'ยังไม่มี Mixcode ในระบบ'
@@ -53,6 +61,11 @@ export function MixcodePicker({
   return (
     <div className="min-w-0 space-y-2">
       <div
+        id={id}
+        role="group"
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
         className={cn(
           'min-w-0 overflow-hidden rounded-xl border-[1.5px] border-[color:var(--pour-surface-border)] bg-[color:var(--glass-bg)] shadow-[var(--glass-shadow-sm)]',
           disabled && 'pointer-events-none opacity-50',

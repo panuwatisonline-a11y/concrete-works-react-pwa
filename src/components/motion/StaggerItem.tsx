@@ -10,12 +10,22 @@ export function StaggerItem({
   children,
   className,
   style,
+  animate = true,
 }: {
   index: number
   children: ReactNode
   className?: string
   style?: CSSProperties
+  /** ปิดเมื่อรายการเยอะ — ลดงาน animation บน feed ยาว */
+  animate?: boolean
 }) {
+  if (!animate) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    )
+  }
   const delay = Math.min(index, MAX_STAGGER_INDEX) * STAGGER_MS
   return (
     <div

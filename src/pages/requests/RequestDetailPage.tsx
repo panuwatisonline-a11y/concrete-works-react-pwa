@@ -32,7 +32,9 @@ import { copyRequestOrderLoadToClipboard } from '@/lib/requestOrderClipboard'
 import { warmCstReportTemplateCache } from '@/lib/cstPrint'
 import { RequestActionBar } from '@/components/requests/RequestActionBar'
 import { RequestWorkflowModals } from '@/components/requests/RequestWorkflowModals'
-import { rq } from '@/lib/requestUi'
+import { rq, surface } from '@/lib/requestUi'
+import { PageLoadError } from '@/components/shared/PageLoadError'
+import { PageLoadingStatus } from '@/components/shared/PageLoadingStatus'
 import {
   REQUEST_DETAIL_SEARCH_ARIA,
   REQUEST_DETAIL_SEARCH_PLACEHOLDER,
@@ -221,23 +223,23 @@ export function RequestDetailPage() {
   if (loading) {
     return (
       <div className={rq.page}>
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className={rq.spinner} />
-          <p className="mt-3 text-sm text-pour-muted">กำลังโหลด…</p>
-        </div>
+        <RequestScreenHeader title="รายละเอียดคำขอ" onBack={() => navigate(-1)} />
+        <PageLoadingStatus />
       </div>
     )
   }
   if (error) {
     return (
       <div className={rq.page}>
-        <p className="rounded-2xl border border-rose-200/80 bg-rose-50/90 px-4 py-8 text-center text-sm text-rose-800">{error}</p>
+        <RequestScreenHeader title="รายละเอียดคำขอ" onBack={() => navigate(-1)} />
+        <PageLoadError message={error} onRetry={() => void loadData()} className="mt-4" />
       </div>
     )
   }
   if (!request) {
     return (
       <div className={rq.page}>
+        <RequestScreenHeader title="รายละเอียดคำขอ" onBack={() => navigate(-1)} />
         <p className="py-16 text-center text-sm text-pour-muted">ไม่พบข้อมูล</p>
       </div>
     )
@@ -491,7 +493,7 @@ export function RequestDetailPage() {
                       >
                         <img
                           src={imageSrcForImgTag(request.before_image, 'detail') ?? request.before_image}
-                          alt=""
+                          alt="รูปก่อนเท"
                           referrerPolicy="no-referrer"
                           className={cn(
                             'w-auto max-w-full object-contain object-center pointer-events-none',
@@ -523,7 +525,7 @@ export function RequestDetailPage() {
                       >
                         <img
                           src={imageSrcForImgTag(request.after_image, 'detail') ?? request.after_image}
-                          alt=""
+                          alt="รูปหลังเท"
                           referrerPolicy="no-referrer"
                           className={cn(
                             'w-auto max-w-full object-contain object-center pointer-events-none',
@@ -560,7 +562,7 @@ export function RequestDetailPage() {
                   <span className="flex min-h-[9.5rem] w-full items-center justify-center rounded-xl border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-accent-muted)] p-2 shadow-sm sm:min-h-[11rem]">
                     <img
                       src={imageSrcForImgTag(request.eslip_url, 'detail') ?? request.eslip_url}
-                      alt=""
+                      alt="Bill Concrete"
                       referrerPolicy="no-referrer"
                       className="max-h-44 w-auto max-w-full object-contain object-center pointer-events-none sm:max-h-52"
                     />
@@ -578,8 +580,8 @@ export function RequestDetailPage() {
       )}
 
       {nonSystemBooking ? (
-        <Card className={cn(rq.card, 'border-amber-200/60 bg-amber-50/40')}>
-          <CardContent className={cn(rq.cardContent, 'text-sm text-amber-950')}>
+        <Card className={cn(rq.card, surface.notice)}>
+          <CardContent className={cn(rq.cardContent, 'text-sm')}>
             รายการนี้<strong className="font-semibold">ไม่ได้จองผ่านระบบ</strong> — บันทึกตรงเป็นสถานะ Complete (เช่น จาก CST shortcut)
           </CardContent>
         </Card>

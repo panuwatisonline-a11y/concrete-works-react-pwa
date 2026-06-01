@@ -8,9 +8,20 @@ type Props = {
   onChange: (value: string) => void
   mixcodes: MixedCode[]
   disabled?: boolean
+  id?: string
+  'aria-invalid'?: boolean
+  'aria-describedby'?: string
 }
 
-export function RequireStrengthSelect({ value, onChange, mixcodes, disabled }: Props) {
+export function RequireStrengthSelect({
+  value,
+  onChange,
+  mixcodes,
+  disabled,
+  id,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
+}: Props) {
   const options = useMemo(() => listMixcodeStrengthOptions(mixcodes), [mixcodes])
 
   return (
@@ -18,6 +29,9 @@ export function RequireStrengthSelect({ value, onChange, mixcodes, disabled }: P
       value={value}
       onValueChange={onChange}
       disabled={disabled}
+      id={id}
+      aria-invalid={ariaInvalid}
+      aria-describedby={ariaDescribedBy}
       placeholder={options.length ? DWG_STRENGTH_SELECT_PLACEHOLDER : 'ยังไม่มี Strength ใน Mixcode'}
       options={options}
     />

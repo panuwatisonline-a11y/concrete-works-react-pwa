@@ -33,7 +33,7 @@ function readActiveTab(pathname: string, search: URLSearchParams): ListTab {
 
 const tabLinkClass = (isActive: boolean) =>
   cn(
-    'pour-interactive pour-nav-item flex min-h-8 min-w-0 max-md:flex-1 max-md:basis-0 items-center justify-center rounded-md px-0.5 py-1 text-center text-pour-xs font-medium leading-none transition-colors',
+    'pour-interactive pour-nav-item flex min-h-11 min-w-0 max-md:flex-1 max-md:basis-0 items-center justify-center rounded-md px-0.5 py-1.5 text-center text-pour-xs font-medium leading-none transition-colors',
     'max-w-full',
     'pour-desktop:min-h-0 pour-desktop:gap-1 pour-desktop:rounded-lg pour-desktop:px-2 pour-desktop:py-2 pour-desktop:text-pour-md pour-desktop:leading-tight pour-desktop:line-clamp-none pour-desktop:whitespace-normal',
     isActive

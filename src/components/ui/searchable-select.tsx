@@ -29,6 +29,7 @@ export type SearchableSelectProps = {
   listClassName?: string
   id?: string
   'aria-invalid'?: boolean
+  'aria-describedby'?: string
 }
 
 export function mapSearchableOptions<T>(
@@ -69,6 +70,7 @@ export function SearchableSelect({
   listClassName,
   id,
   'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }: SearchableSelectProps) {
   const popoverLayerStyle = usePopoverLayerStyle()
   const listboxId = React.useId()
@@ -176,6 +178,7 @@ export function SearchableSelect({
           aria-expanded={open}
           aria-controls={listboxId}
           aria-invalid={ariaInvalid}
+          aria-describedby={ariaDescribedBy}
           disabled={disabled}
           onKeyDown={onTriggerKeyDown}
           className={cn(

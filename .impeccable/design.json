@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-01T00:00:00.000Z",
+  "title": "Design System: Concrete Works",
+  "extensions": {
+    "colorMeta": {
+      "accent-primary": {
+        "role": "primary",
+        "displayName": "Operations Blue",
+        "canonical": "oklch(68% 0.14 240)",
+        "tonalRamp": [
+          "oklch(22% 0.06 240)",
+          "oklch(32% 0.09 240)",
+          "oklch(42% 0.11 240)",
+          "oklch(52% 0.13 240)",
+          "oklch(62% 0.14 240)",
+          "oklch(68% 0.14 240)",
+          "oklch(74% 0.12 240)",
+          "oklch(88% 0.06 240)"
+        ]
+      },
+      "surface-shell": {
+        "role": "neutral",
+        "displayName": "Shell Charcoal",
+        "canonical": "oklch(24% 0 0)",
+        "tonalRamp": [
+          "oklch(12% 0 0)",
+          "oklch(16% 0 0)",
+          "oklch(20% 0 0)",
+          "oklch(24% 0 0)",
+          "oklch(30% 0 0)",
+          "oklch(36% 0 0)",
+          "oklch(48% 0 0)",
+          "oklch(92% 0 0)"
+        ]
+      },
+      "surface-glass": {
+        "role": "neutral",
+        "displayName": "Glass Panel",
+        "canonical": "oklch(30% 0 0)",
+        "tonalRamp": [
+          "oklch(14% 0 0)",
+          "oklch(18% 0 0)",
+          "oklch(22% 0 0)",
+          "oklch(26% 0 0)",
+          "oklch(30% 0 0)",
+          "oklch(36% 0 0)",
+          "oklch(44% 0 0)",
+          "oklch(90% 0 0)"
+        ]
+      },
+      "ink-primary": {
+        "role": "neutral",
+        "displayName": "Ink Primary",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "oklch(20% 0 0)",
+          "oklch(35% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(65% 0 0)",
+          "oklch(78% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(95% 0 0)",
+          "oklch(100% 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Rare page heroes only; one per view."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Screen titles and primary page headers."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Section and dialog headers."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Forms, tables, descriptions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Short overlines and compact metadata; not body copy."
+      }
+    },
+    "shadows": [
+      {
+        "name": "glass-shadow-sm",
+        "value": "0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25)",
+        "purpose": "Default resting shadow on pour-glass cards (dark theme)."
+      },
+      {
+        "name": "glass-shadow",
+        "value": "0 8px 24px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3)",
+        "purpose": "Modals and elevated panels."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-glass",
+        "value": "ease",
+        "purpose": "Glass surface border/background transitions (0.15–0.2s)."
+      },
+      {
+        "name": "ease-page",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Mobile page enter/exit (pour-page-*); disabled when reduced motion."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "767px" },
+      { "name": "pour-desktop", "value": "768px landscape" },
+      { "name": "pour-wide", "value": "1280px landscape" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call to action on forms and modals.",
+      "html": "<button type=\"button\" class=\"ds-btn-primary\">บันทึกคำขอ</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 10px 16px; font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; line-height: 1.25; color: #ffffff; background: #18a0fb; border: none; border-radius: 12px; cursor: pointer; transition: background 0.15s ease; } .ds-btn-primary:hover { background: #0d8ce8; } .ds-btn-primary:focus-visible { outline: 2px solid rgba(24, 160, 251, 0.35); outline-offset: 2px; } .ds-btn-primary:active { background: #0d8ce8; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions on glass toolbars.",
+      "html": "<button type=\"button\" class=\"ds-btn-outline\">ยกเลิก</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 10px 16px; font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; color: #e5e5e5; background: transparent; border: 1.5px solid #383838; border-radius: 12px; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; } .ds-btn-outline:hover { border-color: #525252; background: rgba(255, 255, 255, 0.06); } .ds-btn-outline:focus-visible { outline: 2px solid rgba(24, 160, 251, 0.35); outline-offset: 2px; border-color: #18a0fb; }"
+    },
+    {
+      "name": "Glass Input",
+      "kind": "input",
+      "refersTo": "input-glass",
+      "description": "Text field on dark glass surfaces.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">ปริมาณ (m³)</span><input type=\"text\" class=\"ds-input-glass\" placeholder=\"0.00\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; } .ds-field-label { font-size: 0.75rem; font-weight: 500; color: #e5e5e5; } .ds-input-glass { width: 100%; box-sizing: border-box; padding: 10px 14px; font-size: 0.75rem; color: #ffffff; background: #2c2c2c; border: 1.5px solid #383838; border-radius: 12px; outline: none; transition: border-color 0.15s ease; } .ds-input-glass::placeholder { color: #737373; } .ds-input-glass:hover { border-color: #525252; } .ds-input-glass:focus { border-color: #18a0fb; }"
+    },
+    {
+      "name": "Glass Card",
+      "kind": "card",
+      "refersTo": "glass-card",
+      "description": "Default content panel for lists and summaries.",
+      "html": "<article class=\"ds-glass-card\"><h3 class=\"ds-glass-card-title\">สรุปสถานะ</h3><p class=\"ds-glass-card-body\">รอดำเนินการ 12 รายการ</p></article>",
+      "css": ".ds-glass-card { padding: 16px 20px; background: #2c2c2c; border: 1px solid #383838; border-radius: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25); font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; } .ds-glass-card-title { margin: 0 0 8px; font-size: 0.875rem; font-weight: 600; color: #ffffff; letter-spacing: -0.01em; } .ds-glass-card-body { margin: 0; font-size: 0.75rem; line-height: 1.5; color: #a3a3a3; }"
+    },
+    {
+      "name": "Nav Item Active",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Current item in desktop sidebar.",
+      "html": "<a href=\"#\" class=\"ds-nav-item ds-nav-item--active\"><span class=\"ds-nav-icon\" aria-hidden=\"true\">▣</span>คำขอคอนกรีต</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; font-size: 0.8125rem; font-weight: 500; color: #a3a3a3; text-decoration: none; border-radius: 8px; transition: background 0.15s ease, color 0.15s ease; } .ds-nav-item:hover { color: #ffffff; background: rgba(255, 255, 255, 0.06); } .ds-nav-item--active { color: #ffffff; background: rgba(24, 160, 251, 0.14); } .ds-nav-item:focus-visible { outline: 2px solid rgba(24, 160, 251, 0.35); outline-offset: 2px; } .ds-nav-icon { width: 18px; text-align: center; opacity: 0.9; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "description": "Workflow status pill on request cards.",
+      "html": "<span class=\"ds-status-chip\">รออนุมัติ</span>",
+      "css": ".ds-status-chip { display: inline-flex; align-items: center; padding: 4px 10px; font-family: \"LINE Seed Sans\", ui-sans-serif, system-ui, sans-serif; font-size: 0.625rem; font-weight: 600; line-height: 1.35; color: #fbbf24; background: color-mix(in srgb, #2c2c2c 85%, #fbbf24 15%); border: 1px solid color-mix(in srgb, #383838 70%, #fbbf24 30%); border-radius: 999px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Pour Control Room",
+    "overview": "Concrete Works reads like a control room for pour operations: calm, legible, and authoritative. Surfaces are layered with tinted neutrals and restrained glass so status, volumes, and workflow steps stay scannable on a phone at a job site or on a wide desktop in the office. The system serves three balanced jobs (requests, CST/quality, ops/admin) without letting any one screen feel like a marketing dashboard.\n\nDensity follows context: compact tables and forms on desktop (pour-desktop, fluid type from Figma 1440), slightly larger touch targets on mobile (390-based scale). Motion confirms state (page enter, press, status pulse) rather than decorating idle screens. Four theme variants (dark, light, green, pink) swap the same token names; dark is the default for field and night use.",
+    "keyCharacteristics": [
+      "Single sans family (LINE Seed Sans) with tabular numerals for metrics",
+      "Accent blue (#18a0fb) reserved for primary actions, focus rings, and current nav",
+      "Glass surfaces (pour-glass*) with subtle borders and small shadows",
+      "Semantic ink ramp (--pour-ink-0 … --pour-ink-3) instead of raw gray on color",
+      "MUI primitives aligned to 12px radius and textTransform: none",
+      "Breakpoints: mobile portrait; pour-desktop landscape ≥768px; pour-wide ≥1280px"
+    ],
+    "rules": [
+      {
+        "name": "The Token-Only Rule",
+        "body": "New screens use var(--pour-*) and var(--glass-*). Do not introduce raw slate-*, indigo-*, or hex one-offs on dashboard or form surfaces.",
+        "section": "colors"
+      },
+      {
+        "name": "The Accent Sparingly Rule",
+        "body": "#18a0fb marks what is actionable or selected. If everything is blue, nothing is.",
+        "section": "colors"
+      },
+      {
+        "name": "The Fixed-Scale Rule",
+        "body": "Product UI uses the text-pour-* scale and pour-mobile/pour-pc fluid tokens, not marketing-style clamp() display headings.",
+        "section": "typography"
+      },
+      {
+        "name": "The Table Head Rule",
+        "body": "Table headers use type.tableHead (normal case, medium weight), not uppercase grid labels.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Form Rule",
+        "body": "Form fields do not animate layout or background on every keystroke; border color shifts to --pour-accent on focus only.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Reduced Motion Rule",
+        "body": "All pour-page-*, stagger, card-lift, and status pulse animations disable under prefers-reduced-motion: reduce.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use --pour-ink-* and --glass-* for all new UI on interactive surfaces.",
+      "Do use tabular-nums / font-mono class for volumes, dates, and dashboard KPI values.",
+      "Do respect pour-desktop vs mobile layouts.",
+      "Do keep primary actions verb + object in labels.",
+      "Do provide focus-visible styles and honor prefers-reduced-motion."
+    ],
+    "donts": [
+      "Don't add styles that break consistency with the current token system.",
+      "Don't use gradient text (bg-clip-text + gradient) for headings or brand.",
+      "Don't ship SaaS-style KPI cards (gradient border frames, unrelated indigo/violet accents).",
+      "Don't put text-slate-* on saturated accent buttons or chart toggles.",
+      "Don't use colored border-left stripes thicker than 1px as card accents.",
+      "Don't add decorative page-load choreography.",
+      "Don't nest glass cards without pour-glass-muted or flat inset."
+    ]
+  }
+}

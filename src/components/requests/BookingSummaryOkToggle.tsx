@@ -9,14 +9,20 @@ export type BookingSummaryOkToggleProps = {
   disabled?: boolean
 }
 
-const shell = 'inline-flex gap-0.5 rounded-lg border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] p-0.5'
+const shell =
+  'inline-flex gap-0.5 rounded-lg border border-[color:var(--pour-surface-border)] bg-[color:var(--pour-surface-tint)] p-0.5'
+
+const btnBase = cn(
+  'pour-interactive pour-booking-toggle-btn inline-flex shrink-0 items-center justify-center rounded-md transition-colors',
+  'h-9 w-9 min-h-9 min-w-9',
+  'max-md:h-11 max-md:w-11 max-md:min-h-[44px] max-md:min-w-[44px]',
+)
 
 function btnClass(active: boolean, tone: 'ok' | 'fail') {
   return cn(
-    'pour-interactive inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
-    active && tone === 'ok' && 'bg-emerald-600 text-white shadow-sm',
-    active && tone === 'fail' && 'bg-rose-600 text-white shadow-sm',
-    !active && 'text-pour-muted hover:bg-[color:var(--pour-nav-hover-bg)] hover:text-[color:var(--pour-ink-0)]',
+    btnBase,
+    active && tone === 'ok' && 'pour-booking-toggle-btn--ok-active',
+    active && tone === 'fail' && 'pour-booking-toggle-btn--no-active',
   )
 }
 
@@ -35,16 +41,16 @@ export function BookingSummaryOkToggle({
   return (
     <div
       role="group"
-      aria-label="Accept / No"
+      aria-label="ยืนยันการจอง"
       className={cn(shell, locked && 'pointer-events-none opacity-60')}
     >
       <button
         type="button"
         disabled={locked}
         aria-pressed={ok}
-        aria-label={ok ? 'ยกเลิก Accept' : 'Accept'}
+        aria-label={ok ? 'ยกเลิก ยอมรับ' : 'ยอมรับ'}
         className={btnClass(ok, 'ok')}
-        title={ok ? 'ยกเลิก Accept' : 'Accept'}
+        title={ok ? 'ยกเลิก ยอมรับ' : 'ยอมรับ'}
         onClick={pickOk}
       >
         <AppIcon icon={Check} size="xs" />
@@ -53,9 +59,9 @@ export function BookingSummaryOkToggle({
         type="button"
         disabled={locked}
         aria-pressed={fail}
-        aria-label={fail ? 'ยกเลิก No' : 'No'}
+        aria-label={fail ? 'ยกเลิก ไม่ผ่าน' : 'ไม่ผ่าน'}
         className={btnClass(fail, 'fail')}
-        title={fail ? 'ยกเลิก No' : 'No'}
+        title={fail ? 'ยกเลิก ไม่ผ่าน' : 'ไม่ผ่าน'}
         onClick={pickFail}
       >
         <AppIcon icon={Close} size="xs" />
