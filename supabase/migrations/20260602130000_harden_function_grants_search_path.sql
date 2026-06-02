@@ -7,11 +7,12 @@
 --    App RPC: admin_* , set_image_upload_provider only (authenticated).
 -- ---------------------------------------------------------------------------
 
--- RLS / trigger helpers — not callable via PostgREST
+-- RLS helpers: revoke anon/PUBLIC only — authenticated still needs EXECUTE for RLS.
+-- Trigger-only functions: revoke all roles (triggers run as definer).
 DO $$
 DECLARE
   sig text;
-  sigs text[] := ARRAY[
+  rls_helpers text[] := ARRAY[
     'public.is_signup_user()',
     'public.is_super_admin()',
     'public.is_job_admin()',
@@ -22,13 +23,23 @@ DECLARE
     'public.can_edit_master_data()',
     'public.auth_user_job_id()',
     'public.job_scope_allows(bigint)',
-    'public.inspector_scope_includes_booker(uuid)',
+    'public.inspector_scope_includes_booker(uuid)'
+  ];
+  trigger_only text[] := ARRAY[
     'public.handle_new_user_profile()',
     'public.guard_super_admin_role_assignment()',
     'public.sync_auth_user_avatar_to_profile()'
   ];
 BEGIN
-  FOREACH sig IN ARRAY sigs
+  FOREACH sig IN ARRAY rls_helpers
+  LOOP
+    IF to_regprocedure(sig) IS NOT NULL THEN
+      EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC', sig);
+      EXECUTE format('REVOKE ALL ON FUNCTION %s FROM anon', sig);
+      EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated', sig);
+    END IF;
+  END LOOP;
+  FOREACH sig IN ARRAY trigger_only
   LOOP
     IF to_regprocedure(sig) IS NOT NULL THEN
       EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC', sig);
