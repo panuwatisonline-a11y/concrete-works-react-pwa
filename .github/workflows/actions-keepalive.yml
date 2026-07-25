@@ -1,0 +1,42 @@
+# Keep scheduled workflows enabled by creating periodic repo activity.
+# GitHub may disable scheduled Actions after ~60 days of repository inactivity.
+name: Actions keepalive
+
+on:
+  schedule:
+    # 1st of each month 12:00 UTC — well under the ~60-day inactivity window
+    - cron: '0 12 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: actions-keepalive
+  cancel-in-progress: false
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Empty commit on keepalive branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse --verify origin/keepalive >/dev/null 2>&1; then
+            git checkout keepalive
+            git pull --ff-only origin keepalive
+          else
+            git checkout -B keepalive
+          fi
+
+          git commit --allow-empty -m "chore: keepalive scheduled Actions $(date -u +%Y-%m-%d)"
+          git push -u origin keepalive
