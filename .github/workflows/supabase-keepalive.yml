@@ -9,20 +9,42 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Ping Supabase REST API
-        run: |
-          set -euo pipefail
-          url="${SUPABASE_URL%/}/rest/v1/Status?select=id&limit=1"
-          code=$(curl -sS -o /tmp/body -w "%{http_code}" \
-            -H "apikey: ${SUPABASE_ANON_KEY}" \
-            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
-            -H "Accept: application/json" \
-            "$url")
-          echo "HTTP $code"
-          cat /tmp/body
-          test "$code" -ge 200 -a "$code" -lt 300
         env:
           SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          url="${SUPABASE_URL%/}/rest/v1/Status?select=id&limit=1"
+          max_attempts=8
+          sleep_s=15
+
+          for i in $(seq 1 "$max_attempts"); do
+            set +e
+            code=$(curl -sS -o /tmp/body -w "%{http_code}" --max-time 30 \
+              -H "apikey: ${SUPABASE_ANON_KEY}" \
+              -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+              -H "Accept: application/json" \
+              "$url")
+            curl_exit=$?
+            set -e
+
+            echo "attempt ${i}/${max_attempts}: curl_exit=${curl_exit} HTTP ${code:-none}"
+            cat /tmp/body 2>/dev/null || true
+            echo
+
+            if [ "$curl_exit" -eq 0 ] && [ "${code:-0}" -ge 200 ] && [ "${code:-0}" -lt 300 ]; then
+              echo "keepalive ok"
+              exit 0
+            fi
+
+            if [ "$i" -lt "$max_attempts" ]; then
+              echo "paused or schema cache not ready — retry in ${sleep_s}s"
+              sleep "$sleep_s"
+            fi
+          done
+
+          echo "keepalive failed after ${max_attempts} attempts"
+          exit 1
