@@ -1,73 +1,37 @@
-# React + TypeScript + Vite
+# Concrete Works (React PWA)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ระบบจัดการคำขอคอนกรีตและคุณภาพ (CST) สำหรับหน้างานและสำนักงาน — React + Vite + Supabase + PWA
 
-Currently, two official plugins are available:
+Deploy อัตโนมัติไป **Cloudflare Pages** และ **Vercel** เมื่อ push `main`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## เริ่มเร็ว
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm ci
+cp .env.example .env
+# ใส่ VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_WEB_PUSH_PUBLIC_KEY
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## คู่มือติดตั้งและย้ายระบบ
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+เอกสารครบวงจร (ติดตั้ง, secrets, Supabase, Push, Drive/R2, deploy, ย้าย repo / database):
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**[docs/SETUP.md](./docs/SETUP.md)**
+
+เอกสารอื่น:
+
+- [docs/r2-cors.md](./docs/r2-cors.md) — CORS สำหรับ Cloudflare R2
+- [PRODUCT.md](./PRODUCT.md) — บริบทผลิตภัณฑ์
+- [DESIGN.md](./DESIGN.md) — ทิศทางดีไซน์
+
+## สคริปต์หลัก
+
+| คำสั่ง | ความหมาย |
+|--------|----------|
+| `npm run dev` | พัฒนา local |
+| `npm run build` | Production build |
+| `npm run deploy:pages` | Deploy Cloudflare Pages |
+| `npm run deploy:vercel` | Deploy Vercel |
+| `npm run deploy:all` | Pages + Vercel |
+| `npm run deploy:push-stack` | Migrations + push Edge Functions |
