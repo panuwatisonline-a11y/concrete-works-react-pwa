@@ -1,33 +1,41 @@
+# Prevent Supabase Free Plan auto-pause (~7 days low DB activity).
+# Must hit Postgres (RPC write), not gateway-only health endpoints.
+# Schedule twice daily — docs say a few DB requests each day over the week.
 name: Supabase keepalive
 
 on:
   schedule:
-    # 00:00 UTC every 3 days — stays under Supabase ~7-day inactivity pause
-    - cron: '0 0 */3 * *'
+    # 06:00 and 18:00 UTC every day
+    - cron: '0 6,18 * * *'
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 12
     steps:
-      - name: Ping Supabase REST API
+      - name: Ping Supabase with DB write (RPC)
         env:
           SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
-          url="${SUPABASE_URL%/}/rest/v1/Status?select=id&limit=1"
-          max_attempts=8
-          sleep_s=15
+          base="${SUPABASE_URL%/}"
+          rpc_url="${base}/rest/v1/rpc/keepalive_ping"
+          read_url="${base}/rest/v1/keepalive?select=pinged_at&id=eq.1"
+          max_attempts=12
+          sleep_s=20
 
           for i in $(seq 1 "$max_attempts"); do
             set +e
-            code=$(curl -sS -o /tmp/body -w "%{http_code}" --max-time 30 \
+            code=$(curl -sS -o /tmp/body -w "%{http_code}" --max-time 45 \
+              -X POST \
               -H "apikey: ${SUPABASE_ANON_KEY}" \
               -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
               -H "Accept: application/json" \
-              "$url")
+              -H "Content-Type: application/json" \
+              -d '{}' \
+              "$rpc_url")
             curl_exit=$?
             set -e
 
@@ -36,15 +44,31 @@ jobs:
             echo
 
             if [ "$curl_exit" -eq 0 ] && [ "${code:-0}" -ge 200 ] && [ "${code:-0}" -lt 300 ]; then
-              echo "keepalive ok"
-              exit 0
+              # Confirm the row is readable (proves PostgREST + RLS path)
+              set +e
+              read_code=$(curl -sS -o /tmp/read-body -w "%{http_code}" --max-time 30 \
+                -H "apikey: ${SUPABASE_ANON_KEY}" \
+                -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+                -H "Accept: application/json" \
+                "$read_url")
+              set -e
+              echo "verify read HTTP ${read_code:-none}"
+              cat /tmp/read-body 2>/dev/null || true
+              echo
+              if [ "${read_code:-0}" -ge 200 ] && [ "${read_code:-0}" -lt 300 ] \
+                && grep -q 'pinged_at' /tmp/read-body; then
+                echo "keepalive ok (DB write + read)"
+                exit 0
+              fi
+              echo "RPC succeeded but verify read failed — will retry"
             fi
 
             if [ "$i" -lt "$max_attempts" ]; then
-              echo "paused or schema cache not ready — retry in ${sleep_s}s"
+              echo "paused, DNS, or schema not ready — retry in ${sleep_s}s"
               sleep "$sleep_s"
             fi
           done
 
           echo "keepalive failed after ${max_attempts} attempts"
+          echo "If DNS never resolves, resume the project in Supabase Dashboard first."
           exit 1

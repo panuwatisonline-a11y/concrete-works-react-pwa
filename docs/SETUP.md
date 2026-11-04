@@ -233,7 +233,8 @@ SUPABASE_PROJECT_REF=<YOUR_REF> npm run deploy:push-stack
 ### 5.5 Keepalive (กัน pause จาก inactivity)
 
 Workflow: `.github/workflows/supabase-keepalive.yml`  
-ยิง REST ทุก 3 วันด้วย anon key — ต้องการ secrets `VITE_SUPABASE_URL` และ `VITE_SUPABASE_ANON_KEY`
+เรียก RPC `keepalive_ping` (เขียน timestamp จริงใน Postgres) วันละ 2 ครั้ง — ต้องการ secrets `VITE_SUPABASE_URL` และ `VITE_SUPABASE_ANON_KEY`  
+Migration: `supabase/migrations/20261104084252_keepalive_ping.sql` (ต้อง `db push` หลัง Resume โปรเจกต์)
 
 ---
 
@@ -308,7 +309,7 @@ npm run deploy:pages:preview
 |------|---------|
 | `cloudflare-pages.yml` | Deploy Pages เมื่อ push `main` |
 | `vercel-production.yml` | Deploy Vercel เมื่อ push `main` |
-| `supabase-keepalive.yml` | Ping Supabase ทุก 3 วัน |
+| `supabase-keepalive.yml` | RPC write ไป Postgres วันละ 2 ครั้ง (กัน Free Plan pause) |
 | `actions-keepalive.yml` | Empty commit บน branch `keepalive` ทุกเดือน — กัน GitHub ปิด scheduled Actions หลัง ~60 วันไม่มี activity |
 
 ### สิทธิ์ที่ต้องมีเมื่อย้าย repo
@@ -429,7 +430,7 @@ npx supabase functions deploy notify-request-change --project-ref "$SUPABASE_PRO
 | อัปโหลดรูป 403 / CORS | ตั้ง R2 CORS ตาม [r2-cors.md](./r2-cors.md) หรือ fallback ผ่าน Edge |
 | Push ไม่มา | ตรวจคู่ VAPID public/private, deploy `send-push`, permission เบราว์เซอร์, HTTPS |
 | Scheduled Actions หายไป | รัน `Actions keepalive` หรือ commit อะไรก็ได้; ตรวจว่า Actions ไม่ถูก disable |
-| Supabase ช้า/พักบนแผนฟรี | ตรวจ `Supabase keepalive` และ activity ของโปรเจกต์ |
+| Supabase พักบนแผนฟรี | Resume ใน Dashboard ก่อน แล้ว `supabase db push` + รัน `Supabase keepalive`; ตรวจว่า RPC `keepalive_ping` ใช้ได้ |
 | Deploy Vercel ข้าม step | ไม่ได้ตั้ง `VERCEL_TOKEN` — ตั้งครบ `VERCEL_*` สามตัว |
 | `db push` / functions deploy ชี้โปรเจกต์ผิด | ตรวจ `supabase link` และ `--project-ref` |
 
